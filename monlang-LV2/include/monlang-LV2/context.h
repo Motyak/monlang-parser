@@ -1,8 +1,8 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include <monlang-LV1/ProgramSentence.h>
-#include <monlang-LV1/Term.h>
+struct ProgramSentence;
+struct Term;
 
 #include <any>
 
@@ -14,6 +14,7 @@ struct context_t {
     bool& fallthrough; // false initialized
 
     context_t();
+    context_t(std::any, ProgramSentence&, Term&, bool&);
 };
 
 #endif // CONTEXT_H

@@ -1,5 +1,7 @@
 include utils.mk # buildmacros, askmake, not, shell_onrun, shouldrebuild
 
+export CXX := ccache g++
+
 SHELL := /bin/bash
 RM := rm -rf
 CXXFLAGS := --std=c++23 -Wall -Wextra -Og -ggdb3 -I include -I monlang-LV1
@@ -18,7 +20,7 @@ Rvalue \
 RvalueStatement \
 Statement \
 
-OBJS := $(ENTITIES:%=obj/%.o) obj/common.o
+OBJS := $(ENTITIES:%=obj/%.o) obj/common.o obj/context.o obj/context_init.o
 DEPS := $(ENTITIES:%=.deps/%.d) .deps/common.d
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
