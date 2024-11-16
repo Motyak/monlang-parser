@@ -1,6 +1,8 @@
 #ifndef RVALUE_H
 #define RVALUE_H
 
+#include <monlang-LV1/Term.h>
+
 #include <variant>
 
 struct Operation;
@@ -18,5 +20,7 @@ using Rvalue = std::variant<
     Literal*,
     Lvalue*
 >;
+
+Rvalue buildRvalue(const Term&);
 
 #endif // RVALUE_H
