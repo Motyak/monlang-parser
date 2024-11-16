@@ -1,6 +1,8 @@
 #ifndef RVALUE_H
 #define RVALUE_H
 
+#include <monlang-LV2/context.h>
+
 #include <monlang-LV1/Term.h>
 
 #include <variant>
@@ -21,6 +23,6 @@ using Rvalue = std::variant<
     Lvalue*
 >;
 
-Rvalue buildRvalue(const Term&);
+Rvalue buildRvalue(const Term&, context_t = context_t{});
 
 #endif // RVALUE_H

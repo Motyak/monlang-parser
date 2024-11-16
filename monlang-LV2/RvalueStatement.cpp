@@ -3,8 +3,8 @@
 
 #include <utils/assert-utils.h>
 
-RvalueStatement buildRvalueStatement(const ProgramSentence& sentence) {
+RvalueStatement buildRvalueStatement(const ProgramSentence& sentence, context_t cx) {
     ASSERT (sentence.programWords.size() > 0);
-    auto term = toTerm(sentence);
-    return RvalueStatement{buildRvalue(term)};
+    cx.term = toTerm(sentence);
+    return RvalueStatement{buildRvalue(cx.term, cx)};
 }

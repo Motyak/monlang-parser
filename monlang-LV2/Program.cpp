@@ -2,10 +2,9 @@
 
 #include <utils/loop-utils.h>
 
-LV2::Program consumeProgram(LV1::Program& prog) {
-    std::vector<Statement> statements;
+LV2::Program consumeProgram(LV1::Program& prog, context_t cx) {
     until (prog.sentences.empty()) {
-        statements.push_back(consumeStatement(prog));
+        cx.statements.push_back(consumeStatement(prog, cx));
     }
-    return LV2::Program{statements};
+    return LV2::Program{cx.statements};
 }

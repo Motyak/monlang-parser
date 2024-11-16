@@ -4,7 +4,7 @@
 
 #include <utils/assert-utils.h>
 
-Statement consumeStatement(LV1::Program& prog) {
+Statement consumeStatement(LV1::Program& prog, context_t cx) {
     ASSERT (prog.sentences.size() > 0);
     auto peekedSentence = prog.sentences[0];
 
@@ -14,6 +14,7 @@ Statement consumeStatement(LV1::Program& prog) {
 
     // ...
 
-    // fall-through statement
-    return move_to_heap(buildRvalueStatement(consumeSentence(prog)));
+    /* fall-through statement */
+    cx.sentence = consumeSentence(prog);
+    return move_to_heap(buildRvalueStatement(cx.sentence, cx));
 }

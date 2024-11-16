@@ -1,6 +1,8 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
+#include <monlang-LV2/context.h>
+
 #include <monlang-LV1/Program.h>
 
 #include <variant>
@@ -46,6 +48,6 @@ using Statement = std::variant<
     RvalueStatement* // expression on a single program sentence
 >;
 
-Statement consumeStatement(LV1::Program&);
+Statement consumeStatement(LV1::Program&, context_t = context_t{});
 
 #endif // STATEMENT_H
