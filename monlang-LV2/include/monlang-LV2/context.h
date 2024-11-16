@@ -8,10 +8,10 @@
 
 struct context_t {
     std::any statements; // pre-allocated std::vector<Statement>*
-    ProgramSentence sentence;
-    Term term;
+    ProgramSentence& sentence;
+    Term& term;
 
-    bool fallthrough; // false initialized
+    bool& fallthrough; // false initialized
 
     context_t();
 };

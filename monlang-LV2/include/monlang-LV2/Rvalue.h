@@ -23,6 +23,6 @@ using Rvalue = std::variant<
     Lvalue*
 >;
 
-Rvalue buildRvalue(const Term&, context_t = context_t{});
+Rvalue buildRvalue(const Term&, const context_t& = context_t{});
 
 #endif // RVALUE_H

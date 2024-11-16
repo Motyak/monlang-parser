@@ -48,6 +48,6 @@ using Statement = std::variant<
     RvalueStatement* // expression on a single program sentence
 >;
 
-Statement consumeStatement(LV1::Program&, context_t = context_t{});
+Statement consumeStatement(LV1::Program&, const context_t& = context_t{});
 
 #endif // STATEMENT_H

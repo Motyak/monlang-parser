@@ -10,6 +10,6 @@ struct RvalueStatement {
     Rvalue rvalue;
 };
 
-RvalueStatement buildRvalueStatement(const ProgramSentence&, context_t = context_t{});
+RvalueStatement buildRvalueStatement(const ProgramSentence&, const context_t& = context_t{});
 
 #endif

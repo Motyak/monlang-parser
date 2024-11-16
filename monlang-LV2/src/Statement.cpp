@@ -4,10 +4,10 @@
 
 #include <utils/assert-utils.h>
 
-Statement consumeStatement(LV1::Program& prog, context_t cx) {
+Statement consumeStatement(LV1::Program& prog, const context_t& cx) {
     auto& sentence = cx.sentence;
     ASSERT (prog.sentences.size() > 0);
-    ASSERT (sentence.programWords.empty());
+    ASSERT (sentence.programWords.empty()); //
 
     auto peekedSentence = prog.sentences[0];
 

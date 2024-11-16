@@ -17,6 +17,6 @@ struct Program {
 
 } // LV2::
 
-LV2::Program consumeProgram(LV1::Program&, context_t = context_t{});
+LV2::Program consumeProgram(LV1::Program&, const context_t& = context_t{});
 
 #endif // LV2_PROGRAM_H
