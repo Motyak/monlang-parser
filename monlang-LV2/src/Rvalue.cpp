@@ -3,8 +3,9 @@
 #include <utils/assert-utils.h>
 
 Rvalue buildRvalue(const Term& term, context_t cx) {
+    auto& fallthrough = cx.fallthrough;
     ASSERT (term.words.size() > 0);
-    ASSERT (cx.fallthrough == false);
+    ASSERT (fallthrough == false);
 
     // if (term =~ "RVALUE (BINARY-OPERATOR)*"_) {
     //     return buildOperation(term);
@@ -13,6 +14,6 @@ Rvalue buildRvalue(const Term& term, context_t cx) {
     // ...
 
     /* reached fall-through */
-    cx.fallthrough = true;
+    fallthrough = true;
     return Rvalue(); // return stub
 }

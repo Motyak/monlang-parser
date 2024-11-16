@@ -5,8 +5,10 @@
 #include <utils/assert-utils.h>
 
 Statement consumeStatement(LV1::Program& prog, context_t cx) {
+    auto& sentence = cx.sentence;
     ASSERT (prog.sentences.size() > 0);
-    ASSERT (cx.sentence.programWords.empty());
+    ASSERT (sentence.programWords.empty());
+
     auto peekedSentence = prog.sentences[0];
 
     // if (peekedSentence =~ "LVALUE Atom<`:=`> RVALUE"_) {
@@ -16,6 +18,6 @@ Statement consumeStatement(LV1::Program& prog, context_t cx) {
     // ...
 
     /* fall-through statement */
-    cx.sentence = consumeSentence(prog);
-    return move_to_heap(buildRvalueStatement(cx.sentence, cx));
+    sentence = consumeSentence(prog);
+    return move_to_heap(buildRvalueStatement(sentence, cx));
 }

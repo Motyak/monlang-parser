@@ -4,8 +4,10 @@
 #include <utils/assert-utils.h>
 
 RvalueStatement buildRvalueStatement(const ProgramSentence& sentence, context_t cx) {
+    auto& term = cx.term;
     ASSERT (sentence.programWords.size() > 0);
-    ASSERT (cx.term.words.empty());
-    cx.term = toTerm(sentence);
-    return RvalueStatement{buildRvalue(cx.term, cx)};
+    ASSERT (term.words.empty());
+
+    term = toTerm(sentence);
+    return RvalueStatement{buildRvalue(term, cx)};
 }

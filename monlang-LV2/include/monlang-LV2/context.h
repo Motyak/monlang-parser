@@ -1,19 +1,19 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include <monlang-LV2/Statement.h>
-
 #include <monlang-LV1/ProgramSentence.h>
 #include <monlang-LV1/Term.h>
 
-#include <vector>
+#include <any>
 
 struct context_t {
-    std::vector<Statement> statements;
+    std::any statements; // pre-allocated std::vector<Statement>*
     ProgramSentence sentence;
     Term term;
 
-    bool fallthrough = false;
+    bool fallthrough; // false initialized
+
+    context_t();
 };
 
 #endif // CONTEXT_H
