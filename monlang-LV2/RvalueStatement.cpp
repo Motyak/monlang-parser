@@ -5,6 +5,7 @@
 
 RvalueStatement buildRvalueStatement(const ProgramSentence& sentence, context_t cx) {
     ASSERT (sentence.programWords.size() > 0);
+    ASSERT (cx.term.words.empty());
     cx.term = toTerm(sentence);
     return RvalueStatement{buildRvalue(cx.term, cx)};
 }

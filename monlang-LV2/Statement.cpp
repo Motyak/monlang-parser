@@ -6,6 +6,7 @@
 
 Statement consumeStatement(LV1::Program& prog, context_t cx) {
     ASSERT (prog.sentences.size() > 0);
+    ASSERT (cx.sentence.programWords.empty());
     auto peekedSentence = prog.sentences[0];
 
     // if (peekedSentence =~ "LVALUE Atom<`:=`> RVALUE"_) {
