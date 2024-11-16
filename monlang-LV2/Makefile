@@ -21,10 +21,11 @@ RvalueStatement \
 Statement \
 
 OBJS := $(ENTITIES:%=obj/%.o) obj/common.o obj/context.o obj/context_init.o
-DEPS := $(ENTITIES:%=.deps/%.d) .deps/common.d
+DEPS := $(ENTITIES:%=.deps/%.d) .deps/common.d .deps/context.d .deps/context_init.d
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
+TEST_OBJS = $(TEST_FILENAMES:%=obj/test/%.o)
 TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
 LIB_OBJ_DIRS := $(foreach lib,$(wildcard lib/*/),$(lib:%/=%)/obj) # for cleaning
@@ -49,8 +50,12 @@ mrproper:
 $(OBJS): obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
-$(TEST_BINS): bin/test/%.elf: src/test/%.cpp $(OBJS) monlang-LV1/monlang-LV1.a lib/test-libs.a
-	$(CXX) -o $@ $< $(OBJS) monlang-LV1/monlang-LV1.a lib/test-libs.a $(CXXFLAGS_TEST) $(DEPFLAGS_TEST) $(LDFLAGS) $(LDLIBS)
+$(TEST_OBJS): obj/test/%.o: src/test/%.cpp
+	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)
+
+# test-libs.a must appear before monlang-LV1.a because montree depends on LV1
+$(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/test-libs.a monlang-LV1/monlang-LV1.a
+	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 -include $(DEPS) $(TEST_DEPS)
 
@@ -80,7 +85,7 @@ lib/montree/obj/montree.o:
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-$(call shell_onrun, mkdir -p obj obj/test .deps/test bin/test $(LIB_OBJ_DIRS))
+$(call shell_onrun, mkdir -p obj/release obj/test .deps/test bin/test $(LIB_OBJ_DIRS))
 
 ## debug settings ##
 $(call shell_onrun, [ ! -e bin/test/.gdbinit ] && cp .gdbinit bin/test/.gdbinit)
