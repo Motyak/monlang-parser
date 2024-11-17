@@ -91,5 +91,5 @@ $(call shell_onrun, mkdir -p obj/release obj/test .deps/test bin/test $(LIB_OBJ_
 $(call shell_onrun, [ ! -e bin/test/.gdbinit ] && cp .gdbinit bin/test/.gdbinit)
 $(call shell_onrun, grep -qs '^set auto-load safe-path /$$' ~/.gdbinit || echo "set auto-load safe-path /" >> ~/.gdbinit)
 
-.DELETE_ON_ERROR:
+# .DELETE_ON_ERROR:
 .SUFFIXES:
