@@ -1,33 +1,30 @@
-
 Module monlang-LV1
-  -> fournit l'interface monlang-LV1.h
-  -> fournit les objets de monlang-LV1.h
-    -> utilise l'interface monlang-LV1.h
+  -> fournit les interfaces dist/monlang-LV1/ast/**/*.h utilisée par le main de monlang-LV2
+  -> fournit les interfaces dist/monlang-LV1/**/*.h utilisées par montree-LV1
+  -> fournit la librarie dist/monlang-LV1.a utilisée par le main de monlang-LV2 et monlang-parser
+    -> fournit les objets obj/release/*.o de monlang-LV1/**/*.h
   -> build binaire tests
     -> utilise les objets de montree-LV1.h dans montree.o
-    -> utilise les objets de monlang-LV1.h
+    -> utilise les objets de monlang-LV1/**/*.h
 
 Module monlang-LV2
-  -> fournit l'interface monlang-LV2.h
-    -> utilise l'interface de monlang-LV1.h
-  -> fournit les objets de monlang-LV2.h
-    -> utilise l'interface de monlang-LV1.h et monlang-LV2.h
+  -> fournit les interfaces monlang-LV2/**/*.h
+  -> fournit les objets de monlang-LV2/**/*.h
+    -> utilise l'interface de dist/monlang-LV1/ast/**/*.h et monlang-LV2/**/*.h
   -> build binaire tests
     -> utilise les objets de montree-LV2.h dans montree.o
-    -> utilise les objets de monlang-LV1.h et monlang-LV2.h
+    -> utilise les objets de monlang-LV1/ast/**/*.h et monlang-LV2/**/*.h
 
 Lib montree
   -> fournit l'interface montree-LV1.h
-    -> utilise l'interface monlang-LV1.h
+    -> utilise les interfaces monlang-LV1/**/*.h
   -> fournit l'interface montree-LV2.h
-    -> utilise l'interface monlang-LV1.h et monlang-LV2.h
+    -> utilise les interfaces monlang-LV1/ast/**/*.h et monlang-LV2/**/*.h
   -> fournit les objets de montree-LV1.h et montree-LV2.h dans montree.o
-    -> utilise l'interface de monlang-LV1.h et monlang-LV2.h
+    -> utilise les interfaces de monlang-LV1/**/*.h et monlang-LV2/**/*.h
 
 Module monlang-parser
   -> fournit monlang-parser.h
   -> fournit les objects de monlang-parser.h
-    -> utilise l'interface monlang-LV1.h et monlang-LV2.h
-  -> fournit les objets de monlang-LV1.h et monlang-LV2.h
-
----
+    -> utilise les interfaces de monlang-LV1/**/*.h et monlang-LV2/**/*.h
+  -> fournit les objets de monlang-LV1/**/*.h et monlang-LV2/**/*.h
