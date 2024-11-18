@@ -4,7 +4,7 @@
 #include <monlang-LV2/Rvalue.h>
 #include <monlang-LV2/context.h>
 
-#include <monlang-LV1/ProgramSentence.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 struct RvalueStatement {
     Rvalue rvalue;

@@ -3,7 +3,7 @@
 
 #include <monlang-LV2/context.h>
 
-#include <monlang-LV1/Term.h>
+#include <monlang-LV1/ast/Term.h>
 
 #include <variant>
 

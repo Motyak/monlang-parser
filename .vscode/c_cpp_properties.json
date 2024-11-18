@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/monlang-LV2/include/**",
-                "${workspaceFolder}/montree/include/**"
+                "${workspaceFolder}/montree/include/**",
+                "${workspaceFolder}/monlang-LV1/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

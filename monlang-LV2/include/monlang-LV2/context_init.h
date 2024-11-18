@@ -4,8 +4,8 @@
 #include <monlang-LV2/Statement.h>
 #include <monlang-LV2/context.h>
 
-#include <monlang-LV1/ProgramSentence.h>
-#include <monlang-LV1/Term.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
+#include <monlang-LV1/ast/Term.h>
 
 struct context_init_t {
     std::vector<Statement> statements;

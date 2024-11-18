@@ -3,6 +3,7 @@
 #include <monlang-LV2/common.h>
 
 #include <utils/assert-utils.h>
+#include <utils/mem-utils.h>
 
 Statement consumeStatement(LV1::Program& prog, const context_t& cx) {
     auto& sentence = cx.sentence;

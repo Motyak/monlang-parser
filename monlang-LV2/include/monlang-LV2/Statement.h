@@ -3,7 +3,7 @@
 
 #include <monlang-LV2/context.h>
 
-#include <monlang-LV1/Program.h>
+#include <monlang-LV1/ast/Program.h>
 
 #include <variant>
 

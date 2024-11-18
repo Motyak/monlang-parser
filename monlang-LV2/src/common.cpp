@@ -1,6 +1,7 @@
 #include <monlang-LV2/common.h>
 
 #include <utils/assert-utils.h>
+#include <utils/variant-utils.h>
 
 ProgramSentence consumeSentence(LV1::Program& prog) {
     ASSERT (prog.sentences.size() > 0);

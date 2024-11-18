@@ -1,9 +1,8 @@
 #ifndef LV2_COMMON_H
 #define LV2_COMMON_H
 
-#include <monlang-LV1/Program.h>
-#include <monlang-LV1/ProgramSentence.h>
-#include <monlang-LV1/Term.h>
+#include <monlang-LV1/ast/Program.h>
+#include <monlang-LV1/ast/Term.h>
 
 ProgramSentence consumeSentence(LV1::Program&);
 
