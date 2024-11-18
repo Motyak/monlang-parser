@@ -1,5 +1,4 @@
 #include "PrintLV1.cpp"
-#include "Build.cpp"
 #include "PrintLV2.cpp"
 
 #include <montree/montree-LV1.h>
@@ -18,11 +17,6 @@ std::string montree::astToString(LV1::Ast_ ast, int TAB_SIZE) {
     return res;
 }
 
-LV1::Ast montree::stringToAst(std::string str, int TAB_SIZE) {
-    ; // todo
-    // uses Build()
-}
-
 std::string montree::astToString(LV2::Ast ast, int TAB_SIZE) {
     std::ostringstream oss;
     LV2::visitAst(PrintLV2(oss, TAB_SIZE), ast);
@@ -32,4 +26,19 @@ std::string montree::astToString(LV2::Ast ast, int TAB_SIZE) {
         res.pop_back();
     }
     return res;
+}
+
+LV1::Program montree::buildProgram(std::string str, int TAB_SIZE) {
+    //todo
+    return LV1::Program{};
+}
+
+ProgramSentence montree::buildProgramSentence(std::string str, int TAB_SIZE) {
+    // todo
+    return ProgramSentence{};
+}
+
+ProgramWord montree::buildProgramWord(std::string str, int TAB_SIZE) {
+    // todo
+    return ProgramWord{};
 }

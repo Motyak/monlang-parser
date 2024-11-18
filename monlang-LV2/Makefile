@@ -54,7 +54,7 @@ $(TEST_OBJS): obj/test/%.o: src/test/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)
 
 # test-libs.a must appear before monlang-LV1.a because montree depends on LV1
-$(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/test-libs.a monlang-LV1/monlang-LV1.a
+$(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/test-libs.a lib/monlang-LV1.a
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 -include $(DEPS) $(TEST_DEPS)
