@@ -3,6 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
+                "${workspaceFolder}/monlang-LV2/include/**",
                 "${workspaceFolder}/montree/include/**"
             ],
             "defines": [],

@@ -1,5 +1,5 @@
-#ifndef PRINT_H
-#define PRINT_H
+#ifndef PRINT_LV1_H
+#define PRINT_LV1_H
 
 #include <monlang-LV1/common.h>
 #include <monlang-LV1/Program.h>
@@ -12,9 +12,9 @@
 #include <monlang-LV1/visitors/visitor.h>
 #include <stack>
 
-class Print : public AstVisitor_<void> {
+class PrintLV1 : public AstVisitor_<void> {
   public:
-    Print(std::ostream&, int TAB_SIZE=2);
+    PrintLV1(std::ostream&, int TAB_SIZE=2);
 
     void operator()(const MayFail<MayFail_<Program>>&) override;
     void operator()(const MayFail<MayFail_<ProgramSentence>>&) override;
@@ -46,4 +46,4 @@ class Print : public AstVisitor_<void> {
     MayFail<ProgramWord_> curWord; // May be a ProgramWord or a Word, so let's name it `word`
 };
 
-#endif // PRINT_H
+#endif // PRINT_LV1_H

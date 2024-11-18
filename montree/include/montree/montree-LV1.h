@@ -4,7 +4,8 @@
 #include <monlang-LV1/visitors/visitor.h>
 
 namespace montree {
-    std::string astToString(Ast_, int TAB_SIZE = 2);
+    std::string astToString(LV1::Ast_, int TAB_SIZE = 2);
+    LV1::Ast stringToAst(std::string, int TAB_SIZE = 2);
 }
 
 #endif // MONTREE_LV1_H

@@ -1,4 +1,4 @@
-#include <montree/Print.h>
+#include <montree/PrintLV1.h>
 
 #include <monlang-LV1/common.h>
 #include <monlang-LV1/Program.h>
@@ -29,7 +29,7 @@
     startOfNewLine = true
 
 #define output(a, ...) output(a, __VA_ARGS__ __VA_OPT__(,) nullptr)
-void (Print::output)(const char* strs...) {
+void (PrintLV1::output)(const char* strs...) {
     if (startOfNewLine) {
         out << std::string(currIndent * TAB_SIZE, SPACE);
     }
@@ -48,7 +48,7 @@ void (Print::output)(const char* strs...) {
 
 ///////////////////////////////////////////////////////////////
 
-void Print::operator()(const MayFail<MayFail_<Program>>& program) {
+void PrintLV1::operator()(const MayFail<MayFail_<Program>>& program) {
     const MayFail_<Program>& prog = program.val;
     outputLine(program.has_error()? "~> Program" : "-> Program");
 
@@ -73,7 +73,7 @@ void Print::operator()(const MayFail<MayFail_<Program>>& program) {
     }
 }
 
-void Print::operator()(const MayFail<MayFail_<ProgramSentence>>& programSentence) {
+void PrintLV1::operator()(const MayFail<MayFail_<ProgramSentence>>& programSentence) {
     const MayFail_<ProgramSentence>& progSentence = programSentence.val;
     output(programSentence.has_error()? "~> " : "-> ");
 
@@ -120,7 +120,7 @@ void Print::operator()(const MayFail<MayFail_<ProgramSentence>>& programSentence
     }
 }
 
-void Print::operator()(const MayFail<ProgramWord_>& word) {
+void PrintLV1::operator()(const MayFail<ProgramWord_>& word) {
     this->curWord = word; // needed by word handlers
     output(word.has_error()? "~> " : "-> ");
 
@@ -143,7 +143,7 @@ void Print::operator()(const MayFail<ProgramWord_>& word) {
 
 ///////////////////////////////////////////////////////////////
 
-void Print::operator()(MayFail_<SquareBracketsTerm>* sbt) {
+void PrintLV1::operator()(MayFail_<SquareBracketsTerm>* sbt) {
     auto curWord_ = curWord; // backup because it gets overriden by `handleTerm`..
                              // ..(which calls operator()(Word))
 
@@ -161,7 +161,7 @@ void Print::operator()(MayFail_<SquareBracketsTerm>* sbt) {
     currIndent--;
 }
 
-void Print::operator()(MayFail_<SquareBracketsGroup>* sbg) {
+void PrintLV1::operator()(MayFail_<SquareBracketsGroup>* sbg) {
     auto curWord_ = curWord; // backup because it gets overriden by `handleTerm`..
                              // ..(which calls operator()(Word))
 
@@ -201,7 +201,7 @@ void Print::operator()(MayFail_<SquareBracketsGroup>* sbg) {
     currIndent--;
 }
 
-void Print::operator()(MayFail_<ParenthesesGroup>* pg) {
+void PrintLV1::operator()(MayFail_<ParenthesesGroup>* pg) {
     auto curWord_ = curWord; // backup because it gets overriden by `handleTerm`..
                              // ..(which calls operator()(Word))
 
@@ -241,7 +241,7 @@ void Print::operator()(MayFail_<ParenthesesGroup>* pg) {
     currIndent--;
 }
 
-void Print::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
+void PrintLV1::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     auto curWord_ = curWord; // backup because it gets overriden by `handleTerm`..
                              // ..(which calls operator()(Word))
 
@@ -294,7 +294,7 @@ void Print::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     currIndent--;
 }
 
-void Print::operator()(Atom* atom) {
+void PrintLV1::operator()(Atom* atom) {
     outputLine("Atom: `", atom->value.c_str(), "`");
     if (curWord.has_error()) {
         currIndent++;
@@ -303,7 +303,7 @@ void Print::operator()(Atom* atom) {
     }
 }
 
-void Print::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
+void PrintLV1::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
     outputLine("PostfixSquareBracketsGroup");
 
     auto savedStack = numbering;
@@ -322,7 +322,7 @@ void Print::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
     numbering = savedStack;
 }
 
-void Print::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
+void PrintLV1::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     outputLine("PostfixParenthesesGroup");
 
     auto savedStack = numbering;
@@ -341,7 +341,7 @@ void Print::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     numbering = savedStack;
 }
 
-void Print::operator()(MayFail_<Association>* assoc) {
+void PrintLV1::operator()(MayFail_<Association>* assoc) {
     outputLine("Association");
 
     auto savedStack = numbering;
@@ -365,15 +365,15 @@ void Print::operator()(MayFail_<Association>* assoc) {
     numbering = savedStack;
 }
 
-void Print::operator()(auto) {
+void PrintLV1::operator()(auto) {
     outputLine("<ENTITY NOT IMPLEMENTED YET>");
 }
 
 ///////////////////////////////////////////////////////////////
 
-Print::Print(std::ostream& os, int TAB_SIZE) : TAB_SIZE(TAB_SIZE), out(os){}
+PrintLV1::PrintLV1(std::ostream& os, int TAB_SIZE) : TAB_SIZE(TAB_SIZE), out(os){}
 
-void Print::handleTerm(const MayFail<MayFail_<Term>>& term) {
+void PrintLV1::handleTerm(const MayFail<MayFail_<Term>>& term) {
     output(term.has_error()? "~> " : "-> ");
 
     if (numbering.empty()) {
