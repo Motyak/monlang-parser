@@ -1,1 +1,1 @@
-../../monlang/utils.mk
+../common/utils.mk
