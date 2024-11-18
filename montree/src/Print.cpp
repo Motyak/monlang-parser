@@ -1,20 +1,20 @@
 #include <montree/Print.h>
 
-#include <monlang/common.h>
-#include <monlang/Program.h>
-#include <monlang/ProgramSentence.h>
-#include <monlang/Term.h>
-#include <monlang/Word.h>
+#include <monlang-LV1/common.h>
+#include <monlang-LV1/Program.h>
+#include <monlang-LV1/ProgramSentence.h>
+#include <monlang-LV1/Term.h>
+#include <monlang-LV1/Word.h>
 
 /* impl only */
-#include <monlang/Atom.h>
-#include <monlang/SquareBracketsTerm.h>
-#include <monlang/SquareBracketsGroup.h>
-#include <monlang/ParenthesesGroup.h>
-#include <monlang/CurlyBracketsGroup.h>
-#include <monlang/PostfixSquareBracketsGroup.h>
-#include <monlang/PostfixParenthesesGroup.h>
-#include <monlang/Association.h>
+#include <monlang-LV1/Atom.h>
+#include <monlang-LV1/SquareBracketsTerm.h>
+#include <monlang-LV1/SquareBracketsGroup.h>
+#include <monlang-LV1/ParenthesesGroup.h>
+#include <monlang-LV1/CurlyBracketsGroup.h>
+#include <monlang-LV1/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/PostfixParenthesesGroup.h>
+#include <monlang-LV1/Association.h>
 
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>

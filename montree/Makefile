@@ -1,7 +1,6 @@
-SHELL := /bin/bash
-RM := rm -rf
 CXXFLAGS := --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 DEPFLAGS = -MMD -MP -MF .deps/$(notdir $*.d)
+RM := rm -rf
 
 ifdef CLANG
 CXX := clang++
@@ -11,23 +10,16 @@ endif
 
 ifdef X86
 CXXFLAGS += -m32
-LDFLAGS += -m32
 endif
-
-###########################################################
-
-SRC_NAMES := montree
-OBJS := $(SRC_NAMES:%=obj/%.o)
-DEPS := $(SRC_NAMES:%=.deps/%.d)
 
 ###########################################################
 
 all: build
 
-build: $(OBJS)
+build: obj/montree.o
 
 clean:
-	$(RM) $(OBJS) $(DEPS)
+	$(RM) obj/montree.o .deps/montree.d
 
 mrproper:
 	$(RM) obj .deps
@@ -37,10 +29,10 @@ mrproper:
 
 ###########################################################
 
-$(OBJS): obj/%.o: src/%.cpp
+obj/montree.o: src/montree.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
--include $(DEPS)
+-include .deps/montree.d
 
 ###########################################################
 
