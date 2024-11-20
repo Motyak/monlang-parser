@@ -1,5 +1,6 @@
 #include "PrintLV1.cpp"
 #include "PrintLV2.cpp"
+#include "LV1AstGenerator.cpp"
 
 #include <montree/montree-LV1.h>
 #include <montree/montree-LV2.h>
@@ -26,6 +27,11 @@ std::string montree::astToString(LV2::Ast ast, int TAB_SIZE) {
         res.pop_back();
     }
     return res;
+}
+
+LV1::Program montree::generateLV1Program(int seed) {
+    auto generator = LV1AstGenerator(seed);
+    return generator.generateProgram();
 }
 
 LV1::Program montree::buildProgram(std::string str, int TAB_SIZE) {

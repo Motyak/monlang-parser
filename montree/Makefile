@@ -14,12 +14,23 @@ endif
 
 ###########################################################
 
+SRC_FILENAMES := \
+montree \
+LV1AstGenerator \
+PrintLV1 \
+PrintLV2 \
+
+DEPS := $(SRC_FILENAMES:%=.deps/%.d)
+OBJS := $(SRC_FILENAMES:%=obj/%.o)
+
+###########################################################
+
 all: build
 
 build: obj/montree.o
 
 clean:
-	$(RM) obj/montree.o .deps/montree.d
+	$(RM) obj/* .deps/*
 
 mrproper:
 	$(RM) obj .deps
@@ -29,10 +40,10 @@ mrproper:
 
 ###########################################################
 
-obj/montree.o: src/montree.cpp
+$(OBJS): obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
--include .deps/montree.d
+-include $(DEPS)
 
 ###########################################################
 

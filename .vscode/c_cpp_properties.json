@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/monlang-LV2/include/**",
                 "${workspaceFolder}/montree/include/**",
-                "${workspaceFolder}/monlang-LV1/include/**"
+                "${workspaceFolder}/monlang-LV1/include/**",
+                "${workspaceFolder}/monlang-LV2/lib/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
