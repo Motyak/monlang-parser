@@ -13,6 +13,8 @@
 #include <random>
 #include <map>
 
+#define ulong(x) ((unsigned long)x)
+
 class LV1AstGenerator {
   public:
     explicit LV1AstGenerator(int seed);
@@ -35,8 +37,20 @@ class LV1AstGenerator {
 
   private:
     std::mt19937 rng;
-    std::uniform_int_distribution<long> rand;
-    std::map<std::string, long> proba;
+    std::uniform_int_distribution<unsigned long> rand;
+    std::map<std::string, unsigned long> proba;
+    bool is_parent_call = true;
+
+    // friend class RoutineRAII;
+    class RoutineRAII {
+      public:
+        RoutineRAII(LV1AstGenerator*);
+        ~RoutineRAII();
+
+      private:
+        LV1AstGenerator* gen;
+        const bool is_parent_call_val;
+    };
 };
 
 #endif // LV1_AST_GENERATOR_H
