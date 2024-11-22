@@ -72,9 +72,11 @@ Line consumeLine(TreeInputStream& tis) {
 Line peekLine(TreeInputStream& tis) {
     // save stream position
     std::streampos initial_pos = tis.input.tellg();
-    
+
     auto res = consumeLine(tis);
 
+    // reset flags if EOF reached etc..
+    tis.input.clear();
     // restore stream position
     tis.input.seekg(initial_pos);
 

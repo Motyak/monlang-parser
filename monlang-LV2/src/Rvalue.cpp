@@ -5,7 +5,6 @@
 Rvalue buildRvalue(const Term& term, const context_t& cx) {
     auto& fallthrough = cx.fallthrough;
     ASSERT (term.words.size() > 0);
-    ASSERT (fallthrough == false); //
 
     // if (term =~ "RVALUE (BINARY-OPERATOR)*"_) {
     //     return buildOperation(term);

@@ -15,9 +15,9 @@ static const std::vector<std::string> WORDS = {
     "atom"
 };
 
-static void update_word_proba(std::string key, long new_value, std::map<std::string, unsigned long>& proba) {
+static void update_word_proba(std::string key, unsigned long new_value, std::map<std::string, unsigned long>& proba) {
     ASSERT (proba.find(key) != proba.end());
-    ASSERT (0 <= new_value && new_value <= 100'000);
+    ASSERT (new_value <= 100'000);
     long diff = new_value >= proba[key]? +(new_value - proba[key]) : -(proba[key] - new_value);
     proba[key] = new_value;
 
