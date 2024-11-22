@@ -26,10 +26,6 @@ static void update_word_proba(std::string key, long new_value, std::map<std::str
 
     for (auto other_word: other_words) {
         proba[other_word] += double(-diff / other_words.size());
-        ASSERT (proba[other_word] >= 0);
-        // if (proba[other_word] < 0) {
-        //     proba[other_word] = 0;
-        // }
     }
 }
 

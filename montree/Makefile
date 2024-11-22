@@ -16,6 +16,7 @@ endif
 
 SRC_FILENAMES := \
 montree \
+LV1AstBuilder \
 LV1AstGenerator \
 PrintLV1 \
 PrintLV2 \
