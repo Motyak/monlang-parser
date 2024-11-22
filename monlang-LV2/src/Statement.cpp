@@ -1,4 +1,6 @@
 #include <monlang-LV2/Statement.h>
+
+/* impl only */
 #include <monlang-LV2/RvalueStatement.h>
 #include <monlang-LV2/common.h>
 

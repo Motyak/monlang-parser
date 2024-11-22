@@ -15,6 +15,7 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 ###########################################################
 
 ENTITIES := \
+Lvalue \
 Program \
 Rvalue \
 RvalueStatement \

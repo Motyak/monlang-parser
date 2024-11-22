@@ -7,7 +7,8 @@ LV2::Program consumeProgram(LV1::Program& prog, const context_t& cx) {
     auto& statements = *std::any_cast<std::vector<Statement>*>(cx.statements);
 
     until (prog.sentences.empty()) {
-        statements.push_back(consumeStatement(prog, cx));
+        auto statement = consumeStatement(prog, cx);
+        statements.push_back(statement);
     }
 
     return LV2::Program{statements};
