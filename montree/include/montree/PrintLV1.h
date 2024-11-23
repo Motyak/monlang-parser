@@ -18,7 +18,9 @@ class PrintLV1 : public AstVisitor_<void> {
 
     void operator()(const MayFail<MayFail_<Program>>&) override;
     void operator()(const MayFail<MayFail_<ProgramSentence>>&) override;
-    void operator()(const MayFail<ProgramWord_>& word) override;
+    void operator()(const MayFail<ProgramWord_>&) override;
+    void operator()(const MayFail<MayFail_<Term>>&) override;
+    void operator()(const MayFail<Word_>&) override;
 
     void operator()(MayFail_<SquareBracketsTerm>*);
     void operator()(MayFail_<SquareBracketsGroup>*);
@@ -35,14 +37,12 @@ class PrintLV1 : public AstVisitor_<void> {
     static constexpr int NO_NUMBERING = -1;
     const int TAB_SIZE;
 
-    void handleTerm(const MayFail<MayFail_<Term>>&);
     void output(const char* strs...);
 
     std::ostream& out;
     std::stack<int> numbering;
     bool startOfNewLine = true;
     int currIndent = 0;
-    bool areProgramWords = false;
     MayFail<ProgramWord_> curWord; // May be a ProgramWord or a Word, so let's name it `word`
 };
 

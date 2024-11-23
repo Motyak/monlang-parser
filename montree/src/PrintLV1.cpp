@@ -103,7 +103,6 @@ void PrintLV1::operator()(const MayFail<MayFail_<ProgramSentence>>& programSente
 
     int malformedProgramWords = 0;
     for (auto programWord: progSentence.programWords) {
-        areProgramWords = true;
         operator()(MayFail<ProgramWord_>(programWord));
         if (programWord.has_error()) {
             malformedProgramWords += 1;
@@ -120,8 +119,72 @@ void PrintLV1::operator()(const MayFail<MayFail_<ProgramSentence>>& programSente
     }
 }
 
-void PrintLV1::operator()(const MayFail<ProgramWord_>& word) {
-    this->curWord = word; // needed by word handlers
+void PrintLV1::operator()(const MayFail<ProgramWord_>& pw) {
+    this->curWord = pw; // needed by word handlers
+    output(pw.has_error()? "~> " : "-> ");
+
+    if (numbering.empty()) {
+        /* then, it's a stand-alone word */
+        std::visit(*this, pw.val);
+        return;
+    }
+
+    output("ProgramWord");
+    if (int n = numbering.top(); n != NO_NUMBERING) {
+        output(" #", itoa(n));
+    }
+    numbering.pop();
+    output(": ");
+
+    std::visit(*this, pw.val); // in case of malformed word,...
+                              // ...will still print its partial value
+}
+
+void PrintLV1::operator()(const MayFail<MayFail_<Term>>& term) {
+    output(term.has_error()? "~> " : "-> ");
+
+    if (numbering.empty()) {
+        outputLine("Term");
+    } else {
+        if (int n = numbering.top(); n == NO_NUMBERING) {
+            outputLine("Term");
+        } else {
+            outputLine("Term #", itoa(n));
+        }
+        numbering.pop();
+    }
+
+    if (term.val.words.size() > 0 || term.has_error()) {
+        currIndent++;
+    }
+
+    if (term.val.words.size() > 1) {
+        for (int n : range(term.val.words.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
+    int nb_of_malformed_words = 0;
+    for (auto word: term.val.words) {
+        if (word.has_error()) {
+            nb_of_malformed_words++;
+        }
+        operator()(word);
+    }
+
+    if (nb_of_malformed_words == 0 && term.has_error()) {
+        outputLine("~> ", SERIALIZE_ERR(term));
+    }
+
+    if (term.val.words.size() > 0 || term.has_error()) {
+        currIndent--;
+    }
+}
+
+void PrintLV1::operator()(const MayFail<Word_>& word) {
+    this->curWord = mayfail_cast<ProgramWord_>(word); // needed by word handlers
     output(word.has_error()? "~> " : "-> ");
 
     if (numbering.empty()) {
@@ -130,7 +193,7 @@ void PrintLV1::operator()(const MayFail<ProgramWord_>& word) {
         return;
     }
 
-    output(areProgramWords? "ProgramWord" : "Word");
+    output("Word");
     if (int n = numbering.top(); n != NO_NUMBERING) {
         output(" #", itoa(n));
     }
@@ -156,7 +219,7 @@ void PrintLV1::operator()(MayFail_<SquareBracketsTerm>* sbt) {
     }
 
     numbering.push(NO_NUMBERING);
-    handleTerm(sbt->term);
+    operator()(sbt->term);
 
     currIndent--;
 }
@@ -191,7 +254,7 @@ void PrintLV1::operator()(MayFail_<SquareBracketsGroup>* sbg) {
             if (term.has_error()) {
                 nb_of_malformed_terms++;
             }
-            handleTerm(term);
+            operator()(term);
         }
         if (nb_of_malformed_terms == 0 && curWord_.has_error()) {
             outputLine("~> ", SERIALIZE_ERR(curWord_));
@@ -231,7 +294,7 @@ void PrintLV1::operator()(MayFail_<ParenthesesGroup>* pg) {
             if (term.has_error()) {
                 nb_of_malformed_terms++;
             }
-            handleTerm(term);
+            operator()(term);
         }
         if (nb_of_malformed_terms == 0 && curWord_.has_error()) {
             outputLine("~> ", SERIALIZE_ERR(curWord_));
@@ -259,7 +322,7 @@ void PrintLV1::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     if (cbg->term) {
         auto term = cbg->term.value();
         numbering.push(NO_NUMBERING);
-        handleTerm(term);
+        operator()(term);
         if (!term.has_error() && curWord_.has_error()) {
             outputLine("~> ", SERIALIZE_ERR(curWord_));
         }
@@ -309,14 +372,13 @@ void PrintLV1::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
     auto savedStack = numbering;
     /* add `Word: ` prefix in tree */
     numbering = std::stack<int>({NO_NUMBERING});
-    areProgramWords = false;
 
     currIndent++;
-    operator()((MayFail<ProgramWord_>)wrap_pw(variant_cast(psbg->leftPart)));
+    operator()(MayFail(wrap_w(psbg->leftPart)));
     currIndent--;
 
     currIndent++;
-    operator()(mayfail_convert<ProgramWord_>(psbg->rightPart));
+    operator()(mayfail_convert<Word_>(psbg->rightPart));
     currIndent--;
 
     numbering = savedStack;
@@ -328,14 +390,13 @@ void PrintLV1::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     auto savedStack = numbering;
     /* add `Word: ` prefix in tree */
     numbering = std::stack<int>({NO_NUMBERING});
-    areProgramWords = false;
 
     currIndent++;
-    operator()((MayFail<ProgramWord_>)wrap_pw(variant_cast(ppg->leftPart)));
+    operator()(MayFail(wrap_w(ppg->leftPart)));
     currIndent--;
 
     currIndent++;
-    operator()(mayfail_convert<ProgramWord_>(ppg->rightPart));
+    operator()(mayfail_convert<Word_>(ppg->rightPart));
     currIndent--;
 
     numbering = savedStack;
@@ -348,18 +409,16 @@ void PrintLV1::operator()(MayFail_<Association>* assoc) {
 
     /* add `Word: ` prefix in tree */
     numbering = std::stack<int>({NO_NUMBERING});
-    areProgramWords = false;
 
     currIndent++;
-    operator()((MayFail<ProgramWord_>)wrap_pw(variant_cast(assoc->leftPart)));
+    operator()(MayFail(wrap_w(variant_cast(assoc->leftPart))));
     currIndent--;
 
     /* add `Word: ` prefix in tree */
     numbering = std::stack<int>({NO_NUMBERING});
-    areProgramWords = false;
 
     currIndent++;
-    operator()(mayfail_cast<ProgramWord_>(assoc->rightPart));
+    operator()(mayfail_cast<Word_>(assoc->rightPart));
     currIndent--;
 
     numbering = savedStack;
@@ -372,47 +431,3 @@ void PrintLV1::operator()(auto) {
 ///////////////////////////////////////////////////////////////
 
 PrintLV1::PrintLV1(std::ostream& os, int TAB_SIZE) : TAB_SIZE(TAB_SIZE), out(os){}
-
-void PrintLV1::handleTerm(const MayFail<MayFail_<Term>>& term) {
-    output(term.has_error()? "~> " : "-> ");
-
-    if (numbering.empty()) {
-        outputLine("Term");
-    } else {
-        if (int n = numbering.top(); n == NO_NUMBERING) {
-            outputLine("Term");
-        } else {
-            outputLine("Term #", itoa(n));
-        }
-        numbering.pop();
-    }
-
-    if (term.val.words.size() > 0 || term.has_error()) {
-        currIndent++;
-    }
-
-    if (term.val.words.size() > 1) {
-        for (int n : range(term.val.words.size(), 0)) {
-            numbering.push(n);
-        }
-    } else {
-        numbering.push(NO_NUMBERING);
-    }
-
-    int nb_of_malformed_words = 0;
-    for (auto word: term.val.words) {
-        areProgramWords = false;
-        if (word.has_error()) {
-            nb_of_malformed_words++;
-        }
-        operator()(mayfail_cast<ProgramWord_>(word));
-    }
-
-    if (nb_of_malformed_words == 0 && term.has_error()) {
-        outputLine("~> ", SERIALIZE_ERR(term));
-    }
-
-    if (term.val.words.size() > 0 || term.has_error()) {
-        currIndent--;
-    }
-}
