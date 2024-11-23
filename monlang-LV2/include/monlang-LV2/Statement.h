@@ -7,46 +7,48 @@
 
 #include <variant>
 
-struct Assignment;
-struct Accumulation;
-struct LetStatement;
-struct VarStatement;
-struct Guard;
-struct IfStatement;
-struct ForeachStatement;
-struct WhileStatement;
-struct ReturnStatement;
-struct BreakStatement;
-struct ContinueStatement;
-struct DieStatement;
+// struct Assignment;
+// struct Accumulation;
+// struct LetStatement;
+// struct VarStatement;
+// struct Guard;
+// struct IfStatement;
+// struct ForeachStatement;
+// struct WhileStatement;
+// struct ReturnStatement;
+// struct BreakStatement;
+// struct ContinueStatement;
+// struct DieStatement;
 struct RvalueStatement;
 
-using Statement = std::variant<
-    /* assignments */
-    Assignment*, // a := b
-    Accumulation*, // +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+using Statement = std::variant<RvalueStatement*>;
 
-    /* declarations */
-    LetStatement*, // let a b
-    VarStatement*, // var a b
+// using Statement = std::variant<
+//     /* assignments */
+//     Assignment*, // a := b
+//     Accumulation*, // +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
 
-    /* conditional statements */
-    Guard*, // [ <cond> ] || <jump-when-fails>
-    IfStatement*, // if..elsif..else, unless
+//     /* declarations */
+//     LetStatement*, // let a b
+//     VarStatement*, // var a b
 
-    /* loop statements */
-    ForeachStatement*, // foreach <iterable> <block>
-    WhileStatement*, // while, do..while, until, do..until
+//     /* conditional statements */
+//     Guard*, // [ <cond> ] || <jump-when-fails>
+//     IfStatement*, // if..elsif..else, unless
 
-    /* jump statements */
-    ReturnStatement*,
-    BreakStatement*,
-    ContinueStatement*,
-    DieStatement*,
+//     /* loop statements */
+//     ForeachStatement*, // foreach <iterable> <block>
+//     WhileStatement*, // while, do..while, until, do..until
 
-    // fall-through statement
-    RvalueStatement* // expression on a single program sentence
->;
+//     /* jump statements */
+//     ReturnStatement*,
+//     BreakStatement*,
+//     ContinueStatement*,
+//     DieStatement*,
+
+//     // fall-through statement
+//     RvalueStatement* // expression on a single program sentence
+// >;
 
 Statement consumeStatement(LV1::Program&, const context_t& = context_t{});
 

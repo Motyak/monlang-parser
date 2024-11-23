@@ -15,9 +15,11 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(const Statement&) override;
     void operator()(const Rvalue&) override;
 
-    void operator()(const RvalueStatement&);
+    /* statements */
+    void operator()(const RvalueStatement*);
 
-    void operator()(const Lvalue&);
+    /* rvalues */
+    void operator()(const Lvalue*);
 
     void operator()(auto); // fall-through
 
@@ -25,6 +27,8 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     const int TAB_SIZE;
 
     std::ostream& out;
+    int currIndent = 0;
+    bool startOfNewLine = true;
 };
 
 #endif // PRINT_LV2_H

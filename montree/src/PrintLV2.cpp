@@ -2,7 +2,9 @@
 
 void PrintLV2::operator()(const LV2::Program& prog) {
     out << "-> Program" << "\n";
-    operator()(prog.statements.at(0));
+    for (auto statement: prog.statements) {
+        operator()(statement);
+    }
 }
 
 void PrintLV2::operator()(const Statement& statement) {
@@ -10,17 +12,17 @@ void PrintLV2::operator()(const Statement& statement) {
     std::visit(*this, statement);
 }
 
-void PrintLV2::operator()(const RvalueStatement& rvalueStatement) {
+void PrintLV2::operator()(const RvalueStatement* rvalueStatement) {
     out << "-> RvalueStatement" << "\n";
-    operator()(rvalueStatement.rvalue);
+    operator()(rvalueStatement->rvalue);
 }
 
 void PrintLV2::operator()(const Rvalue& rvalue) {
     std::visit(*this, rvalue);
 }
 
-void PrintLV2::operator()(const Lvalue& lvalue) {
-    out << "-> Lvalue: `" << lvalue.identifier << "`\n";
+void PrintLV2::operator()(const Lvalue* lvalue) {
+    out << "-> Lvalue: `" << lvalue->identifier << "`\n";
 }
 
 void PrintLV2::operator()(auto) {

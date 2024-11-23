@@ -7,19 +7,19 @@
 
 #include <variant>
 
-struct Operation;
-struct FunctionCall;
-struct Lambda;
-struct BlockExpression;
-struct Literal;
+// struct Operation;
+// struct FunctionCall;
+// struct Lambda;
+// struct BlockExpression;
+// struct Literal;
 struct Lvalue;
 
 using Rvalue = std::variant<
-    Operation*,
-    FunctionCall*,
-    Lambda*,
-    BlockExpression*,
-    Literal*,
+    // Operation*,
+    // FunctionCall*,
+    // Lambda*,
+    // BlockExpression*,
+    // Literal*,
     Lvalue*
 >;
 

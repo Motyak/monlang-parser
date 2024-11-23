@@ -1,6 +1,9 @@
+include utils.mk # shell_onrun
+
 CXXFLAGS := --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 DEPFLAGS = -MMD -MP -MF .deps/$(notdir $*.d)
 RM := rm -rf
+ARFLAGS := rcsvD
 
 ifdef CLANG
 CXX := clang++
@@ -26,9 +29,11 @@ OBJS := $(SRC_FILENAMES:%=obj/%.o)
 
 ###########################################################
 
-all: build
+all: dist
 
-build: obj/montree.o
+build: $(OBJS)
+
+dist: dist/montree.a
 
 clean:
 	$(RM) obj/* .deps/*
@@ -37,16 +42,19 @@ mrproper:
 	$(RM) obj .deps
 
 
-.PHONY: all build clean mrproper
+.PHONY: all build dist clean mrproper
 
 ###########################################################
 
 $(OBJS): obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
+dist/montree.a: $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
 -include $(DEPS)
 
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-$(shell mkdir -p obj .deps)
+$(call shell_onrun, mkdir -p obj dist .deps)
