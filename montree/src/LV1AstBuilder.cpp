@@ -99,6 +99,8 @@ LV1::Ast LV1AstBuilder::buildAst() {
         "Program",
         "ProgramSentence",
         "ProgramWord",
+        "Term",
+        "Word",
     };
 
     auto line = peekLine(tis);
@@ -127,6 +129,14 @@ LV1::Ast LV1AstBuilder::buildAst() {
 
     else if (first_candidate_found == "ProgramWord") {
         return buildProgramWord();
+    }
+
+    else if (first_candidate_found == "Term") {
+        return buildTerm();
+    }
+
+    else if (first_candidate_found == "Word") {
+        return buildWord();
     }
 
     else {
@@ -226,11 +236,11 @@ Atom LV1AstBuilder::buildAtom() {
 }
 
 Term LV1AstBuilder::buildTerm() {
-
+    // todo
 }
 
 Word LV1AstBuilder::buildWord() {
-
+    // todo
 }
 
 SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
