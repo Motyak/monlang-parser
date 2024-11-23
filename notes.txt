@@ -1,0 +1,5 @@
+Pour lancer les tests LV1 depuis monlang/ en utilisant la nouvelle version de montree/ :
+1) renommer monlang/lib/montree en montree.bak
+2) ln -s ../../monlang-parser/montree montree
+3) make dist
+4) make test # le montree va se repackage car nouvelle version des headers "monlang-LV1" (dist)
