@@ -16,14 +16,16 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(const Rvalue&) override;
 
     /* statements */
-    void operator()(const RvalueStatement*);
+    void operator()(RvalueStatement*);
 
     /* rvalues */
-    void operator()(const Lvalue*);
+    void operator()(Lvalue*);
 
     void operator()(auto); // fall-through
 
   private:
+    void output(const char* strs...);
+
     const int TAB_SIZE;
 
     std::ostream& out;
