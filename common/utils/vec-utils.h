@@ -4,6 +4,7 @@
 #include <initializer_list>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 template <typename T>
 bool vec_contains(const std::vector<T>& vec, const T& elem) {
