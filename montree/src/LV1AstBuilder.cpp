@@ -236,11 +236,55 @@ Atom LV1AstBuilder::buildAtom() {
 }
 
 Term LV1AstBuilder::buildTerm() {
-    // todo
+    ENTERING_BUILD_ROUTINE();
+
+    consumeLine(tis); // -> Term
+
+    if (peekLine(tis).type != INCR) {
+        SHOULD_NOT_HAPPEN(); // empty term
+    }
+
+    std::vector<Word> words;
+    Line peekedLine;
+    do {
+        words.push_back(buildWord());
+        peekedLine = peekLine(tis);
+        if (peekedLine.type == INCR) {
+            SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
+        }
+    }
+    until (peekedLine.type == DECR || peekedLine.type == END);
+
+    return Term{words};
 }
 
 Word LV1AstBuilder::buildWord() {
-    // todo
+    ENTERING_BUILD_ROUTINE();
+
+    const auto CANDIDATES = std::vector<std::string>{
+        "Atom",
+    };
+
+    auto line = peekLine(tis); // -> Word...
+    auto line_content = split(line.value, LINE_PREFIX).at(1);
+    auto columns = split(line_content, ": ");
+
+    auto first_candidate_found = std::string("");
+    for (auto column: columns) {
+        if (vec_contains(CANDIDATES, column)) {
+            first_candidate_found = column;
+            break;
+        }
+    }
+    ASSERT (first_candidate_found != "");
+
+    if (first_candidate_found == "Atom") {
+        return move_to_heap(buildAtom());
+    }
+
+    else {
+        SHOULD_NOT_HAPPEN(); // bug
+    }
 }
 
 SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
@@ -270,9 +314,6 @@ SquareBracketsGroup LV1AstBuilder::buildSquareBracketsGroup() {
 CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {
 
 }
-
-
-
 
 #ifdef TREE_INPUT_STREAM_MAIN
 // g++ -D TREE_INPUT_STREAM_MAIN -o tis_main.elf src/LV1AstBuilder.cpp --std=c++23 -Wall -Wextra -I include
