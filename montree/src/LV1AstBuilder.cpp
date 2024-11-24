@@ -263,6 +263,7 @@ Word LV1AstBuilder::buildWord() {
 
     const auto CANDIDATES = std::vector<std::string>{
         "Atom",
+        "ParenthesesGroup",
     };
 
     auto line = peekLine(tis); // -> Word...
@@ -282,9 +283,36 @@ Word LV1AstBuilder::buildWord() {
         return move_to_heap(buildAtom());
     }
 
+    else if (first_candidate_found == "ParenthesesGroup") {
+        return move_to_heap(buildParenthesesGroup());
+    }
+
     else {
         SHOULD_NOT_HAPPEN(); // bug
     }
+}
+
+ParenthesesGroup LV1AstBuilder::buildParenthesesGroup() {
+    ENTERING_BUILD_ROUTINE();
+
+    auto line = consumeLine(tis); // -> ... ParenthesesGroup
+    auto peekedLine = peekLine(tis);
+
+    if (peekedLine.type != INCR) {
+        return ParenthesesGroup{};
+    }
+
+    std::vector<Term> terms;
+    do {
+        terms.push_back(buildTerm());
+        peekedLine = peekLine(tis);
+        if (peekedLine.type == INCR) {
+            SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildTerm()
+        }
+    }
+    until (peekedLine.type == DECR || peekedLine.type == END);
+
+    return ParenthesesGroup{terms};
 }
 
 SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
@@ -300,10 +328,6 @@ PostfixParenthesesGroup LV1AstBuilder::buildPostfixParenthesesGroup() {
 }
 
 PostfixSquareBracketsGroup LV1AstBuilder::buildPostfixSquareBracketsGroup() {
-
-}
-
-ParenthesesGroup LV1AstBuilder::buildParenthesesGroup() {
 
 }
 
