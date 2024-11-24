@@ -3,3 +3,12 @@ Pour lancer les tests LV1 depuis monlang/ en utilisant la nouvelle version de mo
 2) ln -s ../../monlang-parser/montree montree
 3) make dist
 4) make test # le montree va se repackage car nouvelle version des headers "monlang-LV1" (dist)
+
+---
+
+Pour rajouter une Rvalue dans LV2:
+- Ajouter dans Makefile la translation unit
+- Ajouter .h dans include/, .cpp dans src/ (si nécessaire)
+- Ajouter le variant dans Rvalue.h
+- Ajouter peekXXX et buildXXX + include XXX dans Rvalue.cpp
+- Ajouter include XXX + function overload pour XXX dans .h et .cpp de PrintLV2.cpp dans montree/

@@ -2,6 +2,7 @@
 
 /* impl only */
 #include <monlang-LV2/Lvalue.h>
+#include <monlang-LV2/Literal.h>
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 
@@ -12,6 +13,7 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
     auto& fallthrough = cx.fallthrough;
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
+    Word word;
 
     BEGIN:
 
@@ -19,21 +21,33 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
     //     return buildOperation(term);
     // }
 
+    // since 'Operation' is the only Rvalue with multiple words..
+    // ..we already know none will possibly match
+    if (term_.words.size() > 1) {
+        goto FALLTHROUGH;
+    }
+    word = term_.words[0];
+
     // ...
 
-    if (peekLvalue(term_)) {
-        return move_to_heap(buildLvalue(term_));
+    if (peekLiteral(word)) {
+        return move_to_heap(buildLiteral(word));
+    }
+
+    if (peekLvalue(word)) {
+        return move_to_heap(buildLvalue(word));
     }
 
     // if grouped rvalue => unwrap then go back to beginning
-    if (term_.words.size() == 1 && std::holds_alternative<ParenthesesGroup*>(term_.words[0])) {
-        auto group = *std::get<ParenthesesGroup*>(term_.words[0]);
+    if (std::holds_alternative<ParenthesesGroup*>(word)) {
+        auto group = *std::get<ParenthesesGroup*>(word);
         if (group.terms.size() == 1) {
             term_ = group.terms[0];
-            goto BEGIN;
+            goto BEGIN; // prevent unnecessary recursive call
         }
     }
 
+    FALLTHROUGH:
     /* reached fall-through */
     fallthrough = true;
     return Rvalue(); // return stub

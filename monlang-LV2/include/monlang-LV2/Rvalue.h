@@ -11,7 +11,7 @@
 // struct FunctionCall;
 // struct Lambda;
 // struct BlockExpression;
-// struct Literal;
+struct Literal;
 struct Lvalue;
 
 using Rvalue = std::variant<
@@ -19,7 +19,7 @@ using Rvalue = std::variant<
     // FunctionCall*,
     // Lambda*,
     // BlockExpression*,
-    // Literal*,
+    Literal*,
     Lvalue*
 >;
 

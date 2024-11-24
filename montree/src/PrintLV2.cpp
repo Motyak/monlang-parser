@@ -58,6 +58,10 @@ void PrintLV2::operator()(const Rvalue& rvalue) {
     std::visit(*this, rvalue);
 }
 
+void PrintLV2::operator()(Literal* literal) {
+    outputLine("Literal: `", literal->str.c_str(), "`");
+}
+
 void PrintLV2::operator()(Lvalue* lvalue) {
     outputLine("Lvalue: `", lvalue->identifier.c_str(), "`");
 }

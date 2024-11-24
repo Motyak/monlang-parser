@@ -5,15 +5,13 @@
 
 #include <utils/assert-utils.h>
 
-bool peekLvalue(const Term& term) {
-    return term.words.size() == 1
-            && std::holds_alternative<Atom*>(term.words[0]);
+bool peekLvalue(const Word& word) {
+    return std::holds_alternative<Atom*>(word);
 }
 
-Lvalue buildLvalue(const Term& term) {
-    ASSERT (term.words.size() == 1);
-    ASSERT (std::holds_alternative<Atom*>(term.words[0]));
+Lvalue buildLvalue(const Word& word) {
+    ASSERT (std::holds_alternative<Atom*>(word));
 
-    auto atom = *std::get<Atom*>(term.words[0]);
+    auto atom = *std::get<Atom*>(word);
     return Lvalue{atom.value};
 }

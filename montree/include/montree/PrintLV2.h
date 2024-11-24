@@ -3,6 +3,7 @@
 
 #include <monlang-LV2/RvalueStatement.h>
 #include <monlang-LV2/Lvalue.h>
+#include <monlang-LV2/Literal.h>
 
 /* interface only */
 #include <monlang-LV2/visitors/visitor.h>
@@ -19,6 +20,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(RvalueStatement*);
 
     /* rvalues */
+    void operator()(Literal*);
     void operator()(Lvalue*);
 
     void operator()(auto); // fall-through
