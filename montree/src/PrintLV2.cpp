@@ -58,6 +58,27 @@ void PrintLV2::operator()(const Rvalue& rvalue) {
     std::visit(*this, rvalue);
 }
 
+void PrintLV2::operator()(Lambda* lambda) {
+    outputLine("Lambda");
+    currIndent++;
+
+    /* parameters */
+    for (auto parameter: lambda->parameters) {
+        //TODO: #1 #2 #.. when multiple parameters
+        outputLine("-> parameter: `", parameter.c_str(), "`");
+    }
+
+    /* body + body statements */
+    outputLine("-> body");
+    currIndent++;
+    for (auto statement: lambda->body.statements) {
+        operator()(statement);
+    }
+    currIndent--;
+
+    currIndent--;
+}
+
 void PrintLV2::operator()(BlockRvalue* block) {
     outputLine("BlockRvalue");
     currIndent++;

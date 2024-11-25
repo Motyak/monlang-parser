@@ -91,3 +91,36 @@ TEST_CASE ("block from curly brackets group", "[test-2114][rvalue]") {
     REQUIRE (!context.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("lambda from pg-cbg association", "[test-2115][rvalue]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Association
+       |    -> Word: ParenthesesGroup
+       |      -> Term
+       |        -> Word: Atom: `x`
+       |    -> Word: CurlyBracketsGroup
+       |      -> ProgramSentence
+       |        -> ProgramWord: Atom: `x`
+    )EOF");
+
+    /* will make '-> parameter #1 #2 #...' when multiple parameters */
+    auto expect = tommy_str(R"EOF(
+       |-> Rvalue: Lambda
+       |  -> parameter: `x`
+       |  -> body
+       |    -> Statement: RvalueStatement
+       |      -> Rvalue: Lvalue: `x`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto context = context_init_t{};
+    auto output = buildRvalue(input_term, context);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (output_str == expect);
+}

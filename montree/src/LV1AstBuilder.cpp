@@ -4,11 +4,14 @@
 #include <utils/str-utils.h>
 #include <utils/assert-utils.h>
 #include <utils/vec-utils.h>
-#include <utils/loop-utils.h>
+#include <utils/variant-utils.h>
 
 #include <string>
 #include <iostream>
 #include <sstream>
+
+#define until(x) while(!(x))
+#define unless(x) if(!(x))
 
 namespace
 {
@@ -72,6 +75,8 @@ Line consumeLine(TreeInputStream& tis) {
 Line peekLine(TreeInputStream& tis) {
     // save stream position
     std::streampos initial_pos = tis.input.tellg();
+    // save prev_tab_size
+    int prev_tab_size = tis.prev_tab_size;
 
     auto res = consumeLine(tis);
 
@@ -79,6 +84,8 @@ Line peekLine(TreeInputStream& tis) {
     tis.input.clear();
     // restore stream position
     tis.input.seekg(initial_pos);
+    // restore prev_tab_size
+    tis.prev_tab_size = prev_tab_size;
 
     return res;
 }
@@ -265,6 +272,7 @@ Word LV1AstBuilder::buildWord() {
         "Atom",
         "ParenthesesGroup",
         "CurlyBracketsGroup",
+        "Association",
     };
 
     auto line = peekLine(tis); // -> Word...
@@ -290,6 +298,10 @@ Word LV1AstBuilder::buildWord() {
 
     else if (first_candidate_found == "CurlyBracketsGroup") {
         return move_to_heap(buildCurlyBracketsGroup());
+    }
+
+    else if (first_candidate_found == "Association") {
+        return move_to_heap(buildAssociation());
     }
 
     else {
@@ -343,11 +355,40 @@ CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {
     return CurlyBracketsGroup{sentences};
 }
 
-SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
+Association LV1AstBuilder::buildAssociation() {
+    ENTERING_BUILD_ROUTINE();
 
+    consumeLine(tis); // -> ... Association
+
+    auto peekedLine = peekLine(tis);
+    if (peekedLine.type != INCR) {
+        SHOULD_NOT_HAPPEN(); // empty assoc
+    }
+
+    AssociationLeftPart leftPart = std::visit(overload{
+        [](Association*) -> AssociationLeftPart {SHOULD_NOT_HAPPEN();},
+        [](auto word) -> AssociationLeftPart {return word;}
+    }, buildWord());
+
+    peekedLine = peekLine(tis);
+    if (peekedLine.type == INCR) {
+        SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
+    }
+    if (peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN(); // missing assoc right part
+    }
+
+    Word rightPart = buildWord();
+
+    peekedLine = peekLine(tis);
+    unless (peekedLine.type == DECR || peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN();
+    }
+
+    return Association{leftPart, rightPart};
 }
 
-Association LV1AstBuilder::buildAssociation() {
+SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
 
 }
 

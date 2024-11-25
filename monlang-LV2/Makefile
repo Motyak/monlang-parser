@@ -16,6 +16,7 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 
 ENTITIES := \
 BlockRvalue \
+Lambda \
 Literal \
 Lvalue \
 Program \

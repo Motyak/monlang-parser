@@ -13,6 +13,6 @@
 #define SHOULD_NOT_HAPPEN() \
     std::cerr << "`Should not happen` raised in " << __FILE__ \
             << " line " << __LINE__ << std::endl; \
-    std::terminate();
+    std::terminate()
 
 #endif // ASSERT_UTILS_H

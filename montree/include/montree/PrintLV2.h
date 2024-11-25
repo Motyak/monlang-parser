@@ -2,6 +2,7 @@
 #define PRINT_LV2_H
 
 #include <monlang-LV2/RvalueStatement.h>
+#include <monlang-LV2/Lambda.h>
 #include <monlang-LV2/BlockRvalue.h>
 #include <monlang-LV2/Literal.h>
 #include <monlang-LV2/Lvalue.h>
@@ -21,6 +22,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(RvalueStatement*);
 
     /* rvalues */
+    void operator()(Lambda*);
     void operator()(BlockRvalue*);
     void operator()(Literal*);
     void operator()(Lvalue*);
