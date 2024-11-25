@@ -58,6 +58,15 @@ void PrintLV2::operator()(const Rvalue& rvalue) {
     std::visit(*this, rvalue);
 }
 
+void PrintLV2::operator()(BlockRvalue* block) {
+    outputLine("BlockRvalue");
+    currIndent++;
+    for (auto statement: block->statements) {
+        operator()(statement);
+    }
+    // currIndent--;
+}
+
 void PrintLV2::operator()(Literal* literal) {
     outputLine("Literal: `", literal->str.c_str(), "`");
 }

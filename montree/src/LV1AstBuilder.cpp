@@ -264,6 +264,7 @@ Word LV1AstBuilder::buildWord() {
     const auto CANDIDATES = std::vector<std::string>{
         "Atom",
         "ParenthesesGroup",
+        "CurlyBracketsGroup",
     };
 
     auto line = peekLine(tis); // -> Word...
@@ -285,6 +286,10 @@ Word LV1AstBuilder::buildWord() {
 
     else if (first_candidate_found == "ParenthesesGroup") {
         return move_to_heap(buildParenthesesGroup());
+    }
+
+    else if (first_candidate_found == "CurlyBracketsGroup") {
+        return move_to_heap(buildCurlyBracketsGroup());
     }
 
     else {
@@ -315,6 +320,29 @@ ParenthesesGroup LV1AstBuilder::buildParenthesesGroup() {
     return ParenthesesGroup{terms};
 }
 
+CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {
+    ENTERING_BUILD_ROUTINE();
+
+    consumeLine(tis); // -> ... CurlyBracketsGroup
+
+    auto peekedLine = peekLine(tis);
+    if (peekedLine.type != INCR) {
+        return CurlyBracketsGroup{};
+    }
+
+    std::vector<ProgramSentence> sentences;
+    do {
+        sentences.push_back(buildProgramSentence());
+        peekedLine = peekLine(tis);
+        if (peekedLine.type == INCR) {
+            SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildProgramSentence()
+        }
+    }
+    until (peekedLine.type == DECR || peekedLine.type == END);
+
+    return CurlyBracketsGroup{sentences};
+}
+
 SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
 
 }
@@ -332,10 +360,6 @@ PostfixSquareBracketsGroup LV1AstBuilder::buildPostfixSquareBracketsGroup() {
 }
 
 SquareBracketsGroup LV1AstBuilder::buildSquareBracketsGroup() {
-
-}
-
-CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {
 
 }
 

@@ -65,3 +65,29 @@ TEST_CASE ("literal from atom", "[test-2113][rvalue]") {
     REQUIRE (!context.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("block from curly brackets group", "[test-2114][rvalue]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: CurlyBracketsGroup
+       |    -> ProgramSentence
+       |      -> ProgramWord: Atom: `91`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Rvalue: BlockRvalue
+       |  -> Statement: RvalueStatement
+       |    -> Rvalue: Literal: `91`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto context = context_init_t{};
+    auto output = buildRvalue(input_term, context);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (output_str == expect);
+}

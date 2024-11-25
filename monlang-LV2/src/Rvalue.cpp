@@ -1,8 +1,9 @@
 #include <monlang-LV2/Rvalue.h>
 
 /* impl only */
-#include <monlang-LV2/Lvalue.h>
+#include <monlang-LV2/BlockRvalue.h>
 #include <monlang-LV2/Literal.h>
+#include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 
@@ -29,6 +30,10 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
     word = term_.words[0];
 
     // ...
+
+    if (peekBlockRvalue(word)) {
+        return move_to_heap(buildBlockRvalue(word, cx));
+    }
 
     if (peekLiteral(word)) {
         return move_to_heap(buildLiteral(word));
