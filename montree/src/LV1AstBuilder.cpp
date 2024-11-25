@@ -273,6 +273,7 @@ Word LV1AstBuilder::buildWord() {
         "ParenthesesGroup",
         "CurlyBracketsGroup",
         "Association",
+        "PostfixParenthesesGroup",
     };
 
     auto line = peekLine(tis); // -> Word...
@@ -302,6 +303,10 @@ Word LV1AstBuilder::buildWord() {
 
     else if (first_candidate_found == "Association") {
         return move_to_heap(buildAssociation());
+    }
+
+    else if (first_candidate_found == "PostfixParenthesesGroup") {
+        return move_to_heap(buildPostfixParenthesesGroup());
     }
 
     else {
@@ -388,20 +393,46 @@ Association LV1AstBuilder::buildAssociation() {
     return Association{leftPart, rightPart};
 }
 
-SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
+PostfixParenthesesGroup LV1AstBuilder::buildPostfixParenthesesGroup() {
+    ENTERING_BUILD_ROUTINE();
 
+    consumeLine(tis); // -> ... PostfixParenthesesGroup
+
+    auto peekedLine = peekLine(tis);
+    if (peekedLine.type != INCR) {
+        SHOULD_NOT_HAPPEN(); // empty ppg
+    }
+
+    Word leftPart = buildWord();
+
+    peekedLine = peekLine(tis);
+    if (peekedLine.type == INCR) {
+        SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
+    }
+    if (peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN(); // missing ppg right part
+    }
+
+    ParenthesesGroup rightPart = buildParenthesesGroup();
+
+    peekedLine = peekLine(tis);
+    unless (peekedLine.type == DECR || peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN();
+    }
+
+    return PostfixParenthesesGroup{leftPart, rightPart};
 }
 
-PostfixParenthesesGroup LV1AstBuilder::buildPostfixParenthesesGroup() {
-
+SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
+    TODO();
 }
 
 PostfixSquareBracketsGroup LV1AstBuilder::buildPostfixSquareBracketsGroup() {
-
+    TODO();
 }
 
 SquareBracketsGroup LV1AstBuilder::buildSquareBracketsGroup() {
-
+    TODO();
 }
 
 #ifdef TREE_INPUT_STREAM_MAIN

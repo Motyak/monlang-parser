@@ -106,13 +106,45 @@ TEST_CASE ("lambda from pg-cbg association", "[test-2115][rvalue]") {
        |        -> ProgramWord: Atom: `x`
     )EOF");
 
-    /* will make '-> parameter #1 #2 #...' when multiple parameters */
+    /* TODO: will make '-> parameter #1 #2 #...' when multiple parameters */
     auto expect = tommy_str(R"EOF(
        |-> Rvalue: Lambda
        |  -> parameter: `x`
        |  -> body
        |    -> Statement: RvalueStatement
        |      -> Rvalue: Lvalue: `x`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto context = context_init_t{};
+    auto output = buildRvalue(input_term, context);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("lambda from pg-cbg association", "[test-2116][rvalue]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: PostfixParenthesesGroup
+       |    -> Word: Atom: `func`
+       |    -> ParenthesesGroup
+       |      -> Term
+       |        -> Word: Atom: `arg`
+    )EOF");
+
+    /* TODO: Lvalue will be able to contain indent, later on */
+    /* TODO: will be able to add Lvalue #1, #2, #.. if multiple args */
+    auto expect = tommy_str(R"EOF(
+       |-> Rvalue: FunctionCall
+       |  -> function
+       |    -> Rvalue: Lvalue: `func`
+       |  -> arguments
+       |    -> Rvalue: Lvalue: `arg`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

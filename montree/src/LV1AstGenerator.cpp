@@ -205,33 +205,33 @@ CurlyBracketsGroup LV1AstGenerator::generateCurlyBracketsGroup() {
 }
 
 Term LV1AstGenerator::generateTerm() {
-    // todo
+    TODO();
 }
 
 Word LV1AstGenerator::generateWord() {
-    // todo
+    TODO();
 }
 
 SquareBracketsTerm LV1AstGenerator::generateSquareBracketsTerm() {
-    // todo
+    TODO();
 }
 
 Association LV1AstGenerator::generateAssociation() {
-    // todo
+    TODO();
 }
 
 PostfixParenthesesGroup LV1AstGenerator::generatePostfixParenthesesGroup() {
-    // todo
+    TODO();
 }
 
 PostfixSquareBracketsGroup LV1AstGenerator::generatePostfixSquareBracketsGroup() {
-    // todo
+    TODO();
 }
 
 ParenthesesGroup LV1AstGenerator::generateParenthesesGroup() {
-    // todo
+    TODO();
 }
 
 SquareBracketsGroup LV1AstGenerator::generateSquareBracketsGroup() {
-    // todo
+    TODO();
 }

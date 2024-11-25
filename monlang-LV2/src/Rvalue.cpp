@@ -1,6 +1,7 @@
 #include <monlang-LV2/Rvalue.h>
 
 /* impl only */
+#include <monlang-LV2/FunctionCall.h>
 #include <monlang-LV2/Lambda.h>
 #include <monlang-LV2/BlockRvalue.h>
 #include <monlang-LV2/Literal.h>
@@ -31,6 +32,10 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
     word = term_.words[0];
 
     // ...
+
+    if (peekFunctionCall(word)) {
+        return move_to_heap(buildFunctionCall(word, cx));
+    }
 
     if (peekLambda(word)) {
         return move_to_heap(buildLambda(word, cx));

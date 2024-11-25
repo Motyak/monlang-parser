@@ -6,7 +6,7 @@
 #include <string>
 
 struct Lvalue {
-    std::string identifier;
+    std::string identifier; // only identifier supported for now
 };
 
 bool peekLvalue(const Word&);

@@ -22,7 +22,6 @@ bool peekLambda(const Word& word) {
     }
 
     auto leftPart = *std::get<ParenthesesGroup*>(assoc.leftPart);
-    std::vector<identifier_t> parameters;
     for (auto term: leftPart.terms) {
         unless (term.words.size() == 1 && std::holds_alternative<Atom*>(term.words[0])) {
             return false;
@@ -33,6 +32,7 @@ bool peekLambda(const Word& word) {
 }
 
 Lambda buildLambda(const Word& word, const context_t& cx) {
+    ASSERT (!cx.fallthrough);
     ASSERT (std::holds_alternative<Association*>(word));
     auto assoc = *std::get<Association*>(word);
 
@@ -51,6 +51,9 @@ Lambda buildLambda(const Word& word, const context_t& cx) {
     LambdaBlock body;
     until (rightPart.sentences.empty()) {
         auto statement = consumeStatement(rightPart, cx);
+        if (cx.fallthrough) {
+            return Lambda(); // stub
+        }
         body.statements.push_back(statement);
     }
 

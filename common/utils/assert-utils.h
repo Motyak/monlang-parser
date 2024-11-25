@@ -15,4 +15,9 @@
             << " line " << __LINE__ << std::endl; \
     std::terminate()
 
+#define TODO() \
+    std::cerr << "Missing implementation in " << __FILE__ \
+            << " line " << __LINE__ << std::endl; \
+    std::terminate()
+
 #endif // ASSERT_UTILS_H

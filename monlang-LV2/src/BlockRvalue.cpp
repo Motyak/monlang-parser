@@ -10,13 +10,17 @@ bool peekBlockRvalue(const Word& word) {
 }
 
 BlockRvalue buildBlockRvalue(const Word& word, const context_t& cx) {
+    ASSERT (!cx.fallthrough);
     ASSERT (std::holds_alternative<CurlyBracketsGroup*>(word));
     auto cbg = *std::get<CurlyBracketsGroup*>(word);
-    ASSERT (cbg.sentences.size() > 0);
 
     std::vector<Statement> statements;
     for (auto sentence: cbg.sentences) {
-        statements.push_back(consumeStatement((Subprogram&)cbg, cx));
+        auto statement = consumeStatement((Subprogram&)cbg, cx);
+        if (cx.fallthrough) {
+            return BlockRvalue(); // stub
+        }
+        statements.push_back(statement);
     }
 
     return BlockRvalue{statements};

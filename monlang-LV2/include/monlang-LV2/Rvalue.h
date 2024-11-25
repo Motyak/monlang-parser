@@ -8,7 +8,7 @@
 #include <variant>
 
 // struct Operation;
-// struct FunctionCall;
+struct FunctionCall;
 struct Lambda;
 struct BlockRvalue;
 struct Literal;
@@ -16,7 +16,7 @@ struct Lvalue;
 
 using Rvalue = std::variant<
     // Operation*,
-    // FunctionCall*,
+    FunctionCall*,
     Lambda*,
     BlockRvalue*,
     Literal*,

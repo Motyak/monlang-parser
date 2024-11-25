@@ -38,7 +38,7 @@ void PrintLV2::operator()(const LV2::Program& prog) {
     for (auto statement: prog.statements) {
         operator()(statement);
     }
-    // currIndent--;
+    currIndent--;
 }
 
 void PrintLV2::operator()(const Statement& statement) {
@@ -50,12 +50,31 @@ void PrintLV2::operator()(RvalueStatement* rvalueStatement) {
     outputLine("RvalueStatement");
     currIndent++;
     operator()(rvalueStatement->rvalue);
-    // currIndent--;
+    currIndent--;
 }
 
 void PrintLV2::operator()(const Rvalue& rvalue) {
     output("-> Rvalue: ");
     std::visit(*this, rvalue);
+}
+
+void PrintLV2::operator()(FunctionCall* functionCall) {
+    outputLine("FunctionCall");
+    currIndent++;
+
+    outputLine("-> function");
+    currIndent++;
+    operator()(functionCall->function);
+    currIndent--;
+
+    outputLine("-> arguments");
+    currIndent++;
+    for (auto arg: functionCall->arguments) {
+        operator()(arg);
+    }
+    currIndent--;
+
+    currIndent--;
 }
 
 void PrintLV2::operator()(Lambda* lambda) {
@@ -85,7 +104,7 @@ void PrintLV2::operator()(BlockRvalue* block) {
     for (auto statement: block->statements) {
         operator()(statement);
     }
-    // currIndent--;
+    currIndent--;
 }
 
 void PrintLV2::operator()(Literal* literal) {
