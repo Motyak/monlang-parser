@@ -156,3 +156,32 @@ TEST_CASE ("function call from postfix parentheses group", "[test-2116][expr]") 
     REQUIRE (!context.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("operation from term of atoms", "[test-2117][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word #1: Atom: `1`
+       |  -> Word #2: Atom: `+`
+       |  -> Word #3: Atom: `1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Operation
+       |  -> leftOperand
+       |    -> Expression: Literal: `1`
+       |  -> operator: `+`
+       |  -> rightOperand
+       |    -> Expression: Literal: `1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto context = context_init_t{};
+    auto output = buildExpression(input_term, context);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (output_str == expect);
+}

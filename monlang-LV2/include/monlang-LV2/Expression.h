@@ -7,7 +7,7 @@
 
 #include <variant>
 
-// struct Operation;
+struct Operation;
 struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
@@ -15,7 +15,7 @@ struct Literal;
 struct Lvalue;
 
 using Expression = std::variant<
-    // Operation*,
+    Operation*,
     FunctionCall*,
     Lambda*,
     BlockExpression*,

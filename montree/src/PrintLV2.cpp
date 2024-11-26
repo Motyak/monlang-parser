@@ -58,6 +58,25 @@ void PrintLV2::operator()(const Expression& expression) {
     std::visit(*this, expression);
 }
 
+void PrintLV2::operator()(Operation* operation) {
+    outputLine("Operation");
+    currIndent++;
+
+    outputLine("-> leftOperand");
+    currIndent++;
+    operator()(operation->leftOperand);
+    currIndent--;
+
+    outputLine("-> operator: `", operation->operator_.c_str(), "`");
+
+    outputLine("-> rightOperand");
+    currIndent++;
+    operator()(operation->rightOperand);
+    currIndent--;
+
+    currIndent--;
+}
+
 void PrintLV2::operator()(FunctionCall* functionCall) {
     outputLine("FunctionCall");
     currIndent++;

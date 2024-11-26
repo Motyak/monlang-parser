@@ -7,10 +7,10 @@ Pour lancer les tests LV1 depuis monlang/ en utilisant la nouvelle version de mo
 ---
 
 Pour rajouter une Rvalue dans LV2:
-- Ecrire test dans rvalue.cpp
+- Ecrire test dans expr.cpp
 - Ajouter .h dans include/, .cpp dans src/ (si nécessaire)
-- Ajouter peekXXX et buildXXX + include XXX dans Rvalue.cpp
-- Ajouter le variant dans Rvalue.h
+- Ajouter peekXXX et buildXXX + include XXX dans Expression.cpp
+- Ajouter le variant dans Expression.h
 - Ajouter dans Makefile la translation unit
 - Ajouter XXX dans LV1AstBuilder.cpp
 - Ajouter include XXX + function overload pour XXX dans .h et .cpp de PrintLV2.cpp dans montree/

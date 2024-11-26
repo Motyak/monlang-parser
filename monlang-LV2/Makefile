@@ -14,19 +14,38 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 
 ###########################################################
 
-ENTITIES := \
-BlockExpression \
-Expression \
-ExpressionStatement \
-FunctionCall \
-Lambda \
-Literal \
-Lvalue \
+ENTITIES = \
 Program \
 Statement \
+ExpressionStatement \
+Expression \
+Operation \
+FunctionCall \
+Lambda \
+BlockExpression \
+Literal \
+Lvalue \
 
-OBJS := $(ENTITIES:%=obj/%.o) obj/common.o obj/context.o obj/context_init.o
-DEPS := $(ENTITIES:%=.deps/%.d) .deps/common.d .deps/context.d .deps/context_init.d
+# ENTITIES = \
+# Program \
+# Statement \
+# $(STMT_ENTITIES:%=stmt/%) \
+# Expression \
+# $(EXPR_ENTITIES:%=expr/%)
+
+# STMT_ENTITIES := \
+# ExpressionStatement \
+
+# EXPR_ENTITIES := \
+# Operation \
+# FunctionCall \
+# Lambda \
+# BlockExpression \
+# Literal \
+# Lvalue \
+
+OBJS := $(ENTITIES:%=obj/%.o) obj/context.o obj/context_init.o obj/precedence.o
+DEPS := $(ENTITIES:%=.deps/%.d) .deps/context.d .deps/context_init.d .deps/precedence.d
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)

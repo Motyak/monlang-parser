@@ -2,6 +2,7 @@
 #define PRINT_LV2_H
 
 #include <monlang-LV2/ExpressionStatement.h>
+#include <monlang-LV2/Operation.h>
 #include <monlang-LV2/FunctionCall.h>
 #include <monlang-LV2/Lambda.h>
 #include <monlang-LV2/BlockExpression.h>
@@ -23,6 +24,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(ExpressionStatement*);
 
     /* expressions */
+    void operator()(Operation*);
     void operator()(FunctionCall*);
     void operator()(Lambda*);
     void operator()(BlockExpression*);
