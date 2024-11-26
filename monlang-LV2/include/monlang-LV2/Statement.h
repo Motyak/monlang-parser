@@ -19,9 +19,9 @@
 // struct BreakStatement;
 // struct ContinueStatement;
 // struct DieStatement;
-struct RvalueStatement;
+struct ExpressionStatement;
 
-using Statement = std::variant<RvalueStatement*>;
+using Statement = std::variant<ExpressionStatement*>;
 
 // using Statement = std::variant<
 //     /* assignments */
@@ -47,7 +47,7 @@ using Statement = std::variant<RvalueStatement*>;
 //     DieStatement*,
 
 //     // fall-through statement
-//     RvalueStatement* // expression on a single program sentence
+//     ExpressionStatement*
 // >;
 
 Statement consumeStatement(LV1::Program&, const context_t& = context_t{});

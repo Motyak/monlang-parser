@@ -15,14 +15,14 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 ###########################################################
 
 ENTITIES := \
-BlockRvalue \
+BlockExpression \
+Expression \
+ExpressionStatement \
 FunctionCall \
 Lambda \
 Literal \
 Lvalue \
 Program \
-Rvalue \
-RvalueStatement \
 Statement \
 
 OBJS := $(ENTITIES:%=obj/%.o) obj/common.o obj/context.o obj/context_init.o

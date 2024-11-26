@@ -1,11 +1,11 @@
 #ifndef FUNCTION_CALL_H
 #define FUNCTION_CALL_H
 
-#include <monlang-LV2/Rvalue.h>
+#include <monlang-LV2/Expression.h>
 
 struct FunctionCall {
-    Rvalue function;
-    std::vector<Rvalue> arguments;
+    Expression function;
+    std::vector<Expression> arguments;
 };
 
 bool peekFunctionCall(const Word&);

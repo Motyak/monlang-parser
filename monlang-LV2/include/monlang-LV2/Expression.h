@@ -1,5 +1,5 @@
-#ifndef RVALUE_H
-#define RVALUE_H
+#ifndef EXPRESSION_H
+#define EXPRESSION_H
 
 #include <monlang-LV2/context.h>
 
@@ -10,19 +10,19 @@
 // struct Operation;
 struct FunctionCall;
 struct Lambda;
-struct BlockRvalue;
+struct BlockExpression;
 struct Literal;
 struct Lvalue;
 
-using Rvalue = std::variant<
+using Expression = std::variant<
     // Operation*,
     FunctionCall*,
     Lambda*,
-    BlockRvalue*,
+    BlockExpression*,
     Literal*,
     Lvalue*
 >;
 
-Rvalue buildRvalue(const Term&, const context_t& = context_t{});
+Expression buildExpression(const Term&, const context_t& = context_t{});
 
-#endif // RVALUE_H
+#endif // EXPRESSION_H

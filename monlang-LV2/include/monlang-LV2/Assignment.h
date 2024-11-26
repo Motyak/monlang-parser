@@ -3,7 +3,7 @@
 
 struct Assignment {
     Lvalue lvalue;
-    Rvalue rvalue;
+    Expression expression;
 };
 
 #endif // ASSIGNMENT_H

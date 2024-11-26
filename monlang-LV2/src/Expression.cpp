@@ -1,9 +1,9 @@
-#include <monlang-LV2/Rvalue.h>
+#include <monlang-LV2/Expression.h>
 
 /* impl only */
 #include <monlang-LV2/FunctionCall.h>
 #include <monlang-LV2/Lambda.h>
-#include <monlang-LV2/BlockRvalue.h>
+#include <monlang-LV2/BlockExpression.h>
 #include <monlang-LV2/Literal.h>
 #include <monlang-LV2/Lvalue.h>
 
@@ -12,7 +12,7 @@
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
 
-Rvalue buildRvalue(const Term& term, const context_t& cx) {
+Expression buildExpression(const Term& term, const context_t& cx) {
     auto& fallthrough = cx.fallthrough;
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
@@ -20,11 +20,11 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
 
     BEGIN:
 
-    // if (term =~ "RVALUE (BINARY-OPERATOR)*"_) {
+    // if (term =~ "EXPRESSION (BINARY-OPERATOR EXPRESSION)*"_) {
     //     return buildOperation(term);
     // }
 
-    // since 'Operation' is the only Rvalue with multiple words..
+    // since 'Operation' is the only Expression with multiple words..
     // ..we already know none will possibly match
     if (term_.words.size() > 1) {
         goto FALLTHROUGH;
@@ -41,8 +41,8 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
         return move_to_heap(buildLambda(word, cx));
     }
 
-    if (peekBlockRvalue(word)) {
-        return move_to_heap(buildBlockRvalue(word, cx));
+    if (peekBlockExpression(word)) {
+        return move_to_heap(buildBlockExpression(word, cx));
     }
 
     if (peekLiteral(word)) {
@@ -53,7 +53,7 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
         return move_to_heap(buildLvalue(word));
     }
 
-    // if grouped rvalue => unwrap then go back to beginning
+    // if grouped expression => unwrap then go back to beginning
     if (std::holds_alternative<ParenthesesGroup*>(word)) {
         auto group = *std::get<ParenthesesGroup*>(word);
         if (group.terms.size() == 1) {
@@ -65,5 +65,5 @@ Rvalue buildRvalue(const Term& term, const context_t& cx) {
     FALLTHROUGH:
     /* reached fall-through */
     fallthrough = true;
-    return Rvalue(); // return stub
+    return Expression(); // return stub
 }

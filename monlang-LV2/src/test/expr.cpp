@@ -6,18 +6,18 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lvalue from atom", "[test-2111][rvalue]") {
+TEST_CASE ("lvalue from atom", "[test-2111][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: Atom: `somevar`
     )EOF");
 
-    auto expect = "-> Rvalue: Lvalue: `somevar`";
+    auto expect = "-> Expression: Lvalue: `somevar`";
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto context = context_init_t{};
-    auto output = buildRvalue(input_term, context);
+    auto output = buildExpression(input_term, context);
     auto output_str = montree::astToString(output);
 
     REQUIRE (!context.fallthrough); // no err
@@ -26,7 +26,7 @@ TEST_CASE ("lvalue from atom", "[test-2111][rvalue]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("grouped rvalue => ungroup", "[test-2112][rvalue]") {
+TEST_CASE ("grouped expression => ungroup", "[test-2112][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: ParenthesesGroup
@@ -34,12 +34,12 @@ TEST_CASE ("grouped rvalue => ungroup", "[test-2112][rvalue]") {
        |      -> Word: Atom: `somevar`
     )EOF");
 
-    auto expect = "-> Rvalue: Lvalue: `somevar`";
+    auto expect = "-> Expression: Lvalue: `somevar`";
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto context = context_init_t{};
-    auto output = buildRvalue(input_term, context);
+    auto output = buildExpression(input_term, context);
     auto output_str = montree::astToString(output);
 
     REQUIRE (!context.fallthrough); // no err
@@ -48,18 +48,18 @@ TEST_CASE ("grouped rvalue => ungroup", "[test-2112][rvalue]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("literal from atom", "[test-2113][rvalue]") {
+TEST_CASE ("literal from atom", "[test-2113][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: Atom: `91`
     )EOF");
 
-    auto expect = "-> Rvalue: Literal: `91`";
+    auto expect = "-> Expression: Literal: `91`";
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto context = context_init_t{};
-    auto output = buildRvalue(input_term, context);
+    auto output = buildExpression(input_term, context);
     auto output_str = montree::astToString(output);
 
     REQUIRE (!context.fallthrough); // no err
@@ -68,7 +68,7 @@ TEST_CASE ("literal from atom", "[test-2113][rvalue]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("block from curly brackets group", "[test-2114][rvalue]") {
+TEST_CASE ("block from curly brackets group", "[test-2114][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: CurlyBracketsGroup
@@ -77,15 +77,15 @@ TEST_CASE ("block from curly brackets group", "[test-2114][rvalue]") {
     )EOF");
 
     auto expect = tommy_str(R"EOF(
-       |-> Rvalue: BlockRvalue
-       |  -> Statement: RvalueStatement
-       |    -> Rvalue: Literal: `91`
+       |-> Expression: BlockExpression
+       |  -> Statement: ExpressionStatement
+       |    -> Expression: Literal: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto context = context_init_t{};
-    auto output = buildRvalue(input_term, context);
+    auto output = buildExpression(input_term, context);
     auto output_str = montree::astToString(output);
 
     REQUIRE (!context.fallthrough); // no err
@@ -94,7 +94,7 @@ TEST_CASE ("block from curly brackets group", "[test-2114][rvalue]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lambda from pg-cbg association", "[test-2115][rvalue]") {
+TEST_CASE ("lambda from pg-cbg association", "[test-2115][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: Association
@@ -108,17 +108,17 @@ TEST_CASE ("lambda from pg-cbg association", "[test-2115][rvalue]") {
 
     /* TODO: will make '-> parameter #1 #2 #...' when multiple parameters */
     auto expect = tommy_str(R"EOF(
-       |-> Rvalue: Lambda
+       |-> Expression: Lambda
        |  -> parameter: `x`
        |  -> body
-       |    -> Statement: RvalueStatement
-       |      -> Rvalue: Lvalue: `x`
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: Lvalue: `x`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto context = context_init_t{};
-    auto output = buildRvalue(input_term, context);
+    auto output = buildExpression(input_term, context);
     auto output_str = montree::astToString(output);
 
     REQUIRE (!context.fallthrough); // no err
@@ -127,7 +127,7 @@ TEST_CASE ("lambda from pg-cbg association", "[test-2115][rvalue]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lambda from pg-cbg association", "[test-2116][rvalue]") {
+TEST_CASE ("function call from postfix parentheses group", "[test-2116][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: PostfixParenthesesGroup
@@ -140,17 +140,17 @@ TEST_CASE ("lambda from pg-cbg association", "[test-2116][rvalue]") {
     /* TODO: Lvalue will be able to contain indent, later on */
     /* TODO: will be able to add Lvalue #1, #2, #.. if multiple args */
     auto expect = tommy_str(R"EOF(
-       |-> Rvalue: FunctionCall
+       |-> Expression: FunctionCall
        |  -> function
-       |    -> Rvalue: Lvalue: `func`
+       |    -> Expression: Lvalue: `func`
        |  -> arguments
-       |    -> Rvalue: Lvalue: `arg`
+       |    -> Expression: Lvalue: `arg`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto context = context_init_t{};
-    auto output = buildRvalue(input_term, context);
+    auto output = buildExpression(input_term, context);
     auto output_str = montree::astToString(output);
 
     REQUIRE (!context.fallthrough); // no err

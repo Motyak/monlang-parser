@@ -46,16 +46,16 @@ void PrintLV2::operator()(const Statement& statement) {
     std::visit(*this, statement);
 }
 
-void PrintLV2::operator()(RvalueStatement* rvalueStatement) {
-    outputLine("RvalueStatement");
+void PrintLV2::operator()(ExpressionStatement* expressionStatement) {
+    outputLine("ExpressionStatement");
     currIndent++;
-    operator()(rvalueStatement->rvalue);
+    operator()(expressionStatement->expression);
     currIndent--;
 }
 
-void PrintLV2::operator()(const Rvalue& rvalue) {
-    output("-> Rvalue: ");
-    std::visit(*this, rvalue);
+void PrintLV2::operator()(const Expression& expression) {
+    output("-> Expression: ");
+    std::visit(*this, expression);
 }
 
 void PrintLV2::operator()(FunctionCall* functionCall) {
@@ -98,8 +98,8 @@ void PrintLV2::operator()(Lambda* lambda) {
     currIndent--;
 }
 
-void PrintLV2::operator()(BlockRvalue* block) {
-    outputLine("BlockRvalue");
+void PrintLV2::operator()(BlockExpression* block) {
+    outputLine("BlockExpression");
     currIndent++;
     for (auto statement: block->statements) {
         operator()(statement);

@@ -1,15 +1,15 @@
-#include <monlang-LV2/BlockRvalue.h>
+#include <monlang-LV2/BlockExpression.h>
 
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 
 #include <utils/assert-utils.h>
 
-bool peekBlockRvalue(const Word& word) {
+bool peekBlockExpression(const Word& word) {
     // don't we need to differenciate different types of "block" ? will see
     return std::holds_alternative<CurlyBracketsGroup*>(word);
 }
 
-BlockRvalue buildBlockRvalue(const Word& word, const context_t& cx) {
+BlockExpression buildBlockExpression(const Word& word, const context_t& cx) {
     ASSERT (!cx.fallthrough);
     ASSERT (std::holds_alternative<CurlyBracketsGroup*>(word));
     auto cbg = *std::get<CurlyBracketsGroup*>(word);
@@ -18,10 +18,10 @@ BlockRvalue buildBlockRvalue(const Word& word, const context_t& cx) {
     for (auto sentence: cbg.sentences) {
         auto statement = consumeStatement((Subprogram&)cbg, cx);
         if (cx.fallthrough) {
-            return BlockRvalue(); // stub
+            return BlockExpression(); // stub
         }
         statements.push_back(statement);
     }
 
-    return BlockRvalue{statements};
+    return BlockExpression{statements};
 }

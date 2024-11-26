@@ -1,5 +1,5 @@
 #include <monlang-LV2/FunctionCall.h>
-#include <monlang-LV2/Rvalue.h>
+#include <monlang-LV2/Expression.h>
 
 #include <monlang-LV1/PostfixParenthesesGroup.h>
 
@@ -15,15 +15,15 @@ FunctionCall buildFunctionCall(const Word& word, const context_t& cx) {
     ASSERT (!cx.fallthrough);
     ASSERT (std::holds_alternative<PostfixParenthesesGroup*>(word));
     auto ppg = *std::get<PostfixParenthesesGroup*>(word);
-    auto function = buildRvalue(Term{{ppg.leftPart}}, cx);
+    auto function = buildExpression(Term{{ppg.leftPart}}, cx);
 
-    std::vector<Rvalue> arguments;
+    std::vector<Expression> arguments;
     for (auto term: ppg.rightPart.terms) {
-        auto rvalue = buildRvalue(term, cx);
+        auto expression = buildExpression(term, cx);
         if (cx.fallthrough) {
             return FunctionCall(); // stub
         }
-        arguments.push_back(rvalue);
+        arguments.push_back(expression);
     }
 
     return FunctionCall{function, arguments};

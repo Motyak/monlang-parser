@@ -3,12 +3,12 @@
 
 #include <monlang-LV2/Program.h>
 #include <monlang-LV2/Statement.h>
-#include <monlang-LV2/Rvalue.h>
+#include <monlang-LV2/Expression.h>
 
 namespace LV2
 {
 
-using Ast = std::variant<LV2::Program, Statement, Rvalue>;
+using Ast = std::variant<LV2::Program, Statement, Expression>;
 
 template <typename T>
 class AstVisitor;
@@ -20,7 +20,7 @@ class AstVisitor<void> {
 
     virtual void operator()(const LV2::Program&) = 0;
     virtual void operator()(const Statement&) = 0;
-    virtual void operator()(const Rvalue&) = 0;
+    virtual void operator()(const Expression&) = 0;
 };
 
 template <typename T>
