@@ -1,14 +1,6 @@
 #ifndef PRINT_LV2_H
 #define PRINT_LV2_H
 
-#include <monlang-LV2/stmt/ExpressionStatement.h>
-#include <monlang-LV2/expr/Operation.h>
-#include <monlang-LV2/expr/FunctionCall.h>
-#include <monlang-LV2/expr/Lambda.h>
-#include <monlang-LV2/expr/BlockExpression.h>
-#include <monlang-LV2/expr/Literal.h>
-#include <monlang-LV2/expr/Lvalue.h>
-
 /* interface only */
 #include <monlang-LV2/visitors/visitor.h>
 
@@ -21,6 +13,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(const Expression&) override;
 
     /* statements */
+    void operator()(Assignment*);
     void operator()(ExpressionStatement*);
 
     /* expressions */

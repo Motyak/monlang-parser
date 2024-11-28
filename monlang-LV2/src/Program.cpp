@@ -8,6 +8,9 @@ LV2::Program consumeProgram(LV1::Program& prog, const context_t& cx) {
 
     until (prog.sentences.empty()) {
         auto statement = consumeStatement(prog, cx);
+        if (cx.malformed_stmt || cx.fallthrough) {
+            return LV2::Program(); // stub
+        }
         statements.push_back(statement);
     }
 

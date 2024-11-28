@@ -1,5 +1,15 @@
 #include <montree/PrintLV2.h>
 
+/* in impl only */
+#include <monlang-LV2/stmt/Assignment.h>
+#include <monlang-LV2/stmt/ExpressionStatement.h>
+#include <monlang-LV2/expr/Operation.h>
+#include <monlang-LV2/expr/FunctionCall.h>
+#include <monlang-LV2/expr/Lambda.h>
+#include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Lvalue.h>
+
 #include <cstdarg>
 
 #define until(x) while(!(x))
@@ -44,6 +54,16 @@ void PrintLV2::operator()(const LV2::Program& prog) {
 void PrintLV2::operator()(const Statement& statement) {
     output("-> Statement: ");
     std::visit(*this, statement);
+}
+
+void PrintLV2::operator()(Assignment* assignment) {
+    outputLine("Assignment");
+    currIndent++;
+
+    output("-> "); operator()(&assignment->lhs);
+    operator()(assignment->rhs);
+
+    currIndent--;
 }
 
 void PrintLV2::operator()(ExpressionStatement* expressionStatement) {

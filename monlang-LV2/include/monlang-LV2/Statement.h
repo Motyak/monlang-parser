@@ -7,7 +7,7 @@
 
 #include <variant>
 
-// struct Assignment;
+struct Assignment;
 // struct Accumulation;
 // struct LetStatement;
 // struct VarStatement;
@@ -21,34 +21,32 @@
 // struct DieStatement;
 struct ExpressionStatement;
 
-using Statement = std::variant<ExpressionStatement*>;
+using Statement = std::variant<
+    /* assignments */
+    Assignment*, // a := b
+    // Accumulation*, // +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
 
-// using Statement = std::variant<
-//     /* assignments */
-//     Assignment*, // a := b
-//     Accumulation*, // +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+    // /* declarations */
+    // LetStatement*, // let a b
+    // VarStatement*, // var a b
 
-//     /* declarations */
-//     LetStatement*, // let a b
-//     VarStatement*, // var a b
+    // /* conditional statements */
+    // Guard*, // [ <cond> ] || <jump-when-fails>
+    // IfStatement*, // if..elsif..else, unless
 
-//     /* conditional statements */
-//     Guard*, // [ <cond> ] || <jump-when-fails>
-//     IfStatement*, // if..elsif..else, unless
+    // /* loop statements */
+    // ForeachStatement*, // foreach <iterable> <block>
+    // WhileStatement*, // while, do..while, until, do..until
 
-//     /* loop statements */
-//     ForeachStatement*, // foreach <iterable> <block>
-//     WhileStatement*, // while, do..while, until, do..until
+    // /* jump statements */
+    // ReturnStatement*,
+    // BreakStatement*,
+    // ContinueStatement*,
+    // DieStatement*,
 
-//     /* jump statements */
-//     ReturnStatement*,
-//     BreakStatement*,
-//     ContinueStatement*,
-//     DieStatement*,
-
-//     // fall-through statement
-//     ExpressionStatement*
-// >;
+    // fall-through statement
+    ExpressionStatement*
+>;
 
 Statement consumeStatement(LV1::Program&, const context_t& = context_t{});
 

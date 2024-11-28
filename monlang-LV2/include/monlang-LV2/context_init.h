@@ -12,6 +12,7 @@ struct context_init_t {
     ProgramSentence sentence;
     Term term;
 
+    std::optional<std::string> malformed_stmt;
     bool fallthrough; // false initialized
 
     context_init_t();

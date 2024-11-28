@@ -103,9 +103,9 @@ LV1::Ast LV1AstBuilder::buildAst() {
     ENTERING_BUILD_ROUTINE();
 
     const auto CANDIDATES = std::vector<std::string>{
-        "Program",
         "ProgramSentence",
         "ProgramWord",
+        "Program", // position here matters because 'starts_with()'
         "Term",
         "Word",
     };
