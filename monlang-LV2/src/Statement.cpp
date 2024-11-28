@@ -1,8 +1,7 @@
 #include <monlang-LV2/Statement.h>
 
 /* impl only */
-#include <monlang-LV2/ExpressionStatement.h>
-// #include <monlang-LV2/common.h>
+#include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
@@ -23,7 +22,7 @@ Statement consumeStatement(LV1::Program& prog, const context_t& cx) {
 
     auto peekedSentence = prog.sentences[0];
 
-    // if (peekedSentence =~ "LVALUE Atom<`:=`> EXPRESSION"_) {
+    // if (peekedSentence =~ "Word Atom<`:=`> Word+"_) {
     //     return consumeAssignment(prog)
     // }
 

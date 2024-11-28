@@ -2,12 +2,12 @@
 
 /* impl only */
 #include <monlang-LV2/precedence.h> // fixPrecedence()
-#include <monlang-LV2/Operation.h>
-#include <monlang-LV2/FunctionCall.h>
-#include <monlang-LV2/Lambda.h>
-#include <monlang-LV2/BlockExpression.h>
-#include <monlang-LV2/Literal.h>
-#include <monlang-LV2/Lvalue.h>
+#include <monlang-LV2/expr/Operation.h>
+#include <monlang-LV2/expr/FunctionCall.h>
+#include <monlang-LV2/expr/Lambda.h>
+#include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Lvalue.h>
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/Atom.h>

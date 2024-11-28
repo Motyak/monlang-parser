@@ -1,4 +1,4 @@
-#include <monlang-LV2/Lambda.h>
+#include <monlang-LV2/expr/Lambda.h>
 
 #include <monlang-LV1/ast/Association.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>

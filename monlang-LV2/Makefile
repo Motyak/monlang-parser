@@ -17,32 +17,20 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 ENTITIES = \
 Program \
 Statement \
-ExpressionStatement \
+$(STMT_ENTITIES:%=stmt/%) \
 Expression \
+$(EXPR_ENTITIES:%=expr/%)
+
+STMT_ENTITIES := \
+ExpressionStatement \
+
+EXPR_ENTITIES := \
 Operation \
 FunctionCall \
 Lambda \
 BlockExpression \
 Literal \
 Lvalue \
-
-# ENTITIES = \
-# Program \
-# Statement \
-# $(STMT_ENTITIES:%=stmt/%) \
-# Expression \
-# $(EXPR_ENTITIES:%=expr/%)
-
-# STMT_ENTITIES := \
-# ExpressionStatement \
-
-# EXPR_ENTITIES := \
-# Operation \
-# FunctionCall \
-# Lambda \
-# BlockExpression \
-# Literal \
-# Lvalue \
 
 OBJS := $(ENTITIES:%=obj/%.o) obj/context.o obj/context_init.o obj/precedence.o
 DEPS := $(ENTITIES:%=.deps/%.d) .deps/context.d .deps/context_init.d .deps/precedence.d
@@ -109,7 +97,7 @@ lib/montree/dist/montree.a:
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-$(call shell_onrun, mkdir -p obj/release obj/test .deps/test bin/test $(LIB_OBJ_DIRS))
+${call shell_onrun, mkdir -p {obj,.deps}/{stmt,expr,test} bin/test ${LIB_OBJ_DIRS}}
 
 ## debug settings ##
 $(call shell_onrun, [ ! -e bin/test/.gdbinit ] && cp .gdbinit bin/test/.gdbinit)

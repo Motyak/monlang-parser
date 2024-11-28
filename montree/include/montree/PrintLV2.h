@@ -1,13 +1,13 @@
 #ifndef PRINT_LV2_H
 #define PRINT_LV2_H
 
-#include <monlang-LV2/ExpressionStatement.h>
-#include <monlang-LV2/Operation.h>
-#include <monlang-LV2/FunctionCall.h>
-#include <monlang-LV2/Lambda.h>
-#include <monlang-LV2/BlockExpression.h>
-#include <monlang-LV2/Literal.h>
-#include <monlang-LV2/Lvalue.h>
+#include <monlang-LV2/stmt/ExpressionStatement.h>
+#include <monlang-LV2/expr/Operation.h>
+#include <monlang-LV2/expr/FunctionCall.h>
+#include <monlang-LV2/expr/Lambda.h>
+#include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Lvalue.h>
 
 /* interface only */
 #include <monlang-LV2/visitors/visitor.h>
@@ -38,6 +38,8 @@ class PrintLV2 : public LV2::AstVisitor<void> {
 
     const int TAB_SIZE;
 
+    /* consider a State struct with all these fields as ref types..
+       .. + struct that holds the actual values (scope variable) */
     std::ostream& out;
     int currIndent = 0;
     bool startOfNewLine = true;

@@ -2,7 +2,6 @@
 #define OPERATION_H
 
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/Lvalue.h>
 #include <monlang-LV2/context.h>
 
 using identifier_t = std::string;

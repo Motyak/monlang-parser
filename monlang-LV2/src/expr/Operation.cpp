@@ -1,4 +1,4 @@
-#include <monlang-LV2/Operation.h>
+#include <monlang-LV2/expr/Operation.h>
 
 #include <monlang-LV1/ast/Atom.h>
 
@@ -20,7 +20,7 @@ Operation buildOperation(const Term& term, const context_t& cx) {
     ASSERT (std::holds_alternative<Atom*>(term.words[1]));
     auto operator_ = std::get<Atom*>(term.words[1])->value;
 
-    auto rightOperand = buildExpression(Term{{term.words[0]}}, cx);
+    auto rightOperand = buildExpression(Term{{term.words[2]}}, cx);
     if (cx.fallthrough) {
         return Operation(); // stub
     }
