@@ -78,6 +78,7 @@ std::optional<Operator> next_optr(Term term, Operator op) {
 
 // TERM MUTATOR ///////////////////////////////////////////
 
+// extract operation from Term, as a sub-Term
 Term Term_(Term term, Operator op) {
     std::vector<Word> words;
 
@@ -88,6 +89,7 @@ Term Term_(Term term, Operator op) {
     return Term{words};
 }
 
+// extract operation from Term, as a grouped sub-Term
 ParenthesesGroup ParenthesesGroup_(Term term, Operator op) {
     return ParenthesesGroup{{Term_(term, op)}};
 }

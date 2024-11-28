@@ -14,3 +14,14 @@ Pour rajouter une Rvalue dans LV2:
 - Ajouter dans Makefile la translation unit
 - Ajouter XXX dans LV1AstBuilder.cpp
 - Ajouter include XXX + function overload pour XXX dans .h et .cpp de PrintLV2.cpp dans montree/
+
+---
+
+Faire une lib 'metalang' qui sera utilisée dans le main de monlang-LV2,
+une manière de formuler un pattern de phrase/mot LV1,
+pour faire: `if <phrase|mot> =~ <pattern> {...}`
+
+Elle dépendra de monlang-LV1/ast (pas de Ast_) et une définition de
+get_operators() qui retourne un std::vector<std::string> pour "OPERATOR"
+(y'aura une implémentation par défaut avec les opérateurs binaires classiques de C++:
+arithmetic , logical et comparison)

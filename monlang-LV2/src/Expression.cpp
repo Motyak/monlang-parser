@@ -24,10 +24,16 @@
 
 Expression buildExpression(const Term& term, const context_t& cx) {
     auto& fallthrough = cx.fallthrough;
+    ASSERT (!fallthrough);
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
 
     BEGIN:
+
+    // unless (term_ =~ "Word (OPERATOR Word)*"_) {
+    //     FALLTHROUGH();
+    // }
+    // // covers both blocks below
 
     unless (term_.words.size() % 2 == 1) {
         FALLTHROUGH();
@@ -58,8 +64,8 @@ Expression buildExpression(const Term& term, const context_t& cx) {
     fixPrecedence(term_);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
-    // if (term =~ "EXPRESSION BINARY-OPERATOR EXPRESSION"_) {
-    //     return buildOperation(term);
+    // if (term_ =~ "Word Word Word"_) {
+    //     return move_to_heap(buildOperation(term, cx));
     // }
 
     if (peekOperation(term)) {
@@ -70,25 +76,55 @@ Expression buildExpression(const Term& term, const context_t& cx) {
     ASSERT (term_.words.size() == 1);
     Word word = term_.words[0];
 
+    // if (word =~ "PostfixParenthesesGroup"_) {
+    //     return move_to_heap(buildFunctionCall(word, cx));
+    // }
+
     if (peekFunctionCall(word)) {
         return move_to_heap(buildFunctionCall(word, cx));
     }
+
+    // if (word =~ "Association<"
+    //                  "ParenthesesGroup<Term<Atom>*>,"
+    //                  "CurlyBracketsGroup"
+    //              ">"_) {
+    //     return move_to_heap(buildLambda(word, cx));
+    // }
 
     if (peekLambda(word)) {
         return move_to_heap(buildLambda(word, cx));
     }
 
+    // if (word =~ "CurlyBracketsGroup"_) {
+    //     return move_to_heap(buildBlockExpression(word, cx));
+    // }
+
     if (peekBlockExpression(word)) {
         return move_to_heap(buildBlockExpression(word, cx));
     }
+
+    // if (word =~ "Atom<[0-9]+>"_) {
+    //     return move_to_heap(buildLiteral(word));
+    // }
 
     if (peekLiteral(word)) {
         return move_to_heap(buildLiteral(word));
     }
 
+    // if (word =~ "Atom"_) {
+    //     return move_to_heap(buildLiteral(word));
+    // }
+
     if (peekLvalue(word)) {
         return move_to_heap(buildLvalue(word));
     }
+
+    // // if grouped expression => unwrap then go back to beginning
+    // if (word =~ "ParenthesesGroup<Word>"_) {
+    //     auto group = *std::get<ParenthesesGroup*>(word);
+    //     term_ = group.terms.at(0);
+    //     goto BEGIN; // prevent unnecessary recursive call
+    // }
 
     if (std::holds_alternative<ParenthesesGroup*>(word)) {
         auto group = *std::get<ParenthesesGroup*>(word);

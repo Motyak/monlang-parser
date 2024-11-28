@@ -3,7 +3,7 @@
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
-static Word pw2w(ProgramWord pw) {
+static Word pw2w(const ProgramWord& pw) {
     return std::visit(overload{
         [](SquareBracketsTerm*) -> Word {SHOULD_NOT_HAPPEN();},
         [](auto word) -> Word {return word;},
