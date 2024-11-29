@@ -8,7 +8,7 @@
 #include <variant>
 
 struct Assignment;
-// struct Accumulation;
+struct Accumulation;
 // struct LetStatement;
 // struct VarStatement;
 // struct Guard;
@@ -24,7 +24,7 @@ struct ExpressionStatement;
 using Statement = std::variant<
     /* assignments */
     Assignment*, // a := b
-    // Accumulation*, // +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+    Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
 
     // /* declarations */
     // LetStatement*, // let a b

@@ -17,7 +17,7 @@ BlockExpression buildBlockExpression(const Word& word, const context_t& cx) {
     std::vector<Statement> statements;
     for (auto sentence: cbg.sentences) {
         auto statement = consumeStatement((Subprogram&)cbg, cx);
-        if (cx.fallthrough) {
+        if (cx.malformed_stmt || cx.fallthrough) {
             return BlockExpression(); // stub
         }
         statements.push_back(statement);

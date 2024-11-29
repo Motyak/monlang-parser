@@ -3,7 +3,6 @@
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
-// copy pasted to Assignment.cpp
 static Term toTerm(const ProgramSentence& sentence) {
     std::vector<Word> words;
     for (auto e: sentence.programWords) {

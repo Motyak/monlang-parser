@@ -14,6 +14,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
 
     /* statements */
     void operator()(Assignment*);
+    void operator()(Accumulation*);
     void operator()(ExpressionStatement*);
 
     /* expressions */

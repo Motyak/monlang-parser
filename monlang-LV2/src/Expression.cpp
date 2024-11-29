@@ -120,7 +120,7 @@ Expression buildExpression(const Term& term, const context_t& cx) {
     }
 
     // // if grouped expression => unwrap then go back to beginning
-    // if (word =~ "ParenthesesGroup<Word>"_) {
+    // if (word =~ "ParenthesesGroup<Term<Word+>>"_) {
     //     auto group = *std::get<ParenthesesGroup*>(word);
     //     term_ = group.terms.at(0);
     //     goto BEGIN; // prevent unnecessary recursive call

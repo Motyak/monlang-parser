@@ -22,6 +22,7 @@ Expression \
 $(EXPR_ENTITIES:%=expr/%)
 
 STMT_ENTITIES := \
+Accumulation \
 Assignment \
 ExpressionStatement \
 

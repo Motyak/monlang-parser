@@ -1,12 +1,14 @@
-#include <monlang-LV2/stmt/Assignment.h>
+#include <monlang-LV2/stmt/Accumulation.h>
 
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV2/precedence.h>
 
+#include <utils/vec-utils.h>
 #include <utils/assert-utils.h>
 
 #define unless(x) if(!(x))
 
-bool peekAssignment(const ProgramSentence& sentence) {
+bool peekAccumulation(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
         return false;
     }
@@ -17,34 +19,51 @@ bool peekAssignment(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == ":=";
+    unless (atom.value.back() == '=') {
+        return false;
+    }
+    auto optr = atom.value.substr(0, atom.value.size() - 1);
+
+    auto optr_found = false;
+    for (auto [operators, _]: PRECEDENCE_TABLE) {
+        if (vec_contains(operators, optr)) {
+            optr_found = true;
+            break;
+        }
+    }
+
+    return optr_found;
 }
 
 static Term extractRhs(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx) {
+Accumulation buildAccumulation(const ProgramSentence& sentence, const context_t& cx) {
     ASSERT (!cx.fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {
         cx.malformed_stmt = "lhs is not a Lvalue";
-        return Assignment(); // stub
+        return Accumulation(); // stub
     }
     auto word = get_word(sentence.programWords[0]);
     unless (peekLvalue(word)) {
         cx.malformed_stmt = "lhs is not an Lvalue";
-        return Assignment(); // stub
+        return Accumulation(); // stub
     }
     auto lhs = buildLvalue(word);
+
+    ASSERT (std::holds_alternative<Atom*>(sentence.programWords[1]));
+    auto atom = *std::get<Atom*>(sentence.programWords[1]);
+    auto optr = atom.value.substr(0, atom.value.size() - 1);
 
     auto rhs_as_term = extractRhs(sentence);
     auto rhs = buildExpression(rhs_as_term, cx);
     if (cx.fallthrough) {
         cx.malformed_stmt = "rhs is an unknown Expression";
-        return Assignment(); // stub
+        return Accumulation(); // stub
     }
 
-    return Assignment{lhs, rhs};
+    return Accumulation{lhs, optr, rhs};
 }
 
 static Term extractRhs(const ProgramSentence& sentence) {

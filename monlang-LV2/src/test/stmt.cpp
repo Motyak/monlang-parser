@@ -25,7 +25,8 @@ TEST_CASE ("expression statement", "[test-3111][stmt]") {
     auto output_str = montree::astToString(output);
 
     REQUIRE (input_prog.sentences.empty());
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
     REQUIRE (output_str == expect);
 }
 
@@ -54,5 +55,36 @@ TEST_CASE ("assignment", "[test-3112][stmt]") {
 
     REQUIRE (input_prog.sentences.empty());
     REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("accumulation", "[test-3113][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `count`
+       |  -> ProgramWord #2: Atom: `+=`
+       |  -> ProgramWord #3: Atom: `1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: Accumulation
+       |  -> Lvalue: `count`
+       |  -> operator: `+`
+       |  -> Expression: Literal: `1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+    auto output = consumeStatement(input_prog, context);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (input_prog.sentences.empty());
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
     REQUIRE (output_str == expect);
 }

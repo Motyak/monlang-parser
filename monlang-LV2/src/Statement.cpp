@@ -2,6 +2,7 @@
 
 /* impl only */
 #include <monlang-LV2/stmt/Assignment.h>
+#include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <utils/assert-utils.h>
@@ -23,12 +24,20 @@ Statement consumeStatement(LV1::Program& prog, const context_t& cx) {
 
     sentence = consumeSentence(prog);
 
-    // if (peekedSentence =~ "LVALUE Atom<`:=`> EXPRESSION"_) {
+    // if (sentence =~ "Word Atom<`:=`> Word+"_) {
     //     return move_to_heap(buildAssignment(sentence, cx));
     // }
 
     if (peekAssignment(sentence)) {
         return move_to_heap(buildAssignment(sentence, cx));
+    }
+
+    // if (sentence =~ "Word Atom<OPERATOR`=`> Word+"_) {
+    //     return move_to_heap(buildAccumulation(sentence, cx));
+    // }
+
+    if (peekAccumulation(sentence)) {
+        return move_to_heap(buildAccumulation(sentence, cx));
     }
 
     // ...

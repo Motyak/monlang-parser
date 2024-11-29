@@ -1,8 +1,11 @@
 #include <montree/PrintLV2.h>
 
 /* in impl only */
+
 #include <monlang-LV2/stmt/Assignment.h>
+#include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
+
 #include <monlang-LV2/expr/Operation.h>
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
@@ -62,6 +65,17 @@ void PrintLV2::operator()(Assignment* assignment) {
 
     output("-> "); operator()(&assignment->lhs);
     operator()(assignment->rhs);
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(Accumulation* accumulation) {
+    outputLine("Accumulation");
+    currIndent++;
+
+    output("-> "); operator()(&accumulation->lhs);
+    outputLine("-> operator: `", accumulation->operator_.c_str(), "`");
+    operator()(accumulation->rhs);
 
     currIndent--;
 }
