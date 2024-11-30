@@ -1,4 +1,6 @@
-#include <monlang-LV2/stmt/Assignment.h>
+#include <monlang-LV2/stmt/LetStatement.h>
+
+/* impl only */
 
 #include <monlang-LV1/ast/Atom.h>
 
@@ -6,46 +8,44 @@
 
 #define unless(x) if(!(x))
 
-bool peekAssignment(const ProgramSentence& sentence) {
+bool peekLetStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
         return false;
     }
 
-    auto pw = sentence.programWords[1];
+    auto pw = sentence.programWords[0];
     unless (std::holds_alternative<Atom*>(pw)) {
         return false;
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == ":=";
+    return atom.value == "let";
 }
 
 // where rhs are the [2], [3], .. words from the sentence
 static Term extractRhs(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx) {
+LetStatement buildLetStatement(const ProgramSentence& sentence, const context_t& cx) {
     ASSERT (!cx.fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
-    unless (holds_word(sentence.programWords[0])) {
-        cx.malformed_stmt = "lhs is not a Lvalue";
-        return Assignment(); // stub
+    unless (holds_word(sentence.programWords[1])) {
+        cx.malformed_stmt = "lhs is not an identifier";
+        return LetStatement(); // stub
     }
-    auto word = get_word(sentence.programWords[0]);
-    unless (peekLvalue(word)) {
-        cx.malformed_stmt = "lhs is not an Lvalue";
-        return Assignment(); // stub
-    }
-    auto lhs = buildLvalue(word);
+    auto word = get_word(sentence.programWords[1]);
+    ASSERT (std::holds_alternative<Atom*>(word));
+    auto atom = *std::get<Atom*>(word);
+    auto lhs = atom.value;
 
     auto rhs_as_term = extractRhs(sentence);
     auto rhs = buildExpression(rhs_as_term, cx);
     if (cx.fallthrough) {
         cx.malformed_stmt = "rhs is an unknown Expression";
-        return Assignment(); // stub
+        return LetStatement(); // stub
     }
 
-    return Assignment{lhs, rhs};
+    return LetStatement{lhs, rhs};
 }
 
 static Term extractRhs(const ProgramSentence& sentence) {

@@ -9,8 +9,8 @@
 
 struct Assignment;
 struct Accumulation;
-// struct LetStatement;
-// struct VarStatement;
+struct LetStatement;
+struct VarStatement;
 // struct Guard;
 // struct IfStatement;
 // struct ForeachStatement;
@@ -27,8 +27,8 @@ using Statement = std::variant<
     Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
 
     // /* declarations */
-    // LetStatement*, // let a b
-    // VarStatement*, // var a b
+    LetStatement*, // let a b
+    VarStatement*, // var a b
 
     // /* conditional statements */
     // Guard*, // [ <cond> ] || <jump-when-fails>

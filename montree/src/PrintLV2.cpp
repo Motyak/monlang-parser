@@ -4,6 +4,8 @@
 
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
+#include <monlang-LV2/stmt/LetStatement.h>
+#include <monlang-LV2/stmt/VarStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <monlang-LV2/expr/Operation.h>
@@ -76,6 +78,26 @@ void PrintLV2::operator()(Accumulation* accumulation) {
     output("-> "); operator()(&accumulation->lhs);
     outputLine("-> operator: `", accumulation->operator_.c_str(), "`");
     operator()(accumulation->rhs);
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(LetStatement* letStatement) {
+    outputLine("LetStatement");
+    currIndent++;
+
+    outputLine("-> identifier: `", letStatement->lhs.c_str(), "`");
+    operator()(letStatement->rhs);
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(VarStatement* varStatement) {
+    outputLine("VarStatement");
+    currIndent++;
+
+    outputLine("-> identifier: `", varStatement->lhs.c_str(), "`");
+    operator()(varStatement->rhs);
 
     currIndent--;
 }

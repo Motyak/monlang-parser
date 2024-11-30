@@ -25,6 +25,8 @@ STMT_ENTITIES := \
 Accumulation \
 Assignment \
 ExpressionStatement \
+LetStatement \
+VarStatement \
 
 EXPR_ENTITIES := \
 Operation \

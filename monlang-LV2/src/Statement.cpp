@@ -3,6 +3,8 @@
 /* impl only */
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
+#include <monlang-LV2/stmt/LetStatement.h>
+#include <monlang-LV2/stmt/VarStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <utils/assert-utils.h>
@@ -38,6 +40,14 @@ Statement consumeStatement(LV1::Program& prog, const context_t& cx) {
 
     if (peekAccumulation(sentence)) {
         return move_to_heap(buildAccumulation(sentence, cx));
+    }
+
+    if (peekLetStatement(sentence)) {
+        return move_to_heap(buildLetStatement(sentence, cx));
+    }
+
+    if (peekVarStatement(sentence)) {
+        return move_to_heap(buildVarStatement(sentence, cx));
     }
 
     // ...

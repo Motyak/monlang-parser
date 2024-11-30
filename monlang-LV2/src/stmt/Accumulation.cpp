@@ -35,6 +35,7 @@ bool peekAccumulation(const ProgramSentence& sentence) {
     return optr_found;
 }
 
+// where rhs are the [2], [3], .. words from the sentence
 static Term extractRhs(const ProgramSentence&);
 
 Accumulation buildAccumulation(const ProgramSentence& sentence, const context_t& cx) {
