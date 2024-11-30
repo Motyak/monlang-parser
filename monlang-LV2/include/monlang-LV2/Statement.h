@@ -23,13 +23,13 @@ struct Guard;
 struct ExpressionStatement;
 
 using Statement = std::variant<
+    /* declarations (introduce new symbol/identifier) */
+    LetStatement*, // let a b
+    VarStatement*, // var a b
+
     /* assignments */
     Assignment*, // a := b
     Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
-
-    /* declarations */
-    LetStatement*, // let a b
-    VarStatement*, // var a b
 
     /* jump statements */
     ReturnStatement*,
