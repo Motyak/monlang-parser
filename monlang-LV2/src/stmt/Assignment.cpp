@@ -21,7 +21,8 @@ bool peekAssignment(const ProgramSentence& sentence) {
 }
 
 // where rhs are the [2], [3], .. words from the sentence
-static Term extractRhs(const ProgramSentence&);
+// ..returns empty opt if any non-word
+static std::optional<Term> extractRhs(const ProgramSentence&);
 
 Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx) {
     ASSERT (!cx.fallthrough);
@@ -39,7 +40,11 @@ Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx)
     auto lhs = buildLvalue(word);
 
     auto rhs_as_term = extractRhs(sentence);
-    auto rhs = buildExpression(rhs_as_term, cx);
+    unless (rhs_as_term) {
+        cx.malformed_stmt = "rhs is an unknown Expression";
+        return Assignment(); // stub
+    }
+    auto rhs = buildExpression(*rhs_as_term, cx);
     if (cx.fallthrough) {
         cx.malformed_stmt = "rhs is an unknown Expression";
         return Assignment(); // stub
@@ -48,7 +53,7 @@ Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx)
     return Assignment{lhs, rhs};
 }
 
-static Term extractRhs(const ProgramSentence& sentence) {
+static std::optional<Term> extractRhs(const ProgramSentence& sentence) {
     auto rhs_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 2,
         sentence.programWords.end()
@@ -56,6 +61,9 @@ static Term extractRhs(const ProgramSentence& sentence) {
 
     std::vector<Word> words;
     for (auto e: rhs_as_sentence) {
+        unless (holds_word(e)) {
+            return {};
+        }
         words.push_back(get_word(e));
     }
     return Term{words};

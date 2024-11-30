@@ -24,8 +24,12 @@ $(EXPR_ENTITIES:%=expr/%)
 STMT_ENTITIES := \
 Accumulation \
 Assignment \
+BreakStatement \
+ContinueStatement \
+DieStatement \
 ExpressionStatement \
 LetStatement \
+ReturnStatement \
 VarStatement \
 
 EXPR_ENTITIES := \

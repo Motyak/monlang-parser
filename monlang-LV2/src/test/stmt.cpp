@@ -151,3 +151,103 @@ TEST_CASE ("var statement", "[test-3115][stmt]") {
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("return statement", "[test-3116][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `return`
+       |  -> ProgramWord #2: Atom: `0`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: ReturnStatement
+       |  -> Expression: Literal: `0`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+
+    auto output = consumeStatement(input_prog, context);
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("break statement", "[test-3117][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord: Atom: `break`
+    )EOF");
+
+    auto expect = "-> Statement: BreakStatement";
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+
+    auto output = consumeStatement(input_prog, context);
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("continue statement", "[test-3118][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord: Atom: `continue`
+    )EOF");
+
+    auto expect = "-> Statement: ContinueStatement";
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+
+    auto output = consumeStatement(input_prog, context);
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("die statement", "[test-3119][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord: Atom: `die`
+    )EOF");
+
+    auto expect = "-> Statement: DieStatement";
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+
+    auto output = consumeStatement(input_prog, context);
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}

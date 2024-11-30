@@ -6,6 +6,10 @@
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
 #include <monlang-LV2/stmt/VarStatement.h>
+#include <monlang-LV2/stmt/ReturnStatement.h>
+#include <monlang-LV2/stmt/BreakStatement.h>
+#include <monlang-LV2/stmt/ContinueStatement.h>
+#include <monlang-LV2/stmt/DieStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <monlang-LV2/expr/Operation.h>
@@ -100,6 +104,27 @@ void PrintLV2::operator()(VarStatement* varStatement) {
     operator()(varStatement->rhs);
 
     currIndent--;
+}
+
+void PrintLV2::operator()(ReturnStatement* returnStatement) {
+    outputLine("ReturnStatement");
+    if (returnStatement->expression) {
+        currIndent++;
+        operator()(*returnStatement->expression);
+        currIndent--;
+    }
+}
+
+void PrintLV2::operator()(BreakStatement*) {
+    outputLine("BreakStatement");
+}
+
+void PrintLV2::operator()(ContinueStatement*) {
+    outputLine("ContinueStatement");
+}
+
+void PrintLV2::operator()(DieStatement*) {
+    outputLine("DieStatement");
 }
 
 void PrintLV2::operator()(ExpressionStatement* expressionStatement) {

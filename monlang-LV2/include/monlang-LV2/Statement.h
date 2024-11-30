@@ -11,14 +11,15 @@ struct Assignment;
 struct Accumulation;
 struct LetStatement;
 struct VarStatement;
-// struct Guard;
+struct ReturnStatement;
+struct BreakStatement;
+struct ContinueStatement;
+struct DieStatement;
+struct Guard;
 // struct IfStatement;
 // struct ForeachStatement;
 // struct WhileStatement;
-// struct ReturnStatement;
-// struct BreakStatement;
-// struct ContinueStatement;
-// struct DieStatement;
+// struct DeferStatement;
 struct ExpressionStatement;
 
 using Statement = std::variant<
@@ -26,9 +27,15 @@ using Statement = std::variant<
     Assignment*, // a := b
     Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
 
-    // /* declarations */
+    /* declarations */
     LetStatement*, // let a b
     VarStatement*, // var a b
+
+    /* jump statements */
+    ReturnStatement*,
+    BreakStatement*,
+    ContinueStatement*,
+    DieStatement*,
 
     // /* conditional statements */
     // Guard*, // [ <cond> ] || <jump-when-fails>
@@ -37,12 +44,6 @@ using Statement = std::variant<
     // /* loop statements */
     // ForeachStatement*, // foreach <iterable> <block>
     // WhileStatement*, // while, do..while, until, do..until
-
-    // /* jump statements */
-    // ReturnStatement*,
-    // BreakStatement*,
-    // ContinueStatement*,
-    // DieStatement*,
 
     // DeferStatement*, // defer <block-expression>
 
