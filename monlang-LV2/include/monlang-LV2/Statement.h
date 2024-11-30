@@ -44,6 +44,8 @@ using Statement = std::variant<
     // ContinueStatement*,
     // DieStatement*,
 
+    // DeferStatement*, // defer <block-expression>
+
     // fall-through statement
     ExpressionStatement*
 >;

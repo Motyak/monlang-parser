@@ -205,6 +205,9 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     const auto CANDIDATES = std::vector<std::string>{
         "Atom",
+        "PostfixParenthesesGroup",
+        "Association",
+        "CurlyBracketsGroup",
     };
 
     auto line = peekLine(tis); // -> ProgramWord...
@@ -222,6 +225,18 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     if (first_candidate_found == "Atom") {
         return move_to_heap(buildAtom());
+    }
+
+    else if (first_candidate_found == "PostfixParenthesesGroup") {
+        return move_to_heap(buildPostfixParenthesesGroup());
+    }
+
+    else if (first_candidate_found == "Association") {
+        return move_to_heap(buildAssociation());
+    }
+
+    else if (first_candidate_found == "CurlyBracketsGroup") {
+        return move_to_heap(buildCurlyBracketsGroup());
     }
 
     else {
