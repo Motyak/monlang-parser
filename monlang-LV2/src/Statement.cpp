@@ -10,6 +10,7 @@
 #include <monlang-LV2/stmt/BreakStatement.h>
 #include <monlang-LV2/stmt/ContinueStatement.h>
 #include <monlang-LV2/stmt/DieStatement.h>
+#include <monlang-LV2/stmt/ForeachStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <utils/assert-utils.h>
@@ -93,6 +94,14 @@ Statement consumeStatement(LV1::Program& prog, const context_t& cx) {
 
     if (peekDieStatement(sentence)) {
         return move_to_heap(DieStatement{});
+    }
+
+    // if (sentence =~ "Atom<`foreach`> ProgramWord ProgramWord+"_) {
+    //     return move_to_heap(buildForeachStatement(sentence, cx));
+    // }
+
+    if (peekForeachStatement(sentence)) {
+        return move_to_heap(buildForeachStatement(sentence, cx));
     }
 
     // if (peekGuard(sentence)) {

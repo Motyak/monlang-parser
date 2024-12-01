@@ -10,6 +10,7 @@
 #include <monlang-LV2/stmt/BreakStatement.h>
 #include <monlang-LV2/stmt/ContinueStatement.h>
 #include <monlang-LV2/stmt/DieStatement.h>
+#include <monlang-LV2/stmt/ForeachStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <monlang-LV2/expr/Operation.h>
@@ -125,6 +126,16 @@ void PrintLV2::operator()(ContinueStatement*) {
 
 void PrintLV2::operator()(DieStatement*) {
     outputLine("DieStatement");
+}
+
+void PrintLV2::operator()(ForeachStatement* foreachStatement) {
+    outputLine("ForeachStatement");
+    currIndent++;
+
+    operator()(foreachStatement->iterable);
+    output("-> "); operator()(&foreachStatement->block);
+
+    currIndent--;
 }
 
 void PrintLV2::operator()(ExpressionStatement* expressionStatement) {

@@ -40,7 +40,7 @@ bool peekAccumulation(const ProgramSentence& sentence) {
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
 Accumulation buildAccumulation(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.fallthrough);
+    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {

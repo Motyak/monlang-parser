@@ -17,7 +17,7 @@ struct ContinueStatement;
 struct DieStatement;
 struct Guard;
 // struct IfStatement;
-// struct ForeachStatement;
+struct ForeachStatement;
 // struct WhileStatement;
 // struct DeferStatement;
 struct ExpressionStatement;
@@ -42,7 +42,7 @@ using Statement = std::variant<
     // IfStatement*, // if..elsif..else, unless
 
     // /* loop statements */
-    // ForeachStatement*, // foreach <iterable> <block>
+    ForeachStatement*, // foreach <iterable> <block>
     // WhileStatement*, // while, do..while, until, do..until
 
     // DeferStatement*, // defer <block-expression>

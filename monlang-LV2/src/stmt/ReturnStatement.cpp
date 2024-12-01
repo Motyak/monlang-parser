@@ -1,7 +1,10 @@
 #include <monlang-LV2/stmt/ReturnStatement.h>
 
 /* impl only */
+
 #include <monlang-LV1/ast/Atom.h>
+
+#include <utils/assert-utils.h>
 
 #define unless(x) if(!(x))
 
@@ -24,6 +27,7 @@ bool peekReturnStatement(const ProgramSentence& sentence) {
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
 ReturnStatement buildReturnStatement(const ProgramSentence& sentence, const context_t& cx) {
+    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
     auto expr = std::optional<Expression>();
     if (sentence.programWords.size() >= 1) {
         auto rhs_as_term = extractRhs(sentence);

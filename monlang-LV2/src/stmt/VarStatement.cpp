@@ -27,7 +27,7 @@ bool peekVarStatement(const ProgramSentence& sentence) {
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
 VarStatement buildVarStatement(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.fallthrough);
+    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[1])) {

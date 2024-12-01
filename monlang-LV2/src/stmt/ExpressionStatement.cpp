@@ -12,6 +12,7 @@ static Term toTerm(const ProgramSentence& sentence) {
 }
 
 ExpressionStatement buildExpressionStatement(const ProgramSentence& sentence, const context_t& cx) {
+    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
     auto& term = cx.term;
     ASSERT (sentence.programWords.size() > 0);
 

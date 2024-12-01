@@ -21,6 +21,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(BreakStatement*);
     void operator()(ContinueStatement*);
     void operator()(DieStatement*);
+    void operator()(ForeachStatement*);
     void operator()(ExpressionStatement*);
 
     /* expressions */

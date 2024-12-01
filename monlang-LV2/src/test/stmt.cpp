@@ -251,3 +251,45 @@ TEST_CASE ("die statement", "[test-3119][stmt]") {
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("foreach statement", "[test-3121][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `foreach`
+       |  -> ProgramWord #2: Atom: `things`
+       |  -> ProgramWord #3: CurlyBracketsGroup
+       |    -> ProgramSentence
+       |      -> ProgramWord: PostfixParenthesesGroup
+       |        -> Word: Atom: `print`
+       |        -> ParenthesesGroup
+       |          -> Term
+       |            -> Word: Atom: `$1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: ForeachStatement
+       |  -> Expression: Lvalue: `things`
+       |  -> BlockExpression
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: FunctionCall
+       |        -> function
+       |          -> Expression: Lvalue: `print`
+       |        -> arguments
+       |          -> Expression: Lvalue: `$1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+
+    auto output = consumeStatement(input_prog, context);
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}

@@ -28,6 +28,7 @@ BreakStatement \
 ContinueStatement \
 DieStatement \
 ExpressionStatement \
+ForeachStatement \
 LetStatement \
 ReturnStatement \
 VarStatement \
