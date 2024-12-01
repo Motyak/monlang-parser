@@ -24,12 +24,45 @@ TEST_CASE ("labelize literal", "[test-4211][let]") {
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
     auto context = context_init_t{};
-    auto output = consumeStatement(input_prog, context);
-    auto output_str = montree::astToString(output);
 
-    REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog, context);
     REQUIRE (!context.malformed_stmt); // no err
     REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("labelize literal", "[test-4251][let]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `let`
+       |  -> ProgramWord #2: Atom: `x`
+       |  -> ProgramWord #3: ParenthesesGroup
+       |    -> Term
+       |      -> Word: Atom: `91`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: LetStatement
+       |  -> identifier: `x`
+       |  -> Expression: Literal: `91`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto context = context_init_t{};
+
+    auto output = consumeStatement(input_prog, context);
+    REQUIRE (!context.malformed_stmt); // no err
+    REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
 
@@ -53,12 +86,13 @@ TEST_CASE ("labelize lvalue", "[test-4212][let]") {
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
     auto context = context_init_t{};
-    auto output = consumeStatement(input_prog, context);
-    auto output_str = montree::astToString(output);
 
-    REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog, context);
     REQUIRE (!context.malformed_stmt); // no err
     REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
 
@@ -92,12 +126,13 @@ TEST_CASE ("labelize lambda", "[test-4213][let]") {
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
     auto context = context_init_t{};
-    auto output = consumeStatement(input_prog, context);
-    auto output_str = montree::astToString(output);
 
-    REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog, context);
     REQUIRE (!context.malformed_stmt); // no err
     REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
 
@@ -128,12 +163,13 @@ TEST_CASE ("labelize operation", "[test-4214][let]") {
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
     auto context = context_init_t{};
-    auto output = consumeStatement(input_prog, context);
-    auto output_str = montree::astToString(output);
 
-    REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog, context);
     REQUIRE (!context.malformed_stmt); // no err
     REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
 
@@ -161,12 +197,13 @@ TEST_CASE ("labelize block expression", "[test-4215][let]") {
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
     auto context = context_init_t{};
-    auto output = consumeStatement(input_prog, context);
-    auto output_str = montree::astToString(output);
 
-    REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog, context);
     REQUIRE (!context.malformed_stmt); // no err
     REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
 
@@ -196,11 +233,12 @@ TEST_CASE ("labelize function call", "[test-4216][let]") {
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
     auto context = context_init_t{};
-    auto output = consumeStatement(input_prog, context);
-    auto output_str = montree::astToString(output);
 
-    REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog, context);
     REQUIRE (!context.malformed_stmt); // no err
     REQUIRE (!context.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }

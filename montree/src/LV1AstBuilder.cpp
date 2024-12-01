@@ -28,11 +28,13 @@ enum LineType {
 
 struct Line {
     LineType type;
+    int nestingLevel;
     std::string value;
 };
 
 struct TreeInputStream {
     int prev_tab_size;
+    int prev_nesting_level = 0;
     std::istringstream input;
 
     TreeInputStream(const std::string& input) : prev_tab_size(-1), input(input){}
@@ -62,14 +64,28 @@ Line consumeLine(TreeInputStream& tis) {
         goto LOOP_LINE;
     }
     
-    auto type = line == ""? END
-              : line_tab_size > tis.prev_tab_size? INCR
-              : line_tab_size < tis.prev_tab_size? DECR
-              : standard;
+    LineType type;
+    int nesting_level = tis.prev_nesting_level;
+    if (line == "") {
+        type = END;
+    }
+    else if (line_tab_size > tis.prev_tab_size) {
+        type = INCR;
+        nesting_level = tis.prev_nesting_level + 1;
+    }
+    else if (line_tab_size < tis.prev_tab_size) {
+        ASSERT (tis.prev_nesting_level > 0);
+        type = DECR;
+        nesting_level = tis.prev_nesting_level - 1;
+    }
+    else {
+        type = standard;
+    }
     
     tis.prev_tab_size = line_tab_size;
+    tis.prev_nesting_level = nesting_level;
     
-    return Line{type, line};
+    return Line{type, nesting_level, line};
 }
 
 Line peekLine(TreeInputStream& tis) {
@@ -77,6 +93,8 @@ Line peekLine(TreeInputStream& tis) {
     std::streampos initial_pos = tis.input.tellg();
     // save prev_tab_size
     int prev_tab_size = tis.prev_tab_size;
+    // save prev_nesting_level
+    int prev_nesting_level = tis.prev_nesting_level;
 
     auto res = consumeLine(tis);
 
@@ -86,6 +104,8 @@ Line peekLine(TreeInputStream& tis) {
     tis.input.seekg(initial_pos);
     // restore prev_tab_size
     tis.prev_tab_size = prev_tab_size;
+    // restore prev_nesting_level
+    tis.prev_nesting_level = prev_nesting_level;
 
     return res;
 }
@@ -180,7 +200,7 @@ LV1::Program LV1AstBuilder::buildProgram() {
 ProgramSentence LV1AstBuilder::buildProgramSentence() {
     ENTERING_BUILD_ROUTINE();
 
-    consumeLine(tis); // -> ProgramSentence
+    auto parentNestingLevel = consumeLine(tis).nestingLevel; // -> ProgramSentence
 
     if (peekLine(tis).type != INCR) {
         SHOULD_NOT_HAPPEN(); // empty program sentence
@@ -194,8 +214,11 @@ ProgramSentence LV1AstBuilder::buildProgramSentence() {
         if (peekedLine.type == INCR) {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildProgramWord()
         }
+        if (peekedLine.nestingLevel < parentNestingLevel) {
+            SHOULD_NOT_HAPPEN(); // should be greater or equal
+        }
     }
-    until (peekedLine.type == DECR || peekedLine.type == END);
+    until (peekedLine.nestingLevel == parentNestingLevel || peekedLine.type == END);
 
     return ProgramSentence{programWords};
 }
@@ -208,6 +231,7 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
         "PostfixParenthesesGroup",
         "Association",
         "CurlyBracketsGroup",
+        "ParenthesesGroup",
     };
 
     auto line = peekLine(tis); // -> ProgramWord...
@@ -239,6 +263,10 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
         return move_to_heap(buildCurlyBracketsGroup());
     }
 
+    else if (first_candidate_found == "ParenthesesGroup") {
+        return move_to_heap(buildParenthesesGroup());
+    }
+
     else {
         SHOULD_NOT_HAPPEN(); // bug
     }
@@ -260,7 +288,7 @@ Atom LV1AstBuilder::buildAtom() {
 Term LV1AstBuilder::buildTerm() {
     ENTERING_BUILD_ROUTINE();
 
-    consumeLine(tis); // -> Term
+    auto parentNestingLevel = consumeLine(tis).nestingLevel; // -> Term
 
     if (peekLine(tis).type != INCR) {
         SHOULD_NOT_HAPPEN(); // empty term
@@ -274,8 +302,11 @@ Term LV1AstBuilder::buildTerm() {
         if (peekedLine.type == INCR) {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
         }
+        if (peekedLine.nestingLevel < parentNestingLevel) {
+            SHOULD_NOT_HAPPEN(); // should be greater or equal
+        }
     }
-    until (peekedLine.type == DECR || peekedLine.type == END);
+    until (peekedLine.nestingLevel == parentNestingLevel || peekedLine.type == END);
 
     return Term{words};
 }

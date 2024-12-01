@@ -178,7 +178,8 @@ void PrintLV2::operator()(FunctionCall* functionCall) {
     operator()(functionCall->function);
     currIndent--;
 
-    outputLine("-> arguments");
+    output("-> arguments");
+    outputLine(functionCall->arguments.empty()? " (none)" : "");
     currIndent++;
     for (auto arg: functionCall->arguments) {
         operator()(arg);
