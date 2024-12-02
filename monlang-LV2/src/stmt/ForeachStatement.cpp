@@ -30,7 +30,7 @@ ForeachStatement buildForeachStatement(const ProgramSentence& sentence, const co
         cx.malformed_stmt = "iterable isn't a valid expression";
         return ForeachStatement(); // stub
     }
-    auto iterable = buildExpression(*iterable_as_term, cx); ////////////
+    auto iterable = buildExpression(*iterable_as_term, cx);
     if (cx.fallthrough) {
         cx.malformed_stmt = "iterable isn't a valid expression";
         return ForeachStatement(); // stub

@@ -4,6 +4,8 @@
 
 #include <utils/assert-utils.h>
 
+#define until(x) while(!(x))
+
 bool peekBlockExpression(const Word& word) {
     // don't we need to differenciate different types of "block" ? will see
     return std::holds_alternative<CurlyBracketsGroup*>(word);
@@ -14,9 +16,11 @@ BlockExpression buildBlockExpression(const Word& word, const context_t& cx) {
     ASSERT (std::holds_alternative<CurlyBracketsGroup*>(word));
     auto cbg = *std::get<CurlyBracketsGroup*>(word);
 
+
     std::vector<Statement> statements;
-    for (auto sentence: cbg.sentences) {
-        auto statement = consumeStatement((Subprogram&)cbg, cx); ////////////////
+    until (cbg.sentences.empty()) {
+        auto statement = consumeStatement((Subprogram&)cbg);
+        // auto statement = consumeStatement((Subprogram&)cbg, cx);
         if (cx.malformed_stmt || cx.fallthrough) {
             return BlockExpression(); // stub
         }
