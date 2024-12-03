@@ -16,11 +16,12 @@ TEST_CASE ("lvalue from atom", "[test-2111][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -38,11 +39,12 @@ TEST_CASE ("grouped expression => ungroup", "[test-2112][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -58,11 +60,12 @@ TEST_CASE ("literal from atom", "[test-2113][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -84,11 +87,12 @@ TEST_CASE ("block from curly brackets group", "[test-2114][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -117,11 +121,12 @@ TEST_CASE ("lambda from pg-cbg association", "[test-2115][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -149,11 +154,12 @@ TEST_CASE ("function call from postfix parentheses group", "[test-2116][expr]") 
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -178,10 +184,11 @@ TEST_CASE ("operation from term of atoms", "[test-2117][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto context = context_init_t{};
-    auto output = buildExpression(input_term, context);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!context.fallthrough); // no err
+    REQUIRE (!cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }

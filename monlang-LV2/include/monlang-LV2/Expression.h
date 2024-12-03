@@ -23,6 +23,6 @@ using Expression = std::variant<
     Lvalue*
 >;
 
-Expression buildExpression(const Term&, const context_t& = context_t{});
+Expression buildExpression(const Term&, const context_t*);
 
 #endif // EXPRESSION_H

@@ -24,29 +24,29 @@ bool peekAssignment(const ProgramSentence& sentence) {
 // ..returns empty opt if any non-word
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
+Assignment buildAssignment(const ProgramSentence& sentence, const context_t* cx) {
+    ASSERT (!cx->malformed_stmt && !cx->fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {
-        cx.malformed_stmt = "lhs is not a Lvalue";
+        cx->malformed_stmt = "lhs is not a Lvalue";
         return Assignment(); // stub
     }
     auto word = get_word(sentence.programWords[0]);
     unless (peekLvalue(word)) {
-        cx.malformed_stmt = "lhs is not an Lvalue";
+        cx->malformed_stmt = "lhs is not an Lvalue";
         return Assignment(); // stub
     }
     auto lhs = buildLvalue(word);
 
     auto rhs_as_term = extractRhs(sentence);
     unless (rhs_as_term) {
-        cx.malformed_stmt = "rhs is an unknown Expression";
+        cx->malformed_stmt = "rhs is an unknown Expression";
         return Assignment(); // stub
     }
     auto rhs = buildExpression(*rhs_as_term, cx);
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "rhs is an unknown Expression";
+    if (cx->fallthrough) {
+        cx->malformed_stmt = "rhs is an unknown Expression";
         return Assignment(); // stub
     }
 

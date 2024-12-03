@@ -15,6 +15,6 @@ struct Accumulation {
 
 bool peekAccumulation(const ProgramSentence&);
 
-Accumulation buildAccumulation(const ProgramSentence&, const context_t& = context_init_t{});
+Accumulation buildAccumulation(const ProgramSentence&, const context_t*);
 
 #endif // ACCUMULATION_H

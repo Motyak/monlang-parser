@@ -15,6 +15,6 @@ struct LetStatement {
 
 bool peekLetStatement(const ProgramSentence&);
 
-LetStatement buildLetStatement(const ProgramSentence&, const context_t& = context_init_t{});
+LetStatement buildLetStatement(const ProgramSentence&, const context_t*);
 
 #endif // LET_STATEMENT_H

@@ -9,6 +9,7 @@ struct BlockExpression {
 
 bool peekBlockExpression(const Word&);
 
-BlockExpression buildBlockExpression(const Word&, const context_t& = context_t{});
+// must pass context by REFERENCE for the context switching to happen (subprogram)
+BlockExpression buildBlockExpression(const Word&, const context_t**);
 
 #endif // BLOCK_EXPRESSION_H

@@ -11,19 +11,19 @@ bool peekFunctionCall(const Word& word) {
     return std::holds_alternative<PostfixParenthesesGroup*>(word);
 }
 
-FunctionCall buildFunctionCall(const Word& word, const context_t& cx) {
-    ASSERT (!cx.fallthrough);
+FunctionCall buildFunctionCall(const Word& word, const context_t* cx) {
+    ASSERT (!cx->fallthrough);
     ASSERT (std::holds_alternative<PostfixParenthesesGroup*>(word));
     auto ppg = *std::get<PostfixParenthesesGroup*>(word);
     auto function = buildExpression(Term{{ppg.leftPart}}, cx);
-    if (cx.fallthrough) {
+    if (cx->fallthrough) {
         return FunctionCall(); // stub
     }
 
     std::vector<Expression> arguments;
     for (auto term: ppg.rightPart.terms) {
         auto expression = buildExpression(term, cx);
-        if (cx.fallthrough) {
+        if (cx->fallthrough) {
             return FunctionCall(); // stub
         }
         arguments.push_back(expression);

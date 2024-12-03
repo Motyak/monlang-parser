@@ -26,18 +26,18 @@ bool peekReturnStatement(const ProgramSentence& sentence) {
 // ..returns empty opt if any non-word
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
+ReturnStatement buildReturnStatement(const ProgramSentence& sentence, const context_t* cx) {
+    ASSERT (!cx->malformed_stmt && !cx->fallthrough);
     auto expr = std::optional<Expression>();
     if (sentence.programWords.size() >= 1) {
         auto rhs_as_term = extractRhs(sentence);
         unless (rhs_as_term) {
-            cx.malformed_stmt = "returned Expression is unknown";
+            cx->malformed_stmt = "returned Expression is unknown";
             return ReturnStatement(); // stub
         }
         expr = buildExpression(*rhs_as_term, cx);
-        if (cx.fallthrough) {
-            cx.malformed_stmt = "returned Expression is unknown";
+        if (cx->fallthrough) {
+            cx->malformed_stmt = "returned Expression is unknown";
             return ReturnStatement(); // stub
         }
     }

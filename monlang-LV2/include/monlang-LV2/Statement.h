@@ -51,6 +51,6 @@ using Statement = std::variant<
     ExpressionStatement*
 >;
 
-Statement consumeStatement(LV1::Program&, const context_t& = context_t{});
+Statement consumeStatement(LV1::Program&, const context_t*);
 
 #endif // STATEMENT_H

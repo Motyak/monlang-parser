@@ -12,6 +12,6 @@ struct ReturnStatement {
 
 bool peekReturnStatement(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence&, const context_t& = context_init_t{});
+ReturnStatement buildReturnStatement(const ProgramSentence&, const context_t*);
 
 #endif // RETURN_STATEMENT_H

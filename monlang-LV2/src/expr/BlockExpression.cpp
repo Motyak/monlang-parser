@@ -11,21 +11,31 @@ bool peekBlockExpression(const Word& word) {
     return std::holds_alternative<CurlyBracketsGroup*>(word);
 }
 
-BlockExpression buildBlockExpression(const Word& word, const context_t& cx) {
-    ASSERT (!cx.fallthrough);
+BlockExpression buildBlockExpression(const Word& word, const context_t** cx) {
+    ASSERT (!(*cx)->fallthrough);
     ASSERT (std::holds_alternative<CurlyBracketsGroup*>(word));
     auto cbg = *std::get<CurlyBracketsGroup*>(word);
 
+    // create new context
+    auto child_cx = context_t{}; // we use context_t{} instead of context_init_t{}..
+               // ..because we don't want to deallocate memory at the end of scope..
+               // ..(it's used by the returned entity)
+    // save context
+    auto* parent_cx = (*cx);
+    // switch context
+    *cx = &child_cx;
 
-    std::vector<Statement> statements;
+    auto& statements = *std::any_cast<std::vector<Statement>*>(child_cx.statements);
     until (cbg.sentences.empty()) {
-        auto statement = consumeStatement((Subprogram&)cbg);
-        // auto statement = consumeStatement((Subprogram&)cbg, cx);
-        if (cx.malformed_stmt || cx.fallthrough) {
+        auto statement = consumeStatement((Subprogram&)cbg, *cx);
+        if ((*cx)->malformed_stmt || (*cx)->fallthrough) {
             return BlockExpression(); // stub
         }
         statements.push_back(statement);
     }
+
+    // restore context
+    *cx = parent_cx;
 
     return BlockExpression{statements};
 }

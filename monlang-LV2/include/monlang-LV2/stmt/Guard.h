@@ -17,6 +17,6 @@ struct Guard {
 
 bool peekGuard(const ProgramSentence&);
 
-Guard buildGuard(const ProgramSentence&, const context_t& = context_init_t{});
+Guard buildGuard(const ProgramSentence&, const context_t*);
 
 #endif // GUARD_H

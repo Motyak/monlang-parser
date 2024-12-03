@@ -21,30 +21,30 @@ bool peekForeachStatement(const ProgramSentence& sentence) {
 // returns empty opt in case any non-word
 static std::optional<Term> extractIterable(const ProgramSentence&);
 
-ForeachStatement buildForeachStatement(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
+ForeachStatement buildForeachStatement(const ProgramSentence& sentence, const context_t* cx) {
+    ASSERT (!cx->malformed_stmt && !cx->fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     auto iterable_as_term = extractIterable(sentence);
     unless (iterable_as_term) {
-        cx.malformed_stmt = "iterable isn't a valid expression";
+        cx->malformed_stmt = "iterable isn't a valid expression";
         return ForeachStatement(); // stub
     }
     auto iterable = buildExpression(*iterable_as_term, cx);
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "iterable isn't a valid expression";
+    if (cx->fallthrough) {
+        cx->malformed_stmt = "iterable isn't a valid expression";
         return ForeachStatement(); // stub
     }
 
     auto pw = sentence.programWords.back();
     unless (holds_word(pw)) {
-        cx.malformed_stmt = "invalid foreach block";
+        cx->malformed_stmt = "invalid foreach block";
         return ForeachStatement(); // stub
     }
     auto word = get_word(pw);
-    auto block = buildBlockExpression(word, cx);
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "invalid foreach block";
+    auto block = buildBlockExpression(word, &cx); // pass cx by reference for local context switching
+    if (cx->fallthrough) {
+        cx->malformed_stmt = "invalid foreach block";
         return ForeachStatement(); // stub
     }
 

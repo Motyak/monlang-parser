@@ -12,6 +12,6 @@ struct Assignment {
 
 bool peekAssignment(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence&, const context_t& = context_init_t{});
+Assignment buildAssignment(const ProgramSentence&, const context_t*);
 
 #endif // ASSIGNMENT_H

@@ -26,12 +26,12 @@ bool peekVarStatement(const ProgramSentence& sentence) {
 // ..returns empty opt if any non-word
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
-VarStatement buildVarStatement(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
+VarStatement buildVarStatement(const ProgramSentence& sentence, const context_t* cx) {
+    ASSERT (!cx->malformed_stmt && !cx->fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[1])) {
-        cx.malformed_stmt = "lhs is not an identifier";
+        cx->malformed_stmt = "lhs is not an identifier";
         return VarStatement(); // stub
     }
     auto word = get_word(sentence.programWords[1]);
@@ -41,12 +41,12 @@ VarStatement buildVarStatement(const ProgramSentence& sentence, const context_t&
 
     auto rhs_as_term = extractRhs(sentence);
     unless (rhs_as_term) {
-        cx.malformed_stmt = "rhs is an unknown Expression";
+        cx->malformed_stmt = "rhs is an unknown Expression";
         return VarStatement(); // stub
     }
     auto rhs = buildExpression(*rhs_as_term, cx);
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "rhs is an unknown Expression";
+    if (cx->fallthrough) {
+        cx->malformed_stmt = "rhs is an unknown Expression";
         return VarStatement(); // stub
     }
 

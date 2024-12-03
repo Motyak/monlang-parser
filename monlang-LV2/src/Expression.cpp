@@ -22,8 +22,8 @@
     fallthrough = true; \
     return Expression()
 
-Expression buildExpression(const Term& term, const context_t& cx) {
-    auto& fallthrough = cx.fallthrough;
+Expression buildExpression(const Term& term, const context_t* cx) {
+    auto& fallthrough = cx->fallthrough;
     ASSERT (!fallthrough);
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
@@ -100,7 +100,7 @@ Expression buildExpression(const Term& term, const context_t& cx) {
     // }
 
     if (peekBlockExpression(word)) {
-        return move_to_heap(buildBlockExpression(word, cx));
+        return move_to_heap(buildBlockExpression(word, &cx)); // pass cx by reference for local context switching
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
