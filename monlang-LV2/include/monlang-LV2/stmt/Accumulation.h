@@ -3,7 +3,7 @@
 
 #include <monlang-LV2/expr/Lvalue.h>
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 using identifier_t = std::string;
 
@@ -15,6 +15,6 @@ struct Accumulation {
 
 bool peekAccumulation(const ProgramSentence&);
 
-Accumulation buildAccumulation(const ProgramSentence&, const context_t*);
+Accumulation buildAccumulation(const ProgramSentence&, const context_t* = disposable_cx());
 
 #endif // ACCUMULATION_H

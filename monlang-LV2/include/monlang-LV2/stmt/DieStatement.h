@@ -1,7 +1,7 @@
 #ifndef DIE_STATEMENT_H
 #define DIE_STATEMENT_H
 
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 struct DieStatement{};
 

@@ -1,6 +1,9 @@
 #include <monlang-LV2/stmt/Assignment.h>
 
+/* impl only */
+
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 #include <utils/assert-utils.h>
 

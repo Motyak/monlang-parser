@@ -19,12 +19,11 @@
 #define unless(x) if (!(x))
 
 #define FALLTHROUGH() \
-    fallthrough = true; \
+    cx->fallthrough = true; \
     return Expression()
 
 Expression buildExpression(const Term& term, const context_t* cx) {
-    auto& fallthrough = cx->fallthrough;
-    ASSERT (!fallthrough);
+    ASSERT (!cx->fallthrough);
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
 
@@ -136,6 +135,6 @@ Expression buildExpression(const Term& term, const context_t* cx) {
     }
 
     /* reached fall-through */
-    fallthrough = true;
+    cx->fallthrough = true;
     return Expression(); // return stub
 }

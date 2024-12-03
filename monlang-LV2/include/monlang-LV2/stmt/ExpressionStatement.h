@@ -10,6 +10,6 @@ struct ExpressionStatement {
     Expression expression;
 };
 
-ExpressionStatement buildExpressionStatement(const ProgramSentence&, const context_t*);
+ExpressionStatement buildExpressionStatement(const ProgramSentence&, const context_t* = disposable_cx());
 
 #endif // EXPRESSION_STATEMENT_H

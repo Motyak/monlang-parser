@@ -2,7 +2,7 @@
 #define LET_STATEMENT_H
 
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 #include <monlang-LV1/ast/ProgramSentence.h>
 
@@ -15,6 +15,6 @@ struct LetStatement {
 
 bool peekLetStatement(const ProgramSentence&);
 
-LetStatement buildLetStatement(const ProgramSentence&, const context_t*);
+LetStatement buildLetStatement(const ProgramSentence&, const context_t* = disposable_cx());
 
 #endif // LET_STATEMENT_H

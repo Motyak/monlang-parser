@@ -3,7 +3,7 @@
 
 #include <monlang-LV2/expr/Lvalue.h>
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 struct Assignment {
     Lvalue lhs;
@@ -12,6 +12,6 @@ struct Assignment {
 
 bool peekAssignment(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence&, const context_t*);
+Assignment buildAssignment(const ProgramSentence&, const context_t* = disposable_cx());
 
 #endif // ASSIGNMENT_H

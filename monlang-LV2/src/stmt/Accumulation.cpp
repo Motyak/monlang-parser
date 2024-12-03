@@ -1,7 +1,10 @@
 #include <monlang-LV2/stmt/Accumulation.h>
+#include <monlang-LV2/precedence.h>
+
+/* impl only */
 
 #include <monlang-LV1/ast/Atom.h>
-#include <monlang-LV2/precedence.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 #include <utils/vec-utils.h>
 #include <utils/assert-utils.h>

@@ -2,7 +2,7 @@
 #define RETURN_STATEMENT_H
 
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 #include <optional>
 
@@ -12,6 +12,6 @@ struct ReturnStatement {
 
 bool peekReturnStatement(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence&, const context_t*);
+ReturnStatement buildReturnStatement(const ProgramSentence&, const context_t* = disposable_cx());
 
 #endif // RETURN_STATEMENT_H
