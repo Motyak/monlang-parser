@@ -1,6 +1,5 @@
 #include <monlang-LV2/context.h>
 #include <monlang-LV2/Statement.h>
-#include <monlang-LV2/context_init.h>
 
 #include <monlang-LV1/ProgramSentence.h>
 #include <monlang-LV1/Term.h>
@@ -20,12 +19,3 @@ context_t::context_t(std::any statements, ProgramSentence& sentence, Term& term,
         term(term),
         malformed_stmt(malformed_stmt),
         fallthrough(fallthrough){}
-
-const context_t* fresh_cx() {
-    static thread_local context_t* cx = nullptr;
-    if (cx) {
-        delete cx;
-    }
-    cx = new context_t{};
-    return cx;
-}

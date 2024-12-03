@@ -22,6 +22,4 @@ struct context_t {
     context_t(std::any, ProgramSentence&, Term&, std::optional<std::string>&, bool&);
 };
 
-const context_t* fresh_cx();
-
 #endif // CONTEXT_H
