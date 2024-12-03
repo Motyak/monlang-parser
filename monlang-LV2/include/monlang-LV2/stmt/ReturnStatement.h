@@ -7,11 +7,11 @@
 #include <optional>
 
 struct ReturnStatement {
-    std::optional<Expression> expression;
+    std::optional<Expression> value;
 };
 
 bool peekReturnStatement(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence&, const context_t* = new context_t{});
+ReturnStatement buildReturnStatement(const ProgramSentence&, context_t* = new context_t{});
 
 #endif // RETURN_STATEMENT_H

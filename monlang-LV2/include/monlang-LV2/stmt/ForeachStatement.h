@@ -14,6 +14,6 @@ struct ForeachStatement {
 
 bool peekForeachStatement(const ProgramSentence&);
 
-ForeachStatement buildForeachStatement(const ProgramSentence&, const context_t* = new context_t{});
+ForeachStatement buildForeachStatement(const ProgramSentence&, context_t* = new context_t{});
 
 #endif // FOREACH_STATEMENT_H

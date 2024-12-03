@@ -27,8 +27,8 @@ TEST_CASE ("assign literal", "[test-4111][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -60,8 +60,8 @@ TEST_CASE ("assign grouped expr", "[test-4151][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -91,8 +91,8 @@ TEST_CASE ("assign lvalue to lvalue", "[test-4112][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -132,8 +132,8 @@ TEST_CASE ("assign lambda", "[test-4113][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -170,8 +170,8 @@ TEST_CASE ("assign operation", "[test-4114][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -205,8 +205,8 @@ TEST_CASE ("assign block expression", "[test-4115][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -242,8 +242,8 @@ TEST_CASE ("assign function call", "[test-4116][assign]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

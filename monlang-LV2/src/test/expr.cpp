@@ -21,7 +21,7 @@ TEST_CASE ("lvalue from atom", "[test-2111][expr]") {
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -44,7 +44,7 @@ TEST_CASE ("grouped expression => ungroup", "[test-2112][expr]") {
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -65,7 +65,7 @@ TEST_CASE ("literal from atom", "[test-2113][expr]") {
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -92,7 +92,7 @@ TEST_CASE ("block from curly brackets group", "[test-2114][expr]") {
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -126,7 +126,7 @@ TEST_CASE ("lambda from pg-cbg association", "[test-2115][expr]") {
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -159,7 +159,7 @@ TEST_CASE ("function call from postfix parentheses group", "[test-2116][expr]") 
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -189,6 +189,6 @@ TEST_CASE ("operation from term of atoms", "[test-2117][expr]") {
     auto output = buildExpression(input_term, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }

@@ -22,38 +22,41 @@ bool peekLetStatement(const ProgramSentence& sentence) {
     return atom.value == "let";
 }
 
-// where rhs are the [2], [3], .. words from the sentence
+// where 'value' are the [2], [3], .. words from the sentence
 // ..returns empty opt if any non-word
-static std::optional<Term> extractRhs(const ProgramSentence&);
+static std::optional<Term> extractValue(const ProgramSentence&);
 
-LetStatement buildLetStatement(const ProgramSentence& sentence, const context_t* cx) {
-    ASSERT (!cx->malformed_stmt && !cx->fallthrough);
+LetStatement buildLetStatement(const ProgramSentence& sentence, context_t* cx) {
+    auto& malformed_stmt = *cx->malformed_stmt;
+    auto& fallthrough = *cx->fallthrough;
+
+    ASSERT (!malformed_stmt && !fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[1])) {
-        cx->malformed_stmt = "lhs is not an identifier";
+        malformed_stmt = "invalid identifier";
         return LetStatement(); // stub
     }
     auto word = get_word(sentence.programWords[1]);
     ASSERT (std::holds_alternative<Atom*>(word));
     auto atom = *std::get<Atom*>(word);
-    auto lhs = atom.value;
+    auto identifier = atom.value;
 
-    auto rhs_as_term = extractRhs(sentence);
-    unless (rhs_as_term) {
-        cx->malformed_stmt = "rhs is an unknown Expression";
+    auto value_as_term = extractValue(sentence);
+    unless (value_as_term) {
+        malformed_stmt = "value is an unknown Expression";
         return LetStatement(); // stub
     }
-    auto rhs = buildExpression(*rhs_as_term, cx);
-    if (cx->fallthrough) {
-        cx->malformed_stmt = "rhs is an unknown Expression";
+    auto value = buildExpression(*value_as_term, cx);
+    if (fallthrough) {
+        malformed_stmt = "value is an unknown Expression";
         return LetStatement(); // stub
     }
 
-    return LetStatement{lhs, rhs};
+    return LetStatement{identifier, value};
 }
 
-static std::optional<Term> extractRhs(const ProgramSentence& sentence) {
+static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     auto rhs_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 2,
         sentence.programWords.end()

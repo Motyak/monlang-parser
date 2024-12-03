@@ -9,12 +9,12 @@
 using identifier_t = std::string;
 
 struct VarStatement {
-    identifier_t lhs;
-    Expression rhs;
+    identifier_t identifier;
+    Expression value;
 };
 
 bool peekVarStatement(const ProgramSentence&);
 
-VarStatement buildVarStatement(const ProgramSentence&, const context_t* = new context_t{});
+VarStatement buildVarStatement(const ProgramSentence&, context_t* = new context_t{});
 
 #endif // VAR_STATEMENT_H

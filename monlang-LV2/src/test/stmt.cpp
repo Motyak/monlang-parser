@@ -24,8 +24,8 @@ TEST_CASE ("expression statement", "[test-3111][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -55,8 +55,8 @@ TEST_CASE ("assignment", "[test-3112][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -87,8 +87,8 @@ TEST_CASE ("accumulation", "[test-3113][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -118,8 +118,8 @@ TEST_CASE ("let statement", "[test-3114][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -149,8 +149,8 @@ TEST_CASE ("var statement", "[test-3115][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -178,8 +178,8 @@ TEST_CASE ("return statement", "[test-3116][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -203,8 +203,8 @@ TEST_CASE ("break statement", "[test-3117][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -228,8 +228,8 @@ TEST_CASE ("continue statement", "[test-3118][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -253,8 +253,8 @@ TEST_CASE ("die statement", "[test-3119][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -296,8 +296,8 @@ TEST_CASE ("foreach statement", "[test-3121][stmt]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

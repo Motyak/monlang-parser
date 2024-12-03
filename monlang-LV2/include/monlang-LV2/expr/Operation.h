@@ -14,6 +14,6 @@ struct Operation {
 
 bool peekOperation(const Term&);
 
-Operation buildOperation(const Term&, const context_t*);
+Operation buildOperation(const Term&, context_t* = new context_t{});
 
 #endif // OPERATION_H

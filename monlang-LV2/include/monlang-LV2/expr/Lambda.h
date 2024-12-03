@@ -20,6 +20,6 @@ struct Lambda {
 
 bool peekLambda(const Word&);
 
-Lambda buildLambda(const Word&, const context_t*);
+Lambda buildLambda(const Word&, context_t* = new context_t{});
 
 #endif // LAMBDA_H

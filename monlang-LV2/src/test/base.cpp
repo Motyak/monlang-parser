@@ -18,7 +18,7 @@ TEST_CASE ("empty program", "[test-1111][base]") {
     auto output = consumeProgram(input_prog, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
@@ -44,6 +44,6 @@ TEST_CASE ("one statement program", "[test-1112][base]") {
     auto output = consumeProgram(input_prog, &cx);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!cx.fallthrough); // no err
+    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }

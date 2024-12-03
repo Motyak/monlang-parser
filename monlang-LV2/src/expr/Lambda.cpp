@@ -31,8 +31,10 @@ bool peekLambda(const Word& word) {
     return true;
 }
 
-Lambda buildLambda(const Word& word, const context_t* cx) {
-    ASSERT (!cx->fallthrough);
+Lambda buildLambda(const Word& word, context_t* cx) {
+    auto& fallthrough = *cx->fallthrough;
+
+    ASSERT (!fallthrough);
     ASSERT (std::holds_alternative<Association*>(word));
     auto assoc = *std::get<Association*>(word);
 
@@ -51,7 +53,7 @@ Lambda buildLambda(const Word& word, const context_t* cx) {
     LambdaBlock body;
     until (rightPart.sentences.empty()) {
         auto statement = consumeStatement(rightPart, cx);
-        if (cx->fallthrough) {
+        if (fallthrough) {
             return Lambda(); // stub
         }
         body.statements.push_back(statement);

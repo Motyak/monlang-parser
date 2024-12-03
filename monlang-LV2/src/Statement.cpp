@@ -26,10 +26,10 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
     return res;
 }
 
-Statement consumeStatement(LV1::Program& prog, const context_t* cx) {
-    auto& sentence = cx->sentence;
-    ASSERT (prog.sentences.size() > 0);
+Statement consumeStatement(LV1::Program& prog, context_t* cx) {
+    auto& sentence = *cx->sentence;
 
+    ASSERT (prog.sentences.size() > 0);
     sentence = consumeSentence(prog);
 
     // if (sentence =~ "ProgramWord Atom<`:=`> ProgramWord+"_) {

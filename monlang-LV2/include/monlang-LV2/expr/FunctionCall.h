@@ -10,6 +10,6 @@ struct FunctionCall {
 
 bool peekFunctionCall(const Word&);
 
-FunctionCall buildFunctionCall(const Word&, const context_t*);
+FunctionCall buildFunctionCall(const Word&, context_t* = new context_t{});
 
 #endif // FUNCTION_CALL_H

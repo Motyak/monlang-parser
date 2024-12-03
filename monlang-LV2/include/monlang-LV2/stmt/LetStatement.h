@@ -9,12 +9,12 @@
 using identifier_t = std::string;
 
 struct LetStatement {
-    identifier_t lhs;
-    Expression rhs;
+    identifier_t identifier;
+    Expression value;
 };
 
 bool peekLetStatement(const ProgramSentence&);
 
-LetStatement buildLetStatement(const ProgramSentence&, const context_t* = new context_t{});
+LetStatement buildLetStatement(const ProgramSentence&, context_t* = new context_t{});
 
 #endif // LET_STATEMENT_H

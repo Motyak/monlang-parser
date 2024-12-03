@@ -44,8 +44,8 @@ TEST_CASE ("iterable grouped expr (lvalue here)", "[test-4311][foreach]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -92,8 +92,8 @@ TEST_CASE ("iterable function call", "[test-4312][foreach]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -142,8 +142,8 @@ TEST_CASE ("iterable operation", "[test-4313][foreach]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -189,8 +189,8 @@ TEST_CASE ("iterable block expression", "[test-4314][foreach]") {
     auto cx = (context_t)cx_init;
 
     auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!cx.malformed_stmt); // no err
-    REQUIRE (!cx.fallthrough); // ..
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

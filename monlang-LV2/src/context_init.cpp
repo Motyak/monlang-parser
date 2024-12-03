@@ -7,10 +7,10 @@ context_init_t::context_init_t() : statements(), sentence(), term(), malformed_s
 context_init_t::operator context_t() {
     return context_t{
         &statements,
-        sentence,
-        term,
-        malformed_stmt,
-        fallthrough
+        &sentence,
+        &term,
+        &malformed_stmt,
+        &fallthrough
     };
 }
 

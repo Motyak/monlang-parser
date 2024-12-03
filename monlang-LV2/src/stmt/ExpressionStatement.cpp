@@ -11,10 +11,14 @@ static Term toTerm(const ProgramSentence& sentence) {
     return Term{words};
 }
 
-ExpressionStatement buildExpressionStatement(const ProgramSentence& sentence, const context_t* cx) {
-    ASSERT (!cx->malformed_stmt && !cx->fallthrough);
+ExpressionStatement buildExpressionStatement(const ProgramSentence& sentence, context_t* cx) {
+    auto& malformed_stmt = *cx->malformed_stmt;
+    auto& fallthrough = *cx->fallthrough;
+    auto& term = *cx->term;
+
+    ASSERT (!malformed_stmt && !fallthrough);
     ASSERT (sentence.programWords.size() > 0);
 
-    cx->term = toTerm(sentence);
-    return ExpressionStatement{buildExpression(cx->term, cx)};
+    term = toTerm(sentence);
+    return ExpressionStatement{buildExpression(term, cx)};
 }
