@@ -8,6 +8,10 @@
 
 #define unless(x) if(!(x))
 
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return LetStatement()
+
 bool peekLetStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
         return false;
@@ -34,8 +38,7 @@ LetStatement buildLetStatement(const ProgramSentence& sentence, context_t* cx) {
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[1])) {
-        malformed_stmt = "invalid identifier";
-        return LetStatement(); // stub
+        MALFORMED_STMT("invalid identifier");
     }
     auto word = get_word(sentence.programWords[1]);
     ASSERT (std::holds_alternative<Atom*>(word));
@@ -44,13 +47,11 @@ LetStatement buildLetStatement(const ProgramSentence& sentence, context_t* cx) {
 
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        malformed_stmt = "value is an unknown Expression";
-        return LetStatement(); // stub
+        MALFORMED_STMT("value is an unknown Expression");
     }
     auto value = buildExpression(*value_as_term, cx);
     if (fallthrough) {
-        malformed_stmt = "value is an unknown Expression";
-        return LetStatement(); // stub
+        MALFORMED_STMT("value is an unknown Expression");
     }
 
     return LetStatement{identifier, value};

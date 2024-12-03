@@ -1,0 +1,20 @@
+
+=== context.h et context_init.h ===
+
+La raison pour laquelle je passe un contexte:
+  -> au début les attributs actuellement dans context_t était des variables locales dans chaque fonction qui consume/build des statements/expressions. Le contexte représente la progression courante du parsing LV2, en cas d'erreur (early return) elle permet de diagnostiquer l'erreur (si c'est un malformed stmt, et si oui quel statement et quelle erreur, sinon si on a 'fallthrough', c'est à dire qu'une expression inconnue a été parsée, quelle était la phrase LV1 qui n'a pas pu être traduite en LV2).
+  -> la structure contient des pointeurs car on souhaite pouvoir réaffecter un contexte courant (lorsqu'on passe dans un subprogram, on veut affecter un nouveau contexte vide puis à la fin, si tout s'est bien passé, on va réaffecter le contexte initial (du parent)
+
+La raison du std::any dans la struct context_t:
+  -> toutes les fonctions qui build des expressions ont besoin de connaitre la struct context_t, mais elles ne sont pas sensés connaître Statement. Du coup on le cache derrière un std::any. De plus on ne peut pas faire de forward declaration de Statement qui est un alias vers un variant de 1 milliard de types.
+
+La raison du context_init_t (en plus du context_t):
+  -> permet d'instancier un contexte concrétement (vec de statements, sentence, term, opt<str> et bool. Ca peut être utilisé dans la mesure où l'appelant d'une fonction consume/build stmt/expr n'est pas une autre fonction qui consume/build (par exemple depuis un test case catch)
+  -> on pouvait déjà faire ça en appelant le constructeur par défaut de context_t (qui alloue dans la heap) MAIS pour context_init_t on planifie de faire en sorte de libérer toute la mémoire allouée (avec un destructeur qui appelle un deepfree sur les words, etc..)
+
+La raison pour laquelle je mets un argument par défaut sur le paramètre contexte
+  -> pour ne pas imposer la gestion d'erreur à l'appelant de la fonction
+  -> si je n'avais pas fait ça, dans ce cas il aurait été plus simple de ne passer qu'un seul paramètre contexte plutôt que 2 paramètres. Mais la fonction perdrait sa sémantique (on comprend plus trop ce que ça prend en entrée..)
+
+===========================================================
+

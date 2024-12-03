@@ -9,6 +9,10 @@
 
 #define unless(x) if(!(x))
 
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return ReturnStatement()
+
 bool peekReturnStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
@@ -36,13 +40,11 @@ ReturnStatement buildReturnStatement(const ProgramSentence& sentence, context_t*
     if (sentence.programWords.size() >= 1) {
         auto value_as_term = extractValue(sentence);
         unless (value_as_term) {
-            malformed_stmt = "value is an unknown Expression";
-            return ReturnStatement(); // stub
+            MALFORMED_STMT("value is an unknown Expression");
         }
         value = buildExpression(*value_as_term, cx);
         if (fallthrough) {
-            malformed_stmt = "value is an unknown Expression";
-            return ReturnStatement(); // stub
+            MALFORMED_STMT("value is an unknown Expression");
         }
     }
     return ReturnStatement{value};

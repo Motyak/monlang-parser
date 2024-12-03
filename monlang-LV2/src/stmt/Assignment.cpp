@@ -9,6 +9,10 @@
 
 #define unless(x) if(!(x))
 
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return Assignment()
+
 bool peekAssignment(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
         return false;
@@ -35,25 +39,21 @@ Assignment buildAssignment(const ProgramSentence& sentence, context_t* cx) {
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {
-        malformed_stmt = "lhs is not a Lvalue";
-        return Assignment(); // stub
+        MALFORMED_STMT("lhs is not a Lvalue");
     }
     auto word = get_word(sentence.programWords[0]);
     unless (peekLvalue(word)) {
-        malformed_stmt = "lhs is not an Lvalue";
-        return Assignment(); // stub
+        MALFORMED_STMT("lhs is not an Lvalue");
     }
     auto lhs = buildLvalue(word);
 
     auto rhs_as_term = extractRhs(sentence);
     unless (rhs_as_term) {
-        malformed_stmt = "rhs is an unknown Expression";
-        return Assignment(); // stub
+        MALFORMED_STMT("rhs is an unknown Expression");
     }
     auto rhs = buildExpression(*rhs_as_term, cx);
     if (fallthrough) {
-        malformed_stmt = "rhs is an unknown Expression";
-        return Assignment(); // stub
+        MALFORMED_STMT("rhs is an unknown Expression");
     }
 
     return Assignment{lhs, rhs};

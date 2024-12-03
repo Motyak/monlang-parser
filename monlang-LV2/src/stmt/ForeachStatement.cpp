@@ -7,6 +7,10 @@
 
 #define unless(x) if(!(x))
 
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return ForeachStatement()
+
 bool peekForeachStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
         return false;
@@ -30,25 +34,21 @@ ForeachStatement buildForeachStatement(const ProgramSentence& sentence, context_
 
     auto iterable_as_term = extractIterable(sentence);
     unless (iterable_as_term) {
-        malformed_stmt = "iterable isn't a valid expression";
-        return ForeachStatement(); // stub
+        MALFORMED_STMT("iterable isn't a valid expression");
     }
     auto iterable = buildExpression(*iterable_as_term, cx);
     if (fallthrough) {
-        malformed_stmt = "iterable isn't a valid expression";
-        return ForeachStatement(); // stub
+        MALFORMED_STMT("iterable isn't a valid expression");
     }
 
     auto pw = sentence.programWords.back();
     unless (holds_word(pw)) {
-        malformed_stmt = "invalid foreach block";
-        return ForeachStatement(); // stub
+        MALFORMED_STMT("invalid foreach block");
     }
     auto word = get_word(pw);
     auto block = buildBlockExpression(word, cx);
     if (fallthrough) {
-        malformed_stmt = "invalid foreach block";
-        return ForeachStatement(); // stub
+        MALFORMED_STMT("invalid foreach block");
     }
 
     return ForeachStatement{iterable, block};
