@@ -1,7 +1,7 @@
 #ifndef BREAK_STATEMENT_H
 #define BREAK_STATEMENT_H
 
-#include <monlang-LV2/context.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 struct BreakStatement{};
 
