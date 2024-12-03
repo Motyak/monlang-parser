@@ -2,6 +2,7 @@
 
 /* impl only */
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 #define unless(x) if(!(x))
 

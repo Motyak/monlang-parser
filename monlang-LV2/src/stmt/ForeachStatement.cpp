@@ -7,6 +7,10 @@
 
 #define unless(x) if(!(x))
 
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return ForeachStatement()
+
 bool peekForeachStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
         return false;
@@ -21,31 +25,30 @@ bool peekForeachStatement(const ProgramSentence& sentence) {
 // returns empty opt in case any non-word
 static std::optional<Term> extractIterable(const ProgramSentence&);
 
-ForeachStatement buildForeachStatement(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
+ForeachStatement buildForeachStatement(const ProgramSentence& sentence, context_t* cx) {
+    auto& malformed_stmt = *cx->malformed_stmt;
+    auto& fallthrough = *cx->fallthrough;
+
+    ASSERT (!malformed_stmt && !fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     auto iterable_as_term = extractIterable(sentence);
     unless (iterable_as_term) {
-        cx.malformed_stmt = "iterable isn't a valid expression";
-        return ForeachStatement(); // stub
+        MALFORMED_STMT("iterable isn't a valid expression");
     }
-    auto iterable = buildExpression(*iterable_as_term, cx); ////////////
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "iterable isn't a valid expression";
-        return ForeachStatement(); // stub
+    auto iterable = buildExpression(*iterable_as_term, cx);
+    if (fallthrough) {
+        MALFORMED_STMT("iterable isn't a valid expression");
     }
 
     auto pw = sentence.programWords.back();
     unless (holds_word(pw)) {
-        cx.malformed_stmt = "invalid foreach block";
-        return ForeachStatement(); // stub
+        MALFORMED_STMT("invalid foreach block");
     }
     auto word = get_word(pw);
     auto block = buildBlockExpression(word, cx);
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "invalid foreach block";
-        return ForeachStatement(); // stub
+    if (fallthrough) {
+        MALFORMED_STMT("invalid foreach block");
     }
 
     return ForeachStatement{iterable, block};

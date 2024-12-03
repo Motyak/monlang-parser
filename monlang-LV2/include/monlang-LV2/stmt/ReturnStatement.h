@@ -2,16 +2,16 @@
 #define RETURN_STATEMENT_H
 
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 #include <optional>
 
 struct ReturnStatement {
-    std::optional<Expression> expression;
+    std::optional<Expression> value;
 };
 
 bool peekReturnStatement(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence&, const context_t& = context_init_t{});
+ReturnStatement buildReturnStatement(const ProgramSentence&, context_t* = new context_t{});
 
 #endif // RETURN_STATEMENT_H

@@ -22,8 +22,9 @@
     fallthrough = true; \
     return Expression()
 
-Expression buildExpression(const Term& term, const context_t& cx) {
-    auto& fallthrough = cx.fallthrough;
+Expression buildExpression(const Term& term, context_t* cx) {
+    auto& fallthrough = *cx->fallthrough;
+
     ASSERT (!fallthrough);
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable

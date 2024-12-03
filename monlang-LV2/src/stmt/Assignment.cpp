@@ -1,10 +1,17 @@
 #include <monlang-LV2/stmt/Assignment.h>
 
+/* impl only */
+
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 #include <utils/assert-utils.h>
 
 #define unless(x) if(!(x))
+
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return Assignment()
 
 bool peekAssignment(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 3) {
@@ -24,30 +31,29 @@ bool peekAssignment(const ProgramSentence& sentence) {
 // ..returns empty opt if any non-word
 static std::optional<Term> extractRhs(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
+Assignment buildAssignment(const ProgramSentence& sentence, context_t* cx) {
+    auto& malformed_stmt = *cx->malformed_stmt;
+    auto& fallthrough = *cx->fallthrough;
+
+    ASSERT (!malformed_stmt && !fallthrough);
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {
-        cx.malformed_stmt = "lhs is not a Lvalue";
-        return Assignment(); // stub
+        MALFORMED_STMT("lhs is not a Lvalue");
     }
     auto word = get_word(sentence.programWords[0]);
     unless (peekLvalue(word)) {
-        cx.malformed_stmt = "lhs is not an Lvalue";
-        return Assignment(); // stub
+        MALFORMED_STMT("lhs is not an Lvalue");
     }
     auto lhs = buildLvalue(word);
 
     auto rhs_as_term = extractRhs(sentence);
     unless (rhs_as_term) {
-        cx.malformed_stmt = "rhs is an unknown Expression";
-        return Assignment(); // stub
+        MALFORMED_STMT("rhs is an unknown Expression");
     }
     auto rhs = buildExpression(*rhs_as_term, cx);
-    if (cx.fallthrough) {
-        cx.malformed_stmt = "rhs is an unknown Expression";
-        return Assignment(); // stub
+    if (fallthrough) {
+        MALFORMED_STMT("rhs is an unknown Expression");
     }
 
     return Assignment{lhs, rhs};

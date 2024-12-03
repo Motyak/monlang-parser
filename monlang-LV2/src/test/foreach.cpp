@@ -40,11 +40,12 @@ TEST_CASE ("iterable grouped expr (lvalue here)", "[test-4311][foreach]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto context = context_init_t{};
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, context);
-    REQUIRE (!context.malformed_stmt); // no err
-    REQUIRE (!context.fallthrough); // ..
+    auto output = consumeStatement(input_prog, &cx);
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -87,11 +88,12 @@ TEST_CASE ("iterable function call", "[test-4312][foreach]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto context = context_init_t{};
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, context);
-    REQUIRE (!context.malformed_stmt); // no err
-    REQUIRE (!context.fallthrough); // ..
+    auto output = consumeStatement(input_prog, &cx);
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -136,11 +138,12 @@ TEST_CASE ("iterable operation", "[test-4313][foreach]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto context = context_init_t{};
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, context);
-    REQUIRE (!context.malformed_stmt); // no err
-    REQUIRE (!context.fallthrough); // ..
+    auto output = consumeStatement(input_prog, &cx);
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -182,11 +185,12 @@ TEST_CASE ("iterable block expression", "[test-4314][foreach]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto context = context_init_t{};
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, context);
-    REQUIRE (!context.malformed_stmt); // no err
-    REQUIRE (!context.fallthrough); // ..
+    auto output = consumeStatement(input_prog, &cx);
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

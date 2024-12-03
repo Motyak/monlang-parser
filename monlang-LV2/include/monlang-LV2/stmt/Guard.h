@@ -1,7 +1,7 @@
 #ifndef GUARD_H
 #define GUARD_H
 
-#include <monlang-LV2/context_init.h>
+#include <monlang-LV2/context.h>
 
 struct ReturnStatement;
 struct BreakStatement;
@@ -17,6 +17,6 @@ struct Guard {
 
 bool peekGuard(const ProgramSentence&);
 
-Guard buildGuard(const ProgramSentence&, const context_t& = context_init_t{});
+Guard buildGuard(const ProgramSentence&, context_t* = new context_t{});
 
 #endif // GUARD_H

@@ -3,10 +3,15 @@
 /* impl only */
 
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 #include <utils/assert-utils.h>
 
 #define unless(x) if(!(x))
+
+#define MALFORMED_STMT(err_msg) \
+    malformed_stmt = err_msg; \
+    return ReturnStatement()
 
 bool peekReturnStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
@@ -22,29 +27,30 @@ bool peekReturnStatement(const ProgramSentence& sentence) {
     return atom.value == "return";
 }
 
-// where rhs are the [1], [2], .. words from the sentence
+// where 'value' are the [1], [2], .. words from the sentence
 // ..returns empty opt if any non-word
-static std::optional<Term> extractRhs(const ProgramSentence&);
+static std::optional<Term> extractValue(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence& sentence, const context_t& cx) {
-    ASSERT (!cx.malformed_stmt && !cx.fallthrough);
-    auto expr = std::optional<Expression>();
+ReturnStatement buildReturnStatement(const ProgramSentence& sentence, context_t* cx) {
+    auto& malformed_stmt = *cx->malformed_stmt;
+    auto& fallthrough = *cx->fallthrough;
+
+    ASSERT (!malformed_stmt && !fallthrough);
+    auto value = std::optional<Expression>();
     if (sentence.programWords.size() >= 1) {
-        auto rhs_as_term = extractRhs(sentence);
-        unless (rhs_as_term) {
-            cx.malformed_stmt = "returned Expression is unknown";
-            return ReturnStatement(); // stub
+        auto value_as_term = extractValue(sentence);
+        unless (value_as_term) {
+            MALFORMED_STMT("value is an unknown Expression");
         }
-        expr = buildExpression(*rhs_as_term, cx);
-        if (cx.fallthrough) {
-            cx.malformed_stmt = "returned Expression is unknown";
-            return ReturnStatement(); // stub
+        value = buildExpression(*value_as_term, cx);
+        if (fallthrough) {
+            MALFORMED_STMT("value is an unknown Expression");
         }
     }
-    return ReturnStatement{expr};
+    return ReturnStatement{value};
 }
 
-static std::optional<Term> extractRhs(const ProgramSentence& sentence) {
+static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     auto rhs_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 1,
         sentence.programWords.end()

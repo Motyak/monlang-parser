@@ -9,6 +9,6 @@ struct BlockExpression {
 
 bool peekBlockExpression(const Word&);
 
-BlockExpression buildBlockExpression(const Word&, const context_t& = context_t{});
+BlockExpression buildBlockExpression(const Word&, context_t* = new context_t{});
 
 #endif // BLOCK_EXPRESSION_H

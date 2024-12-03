@@ -15,6 +15,7 @@ struct context_init_t {
     std::optional<std::string> malformed_stmt;
     bool fallthrough; // false initialized
 
+    // will own the allocated memory (in theory, no dtor at the moment)
     context_init_t();
     operator context_t();
 };

@@ -91,8 +91,8 @@ void PrintLV2::operator()(LetStatement* letStatement) {
     outputLine("LetStatement");
     currIndent++;
 
-    outputLine("-> identifier: `", letStatement->lhs.c_str(), "`");
-    operator()(letStatement->rhs);
+    outputLine("-> identifier: `", letStatement->identifier.c_str(), "`");
+    operator()(letStatement->value);
 
     currIndent--;
 }
@@ -101,17 +101,17 @@ void PrintLV2::operator()(VarStatement* varStatement) {
     outputLine("VarStatement");
     currIndent++;
 
-    outputLine("-> identifier: `", varStatement->lhs.c_str(), "`");
-    operator()(varStatement->rhs);
+    outputLine("-> identifier: `", varStatement->identifier.c_str(), "`");
+    operator()(varStatement->value);
 
     currIndent--;
 }
 
 void PrintLV2::operator()(ReturnStatement* returnStatement) {
     outputLine("ReturnStatement");
-    if (returnStatement->expression) {
+    if (returnStatement->value) {
         currIndent++;
-        operator()(*returnStatement->expression);
+        operator()(*returnStatement->value);
         currIndent--;
     }
 }

@@ -8,12 +8,14 @@ bool peekOperation(const Term& term) {
     return term.words.size() == 3;
 }
 
-Operation buildOperation(const Term& term, const context_t& cx) {
-    ASSERT (!cx.fallthrough);
+Operation buildOperation(const Term& term, context_t* cx) {
+    auto& fallthrough = *cx->fallthrough;
+
+    ASSERT (!fallthrough);
     ASSERT (term.words.size() == 3);
 
     auto leftOperand = buildExpression(Term{{term.words[0]}}, cx);
-    if (cx.fallthrough) {
+    if (fallthrough) {
         return Operation(); // stub
     }
 
@@ -21,7 +23,7 @@ Operation buildOperation(const Term& term, const context_t& cx) {
     auto operator_ = std::get<Atom*>(term.words[1])->value;
 
     auto rightOperand = buildExpression(Term{{term.words[2]}}, cx);
-    if (cx.fallthrough) {
+    if (fallthrough) {
         return Operation(); // stub
     }
 
