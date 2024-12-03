@@ -15,6 +15,6 @@ struct VarStatement {
 
 bool peekVarStatement(const ProgramSentence&);
 
-VarStatement buildVarStatement(const ProgramSentence&, const context_t* = disposable_cx());
+VarStatement buildVarStatement(const ProgramSentence&, const context_t* = fresh_cx());
 
 #endif // VAR_STATEMENT_H

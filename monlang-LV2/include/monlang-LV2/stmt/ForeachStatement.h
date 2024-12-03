@@ -14,6 +14,6 @@ struct ForeachStatement {
 
 bool peekForeachStatement(const ProgramSentence&);
 
-ForeachStatement buildForeachStatement(const ProgramSentence&, const context_t* = disposable_cx());
+ForeachStatement buildForeachStatement(const ProgramSentence&, const context_t* = fresh_cx());
 
 #endif // FOREACH_STATEMENT_H

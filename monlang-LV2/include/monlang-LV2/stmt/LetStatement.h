@@ -15,6 +15,6 @@ struct LetStatement {
 
 bool peekLetStatement(const ProgramSentence&);
 
-LetStatement buildLetStatement(const ProgramSentence&, const context_t* = disposable_cx());
+LetStatement buildLetStatement(const ProgramSentence&, const context_t* = fresh_cx());
 
 #endif // LET_STATEMENT_H

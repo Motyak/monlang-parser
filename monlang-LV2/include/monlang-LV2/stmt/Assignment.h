@@ -12,6 +12,6 @@ struct Assignment {
 
 bool peekAssignment(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence&, const context_t* = disposable_cx());
+Assignment buildAssignment(const ProgramSentence&, const context_t* = fresh_cx());
 
 #endif // ASSIGNMENT_H

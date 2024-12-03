@@ -9,7 +9,6 @@ struct Term;
 #include <string>
 
 struct context_t {
-    const bool disposable;
     std::any statements; // pre-allocated std::vector<Statement>*
     ProgramSentence& sentence;
     Term& term;
@@ -20,9 +19,9 @@ struct context_t {
     // will allocate memory and pass ownership
     context_t();
     // will store references to existing context_init_t
-    context_t(bool, std::any, ProgramSentence&, Term&, std::optional<std::string>&, bool&);
+    context_t(std::any, ProgramSentence&, Term&, std::optional<std::string>&, bool&);
 };
 
-const context_t* disposable_cx();
+const context_t* fresh_cx();
 
 #endif // CONTEXT_H
