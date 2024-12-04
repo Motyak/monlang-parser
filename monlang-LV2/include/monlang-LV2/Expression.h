@@ -11,6 +11,7 @@ struct Operation;
 struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
+struct SpecialSymbol;
 struct Literal;
 struct Lvalue;
 
@@ -20,6 +21,7 @@ using Expression = std::variant<
     Lambda*,
     BlockExpression*,
     Literal*,
+    SpecialSymbol*,
     Lvalue*
 >;
 

@@ -6,8 +6,8 @@
 #include <monlang-LV2/context.h>
 
 struct Assignment {
-    Lvalue lhs;
-    Expression rhs;
+    Lvalue variable;
+    Expression value;
 };
 
 bool peekAssignment(const ProgramSentence&);

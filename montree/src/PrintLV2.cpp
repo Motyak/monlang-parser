@@ -17,6 +17,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Literal.h>
 #include <monlang-LV2/expr/Lvalue.h>
 
@@ -70,8 +71,8 @@ void PrintLV2::operator()(Assignment* assignment) {
     outputLine("Assignment");
     currIndent++;
 
-    output("-> "); operator()(&assignment->lhs);
-    operator()(assignment->rhs);
+    output("-> "); operator()(&assignment->variable);
+    operator()(assignment->value);
 
     currIndent--;
 }
@@ -80,9 +81,9 @@ void PrintLV2::operator()(Accumulation* accumulation) {
     outputLine("Accumulation");
     currIndent++;
 
-    output("-> "); operator()(&accumulation->lhs);
+    output("-> "); operator()(&accumulation->variable);
     outputLine("-> operator: `", accumulation->operator_.c_str(), "`");
-    operator()(accumulation->rhs);
+    operator()(accumulation->value);
 
     currIndent--;
 }
@@ -217,6 +218,10 @@ void PrintLV2::operator()(BlockExpression* block) {
         operator()(statement);
     }
     currIndent--;
+}
+
+void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
+    outputLine("SpecialSymbol: `", specialSymbol->str.c_str(), "`");
 }
 
 void PrintLV2::operator()(Literal* literal) {

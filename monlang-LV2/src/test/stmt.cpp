@@ -286,7 +286,7 @@ TEST_CASE ("foreach statement", "[test-3121][stmt]") {
        |        -> function
        |          -> Expression: Lvalue: `print`
        |        -> arguments
-       |          -> Expression: Lvalue: `$1`
+       |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

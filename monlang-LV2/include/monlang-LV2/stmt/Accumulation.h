@@ -8,9 +8,9 @@
 using identifier_t = std::string;
 
 struct Accumulation {
-    Lvalue lhs;
+    Lvalue variable;
     identifier_t operator_;
-    Expression rhs;
+    Expression value;
 };
 
 bool peekAccumulation(const ProgramSentence&);

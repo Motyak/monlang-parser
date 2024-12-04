@@ -70,6 +70,37 @@ TEST_CASE ("assign grouped expr", "[test-4151][assign]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("assign special symbol", "[test-4131][assign]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `somevar`
+       |  -> ProgramWord #2: Atom: `:=`
+       |  -> ProgramWord #3: Atom: `$1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: Assignment
+       |  -> Lvalue: `somevar`
+       |  -> Expression: SpecialSymbol: `$1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+
+    auto output = consumeStatement(input_prog, &cx);
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("assign lvalue to lvalue", "[test-4112][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence

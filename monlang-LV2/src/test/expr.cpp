@@ -27,6 +27,27 @@ TEST_CASE ("lvalue from atom", "[test-2111][expr]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("special symbol from atom", "[test-2131][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Atom: `$1`
+    )EOF");
+
+    auto expect = "-> Expression: SpecialSymbol: `$1`";
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+    auto output = buildExpression(input_term, &cx);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (!*cx.fallthrough); // no err
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("grouped expression => ungroup", "[test-2112][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term

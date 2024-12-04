@@ -70,6 +70,37 @@ TEST_CASE ("labelize literal", "[test-4251][let]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("labelize special value", "[test-4231][let]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `let`
+       |  -> ProgramWord #2: Atom: `x`
+       |  -> ProgramWord #3: Atom: `$1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: LetStatement
+       |  -> identifier: `x`
+       |  -> Expression: SpecialSymbol: `$1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+    auto cx_init = context_init_t{};
+    auto cx = (context_t)cx_init;
+
+    auto output = consumeStatement(input_prog, &cx);
+    REQUIRE (!*cx.malformed_stmt); // no err
+    REQUIRE (!*cx.fallthrough); // ..
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("labelize lvalue", "[test-4212][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence

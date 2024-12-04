@@ -7,6 +7,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Lvalue.h>
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
@@ -112,8 +113,16 @@ Expression buildExpression(const Term& term, context_t* cx) {
         return move_to_heap(buildLiteral(word));
     }
 
+    // if (word =~ "Atom<$.*>"_) {
+    //     return move_to_heap(buildSpecialSymbol(word));
+    // }
+
+    if (peekSpecialSymbol(word)) {
+        return move_to_heap(buildSpecialSymbol(word));
+    }
+
     // if (word =~ "Atom"_) {
-    //     return move_to_heap(buildLiteral(word));
+    //     return move_to_heap(buildLvalue(word));
     // }
 
     if (peekLvalue(word)) {

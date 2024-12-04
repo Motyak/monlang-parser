@@ -27,9 +27,9 @@ bool peekAssignment(const ProgramSentence& sentence) {
     return atom.value == ":=";
 }
 
-// where rhs are the [2], [3], .. words from the sentence
+// where 'value' are the [2], [3], .. words from the sentence
 // ..returns empty opt if any non-word
-static std::optional<Term> extractRhs(const ProgramSentence&);
+static std::optional<Term> extractValue(const ProgramSentence&);
 
 Assignment buildAssignment(const ProgramSentence& sentence, context_t* cx) {
     auto& malformed_stmt = *cx->malformed_stmt;
@@ -39,34 +39,34 @@ Assignment buildAssignment(const ProgramSentence& sentence, context_t* cx) {
     ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {
-        MALFORMED_STMT("lhs is not a Lvalue");
+        MALFORMED_STMT("variable is not a Lvalue");
     }
     auto word = get_word(sentence.programWords[0]);
     unless (peekLvalue(word)) {
-        MALFORMED_STMT("lhs is not an Lvalue");
+        MALFORMED_STMT("variable is not an Lvalue");
     }
-    auto lhs = buildLvalue(word);
+    auto variable = buildLvalue(word);
 
-    auto rhs_as_term = extractRhs(sentence);
-    unless (rhs_as_term) {
-        MALFORMED_STMT("rhs is an unknown Expression");
+    auto value_as_term = extractValue(sentence);
+    unless (value_as_term) {
+        MALFORMED_STMT("value is an unknown Expression");
     }
-    auto rhs = buildExpression(*rhs_as_term, cx);
+    auto value = buildExpression(*value_as_term, cx);
     if (fallthrough) {
-        MALFORMED_STMT("rhs is an unknown Expression");
+        MALFORMED_STMT("value is an unknown Expression");
     }
 
-    return Assignment{lhs, rhs};
+    return Assignment{variable, value};
 }
 
-static std::optional<Term> extractRhs(const ProgramSentence& sentence) {
-    auto rhs_as_sentence = std::vector<ProgramWord>(
+static std::optional<Term> extractValue(const ProgramSentence& sentence) {
+    auto value_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 2,
         sentence.programWords.end()
     );
 
     std::vector<Word> words;
-    for (auto e: rhs_as_sentence) {
+    for (auto e: value_as_sentence) {
         unless (holds_word(e)) {
             return {};
         }

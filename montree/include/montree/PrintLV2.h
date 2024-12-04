@@ -29,6 +29,7 @@ class PrintLV2 : public LV2::AstVisitor<void> {
     void operator()(FunctionCall*);
     void operator()(Lambda*);
     void operator()(BlockExpression*);
+    void operator()(SpecialSymbol*);
     void operator()(Literal*);
     void operator()(Lvalue*);
 
