@@ -1,37 +1,31 @@
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 
-#include <monlang-LV2/context.h>
+#include <monlang-LV2/ast/Expression.h>
 
-#include <monlang-LV1/ast/Term.h>
+#include <monlang-LV2/common.h>
+#include <monlang-LV1/Term.h>
 
-#include <variant>
+using Expression_ = std::variant<
+    MayFail_<Operation>*,
 
-struct Operation;
-struct FunctionCall;
-struct Lambda;
-struct BlockExpression;
-struct SpecialSymbol;
-struct Literal;
-struct Lvalue;
+    /// LANGUAGE DEFINED EXPRESSIONS ///
 
-using Expression = std::variant<
-    Operation*,
+    MayFail_<FunctionCall>*,
+    MayFail_<Lambda>*,
+    MayFail_<BlockExpression>*,
+    MayFail_<Literal>*,
+    MayFail_<SpecialSymbol>*,
 
-    /// LANGUAGE DEFINED EXPRESSIONS //////////////////////
-
-    FunctionCall*,
-    Lambda*,
-    BlockExpression*,
-    Literal*,
-    SpecialSymbol*,
-
-    ///////////////////////////////////////////////////////
+    ////////////////////////////////////
 
     // fall-through expression
-    Lvalue*
+    MayFail_<Lvalue>*
 >;
 
-Expression buildExpression(const Term&, context_t* = new context_t{});
+Expression_ buildExpression(const Term&);
+
+Expression unwrap_expr(Expression_);
+Expression_ wrap_expr(Expression);
 
 #endif // EXPRESSION_H

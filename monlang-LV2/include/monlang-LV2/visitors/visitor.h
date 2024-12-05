@@ -8,23 +8,27 @@
 namespace LV2
 {
 
-using Ast = std::variant<LV2::Program, Statement, Expression>;
+using Ast_ = std::variant<
+    MayFail<MayFail_<Program>>,
+    MayFail<Statement_>,
+    MayFail<Expression_>
+>;
 
 template <typename T>
-class AstVisitor;
+class AstVisitor_;
 
 template <>
-class AstVisitor<void> {
+class AstVisitor_<void> {
   public:
     static constexpr bool returnsSomething = false;
 
-    virtual void operator()(const LV2::Program&) = 0;
-    virtual void operator()(const Statement&) = 0;
-    virtual void operator()(const Expression&) = 0;
+    virtual void operator()(const MayFail<MayFail_<Program>>&) = 0;
+    virtual void operator()(const MayFail<Statement_>&) = 0;
+    virtual void operator()(const MayFail<Expression_>&) = 0;
 };
 
 template <typename T>
-class AstVisitor : public AstVisitor<void> {
+class AstVisitor_ : public AstVisitor_<void> {
   public:
     static constexpr bool returnsSomething = true;
 
@@ -32,8 +36,8 @@ class AstVisitor : public AstVisitor<void> {
 };
 
 template <typename T>
-auto visitAst(T visitor, const Ast& tree) {
-    static_assert(std::is_base_of_v<AstVisitor<void>, T>);
+auto visitAst_(T visitor, const Ast_& tree) {
+    static_assert(std::is_base_of_v<AstVisitor_<void>, T>);
     std::visit(visitor, tree);
     if constexpr (visitor.returnsSomething) {
         return visitor.res;

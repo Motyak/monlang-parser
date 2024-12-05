@@ -1,25 +1,32 @@
 #ifndef LAMBDA_H
 #define LAMBDA_H
 
+#include <monlang-LV2/ast/expr/Lambda.h>
+
+#include <monlang-LV2/common.h>
 #include <monlang-LV2/Statement.h>
-#include <monlang-LV2/context.h>
 
-#include <vector>
-#include <string>
+#include <monlang-LV1/ast/Word.h>
 
-using identifier_t = std::string;
-
-struct LambdaBlock {
-    std::vector<Statement> statements;
+template <>
+struct MayFail_<LambdaBlock> {
+    std::vector<MayFail<Statement_>> statements;
 };
 
-struct Lambda {
+template <>
+struct MayFail_<Lambda> {
     std::vector<identifier_t> parameters;
-    LambdaBlock body;
+    MayFail_<LambdaBlock> body;
 };
 
 bool peekLambda(const Word&);
 
-Lambda buildLambda(const Word&, context_t* = new context_t{});
+MayFail<MayFail_<Lambda>> buildLambda(const Word&);
+
+template <>
+LambdaBlock unwrap(const MayFail_<LambdaBlock>&);
+
+template <>
+MayFail_<LambdaBlock> wrap(const LambdaBlock&);
 
 #endif // LAMBDA_H

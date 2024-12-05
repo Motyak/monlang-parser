@@ -1,19 +1,30 @@
 #ifndef FOREACH_STATEMENT_H
 #define FOREACH_STATEMENT_H
 
+#include <monlang-LV2/ast/expr/BlockExpression.h>
+
+#include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>
 #include <monlang-LV2/expr/BlockExpression.h>
-#include <monlang-LV2/context.h>
+
+#include <monlang-LV1/ast/Program.h>
 
 using ForeachBlock = BlockExpression;
 
-struct ForeachStatement {
-    Expression iterable;
-    ForeachBlock block;
+template <>
+struct MayFail_<ForeachStatement> {
+    MayFail<Expression_> iterable;
+    MayFail_<ForeachBlock> block;
 };
 
 bool peekForeachStatement(const ProgramSentence&);
 
-ForeachStatement buildForeachStatement(const ProgramSentence&, context_t* = new context_t{});
+MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program&);
+
+template <>
+ForeachStatement unwrap(const MayFail_<ForeachStatement>&);
+
+template <>
+MayFail_<ForeachStatement> wrap(const ForeachStatement&);
 
 #endif // FOREACH_STATEMENT_H

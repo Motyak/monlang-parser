@@ -1,20 +1,27 @@
 #ifndef LET_STATEMENT_H
 #define LET_STATEMENT_H
 
+#include <monlang-LV2/ast/stmt/LetStatement.h>
+
+#include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context.h>
 
-#include <monlang-LV1/ast/ProgramSentence.h>
+#include <monlang-LV1/ast/Program.h>
 
-using identifier_t = std::string;
-
-struct LetStatement {
+template <>
+struct MayFail_<LetStatement> {
     identifier_t identifier;
-    Expression value;
+    MayFail<Expression_> value;
 };
 
 bool peekLetStatement(const ProgramSentence&);
 
-LetStatement buildLetStatement(const ProgramSentence&, context_t* = new context_t{});
+MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program&);
+
+template <>
+LetStatement unwrap(const MayFail_<LetStatement>&);
+
+template <>
+MayFail_<LetStatement> wrap(const LetStatement&);
 
 #endif // LET_STATEMENT_H

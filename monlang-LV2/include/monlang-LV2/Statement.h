@@ -1,60 +1,47 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
-#include <monlang-LV2/context.h>
+#include <monlang-LV2/ast/Statement.h>
 
+#include <monlang-LV2/common.h>
 #include <monlang-LV1/ast/Program.h>
 
-#include <variant>
-
-struct Assignment;
-struct Accumulation;
-struct LetStatement;
-struct VarStatement;
-struct ReturnStatement;
-struct BreakStatement;
-struct ContinueStatement;
-struct DieStatement;
-struct Guard;
-// struct IfStatement;
-struct ForeachStatement;
-// struct WhileStatement;
-// struct DeferStatement;
-struct ExpressionStatement;
-
-using Statement = std::variant<
+using Statement_ = std::variant<
     /* assignments */
-    Assignment*, // a := b
-    Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
+    MayFail_<Assignment>*, // a := b
+    MayFail_<Accumulation>*, // +=, -=, *=, ^=, /=, %=, &=, |=
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 
     /* declarations (introduce new symbol/identifier) */
-    LetStatement*, // let a b
-    VarStatement*, // var a b
+    MayFail_<LetStatement>*, // let a b
+    MayFail_<VarStatement>*, // var a b
 
     /* jump statements */
-    ReturnStatement*,
-    BreakStatement*,
-    ContinueStatement*,
-    DieStatement*,
+    MayFail_<ReturnStatement>*,
+    MayFail_<BreakStatement>*,
+    MayFail_<ContinueStatement>*,
+    MayFail_<DieStatement>*,
 
     // /* conditional statements */
-    // Guard*, // [ <cond> ] || <jump-when-fails>
-    // IfStatement*, // if..elsif..else, unless
+    // MayFail_<Guard>*, // [ <cond> ] || <jump-when-fails>
+    // MayFail_<IfStatement>*, // if..elsif..else, unless
 
     /* loop statements */
-    ForeachStatement*, // foreach <iterable> <block>
-    // WhileStatement*, // while, do..while, until, do..until
+    MayFail_<ForeachStatement>*, // foreach <iterable> <block>
+    // MayFail_<WhileStatement>*, // while, do..while, until, do..until
 
-    // DeferStatement*, // defer <block-expression>
+    // MayFail_<DeferStatement>*, // defer <block-expression>
 
     ///////////////////////////////////////////////////////
 
     // fall-through statement
-    ExpressionStatement*
+    MayFail_<ExpressionStatement>*
 >;
 
-Statement consumeStatement(LV1::Program&, context_t* = new context_t{});
+MayFail<Statement_> consumeStatement(LV1::Program&);
+
+Statement unwrap_stmt(Statement_);
+Statement_ wrap_stmt(Statement);
 
 #endif // STATEMENT_H

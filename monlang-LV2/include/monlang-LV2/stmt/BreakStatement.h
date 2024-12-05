@@ -1,9 +1,9 @@
 #ifndef BREAK_STATEMENT_H
 #define BREAK_STATEMENT_H
 
-#include <monlang-LV1/ast/ProgramSentence.h>
+#include <monlang-LV2/ast/stmt/BreakStatement.h>
 
-struct BreakStatement{};
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 bool peekBreakStatement(const ProgramSentence&);
 

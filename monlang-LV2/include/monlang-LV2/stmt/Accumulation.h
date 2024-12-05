@@ -1,20 +1,28 @@
 #ifndef ACCUMULATION_H
 #define ACCUMULATION_H
 
-#include <monlang-LV2/expr/Lvalue.h>
+#include <monlang-LV2/ast/stmt/Accumulation.h>
+
+#include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context.h>
 
-using identifier_t = std::string;
+#include <monlang-LV1/ast/Program.h>
 
-struct Accumulation {
-    Lvalue variable;
+template <>
+struct MayFail_<Accumulation> {
+    MayFail<Lvalue> variable;
     identifier_t operator_;
-    Expression value;
+    MayFail<Expression_> value;
 };
 
 bool peekAccumulation(const ProgramSentence&);
 
-Accumulation buildAccumulation(const ProgramSentence&, context_t* = new context_t{});
+MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program&);
+
+template <>
+Accumulation unwrap(const MayFail_<Accumulation>&);
+
+template <>
+MayFail_<Accumulation> wrap(const Accumulation&);
 
 #endif // ACCUMULATION_H
