@@ -23,13 +23,15 @@ struct ForeachStatement;
 struct ExpressionStatement;
 
 using Statement = std::variant<
-    /* declarations (introduce new symbol/identifier) */
-    LetStatement*, // let a b
-    VarStatement*, // var a b
-
     /* assignments */
     Assignment*, // a := b
     Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
+
+    /// LANGUAGE DEFINED STATEMENTS ///////////////////////
+
+    /* declarations (introduce new symbol/identifier) */
+    LetStatement*, // let a b
+    VarStatement*, // var a b
 
     /* jump statements */
     ReturnStatement*,
@@ -41,11 +43,13 @@ using Statement = std::variant<
     // Guard*, // [ <cond> ] || <jump-when-fails>
     // IfStatement*, // if..elsif..else, unless
 
-    // /* loop statements */
+    /* loop statements */
     ForeachStatement*, // foreach <iterable> <block>
     // WhileStatement*, // while, do..while, until, do..until
 
     // DeferStatement*, // defer <block-expression>
+
+    ///////////////////////////////////////////////////////
 
     // fall-through statement
     ExpressionStatement*

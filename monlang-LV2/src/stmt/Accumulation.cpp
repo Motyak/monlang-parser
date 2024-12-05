@@ -16,7 +16,7 @@
     return Accumulation()
 
 bool peekAccumulation(const ProgramSentence& sentence) {
-    unless (sentence.programWords.size() >= 3) {
+    unless (sentence.programWords.size() >= 2) {
         return false;
     }
 

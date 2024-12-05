@@ -17,11 +17,18 @@ struct Lvalue;
 
 using Expression = std::variant<
     Operation*,
+
+    /// LANGUAGE DEFINED EXPRESSIONS //////////////////////
+
     FunctionCall*,
     Lambda*,
     BlockExpression*,
     Literal*,
     SpecialSymbol*,
+
+    ///////////////////////////////////////////////////////
+
+    // fall-through expression
     Lvalue*
 >;
 
