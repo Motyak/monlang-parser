@@ -87,10 +87,10 @@ T unwrap(const MayFail_<T>&);
 template <typename T>
 MayFail_<T> wrap(const T&);
 
-// template <typename R, typename T>
-// MayFail<R> mayfail_cast(MayFail<T> inputMayfail) {
-//     return MayFail(R(inputMayfail.val), inputMayfail.err);
-// }
+template <typename R, typename T>
+MayFail<R> mayfail_cast(MayFail<T> inputMayfail) {
+    return MayFail(R(inputMayfail.val), inputMayfail.err);
+}
 
 // template <typename R, typename... Targs>
 // MayFail<R> mayfail_cast(const std::variant<Targs...>& inputMayfailVariant) {
@@ -102,9 +102,9 @@ MayFail_<T> wrap(const T&);
 //     );
 // }
 
-// template <typename R, typename T>
-// MayFail<R> mayfail_convert(MayFail<T> inputMayfail) {
-//     return MayFail(R(move_to_heap(inputMayfail.val)), inputMayfail.err);
-// }
+template <typename R, typename T>
+MayFail<R> mayfail_convert(MayFail<T> inputMayfail) {
+    return MayFail(R(move_to_heap(inputMayfail.val)), inputMayfail.err);
+}
 
 #endif // LV2_COMMON_H

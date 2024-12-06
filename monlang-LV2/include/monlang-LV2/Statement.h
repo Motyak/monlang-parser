@@ -19,9 +19,9 @@ using Statement_ = std::variant<
 
     /* jump statements */
     MayFail_<ReturnStatement>*,
-    MayFail_<BreakStatement>*,
-    MayFail_<ContinueStatement>*,
-    MayFail_<DieStatement>*,
+    BreakStatement*,
+    ContinueStatement*,
+    DieStatement*,
 
     // /* conditional statements */
     // MayFail_<Guard>*, // [ <cond> ] || <jump-when-fails>

@@ -43,4 +43,9 @@
 
 --- Manual of error codes ---------------------------------
 
+111 Malformed Program, contains a malformed statement
 
+161 Malformed Expression, contains an even number of words
+162 Malformed Expression, contains a non-Atom word as operator
+163 Malformed Expression, contains an unknown operator (unfound in precedence table)
+169 Unknown Expression

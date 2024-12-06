@@ -16,100 +16,88 @@
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
 
-static ProgramSentence consumeSentence(LV1::Program& prog) {
+MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     ASSERT (prog.sentences.size() > 0);
-    auto res = prog.sentences[0];
-    prog.sentences = std::vector(
-        prog.sentences.begin() + 1,
-        prog.sentences.end()
-    );
-    return res;
-}
+    auto peekedSentence = prog.sentences[0];
 
-Statement consumeStatement(LV1::Program& prog, context_t* cx) {
-    auto& sentence = *cx->sentence;
-
-    ASSERT (prog.sentences.size() > 0);
-    sentence = consumeSentence(prog);
-
-    // if (sentence =~ "ProgramWord Atom<`:=`> ProgramWord+"_) {
-    //     return move_to_heap(buildAssignment(sentence, cx));
+    // if (peekedSentence =~ "ProgramWord Atom<`:=`> ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeAssignment(prog));
     // }
 
-    if (peekAssignment(sentence)) {
-        return move_to_heap(buildAssignment(sentence, cx));
+    if (peekAssignment(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeAssignment(prog));
     }
 
-    // if (sentence =~ "ProgramWord Atom<OPERATOR`=`> ProgramWord+"_) {
-    //     return move_to_heap(buildAccumulation(sentence, cx));
+    // if (peekedSentence =~ "ProgramWord Atom<OPERATOR`=`> ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeAccumulation(prog));
     // }
 
-    if (peekAccumulation(sentence)) {
-        return move_to_heap(buildAccumulation(sentence, cx));
+    if (peekAccumulation(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeAccumulation(prog));
     }
 
-    // if (sentence =~ "Atom<`let`> ProgramWord ProgramWord+"_) {
-    //     return move_to_heap(buildLetStatement(sentence, cx));
+    // if (peekedSentence =~ "Atom<`let`> ProgramWord ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeLetStatement(prog));
     // }
 
-    if (peekLetStatement(sentence)) {
-        return move_to_heap(buildLetStatement(sentence, cx));
+    if (peekLetStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeLetStatement(prog));
     }
 
-    // if (sentence =~ "Atom<`var`> ProgramWord ProgramWord+"_) {
-    //     return move_to_heap(buildVarStatement(sentence, cx));
+    // if (peekedSentence =~ "Atom<`var`> ProgramWord ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeVarStatement(prog));
     // }
 
-    if (peekVarStatement(sentence)) {
-        return move_to_heap(buildVarStatement(sentence, cx));
+    if (peekVarStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeVarStatement(prog));
     }
 
-    // if (sentence =~ "Atom<`return`> ProgramWord*"_) {
-    //     return move_to_heap(buildReturnStatement(sentence, cx));
+    // if (peekedSentence =~ "Atom<`return`> ProgramWord*"_) {
+    //     return mayfail_convert<Statement_>(consumeReturnStatement(prog));
     // }
 
-    if (peekReturnStatement(sentence)) {
-        return move_to_heap(buildReturnStatement(sentence, cx));
+    if (peekReturnStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeReturnStatement(prog));
     }
 
-    // if (sentence =~ "Atom<`break`> ProgramWord*"_) {
-    //     return move_to_heap(BreakStatement{});
+    // if (peekedSentence =~ "Atom<`break`> ProgramWord*"_) {
+    //     return (Statement_)move_to_heap(BreakStatement{});
     // }
 
-    if (peekBreakStatement(sentence)) {
-        return move_to_heap(BreakStatement{});
+    if (peekBreakStatement(peekedSentence)) {
+        return (Statement_)move_to_heap(BreakStatement{});
     }
 
-    // if (sentence =~ "Atom<`continue`> ProgramWord*"_) {
-    //     return move_to_heap(ContinueStatement{});
+    // if (peekedSentence =~ "Atom<`continue`> ProgramWord*"_) {
+    //     return (Statement_)move_to_heap(ContinueStatement{});
     // }
 
-    if (peekContinueStatement(sentence)) {
-        return move_to_heap(ContinueStatement{});
+    if (peekContinueStatement(peekedSentence)) {
+        return (Statement_)move_to_heap(ContinueStatement{});
     }
 
-    // if (sentence =~ "Atom<`die`> ProgramWord*"_) {
-    //     return move_to_heap(DieStatement{});
+    // if (peekedSentence =~ "Atom<`die`> ProgramWord*"_) {
+    //     return (Statement_)move_to_heap(DieStatement{});
     // }
 
-    if (peekDieStatement(sentence)) {
-        return move_to_heap(DieStatement{});
+    if (peekDieStatement(peekedSentence)) {
+        return (Statement_)move_to_heap(DieStatement{});
     }
 
-    // if (sentence =~ "Atom<`foreach`> ProgramWord ProgramWord+"_) {
-    //     return move_to_heap(buildForeachStatement(sentence, cx));
+    // if (peekedSentence =~ "Atom<`foreach`> ProgramWord ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeForeachStatement(prog));
     // }
 
-    if (peekForeachStatement(sentence)) {
-        return move_to_heap(buildForeachStatement(sentence, cx));
+    if (peekForeachStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeForeachStatement(prog));
     }
 
-    // if (peekGuard(sentence)) {
-    //     return move_to_heap(buildGuard(sentence, cx));
+    // if (peekGuard(peekedSentence)) {
+    //     return mayfail_convert<Statement_>(consumeGuard(prog));
     // }
 
     // ...
 
     /* fall-through statement */
-    return move_to_heap(buildExpressionStatement(sentence, cx));
+    return mayfail_convert<Statement_>(consumeExpressionStatement(prog));
 }

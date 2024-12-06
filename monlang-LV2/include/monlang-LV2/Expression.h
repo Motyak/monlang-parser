@@ -4,7 +4,7 @@
 #include <monlang-LV2/ast/Expression.h>
 
 #include <monlang-LV2/common.h>
-#include <monlang-LV1/Term.h>
+#include <monlang-LV1/ast/Term.h>
 
 using Expression_ = std::variant<
     MayFail_<Operation>*,
@@ -14,16 +14,16 @@ using Expression_ = std::variant<
     MayFail_<FunctionCall>*,
     MayFail_<Lambda>*,
     MayFail_<BlockExpression>*,
-    MayFail_<Literal>*,
-    MayFail_<SpecialSymbol>*,
+    Literal*,
+    SpecialSymbol*,
 
     ////////////////////////////////////
 
     // fall-through expression
-    MayFail_<Lvalue>*
+    Lvalue*
 >;
 
-Expression_ buildExpression(const Term&);
+MayFail<Expression_> buildExpression(const Term&);
 
 Expression unwrap_expr(Expression_);
 Expression_ wrap_expr(Expression);
