@@ -1,7 +1,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
-#include <monlang-LV2/Expression.h>
 
-#include <monlang-LV1/PostfixParenthesesGroup.h>
+/* impl only */
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
 
 #include <utils/assert-utils.h>
 
@@ -11,25 +11,42 @@ bool peekFunctionCall(const Word& word) {
     return std::holds_alternative<PostfixParenthesesGroup*>(word);
 }
 
-FunctionCall buildFunctionCall(const Word& word) {
-    auto& fallthrough = *cx->fallthrough;
-
-    ASSERT (!fallthrough);
+MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
     ASSERT (std::holds_alternative<PostfixParenthesesGroup*>(word));
     auto ppg = *std::get<PostfixParenthesesGroup*>(word);
-    auto function = buildExpression(Term{{ppg.leftPart}}, cx);
-    if (fallthrough) {
-        return FunctionCall(); // stub
+    auto function = buildExpression(Term{{ppg.leftPart}});
+    if (function.has_error()) {
+        return Malformed(MayFail_<FunctionCall>{}, ERR(621));
     }
 
-    std::vector<Expression> arguments;
+    std::vector<MayFail<Expression_>> arguments;
     for (auto term: ppg.rightPart.terms) {
-        auto expression = buildExpression(term, cx);
-        if (fallthrough) {
-            return FunctionCall(); // stub
+        auto expression = buildExpression(term);
+        if (expression.has_error()) {
+            return Malformed(MayFail_<FunctionCall>{function, arguments}, ERR(622));
         }
         arguments.push_back(expression);
     }
 
+    return MayFail_<FunctionCall>{function, arguments};
+}
+
+template <>
+FunctionCall unwrap(const MayFail_<FunctionCall>& functionCall) {
+    auto function = unwrap_expr(functionCall.function.value());
+    auto arguments = std::vector<Expression>();
+    for (auto e: functionCall.arguments) {
+        arguments.push_back(unwrap_expr(e.value()));
+    }
     return FunctionCall{function, arguments};
+}
+
+template <>
+MayFail_<FunctionCall> wrap(const FunctionCall& functionCall) {
+    auto function = wrap_expr(functionCall.function);
+    auto arguments = std::vector<MayFail<Expression_>>();
+    for (auto e: functionCall.arguments) {
+        arguments.push_back(wrap_expr(e));
+    }
+    return MayFail_<FunctionCall>{function, arguments};
 }

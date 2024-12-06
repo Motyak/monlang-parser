@@ -24,9 +24,9 @@ bool peekLambda(const Word&);
 MayFail<MayFail_<Lambda>> buildLambda(const Word&);
 
 template <>
-LambdaBlock unwrap(const MayFail_<LambdaBlock>&);
+Lambda unwrap(const MayFail_<Lambda>&);
 
 template <>
-MayFail_<LambdaBlock> wrap(const LambdaBlock&);
+MayFail_<Lambda> wrap(const Lambda&);
 
 #endif // LAMBDA_H

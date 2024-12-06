@@ -49,3 +49,13 @@
 162 Malformed Expression, contains a non-Atom word as operator
 163 Malformed Expression, contains an unknown operator (unfound in precedence table)
 169 Unknown Expression
+
+611 Malformed Operation, contains a Malformed Expression as left operand
+612 Malformed Operation, contains a Malformed Expression as right operand
+
+621 Malformed FunctionCall, contains a Malformed Expression as function
+622 Malformed FunctionCall, contains a Malformed Expression as argument
+
+631 Malformed Lambda, contains a Malformed Statement within body
+
+641 Malformed BlockExpression, contains a Malformed Statement

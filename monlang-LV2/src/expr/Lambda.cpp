@@ -31,10 +31,7 @@ bool peekLambda(const Word& word) {
     return true;
 }
 
-Lambda buildLambda(const Word& word, context_t* cx) {
-    auto& fallthrough = *cx->fallthrough;
-
-    ASSERT (!fallthrough);
+MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
     ASSERT (std::holds_alternative<Association*>(word));
     auto assoc = *std::get<Association*>(word);
 
@@ -50,14 +47,32 @@ Lambda buildLambda(const Word& word, context_t* cx) {
     }
 
     auto rightPart = *std::get<CurlyBracketsGroup*>(assoc.rightPart);
-    LambdaBlock body;
+    MayFail_<LambdaBlock> body;
     until (rightPart.sentences.empty()) {
-        auto statement = consumeStatement(rightPart, cx);
-        if (fallthrough) {
-            return Lambda(); // stub
+        auto statement = consumeStatement(rightPart);
+        if (statement.has_error()) {
+            return Malformed(MayFail_<Lambda>{parameters, body}, ERR(631));
         }
         body.statements.push_back(statement);
     }
 
-    return Lambda{parameters, body};
+    return MayFail_<Lambda>{parameters, body};
+}
+
+template <>
+Lambda unwrap(const MayFail_<Lambda>& lambda) {
+    std::vector<Statement> bodyStatements;
+    for (auto e: lambda.body.statements) {
+        bodyStatements.push_back(unwrap_stmt(e.value()));
+    }
+    return Lambda{lambda.parameters, LambdaBlock{bodyStatements}};
+}
+
+template <>
+MayFail_<Lambda> wrap(const Lambda& lambda) {
+    std::vector<MayFail<Statement_>> bodyStatements;
+    for (auto e: lambda.body.statements) {
+        bodyStatements.push_back(wrap_stmt(e));
+    }
+    return MayFail_<Lambda>{lambda.parameters, MayFail_<LambdaBlock>{bodyStatements}};
 }
