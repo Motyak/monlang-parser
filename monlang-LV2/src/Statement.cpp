@@ -15,6 +15,7 @@
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
+#include <utils/variant-utils.h>
 
 MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     ASSERT (prog.sentences.size() > 0);
@@ -100,4 +101,22 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     /* fall-through statement */
     return mayfail_convert<Statement_>(consumeExpressionStatement(prog));
+}
+
+Statement unwrap_stmt(Statement_ statement) {
+    return std::visit(overload{
+        [](BreakStatement* stmt) -> Statement {return stmt;},
+        [](ContinueStatement* stmt) -> Statement {return stmt;},
+        [](DieStatement* stmt) -> Statement {return stmt;},
+        [](auto* mf_) -> Statement {return move_to_heap(unwrap(*mf_));},
+    }, statement);
+}
+
+Statement_ wrap_stmt(Statement statement) {
+    return std::visit(overload{
+        [](BreakStatement* stmt) -> Statement_ {return stmt;},
+        [](ContinueStatement* stmt) -> Statement_ {return stmt;},
+        [](DieStatement* stmt) -> Statement_ {return stmt;},
+        [](auto* stmt) -> Statement_ {return move_to_heap(wrap(*stmt));},
+    }, statement);
 }

@@ -1,7 +1,7 @@
 #ifndef FOREACH_STATEMENT_H
 #define FOREACH_STATEMENT_H
 
-#include <monlang-LV2/ast/expr/BlockExpression.h>
+#include <monlang-LV2/ast/stmt/ForeachStatement.h>
 
 #include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>

@@ -11,7 +11,7 @@ bool peekFunctionCall(const Word& word) {
     return std::holds_alternative<PostfixParenthesesGroup*>(word);
 }
 
-FunctionCall buildFunctionCall(const Word& word, context_t* cx) {
+FunctionCall buildFunctionCall(const Word& word) {
     auto& fallthrough = *cx->fallthrough;
 
     ASSERT (!fallthrough);

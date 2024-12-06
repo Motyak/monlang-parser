@@ -16,6 +16,7 @@
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
 #include <utils/vec-utils.h>
+#include <utils/variant-utils.h>
 
 #define unless(x) if (!(x))
 
@@ -137,4 +138,22 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     /* reached fall-through */
     return Malformed(Expression_(), ERR(169));
+}
+
+Expression unwrap_expr(Expression_ expression) {
+    return std::visit(overload{
+        [](Literal* expr) -> Expression {return expr;},
+        [](SpecialSymbol* expr) -> Expression {return expr;},
+        [](Lvalue* expr) -> Expression {return expr;},
+        [](auto* mf_) -> Expression {return move_to_heap(unwrap(*mf_));},
+    }, expression);
+}
+
+Expression_ wrap_expr(Expression expression) {
+    return std::visit(overload{
+        [](Literal* expr) -> Expression_ {return expr;},
+        [](SpecialSymbol* expr) -> Expression_ {return expr;},
+        [](Lvalue* expr) -> Expression_ {return expr;},
+        [](auto* mf_) -> Expression_ {return move_to_heap(wrap(*mf_));},
+    }, expression);
 }
