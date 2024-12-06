@@ -18,10 +18,4 @@ struct MayFail_<LV2::Program> {
 
 MayFail<MayFail_<LV2::Program>> consumeProgram(LV1::Program&);
 
-template <>
-LV2::Program unwrap(const MayFail_<LV2::Program>&);
-
-template <>
-MayFail_<LV2::Program> wrap(const LV2::Program&);
-
 #endif // LV2_PROGRAM_H
