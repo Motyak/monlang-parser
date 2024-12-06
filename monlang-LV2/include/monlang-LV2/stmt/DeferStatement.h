@@ -9,6 +9,12 @@
 template <>
 struct MayFail_<DeferStatement> {
     MayFail_<DeferBlock> block;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail_<DeferBlock>);
+
+    explicit MayFail_(DeferStatement);
+    explicit operator DeferStatement() const;
 };
 
 bool peekDeferStatement(const ProgramSentence&);

@@ -31,22 +31,34 @@ MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
     return MayFail_<FunctionCall>{function, arguments};
 }
 
-template <>
-FunctionCall unwrap(const MayFail_<FunctionCall>& functionCall) {
-    auto function = unwrap_expr(functionCall.function.value());
-    auto arguments = std::vector<Expression>();
+MayFail_<FunctionCall>::MayFail_(MayFail<Expression_> function, std::vector<MayFail<Expression_>> arguments) : function(function), arguments(arguments){}
+
+MayFail_<FunctionCall>::MayFail_(FunctionCall functionCall) {
+    auto function = wrap_expr(functionCall.function);
+    auto arguments = std::vector<MayFail<Expression_>>();
     for (auto e: functionCall.arguments) {
+        arguments.push_back(wrap_expr(e));
+    }
+
+    this->function = function;
+    this->arguments = arguments;
+}
+
+MayFail_<FunctionCall>::operator FunctionCall() const {
+    auto function = unwrap_expr(this->function.value());
+    auto arguments = std::vector<Expression>();
+    for (auto e: this->arguments) {
         arguments.push_back(unwrap_expr(e.value()));
     }
     return FunctionCall{function, arguments};
 }
 
 template <>
+FunctionCall unwrap(const MayFail_<FunctionCall>& functionCall) {
+    return (FunctionCall)functionCall;
+}
+
+template <>
 MayFail_<FunctionCall> wrap(const FunctionCall& functionCall) {
-    auto function = wrap_expr(functionCall.function);
-    auto arguments = std::vector<MayFail<Expression_>>();
-    for (auto e: functionCall.arguments) {
-        arguments.push_back(wrap_expr(e));
-    }
-    return MayFail_<FunctionCall>{function, arguments};
+    return MayFail_<FunctionCall>(functionCall);
 }

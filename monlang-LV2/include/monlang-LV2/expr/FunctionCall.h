@@ -12,6 +12,12 @@ template <>
 struct MayFail_<FunctionCall> {
     MayFail<Expression_> function;
     std::vector<MayFail<Expression_>> arguments;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>, std::vector<MayFail<Expression_>>);
+
+    explicit MayFail_(FunctionCall);
+    explicit operator FunctionCall() const;
 };
 
 bool peekFunctionCall(const Word&);

@@ -11,6 +11,12 @@
 template <>
 struct MayFail_<ReturnStatement> {
     std::optional<MayFail<Expression_>> value;
+
+    MayFail_() = default;
+    explicit MayFail_(std::optional<MayFail<Expression_>>);
+
+    explicit MayFail_(ReturnStatement);
+    explicit operator ReturnStatement() const;
 };
 
 bool peekReturnStatement(const ProgramSentence&);

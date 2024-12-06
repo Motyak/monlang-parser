@@ -11,6 +11,12 @@
 template <>
 struct MayFail_<ExpressionStatement> {
     MayFail<Expression_> expression;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>);
+
+    explicit MayFail_(ExpressionStatement);
+    explicit operator ExpressionStatement() const;
 };
 
 MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program&);

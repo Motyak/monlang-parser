@@ -8,7 +8,7 @@
 #define unless(x) if(!(x))
 
 bool peekDeferStatement(const ProgramSentence& sentence) {
-    unless (sentence.programWords.size() == 2) {
+    unless (sentence.programWords.size() >= 1) {
         return false;
     }
     unless (std::holds_alternative<Atom*>(sentence.programWords[0])) {
@@ -18,6 +18,6 @@ bool peekDeferStatement(const ProgramSentence& sentence) {
     return atom.value == "defer";
 }
 
-DeferStatement buildDeferStatement(const ProgramSentence& sentence, context_t* cx) {
+MayFail<MayFail_<DeferStatement>> consumeDeferStatement(LV1::Program& prog) {
     TODO();
 }

@@ -10,8 +10,14 @@
 
 template <>
 struct MayFail_<Assignment> {
-    MayFail<Lvalue> variable;
+    Lvalue variable;
     MayFail<Expression_> value;
+
+    MayFail_() = default;
+    explicit MayFail_(Lvalue, MayFail<Expression_>);
+
+    explicit MayFail_(Assignment);
+    explicit operator Assignment() const;
 };
 
 bool peekAssignment(const ProgramSentence&);

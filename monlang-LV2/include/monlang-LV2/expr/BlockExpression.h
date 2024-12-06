@@ -11,6 +11,12 @@
 template <>
 struct MayFail_<BlockExpression> {
     std::vector<MayFail<Statement_>> statements;
+
+    MayFail_() = default;
+    explicit MayFail_(std::vector<MayFail<Statement_>>);
+
+    explicit MayFail_(BlockExpression);
+    explicit operator BlockExpression() const;
 };
 
 bool peekBlockExpression(const Word&);

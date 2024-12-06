@@ -14,7 +14,13 @@ using ForeachBlock = BlockExpression;
 template <>
 struct MayFail_<ForeachStatement> {
     MayFail<Expression_> iterable;
-    MayFail_<ForeachBlock> block;
+    MayFail<MayFail_<ForeachBlock>> block;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>, MayFail<MayFail_<ForeachBlock>>);
+
+    explicit MayFail_(ForeachStatement);
+    explicit operator ForeachStatement() const;
 };
 
 bool peekForeachStatement(const ProgramSentence&);

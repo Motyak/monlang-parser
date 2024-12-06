@@ -43,12 +43,49 @@
 
 --- Manual of error codes ---------------------------------
 
-111 Malformed Program, contains a malformed statement
+111 Malformed Program, contains a Malformed Statement
 
 161 Malformed Expression, contains an even number of words
 162 Malformed Expression, contains a non-Atom word as operator
 163 Malformed Expression, contains an unknown operator (unfound in precedence table)
 169 Unknown Expression
+
+~~~
+
+211 Malformed Assignment, contains a non-Atom word as variable
+212 Malformed Assignment, contains a non-Lvalue expression as variable
+213 Malformed Assignment, contains less than 3 words (no value)
+214 Malformed Assignment, contains a non-Word as part of the value
+215 Malformed Assignment, contains a Malformed Expression as value
+
+221 Malformed Accumulation, contains a non-Atom word as variable
+222 Malformed Accumulation, contains a non-Lvalue expression as variable
+223 Malformed Accumulation, contains less than 3 words (no value)
+224 Malformed Accumulation, contains a non-Word as part of the value
+225 Malformed Accumulation, contains a Malformed Expression as value
+
+231 Malformed LetStatement, contains less than 2 words (no variable)
+232 Malformed LetStatement, contains a non-Atom word as variable
+233 Malformed LetStatement, contains less than 3 words (no value)
+234 Malformed LetStatement, contains a non-Word as part of the value
+235 Malformed LetStatement, contains a Malformed Expression as value
+
+241 Malformed VarStatement, contains less than 2 words (no variable)
+242 Malformed VarStatement, contains a non-Atom word as variable
+243 Malformed VarStatement, contains less than 3 words (no value)
+244 Malformed VarStatement, contains a non-Word as part of the value
+245 Malformed VarStatement, contains a Malformed Expression as value
+
+251 Malformed ReturnStatement, contains a non-Word as part of the value
+251 Malformed ReturnStatement, contains a Malformed Expression as value
+
+321 Malformed ForeachStatement, contains less than 3 words (no iterable AND/OR no block)
+322 Malformed ForeachStatement, contains a non-Word as part of iterable
+323 Malformed ForeachStatement, contains a Malformed Expression as iterable
+324 Malformed ForeachStatement, contains a non-Word as block
+325 Malformed ForeachStatement, contains a Malformed BlockExpression as block
+
+~~~
 
 611 Malformed Operation, contains a Malformed Expression as left operand
 612 Malformed Operation, contains a Malformed Expression as right operand

@@ -4,19 +4,20 @@
 #include <monlang-LV2/ast/expr/Lambda.h>
 
 #include <monlang-LV2/common.h>
-#include <monlang-LV2/Statement.h>
+#include <monlang-LV2/expr/BlockExpression.h> // MayFail_<LambdaBlock>
 
 #include <monlang-LV1/ast/Word.h>
-
-template <>
-struct MayFail_<LambdaBlock> {
-    std::vector<MayFail<Statement_>> statements;
-};
 
 template <>
 struct MayFail_<Lambda> {
     std::vector<identifier_t> parameters;
     MayFail_<LambdaBlock> body;
+
+    MayFail_() = default;
+    explicit MayFail_(std::vector<identifier_t>, MayFail_<LambdaBlock>);
+
+    explicit MayFail_(Lambda);
+    explicit operator Lambda() const;
 };
 
 bool peekLambda(const Word&);

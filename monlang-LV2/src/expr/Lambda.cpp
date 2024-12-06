@@ -59,20 +59,31 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
     return MayFail_<Lambda>{parameters, body};
 }
 
-template <>
-Lambda unwrap(const MayFail_<Lambda>& lambda) {
-    std::vector<Statement> bodyStatements;
-    for (auto e: lambda.body.statements) {
-        bodyStatements.push_back(unwrap_stmt(e.value()));
-    }
-    return Lambda{lambda.parameters, LambdaBlock{bodyStatements}};
-}
+MayFail_<Lambda>::MayFail_(std::vector<identifier_t> paramters, MayFail_<LambdaBlock> body) : parameters(paramters), body(body){}
 
-template <>
-MayFail_<Lambda> wrap(const Lambda& lambda) {
+MayFail_<Lambda>::MayFail_(Lambda lambda) {
     std::vector<MayFail<Statement_>> bodyStatements;
     for (auto e: lambda.body.statements) {
         bodyStatements.push_back(wrap_stmt(e));
     }
-    return MayFail_<Lambda>{lambda.parameters, MayFail_<LambdaBlock>{bodyStatements}};
+    this->parameters = lambda.parameters;
+    this->body = MayFail_<LambdaBlock>{bodyStatements};
+}
+
+MayFail_<Lambda>::operator Lambda() const {
+    std::vector<Statement> bodyStatements;
+    for (auto e: this->body.statements) {
+        bodyStatements.push_back(unwrap_stmt(e.value()));
+    }
+    return Lambda{this->parameters, LambdaBlock{bodyStatements}};
+}
+
+template <>
+Lambda unwrap(const MayFail_<Lambda>& lambda) {
+    return (Lambda)lambda;
+}
+
+template <>
+MayFail_<Lambda> wrap(const Lambda& lambda) {
+    return MayFail_<Lambda>(lambda);
 }

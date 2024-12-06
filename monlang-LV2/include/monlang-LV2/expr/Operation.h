@@ -15,6 +15,12 @@ struct MayFail_<Operation> {
     MayFail<Expression_> leftOperand;
     identifier_t operator_; // should we define a specific 'binary operator' type ?
     MayFail<Expression_> rightOperand;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>, identifier_t, MayFail<Expression_>);
+
+    explicit MayFail_(Operation);
+    explicit operator Operation() const;
 };
 
 bool peekOperation(const Term&);

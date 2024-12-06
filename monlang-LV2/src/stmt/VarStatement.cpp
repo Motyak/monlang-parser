@@ -8,12 +8,8 @@
 
 #define unless(x) if(!(x))
 
-#define MALFORMED_STMT(err_msg) \
-    malformed_stmt = err_msg; \
-    return VarStatement()
-
 bool peekVarStatement(const ProgramSentence& sentence) {
-    unless (sentence.programWords.size() >= 3) {
+    unless (sentence.programWords.size() >= 1) {
         return false;
     }
 
@@ -26,38 +22,55 @@ bool peekVarStatement(const ProgramSentence& sentence) {
     return atom.value == "var";
 }
 
+static ProgramSentence consumeSentence(LV1::Program&);
+
 // where 'value' are the [2], [3], .. words from the sentence
 // ..returns empty opt if any non-word
 static std::optional<Term> extractValue(const ProgramSentence&);
 
-VarStatement buildVarStatement(const ProgramSentence& sentence, context_t* cx) {
-    auto& malformed_stmt = *cx->malformed_stmt;
-    auto& fallthrough = *cx->fallthrough;
+MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
+    auto sentence = consumeSentence(prog);
 
-    ASSERT (!malformed_stmt && !fallthrough);
-    ASSERT (sentence.programWords.size() >= 3);
 
-    unless (holds_word(sentence.programWords[1])) {
-        MALFORMED_STMT("invalid identifier");
+    unless (sentence.programWords.size() >= 2) {
+        return Malformed(MayFail_<VarStatement>{identifier_t(), Expression_()}, ERR(241));
     }
     auto word = get_word(sentence.programWords[1]);
-    ASSERT (std::holds_alternative<Atom*>(word));
+    unless (std::holds_alternative<Atom*>(word)) {
+        return Malformed(MayFail_<VarStatement>{identifier_t(), Expression_()}, ERR(242));
+    }
     auto atom = *std::get<Atom*>(word);
     auto identifier = atom.value;
 
+
+    unless (sentence.programWords.size() >= 3) {
+        return Malformed(MayFail_<VarStatement>{identifier, Expression_()}, ERR(243));
+    }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        MALFORMED_STMT("value is an unknown Expression");
+        return Malformed(MayFail_<VarStatement>{identifier, Expression_()}, ERR(244));
     }
-    auto value = buildExpression(*value_as_term, cx);
-    if (fallthrough) {
-        MALFORMED_STMT("value is an unknown Expression");
+    auto value = buildExpression(*value_as_term);
+    if (value.has_error()) {
+        return Malformed(MayFail_<VarStatement>{identifier, value}, ERR(245));
     }
 
-    return VarStatement{identifier, value};
+
+    return MayFail_<VarStatement>{identifier, value};
+}
+
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
 }
 
 static std::optional<Term> extractValue(const ProgramSentence& sentence) {
+    ASSERT (sentence.programWords.size() >= 3);
     auto rhs_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 2,
         sentence.programWords.end()
@@ -71,4 +84,27 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
         words.push_back(get_word(e));
     }
     return Term{words};
+}
+
+MayFail_<VarStatement>::MayFail_(identifier_t identifier, MayFail<Expression_> value)
+        : identifier(identifier), value(value){}
+
+MayFail_<VarStatement>::MayFail_(VarStatement varStmt) {
+    this->identifier = varStmt.identifier;
+    this->value = wrap_expr(varStmt.value);
+}
+
+MayFail_<VarStatement>::operator VarStatement() const {
+    auto value = unwrap_expr(this->value.value());
+    return VarStatement{this->identifier, value};
+}
+
+template <>
+VarStatement unwrap(const MayFail_<VarStatement>& varStmt) {
+    return (VarStatement)varStmt;
+}
+
+template <>
+MayFail_<VarStatement> wrap(const VarStatement& varStmt) {
+    return MayFail_<VarStatement>(varStmt);
 }

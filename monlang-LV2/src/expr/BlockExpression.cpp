@@ -29,20 +29,30 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
     return MayFail_<BlockExpression>{statements};
 }
 
-template <>
-BlockExpression unwrap(const MayFail_<BlockExpression>& blockExpr) {
-    auto statements = std::vector<Statement>();
+MayFail_<BlockExpression>::MayFail_(std::vector<MayFail<Statement_>> statements) : statements(statements){}
+
+MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {
+    auto statements = std::vector<MayFail<Statement_>>();
     for (auto e: blockExpr.statements) {
+        statements.push_back(wrap_stmt(e));
+    }
+    this->statements = statements;
+}
+
+MayFail_<BlockExpression>::operator BlockExpression() const {
+    auto statements = std::vector<Statement>();
+    for (auto e: this->statements) {
         statements.push_back(unwrap_stmt(e.value()));
     }
     return BlockExpression{statements};
 }
 
 template <>
+BlockExpression unwrap(const MayFail_<BlockExpression>& blockExpr) {
+    return (BlockExpression)blockExpr;
+}
+
+template <>
 MayFail_<BlockExpression> wrap(const BlockExpression& blockExpr) {
-    auto statements = std::vector<MayFail<Statement_>>();
-    for (auto e: blockExpr.statements) {
-        statements.push_back(wrap_stmt(e));
-    }
-    return MayFail_<BlockExpression>{statements};
+    return MayFail_<BlockExpression>(blockExpr);
 }

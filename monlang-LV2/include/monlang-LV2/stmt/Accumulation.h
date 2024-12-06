@@ -10,9 +10,15 @@
 
 template <>
 struct MayFail_<Accumulation> {
-    MayFail<Lvalue> variable;
+    Lvalue variable;
     identifier_t operator_;
     MayFail<Expression_> value;
+
+    MayFail_() = default;
+    explicit MayFail_(Lvalue, identifier_t, MayFail<Expression_>);
+
+    explicit MayFail_(Accumulation);
+    explicit operator Accumulation() const;
 };
 
 bool peekAccumulation(const ProgramSentence&);

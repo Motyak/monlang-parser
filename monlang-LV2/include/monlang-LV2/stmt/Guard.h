@@ -15,6 +15,12 @@ template <>
 struct MayFail_<Guard> {
     MayFail<Expression_> condition;
     std::variant<JUMP_STATEMENTS_> jump;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>, std::variant<JUMP_STATEMENTS_>);
+
+    explicit MayFail_(Guard);
+    explicit operator Guard() const;
 };
 
 bool peekGuard(const ProgramSentence&);

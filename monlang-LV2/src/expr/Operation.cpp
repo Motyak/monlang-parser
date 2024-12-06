@@ -29,18 +29,27 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
     return MayFail_<Operation>{leftOperand, operator_, rightOperand};
 }
 
+MayFail_<Operation>::MayFail_(MayFail<Expression_> leftOperand, identifier_t operator_, MayFail<Expression_> rightOperand)
+        : leftOperand(leftOperand), operator_(operator_), rightOperand(rightOperand){}
+
+MayFail_<Operation>::MayFail_(Operation operation) {
+    this->leftOperand = wrap_expr(operation.leftOperand);
+    this->operator_ = operation.operator_;
+    this->rightOperand = wrap_expr(operation.rightOperand);
+}
+
+MayFail_<Operation>::operator Operation() const {
+    auto leftOperand = unwrap_expr(this->leftOperand.value());
+    auto rightOperand = unwrap_expr(this->rightOperand.value());
+    return Operation{leftOperand, this->operator_, rightOperand};
+}
+
 template <>
 Operation unwrap(const MayFail_<Operation>& operation) {
-    auto leftOperand = unwrap_expr(operation.leftOperand.value());
-    auto rightOperand = unwrap_expr(operation.rightOperand.value());
-
-    return Operation{leftOperand, operation.operator_, rightOperand};
+    return (Operation)operation;
 }
 
 template <>
 MayFail_<Operation> wrap(const Operation& operation) {
-    auto leftOperand = wrap_expr(operation.leftOperand);
-    auto rightOperand = wrap_expr(operation.rightOperand);
-
-    return MayFail_<Operation>{leftOperand, operation.operator_, rightOperand};
+    return MayFail_<Operation>(operation);
 }

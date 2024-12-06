@@ -12,10 +12,22 @@ template <>
 struct MayFail_<VarStatement> {
     identifier_t identifier;
     MayFail<Expression_> value;
+
+    MayFail_() = default;
+    explicit MayFail_(identifier_t, MayFail<Expression_>);
+
+    explicit MayFail_(VarStatement);
+    explicit operator VarStatement() const;
 };
 
 bool peekVarStatement(const ProgramSentence&);
 
 MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program&);
+
+template <>
+VarStatement unwrap(const MayFail_<VarStatement>&);
+
+template <>
+MayFail_<VarStatement> wrap(const VarStatement&);
 
 #endif // VAR_STATEMENT_H

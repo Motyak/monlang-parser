@@ -1,3 +1,7 @@
+/*
+    THIS IS A HEADER-ONLY FILE
+*/
+
 #ifndef LV2_COMMON_H
 #define LV2_COMMON_H
 
@@ -82,25 +86,10 @@ class MayFail<MayFail_<T>> : public MayFail<void> {
 };
 
 template <typename T>
-T unwrap(const MayFail_<T>&);
+T unwrap(const MayFail_<T>&); //useless ?
 
 template <typename T>
-MayFail_<T> wrap(const T&);
-
-template <typename R, typename T>
-MayFail<R> mayfail_cast(MayFail<T> inputMayfail) {
-    return MayFail(R(inputMayfail.val), inputMayfail.err);
-}
-
-// template <typename R, typename... Targs>
-// MayFail<R> mayfail_cast(const std::variant<Targs...>& inputMayfailVariant) {
-//     return std::visit(
-//         [](auto inputMayfail){
-//             return MayFail(R(inputMayfail.val), inputMayfail.err);
-//         },
-//         inputMayfailVariant
-//     );
-// }
+MayFail_<T> wrap(const T&); //useless?
 
 template <typename R, typename T>
 MayFail<R> mayfail_convert(MayFail<T> inputMayfail) {

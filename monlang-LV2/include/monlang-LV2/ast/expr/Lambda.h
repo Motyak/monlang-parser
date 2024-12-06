@@ -1,16 +1,13 @@
 #ifndef AST_LAMBDA_H
 #define AST_LAMBDA_H
 
-#include <monlang-LV2/ast/Statement.h>
+#include <monlang-LV2/ast/expr/BlockExpression.h>
 
 #include <vector>
 #include <string>
 
 using identifier_t = std::string;
-
-struct LambdaBlock {
-    std::vector<Statement> statements;
-};
+using LambdaBlock = BlockExpression;
 
 struct Lambda {
     std::vector<identifier_t> parameters;
