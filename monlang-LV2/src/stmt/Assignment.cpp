@@ -102,13 +102,3 @@ MayFail_<Assignment>::operator Assignment() const {
     auto value = unwrap_expr(this->value.value());
     return Assignment{this->variable, value};
 }
-
-template <>
-Assignment unwrap(const MayFail_<Assignment>& assignment) {
-    return (Assignment)assignment;
-}
-
-template <>
-MayFail_<Assignment> wrap(const Assignment& assignment) {
-    return MayFail_<Assignment>(assignment);
-}

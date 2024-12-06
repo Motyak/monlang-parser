@@ -21,10 +21,4 @@ struct MayFail_<ExpressionStatement> {
 
 MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program&);
 
-template <>
-ExpressionStatement unwrap(const MayFail_<ExpressionStatement>&);
-
-template <>
-MayFail_<ExpressionStatement> wrap(const ExpressionStatement&);
-
 #endif // EXPRESSION_STATEMENT_H

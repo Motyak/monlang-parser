@@ -27,10 +27,4 @@ bool peekGuard(const ProgramSentence&);
 
 MayFail<MayFail_<Guard>> consumeGuard(LV1::Program&);
 
-template <>
-Guard unwrap(const MayFail_<Guard>&);
-
-template <>
-MayFail_<Guard> wrap(const Guard&);
-
 #endif // GUARD_H

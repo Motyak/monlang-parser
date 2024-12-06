@@ -98,13 +98,3 @@ MayFail_<VarStatement>::operator VarStatement() const {
     auto value = unwrap_expr(this->value.value());
     return VarStatement{this->identifier, value};
 }
-
-template <>
-VarStatement unwrap(const MayFail_<VarStatement>& varStmt) {
-    return (VarStatement)varStmt;
-}
-
-template <>
-MayFail_<VarStatement> wrap(const VarStatement& varStmt) {
-    return MayFail_<VarStatement>(varStmt);
-}

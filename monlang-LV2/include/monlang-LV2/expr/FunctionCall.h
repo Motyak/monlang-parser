@@ -24,10 +24,4 @@ bool peekFunctionCall(const Word&);
 
 MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word&);
 
-template <>
-FunctionCall unwrap(const MayFail_<FunctionCall>&);
-
-template <>
-MayFail_<FunctionCall> wrap(const FunctionCall&);
-
 #endif // FUNCTION_CALL_H

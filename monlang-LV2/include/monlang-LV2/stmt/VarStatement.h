@@ -24,10 +24,4 @@ bool peekVarStatement(const ProgramSentence&);
 
 MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program&);
 
-template <>
-VarStatement unwrap(const MayFail_<VarStatement>&);
-
-template <>
-MayFail_<VarStatement> wrap(const VarStatement&);
-
 #endif // VAR_STATEMENT_H

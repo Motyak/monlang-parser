@@ -98,13 +98,3 @@ MayFail_<LetStatement>::operator LetStatement() const {
     auto value = unwrap_expr(this->value.value());
     return LetStatement{this->identifier, value};
 }
-
-template <>
-LetStatement unwrap(const MayFail_<LetStatement>& letStmt) {
-    return (LetStatement)letStmt;
-}
-
-template <>
-MayFail_<LetStatement> wrap(const LetStatement& letStmt) {
-    return MayFail_<LetStatement>(letStmt);
-}

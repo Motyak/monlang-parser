@@ -25,10 +25,4 @@ bool peekAccumulation(const ProgramSentence&);
 
 MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program&);
 
-template <>
-Accumulation unwrap(const MayFail_<Accumulation>&);
-
-template <>
-MayFail_<Accumulation> wrap(const Accumulation&);
-
 #endif // ACCUMULATION_H

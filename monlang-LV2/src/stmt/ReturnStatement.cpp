@@ -97,13 +97,3 @@ MayFail_<ReturnStatement>::operator ReturnStatement() const {
     }
     return ReturnStatement{value};
 }
-
-template <>
-ReturnStatement unwrap(const MayFail_<ReturnStatement>& returnStmt) {
-    return (ReturnStatement)returnStmt;
-}
-
-template <>
-MayFail_<ReturnStatement> wrap(const ReturnStatement& returnStmt) {
-    return MayFail_<ReturnStatement>(returnStmt);
-}

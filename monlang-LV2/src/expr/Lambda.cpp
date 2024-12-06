@@ -77,13 +77,3 @@ MayFail_<Lambda>::operator Lambda() const {
     }
     return Lambda{this->parameters, LambdaBlock{bodyStatements}};
 }
-
-template <>
-Lambda unwrap(const MayFail_<Lambda>& lambda) {
-    return (Lambda)lambda;
-}
-
-template <>
-MayFail_<Lambda> wrap(const Lambda& lambda) {
-    return MayFail_<Lambda>(lambda);
-}

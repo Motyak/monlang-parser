@@ -24,10 +24,4 @@ bool peekLetStatement(const ProgramSentence&);
 
 MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program&);
 
-template <>
-LetStatement unwrap(const MayFail_<LetStatement>&);
-
-template <>
-MayFail_<LetStatement> wrap(const LetStatement&);
-
 #endif // LET_STATEMENT_H

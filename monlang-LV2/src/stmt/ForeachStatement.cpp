@@ -100,13 +100,3 @@ MayFail_<ForeachStatement>::operator ForeachStatement() const {
     auto block = unwrap(this->block.value());
     return ForeachStatement{iterable, block};
 }
-
-template <>
-ForeachStatement unwrap(const MayFail_<ForeachStatement>& foreachStmt) {
-    return (ForeachStatement)foreachStmt;
-}
-
-template <>
-MayFail_<ForeachStatement> wrap(const ForeachStatement& foreachStmt) {
-    return MayFail_<ForeachStatement>(foreachStmt);
-}

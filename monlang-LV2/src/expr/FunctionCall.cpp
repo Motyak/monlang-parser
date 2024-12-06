@@ -52,13 +52,3 @@ MayFail_<FunctionCall>::operator FunctionCall() const {
     }
     return FunctionCall{function, arguments};
 }
-
-template <>
-FunctionCall unwrap(const MayFail_<FunctionCall>& functionCall) {
-    return (FunctionCall)functionCall;
-}
-
-template <>
-MayFail_<FunctionCall> wrap(const FunctionCall& functionCall) {
-    return MayFail_<FunctionCall>(functionCall);
-}

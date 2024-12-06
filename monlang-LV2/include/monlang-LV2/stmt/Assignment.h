@@ -24,10 +24,4 @@ bool peekAssignment(const ProgramSentence&);
 
 MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program&);
 
-template <>
-Assignment unwrap(const MayFail_<Assignment>&);
-
-template <>
-MayFail_<Assignment> wrap(const Assignment&);
-
 #endif // ASSIGNMENT_H

@@ -86,10 +86,14 @@ class MayFail<MayFail_<T>> : public MayFail<void> {
 };
 
 template <typename T>
-T unwrap(const MayFail_<T>&); //useless ?
+T unwrap(const MayFail_<T>& mf_) {
+    return (T)mf_;
+}
 
 template <typename T>
-MayFail_<T> wrap(const T&); //useless?
+MayFail_<T> wrap(const T& t) {
+    return MayFail_<T>(t);
+}
 
 template <typename R, typename T>
 MayFail<R> mayfail_convert(MayFail<T> inputMayfail) {

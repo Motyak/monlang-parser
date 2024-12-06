@@ -46,13 +46,3 @@ MayFail_<BlockExpression>::operator BlockExpression() const {
     }
     return BlockExpression{statements};
 }
-
-template <>
-BlockExpression unwrap(const MayFail_<BlockExpression>& blockExpr) {
-    return (BlockExpression)blockExpr;
-}
-
-template <>
-MayFail_<BlockExpression> wrap(const BlockExpression& blockExpr) {
-    return MayFail_<BlockExpression>(blockExpr);
-}

@@ -23,10 +23,4 @@ bool peekReturnStatement(const ProgramSentence&);
 
 MayFail<MayFail_<ReturnStatement>> consumeReturnStatement(LV1::Program&);
 
-template <>
-ReturnStatement unwrap(const MayFail_<ReturnStatement>&);
-
-template <>
-MayFail_<ReturnStatement> wrap(const ReturnStatement&);
-
 #endif // RETURN_STATEMENT_H

@@ -21,10 +21,4 @@ bool peekDeferStatement(const ProgramSentence&);
 
 MayFail<MayFail_<DeferStatement>> consumeDeferStatement(LV1::Program&);
 
-template <>
-DeferStatement unwrap(const MayFail_<DeferStatement>&);
-
-template <>
-MayFail_<DeferStatement> wrap(const DeferStatement&);
-
 #endif // DEFER_STATEMENT_H

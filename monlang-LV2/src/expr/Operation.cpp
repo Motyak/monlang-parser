@@ -43,13 +43,3 @@ MayFail_<Operation>::operator Operation() const {
     auto rightOperand = unwrap_expr(this->rightOperand.value());
     return Operation{leftOperand, this->operator_, rightOperand};
 }
-
-template <>
-Operation unwrap(const MayFail_<Operation>& operation) {
-    return (Operation)operation;
-}
-
-template <>
-MayFail_<Operation> wrap(const Operation& operation) {
-    return MayFail_<Operation>(operation);
-}

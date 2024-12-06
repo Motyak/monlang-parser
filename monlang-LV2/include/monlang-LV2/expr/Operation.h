@@ -27,10 +27,4 @@ bool peekOperation(const Term&);
 
 MayFail<MayFail_<Operation>> buildOperation(const Term&);
 
-template <>
-Operation unwrap(const MayFail_<Operation>&);
-
-template <>
-MayFail_<Operation> wrap(const Operation&);
-
 #endif // OPERATION_H

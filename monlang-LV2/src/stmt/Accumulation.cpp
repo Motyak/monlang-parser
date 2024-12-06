@@ -122,13 +122,3 @@ MayFail_<Accumulation>::operator Accumulation() const {
     auto value = unwrap_expr(this->value.value());
     return Accumulation{this->variable, this->operator_, value};
 }
-
-template <>
-Accumulation unwrap(const MayFail_<Accumulation>& accumulation) {
-    return (Accumulation)accumulation;
-}
-
-template <>
-MayFail_<Accumulation> wrap(const Accumulation& accumulation) {
-    return MayFail_<Accumulation>(accumulation);
-}

@@ -23,10 +23,4 @@ bool peekBlockExpression(const Word&);
 
 MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word&);
 
-template <>
-BlockExpression unwrap(const MayFail_<BlockExpression>&);
-
-template <>
-MayFail_<BlockExpression> wrap(const BlockExpression&);
-
 #endif // BLOCK_EXPRESSION_H

@@ -43,13 +43,3 @@ MayFail_<ExpressionStatement>::operator ExpressionStatement() const {
     auto expression = unwrap_expr(this->expression.value());
     return ExpressionStatement{expression};
 }
-
-template <>
-ExpressionStatement unwrap(const MayFail_<ExpressionStatement>& exprStmt) {
-    return (ExpressionStatement)exprStmt;
-}
-
-template <>
-MayFail_<ExpressionStatement> wrap(const ExpressionStatement& exprStmt) {
-    return MayFail_<ExpressionStatement>(exprStmt);
-}

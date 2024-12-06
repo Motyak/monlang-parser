@@ -27,10 +27,4 @@ bool peekForeachStatement(const ProgramSentence&);
 
 MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program&);
 
-template <>
-ForeachStatement unwrap(const MayFail_<ForeachStatement>&);
-
-template <>
-MayFail_<ForeachStatement> wrap(const ForeachStatement&);
-
 #endif // FOREACH_STATEMENT_H
