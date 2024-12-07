@@ -83,7 +83,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<ProgramSentence>>& programSente
         if (int n = numbering.top(); n == NO_NUMBERING) {
             outputLine("ProgramSentence");
         } else {
-            outputLine("ProgramSentence #", itoa(n));
+            outputLine("ProgramSentence #", INT2CSTR(n));
         }
         numbering.pop();
     }
@@ -132,7 +132,7 @@ void PrintLV1::operator()(const MayFail<ProgramWord_>& pw) {
 
     output("ProgramWord");
     if (int n = numbering.top(); n != NO_NUMBERING) {
-        output(" #", itoa(n));
+        output(" #", INT2CSTR(n));
     }
     numbering.pop();
     output(": ");
@@ -150,7 +150,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<Term>>& term) {
         if (int n = numbering.top(); n == NO_NUMBERING) {
             outputLine("Term");
         } else {
-            outputLine("Term #", itoa(n));
+            outputLine("Term #", INT2CSTR(n));
         }
         numbering.pop();
     }
@@ -197,7 +197,7 @@ void PrintLV1::operator()(const MayFail<Word_>& word) {
 
     output("Word");
     if (int n = numbering.top(); n != NO_NUMBERING) {
-        output(" #", itoa(n));
+        output(" #", INT2CSTR(n));
     }
     numbering.pop();
     output(": ");

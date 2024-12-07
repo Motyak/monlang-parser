@@ -103,7 +103,7 @@ void PrintLV2::operator()(const MayFail<Statement_>& statement) {
         if (int n = numbering.top(); n == NO_NUMBERING) {
             output("Statement: ");
         } else {
-            output("Statement #", itoa(n), ": ");
+            output("Statement #", INT2CSTR(n), ": ");
         }
         numbering.pop();
     }
@@ -299,7 +299,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
 
 
     unless (!is_stub(operation->leftOperand.val)) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currExpression));
         currIndent--;
         return;
     }
@@ -313,7 +313,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
 
 
     unless (!is_stub(operation->rightOperand.val)) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currExpression));
         currIndent--;
         return;
     }
@@ -332,7 +332,7 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
 
 
     unless (!is_stub(functionCall->function.val)) {
-        outputLine("~> ", SERIALIZE_ERR(functionCall->function));
+        outputLine("~> ", SERIALIZE_ERR(currExpression));
         currIndent--;
         return;
     }
@@ -349,11 +349,6 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     }
     currIndent++;
     for (auto arg: functionCall->arguments) {
-        unless (!is_stub(arg.val)) {
-            outputLine("~> ", SERIALIZE_ERR(arg));
-            currIndent--;
-            return;
-        }
         operator()(arg);
     }
     currIndent--;
@@ -368,7 +363,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
 
     int i = 1;
     for (auto parameter: lambda->parameters) {
-        outputLine("-> parameter #", itoa(i++), ": `", parameter.c_str(), "`");
+        outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.c_str(), "`");
     }
 
     outputLine("-> body");
