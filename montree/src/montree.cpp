@@ -19,9 +19,9 @@ std::string montree::astToString(LV1::Ast_ ast, int TAB_SIZE) {
     return res;
 }
 
-std::string montree::astToString(LV2::Ast ast, int TAB_SIZE) {
+std::string montree::astToString(LV2::Ast_ ast, int TAB_SIZE) {
     std::ostringstream oss;
-    LV2::visitAst(PrintLV2(oss, TAB_SIZE), ast);
+    LV2::visitAst_(PrintLV2(oss, TAB_SIZE), ast);
     auto res = oss.str();
     // remove potential trailing newline
     if (!res.empty() && res.back() == NEWLINE) {

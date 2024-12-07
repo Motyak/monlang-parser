@@ -125,7 +125,8 @@ void PrintLV1::operator()(const MayFail<ProgramWord_>& pw) {
 
     if (numbering.empty()) {
         /* then, it's a stand-alone word */
-        std::visit(*this, pw.val);
+        std::visit(*this, pw.val); // not a copy as it may seem..
+                                   // ,..actually mutates 'this'
         return;
     }
 
@@ -189,7 +190,8 @@ void PrintLV1::operator()(const MayFail<Word_>& word) {
 
     if (numbering.empty()) {
         /* then, it's a stand-alone word */
-        std::visit(*this, word.val);
+        std::visit(*this, word.val); // not a copy as it may seem..
+                                     // ,..actually mutates 'this'
         return;
     }
 

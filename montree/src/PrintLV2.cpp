@@ -21,9 +21,15 @@
 #include <monlang-LV2/expr/Literal.h>
 #include <monlang-LV2/expr/Lvalue.h>
 
+#include <utils/nb-utils.h>
+#include <utils/str-utils.h>
+
 #include <cstdarg>
 
+#define unless(x) if(!(x))
 #define until(x) while(!(x))
+
+#define SERIALIZE_ERR(malformedMayfail) malformedMayfail.error().fmt.c_str()
 
 namespace {
     constexpr char SPACE = 32;
@@ -51,64 +57,148 @@ void (PrintLV2::output)(const char* strs...) {
     startOfNewLine = false;
 }
 
+// should only be used to check for Expression_()
+static bool is_stub(const Expression_& expr) {
+    return std::visit(
+        [](auto* ptr){return ptr == nullptr;},
+        expr
+    );
+}
+
 ///////////////////////////////////////////////////////////////
 
-void PrintLV2::operator()(const LV2::Program& prog) {
-    outputLine("-> Program");
-    currIndent++;
-    for (auto statement: prog.statements) {
+void PrintLV2::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
+    auto prog_ = prog.val;
+    outputLine(prog.has_error()? "~> Program" : "-> Program");
+
+    if (prog_.statements.size() > 0) {
+        currIndent++;
+    }
+
+    if (prog_.statements.size() > 1) {
+        for (int n : range(prog_.statements.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
+    for (auto statement: prog_.statements) {
         operator()(statement);
     }
+
+    if (prog_.statements.size() > 0) {
+        currIndent--;
+    }
+}
+
+void PrintLV2::operator()(const MayFail<Statement_>& statement) {
+    this->currStatement = statement; // needed by stmt handlers
+    auto statement_ = statement.val;
+    output(statement.has_error()? "~> " : "-> ");
+
+    if (numbering.empty()) {
+        outputLine("Statement");
+    } else {
+        if (int n = numbering.top(); n == NO_NUMBERING) {
+            outputLine("Statement");
+        } else {
+            outputLine("Statement #", itoa(n));
+        }
+        numbering.pop();
+    }
+
+    currIndent++;
+    output(statement.has_error()? "~> " : "-> ");
+    std::visit(*this, statement_);
     currIndent--;
 }
 
-void PrintLV2::operator()(const Statement& statement) {
-    output("-> Statement: ");
-    std::visit(*this, statement);
+void PrintLV2::operator()(const MayFail<Expression_>& expression) {
+    this->currExpression = expression; // needed by expr handlers
+    auto expression_ = expression.val;
+    output(expression.has_error()? "~> " : "-> ");
+
+    unless (!is_stub(expression_)) {
+        outputLine("Expression");
+        currIndent++;
+        outputLine("~> ", SERIALIZE_ERR(expression));
+        currIndent--;
+        return;
+    }
+
+    output("Expression: ");
+    std::visit(*this, expression_);
 }
 
-void PrintLV2::operator()(Assignment* assignment) {
+void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
     outputLine("Assignment");
     currIndent++;
 
-    output("-> "); operator()(&assignment->variable);
-    operator()(assignment->value);
+    // we assume that empty identifier means stub
+    unless (assignment->variable.identifier != "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    operator()(&assignment->variable);
 
+    operator()(assignment->value);
     currIndent--;
 }
 
-void PrintLV2::operator()(Accumulation* accumulation) {
+void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     outputLine("Accumulation");
     currIndent++;
 
-    output("-> "); operator()(&accumulation->variable);
-    outputLine("-> operator: `", accumulation->operator_.c_str(), "`");
-    operator()(accumulation->value);
+    // we assume that empty identifier means stub
+    unless (accumulation->variable.identifier != "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    operator()(&accumulation->variable);
 
+    outputLine("-> operator: `", accumulation->operator_.c_str(), "`"); /*
+        always wellformed, otherwise wouldn't be peeked in the first place
+    */
+    operator()(accumulation->value);
     currIndent--;
 }
 
-void PrintLV2::operator()(LetStatement* letStatement) {
+void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     outputLine("LetStatement");
     currIndent++;
 
+    // we assume that empty identifier means stub
+    unless (letStatement->identifier != "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     outputLine("-> identifier: `", letStatement->identifier.c_str(), "`");
-    operator()(letStatement->value);
 
+    operator()(letStatement->value);
     currIndent--;
 }
 
-void PrintLV2::operator()(VarStatement* varStatement) {
+void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
     outputLine("VarStatement");
     currIndent++;
 
+    // we assume that empty identifier means stub
+    unless (varStatement->identifier != "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     outputLine("-> identifier: `", varStatement->identifier.c_str(), "`");
-    operator()(varStatement->value);
 
+    operator()(varStatement->value);
     currIndent--;
 }
 
-void PrintLV2::operator()(ReturnStatement* returnStatement) {
+void PrintLV2::operator()(MayFail_<ReturnStatement>* returnStatement) {
     outputLine("ReturnStatement");
     if (returnStatement->value) {
         currIndent++;
@@ -129,29 +219,28 @@ void PrintLV2::operator()(DieStatement*) {
     outputLine("DieStatement");
 }
 
-void PrintLV2::operator()(ForeachStatement* foreachStatement) {
+void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     outputLine("ForeachStatement");
     currIndent++;
 
+    unless (!is_stub(foreachStatement->iterable.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     operator()(foreachStatement->iterable);
-    output("-> "); operator()(&foreachStatement->block);
-
+    operator()(mayfail_convert<Expression_>(foreachStatement->block));
     currIndent--;
 }
 
-void PrintLV2::operator()(ExpressionStatement* expressionStatement) {
+void PrintLV2::operator()(MayFail_<ExpressionStatement>* expressionStatement) {
     outputLine("ExpressionStatement");
     currIndent++;
     operator()(expressionStatement->expression);
     currIndent--;
 }
 
-void PrintLV2::operator()(const Expression& expression) {
-    output("-> Expression: ");
-    std::visit(*this, expression);
-}
-
-void PrintLV2::operator()(Operation* operation) {
+void PrintLV2::operator()(MayFail_<Operation>* operation) {
     outputLine("Operation");
     currIndent++;
 
@@ -170,7 +259,7 @@ void PrintLV2::operator()(Operation* operation) {
     currIndent--;
 }
 
-void PrintLV2::operator()(FunctionCall* functionCall) {
+void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     outputLine("FunctionCall");
     currIndent++;
 
@@ -190,7 +279,7 @@ void PrintLV2::operator()(FunctionCall* functionCall) {
     currIndent--;
 }
 
-void PrintLV2::operator()(Lambda* lambda) {
+void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     outputLine("Lambda");
     currIndent++;
 
@@ -211,7 +300,7 @@ void PrintLV2::operator()(Lambda* lambda) {
     currIndent--;
 }
 
-void PrintLV2::operator()(BlockExpression* block) {
+void PrintLV2::operator()(MayFail_<BlockExpression>* block) {
     outputLine("BlockExpression");
     currIndent++;
     for (auto statement: block->statements) {

@@ -2,8 +2,6 @@
 #include <montree/montree-LV2.h>
 #include <catch2/catch_amalgamated.hpp>
 
-#include <monlang-LV2/context_init.h>
-
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("lvalue from atom", "[test-2111][expr]") {
@@ -16,12 +14,9 @@ TEST_CASE ("lvalue from atom", "[test-2111][expr]") {
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
-    auto output = buildExpression(input_term, &cx);
+    auto output = buildExpression(input_term);
     auto output_str = montree::astToString(output);
 
-    REQUIRE (!*cx.fallthrough); // no err
     REQUIRE (output_str == expect);
 }
 
