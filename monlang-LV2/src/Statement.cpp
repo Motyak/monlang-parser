@@ -17,6 +17,8 @@
 #include <utils/mem-utils.h>
 #include <utils/variant-utils.h>
 
+static ProgramSentence consumeSentence(LV1::Program&);
+
 MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     ASSERT (prog.sentences.size() > 0);
     auto peekedSentence = prog.sentences[0];
@@ -66,6 +68,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     if (peekBreakStatement(peekedSentence)) {
+        consumeSentence(prog);
         return (Statement_)move_to_heap(BreakStatement{});
     }
 
@@ -74,6 +77,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     if (peekContinueStatement(peekedSentence)) {
+        consumeSentence(prog);
         return (Statement_)move_to_heap(ContinueStatement{});
     }
 
@@ -82,6 +86,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     if (peekDieStatement(peekedSentence)) {
+        consumeSentence(prog);
         return (Statement_)move_to_heap(DieStatement{});
     }
 
@@ -101,6 +106,16 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     /* fall-through statement */
     return mayfail_convert<Statement_>(consumeExpressionStatement(prog));
+}
+
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
 }
 
 Statement unwrap_stmt(Statement_ statement) {

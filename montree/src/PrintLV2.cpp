@@ -139,6 +139,7 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
         currIndent--;
         return;
     }
+    output("-> ");
     operator()(&assignment->variable);
 
 
@@ -164,6 +165,7 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
         currIndent--;
         return;
     }
+    output("-> ");
     operator()(&accumulation->variable);
 
 
@@ -277,7 +279,8 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
         currIndent--;
         return;
     }
-    operator()(mayfail_convert<Expression_>(foreachStatement->block));
+    output(foreachStatement->block.has_error()? "~> " : "-> ");
+    operator()(&foreachStatement->block.val);
 
 
     currIndent--;
@@ -339,7 +342,7 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     currIndent--;
 
 
-    output("-> arguments");
+    outputLine("-> arguments");
     unless (!functionCall->arguments.empty()) {
         outputLine(" (none)");
         return;

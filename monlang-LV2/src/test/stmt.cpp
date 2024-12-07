@@ -2,8 +2,6 @@
 #include <montree/montree-LV2.h>
 #include <catch2/catch_amalgamated.hpp>
 
-#include <monlang-LV2/context_init.h>
-
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("expression statement", "[test-3111][stmt]") {
@@ -20,12 +18,8 @@ TEST_CASE ("expression statement", "[test-3111][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -51,12 +45,8 @@ TEST_CASE ("assignment", "[test-3112][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -83,12 +73,8 @@ TEST_CASE ("accumulation", "[test-3113][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -114,12 +100,8 @@ TEST_CASE ("let statement", "[test-3114][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -145,12 +127,8 @@ TEST_CASE ("var statement", "[test-3115][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -174,12 +152,8 @@ TEST_CASE ("return statement", "[test-3116][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -199,12 +173,8 @@ TEST_CASE ("break statement", "[test-3117][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -224,12 +194,8 @@ TEST_CASE ("continue statement", "[test-3118][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -249,12 +215,8 @@ TEST_CASE ("die statement", "[test-3119][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -292,12 +254,8 @@ TEST_CASE ("foreach statement", "[test-3121][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

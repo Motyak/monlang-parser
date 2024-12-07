@@ -18,7 +18,8 @@ endif
 ###########################################################
 
 SRC_FILENAMES := \
-montree \
+montree-LV1 \
+montree-LV2 \
 LV1AstBuilder \
 LV1AstGenerator \
 PrintLV1 \
