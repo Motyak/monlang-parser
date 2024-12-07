@@ -98,20 +98,17 @@ void PrintLV2::operator()(const MayFail<Statement_>& statement) {
     output(statement.has_error()? "~> " : "-> ");
 
     if (numbering.empty()) {
-        outputLine("Statement");
+        output("Statement: ");
     } else {
         if (int n = numbering.top(); n == NO_NUMBERING) {
-            outputLine("Statement");
+            output("Statement: ");
         } else {
-            outputLine("Statement #", itoa(n));
+            output("Statement #", itoa(n), ": ");
         }
         numbering.pop();
     }
 
-    currIndent++;
-    output(statement.has_error()? "~> " : "-> ");
     std::visit(*this, statement_);
-    currIndent--;
 }
 
 void PrintLV2::operator()(const MayFail<Expression_>& expression) {
@@ -135,6 +132,7 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
     outputLine("Assignment");
     currIndent++;
 
+
     // we assume that empty identifier means stub
     unless (assignment->variable.identifier != "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
@@ -143,13 +141,22 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
     }
     operator()(&assignment->variable);
 
+
+    unless (!is_stub(assignment->value.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     operator()(assignment->value);
+
+
     currIndent--;
 }
 
 void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     outputLine("Accumulation");
     currIndent++;
+
 
     // we assume that empty identifier means stub
     unless (accumulation->variable.identifier != "") {
@@ -159,16 +166,27 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     }
     operator()(&accumulation->variable);
 
+
     outputLine("-> operator: `", accumulation->operator_.c_str(), "`"); /*
         always wellformed, otherwise wouldn't be peeked in the first place
     */
+
+
+    unless (!is_stub(accumulation->value.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     operator()(accumulation->value);
+
+
     currIndent--;
 }
 
 void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     outputLine("LetStatement");
     currIndent++;
+
 
     // we assume that empty identifier means stub
     unless (letStatement->identifier != "") {
@@ -178,13 +196,22 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     }
     outputLine("-> identifier: `", letStatement->identifier.c_str(), "`");
 
+
+    unless (!is_stub(letStatement->value.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     operator()(letStatement->value);
+
+
     currIndent--;
 }
 
 void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
     outputLine("VarStatement");
     currIndent++;
+
 
     // we assume that empty identifier means stub
     unless (varStatement->identifier != "") {
@@ -194,7 +221,15 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
     }
     outputLine("-> identifier: `", varStatement->identifier.c_str(), "`");
 
+
+    unless (!is_stub(varStatement->value.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     operator()(varStatement->value);
+
+
     currIndent--;
 }
 
@@ -202,6 +237,11 @@ void PrintLV2::operator()(MayFail_<ReturnStatement>* returnStatement) {
     outputLine("ReturnStatement");
     if (returnStatement->value) {
         currIndent++;
+        unless (!is_stub(returnStatement->value->val)) {
+            outputLine("~> ", SERIALIZE_ERR(currStatement));
+            currIndent--;
+            return;
+        }
         operator()(*returnStatement->value);
         currIndent--;
     }
@@ -223,13 +263,23 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     outputLine("ForeachStatement");
     currIndent++;
 
+
     unless (!is_stub(foreachStatement->iterable.val)) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     operator()(foreachStatement->iterable);
+
+
+    unless (!foreachStatement->block.val._stub) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     operator()(mayfail_convert<Expression_>(foreachStatement->block));
+
+
     currIndent--;
 }
 
@@ -244,17 +294,31 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
     outputLine("Operation");
     currIndent++;
 
+
+    unless (!is_stub(operation->leftOperand.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     outputLine("-> leftOperand");
     currIndent++;
     operator()(operation->leftOperand);
     currIndent--;
 
+
     outputLine("-> operator: `", operation->operator_.c_str(), "`");
 
+
+    unless (!is_stub(operation->rightOperand.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
     outputLine("-> rightOperand");
     currIndent++;
     operator()(operation->rightOperand);
     currIndent--;
+
 
     currIndent--;
 }
@@ -263,18 +327,34 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     outputLine("FunctionCall");
     currIndent++;
 
+
+    unless (!is_stub(functionCall->function.val)) {
+        outputLine("~> ", SERIALIZE_ERR(functionCall->function));
+        currIndent--;
+        return;
+    }
     outputLine("-> function");
     currIndent++;
     operator()(functionCall->function);
     currIndent--;
 
+
     output("-> arguments");
-    outputLine(functionCall->arguments.empty()? " (none)" : "");
+    unless (!functionCall->arguments.empty()) {
+        outputLine(" (none)");
+        return;
+    }
     currIndent++;
     for (auto arg: functionCall->arguments) {
+        unless (!is_stub(arg.val)) {
+            outputLine("~> ", SERIALIZE_ERR(arg));
+            currIndent--;
+            return;
+        }
         operator()(arg);
     }
     currIndent--;
+
 
     currIndent--;
 }
@@ -283,13 +363,11 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     outputLine("Lambda");
     currIndent++;
 
-    /* parameters */
+    int i = 1;
     for (auto parameter: lambda->parameters) {
-        //TODO: #1 #2 #.. when multiple parameters
-        outputLine("-> parameter: `", parameter.c_str(), "`");
+        outputLine("-> parameter #", itoa(i++), ": `", parameter.c_str(), "`");
     }
 
-    /* body + body statements */
     outputLine("-> body");
     currIndent++;
     for (auto statement: lambda->body.statements) {

@@ -29,6 +29,8 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
     return MayFail_<BlockExpression>{statements};
 }
 
+MayFail_<BlockExpression>::MayFail_() : statements(), _stub(true){}
+
 MayFail_<BlockExpression>::MayFail_(std::vector<MayFail<Statement_>> statements) : statements(statements){}
 
 MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {

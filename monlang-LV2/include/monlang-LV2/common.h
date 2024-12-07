@@ -6,6 +6,7 @@
 #define LV2_COMMON_H
 
 #include <utils/assert-utils.h>
+#include <utils/mem-utils.h>
 
 #include <string>
 #include <optional>
