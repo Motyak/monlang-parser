@@ -1,15 +1,27 @@
 #ifndef FUNCTION_CALL_H
 #define FUNCTION_CALL_H
 
+#include <monlang-LV2/ast/expr/FunctionCall.h>
+
+#include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>
 
-struct FunctionCall {
-    Expression function;
-    std::vector<Expression> arguments;
+#include <monlang-LV1/ast/Word.h>
+
+template <>
+struct MayFail_<FunctionCall> {
+    MayFail<Expression_> function;
+    std::vector<MayFail<Expression_>> arguments;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>, std::vector<MayFail<Expression_>>);
+
+    explicit MayFail_(FunctionCall);
+    explicit operator FunctionCall() const;
 };
 
 bool peekFunctionCall(const Word&);
 
-FunctionCall buildFunctionCall(const Word&, context_t* = new context_t{});
+MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word&);
 
 #endif // FUNCTION_CALL_H

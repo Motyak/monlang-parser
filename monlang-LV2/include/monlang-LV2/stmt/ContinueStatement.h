@@ -1,9 +1,9 @@
 #ifndef CONTINUE_STATEMENT_H
 #define CONTINUE_STATEMENT_H
 
-#include <monlang-LV1/ast/ProgramSentence.h>
+#include <monlang-LV2/ast/stmt/ContinueStatement.h>
 
-struct ContinueStatement{};
+#include <monlang-LV1/ast/ProgramSentence.h>
 
 bool peekContinueStatement(const ProgramSentence&);
 

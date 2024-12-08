@@ -83,7 +83,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<ProgramSentence>>& programSente
         if (int n = numbering.top(); n == NO_NUMBERING) {
             outputLine("ProgramSentence");
         } else {
-            outputLine("ProgramSentence #", itoa(n));
+            outputLine("ProgramSentence #", INT2CSTR(n));
         }
         numbering.pop();
     }
@@ -125,13 +125,14 @@ void PrintLV1::operator()(const MayFail<ProgramWord_>& pw) {
 
     if (numbering.empty()) {
         /* then, it's a stand-alone word */
-        std::visit(*this, pw.val);
+        std::visit(*this, pw.val); // not a copy as it may seem..
+                                   // ,..actually mutates 'this'
         return;
     }
 
     output("ProgramWord");
     if (int n = numbering.top(); n != NO_NUMBERING) {
-        output(" #", itoa(n));
+        output(" #", INT2CSTR(n));
     }
     numbering.pop();
     output(": ");
@@ -149,7 +150,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<Term>>& term) {
         if (int n = numbering.top(); n == NO_NUMBERING) {
             outputLine("Term");
         } else {
-            outputLine("Term #", itoa(n));
+            outputLine("Term #", INT2CSTR(n));
         }
         numbering.pop();
     }
@@ -189,13 +190,14 @@ void PrintLV1::operator()(const MayFail<Word_>& word) {
 
     if (numbering.empty()) {
         /* then, it's a stand-alone word */
-        std::visit(*this, word.val);
+        std::visit(*this, word.val); // not a copy as it may seem..
+                                     // ,..actually mutates 'this'
         return;
     }
 
     output("Word");
     if (int n = numbering.top(); n != NO_NUMBERING) {
-        output(" #", itoa(n));
+        output(" #", INT2CSTR(n));
     }
     numbering.pop();
     output(": ");

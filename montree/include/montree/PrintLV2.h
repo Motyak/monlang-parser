@@ -1,34 +1,36 @@
 #ifndef PRINT_LV2_H
 #define PRINT_LV2_H
 
+#include <stack>
+
 /* interface only */
 #include <monlang-LV2/visitors/visitor.h>
 
-class PrintLV2 : public LV2::AstVisitor<void> {
+class PrintLV2 : public LV2::AstVisitor_<void> {
   public:
     PrintLV2(std::ostream&, int TAB_SIZE=2);
 
-    void operator()(const LV2::Program&) override;
-    void operator()(const Statement&) override;
-    void operator()(const Expression&) override;
+    void operator()(const MayFail<MayFail_<LV2::Program>>&) override;
+    void operator()(const MayFail<Statement_>&) override;
+    void operator()(const MayFail<Expression_>&) override;
 
     /* statements */
-    void operator()(Assignment*);
-    void operator()(Accumulation*);
-    void operator()(LetStatement*);
-    void operator()(VarStatement*);
-    void operator()(ReturnStatement*);
+    void operator()(MayFail_<Assignment>*);
+    void operator()(MayFail_<Accumulation>*);
+    void operator()(MayFail_<LetStatement>*);
+    void operator()(MayFail_<VarStatement>*);
+    void operator()(MayFail_<ReturnStatement>*);
     void operator()(BreakStatement*);
     void operator()(ContinueStatement*);
     void operator()(DieStatement*);
-    void operator()(ForeachStatement*);
-    void operator()(ExpressionStatement*);
+    void operator()(MayFail_<ForeachStatement>*);
+    void operator()(MayFail_<ExpressionStatement>*);
 
     /* expressions */
-    void operator()(Operation*);
-    void operator()(FunctionCall*);
-    void operator()(Lambda*);
-    void operator()(BlockExpression*);
+    void operator()(MayFail_<Operation>*);
+    void operator()(MayFail_<FunctionCall>*);
+    void operator()(MayFail_<Lambda>*);
+    void operator()(MayFail_<BlockExpression>*);
     void operator()(SpecialSymbol*);
     void operator()(Literal*);
     void operator()(Lvalue*);
@@ -38,13 +40,17 @@ class PrintLV2 : public LV2::AstVisitor<void> {
   private:
     void output(const char* strs...);
 
+    static constexpr int NO_NUMBERING = -1;
     const int TAB_SIZE;
 
-    /* consider a State struct with all these fields as ref types..
-       .. + struct that holds the actual values (scope variable) */
     std::ostream& out;
+    std::stack<int> numbering;
     int currIndent = 0;
     bool startOfNewLine = true;
+    MayFail<Statement_> currStatement;
+    MayFail<Expression_> currExpression;
+    bool standalone_stmt = true;
+    bool standalone_expr = true;
 };
 
 #endif // PRINT_LV2_H

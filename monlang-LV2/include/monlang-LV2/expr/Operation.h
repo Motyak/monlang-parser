@@ -1,19 +1,30 @@
 #ifndef OPERATION_H
 #define OPERATION_H
 
+#include <monlang-LV2/ast/expr/Operation.h>
+
+#include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/context.h>
+
+#include <monlang-LV1/ast/Term.h>
 
 using identifier_t = std::string;
 
-struct Operation {
-    Expression leftOperand;
+template <>
+struct MayFail_<Operation> {
+    MayFail<Expression_> leftOperand;
     identifier_t operator_; // should we define a specific 'binary operator' type ?
-    Expression rightOperand;
+    MayFail<Expression_> rightOperand;
+
+    MayFail_() = default;
+    explicit MayFail_(MayFail<Expression_>, identifier_t, MayFail<Expression_>);
+
+    explicit MayFail_(Operation);
+    explicit operator Operation() const;
 };
 
 bool peekOperation(const Term&);
 
-Operation buildOperation(const Term&, context_t* = new context_t{});
+MayFail<MayFail_<Operation>> buildOperation(const Term&);
 
 #endif // OPERATION_H

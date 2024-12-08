@@ -1,5 +1,7 @@
 #include <monlang-LV2/expr/BlockExpression.h>
 
+/* impl only */
+
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 
 #include <utils/assert-utils.h>
@@ -11,31 +13,38 @@ bool peekBlockExpression(const Word& word) {
     return std::holds_alternative<CurlyBracketsGroup*>(word);
 }
 
-BlockExpression buildBlockExpression(const Word& word, context_t* cx) {
-    ASSERT (!*cx->fallthrough);
+MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
     ASSERT (std::holds_alternative<CurlyBracketsGroup*>(word));
     auto cbg = *std::get<CurlyBracketsGroup*>(word);
 
-    // create fresh context
-    auto child_cx = context_t{}; // we use context_t{} instead of context_init_t{}..
-               // ..because we don't want to deallocate memory at the end of scope..
-               // ..(it's used by the returned entity)
-    // save context
-    auto parent_cx = *cx;
-    // switch context
-    *cx = child_cx;
-
-    auto& statements = *std::any_cast<std::vector<Statement>*>(child_cx.statements);
+    auto statements = std::vector<MayFail<Statement_>>();
     until (cbg.sentences.empty()) {
-        auto statement = consumeStatement((Subprogram&)cbg, cx);
-        if (*child_cx.malformed_stmt || *child_cx.fallthrough) {
-            return BlockExpression(); // stub
-        }
+        auto statement = consumeStatement((Subprogram&)cbg);
         statements.push_back(statement);
+        if (statement.has_error()) {
+            return Malformed(MayFail_<BlockExpression>{statements}, ERR(641));
+        }
     }
 
-    // restore context
-    *cx = parent_cx;
+    return MayFail_<BlockExpression>{statements};
+}
 
+MayFail_<BlockExpression>::MayFail_() : statements(), _stub(true){}
+
+MayFail_<BlockExpression>::MayFail_(std::vector<MayFail<Statement_>> statements) : statements(statements){}
+
+MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {
+    auto statements = std::vector<MayFail<Statement_>>();
+    for (auto e: blockExpr.statements) {
+        statements.push_back(wrap_stmt(e));
+    }
+    this->statements = statements;
+}
+
+MayFail_<BlockExpression>::operator BlockExpression() const {
+    auto statements = std::vector<Statement>();
+    for (auto e: this->statements) {
+        statements.push_back(unwrap_stmt(e.value()));
+    }
     return BlockExpression{statements};
 }

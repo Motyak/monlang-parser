@@ -2,8 +2,6 @@
 #include <montree/montree-LV2.h>
 #include <catch2/catch_amalgamated.hpp>
 
-#include <monlang-LV2/context_init.h>
-
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("labelize literal", "[test-4211][let]") {
@@ -23,12 +21,8 @@ TEST_CASE ("labelize literal", "[test-4211][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -37,7 +31,7 @@ TEST_CASE ("labelize literal", "[test-4211][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize literal", "[test-4251][let]") {
+TEST_CASE ("labelize grouped expr", "[test-4251][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -56,12 +50,8 @@ TEST_CASE ("labelize literal", "[test-4251][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -87,12 +77,8 @@ TEST_CASE ("labelize special value", "[test-4231][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -118,12 +104,8 @@ TEST_CASE ("labelize lvalue", "[test-4212][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -150,7 +132,7 @@ TEST_CASE ("labelize lambda", "[test-4213][let]") {
        |-> Statement: LetStatement
        |  -> identifier: `func`
        |  -> Expression: Lambda
-       |    -> parameter: `x`
+       |    -> parameter #1: `x`
        |    -> body
        |      -> Statement: ExpressionStatement
        |        -> Expression: Lvalue: `x`
@@ -159,12 +141,8 @@ TEST_CASE ("labelize lambda", "[test-4213][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -197,12 +175,8 @@ TEST_CASE ("labelize operation", "[test-4214][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -232,17 +206,15 @@ TEST_CASE ("labelize block expression", "[test-4215][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
 
 TEST_CASE ("labelize function call", "[test-4216][let]") {
     auto input = tommy_str(R"EOF(
@@ -269,12 +241,143 @@ TEST_CASE ("labelize function call", "[test-4216][let]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
-    auto cx_init = context_init_t{};
-    auto cx = (context_t)cx_init;
 
-    auto output = consumeStatement(input_prog, &cx);
-    REQUIRE (!*cx.malformed_stmt); // no err
-    REQUIRE (!*cx.fallthrough); // ..
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+//==============================================================
+// ERR
+//==============================================================
+
+TEST_CASE ("ERR contains less than 2 words (no variable)", "[test-4217][let][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord: Atom: `let`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: LetStatement
+       |  ~> ERR-231
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a non-Atom word as variable", "[test-4218][let][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `let`
+       |  -> ProgramWord #2: ParenthesesGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: LetStatement
+       |  ~> ERR-232
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains less than 3 words (no value)", "[test-4219][let][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `let`
+       |  -> ProgramWord #2: Atom: `x`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: LetStatement
+       |  -> identifier: `x`
+       |  ~> ERR-233
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a non-Word as part of the value", "[test-4220][let][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `let`
+       |  -> ProgramWord #2: Atom: `x`
+       |  -> ProgramWord #3: SquareBracketsTerm
+       |    -> Term
+       |      -> Word: Atom: `true`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: LetStatement
+       |  -> identifier: `x`
+       |  ~> ERR-234
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a Malformed Expression as value", "[test-4221][let][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `let`
+       |  -> ProgramWord #2: Atom: `x`
+       |  -> ProgramWord #3: Atom: `y`
+       |  -> ProgramWord #4: Atom: `z`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: LetStatement
+       |  -> identifier: `x`
+       |  ~> Expression
+       |    ~> ERR-161
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

@@ -9,10 +9,6 @@
 
 #define unless(x) if(!(x))
 
-#define MALFORMED_STMT(err_msg) \
-    malformed_stmt = err_msg; \
-    return ReturnStatement()
-
 bool peekReturnStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
@@ -27,30 +23,48 @@ bool peekReturnStatement(const ProgramSentence& sentence) {
     return atom.value == "return";
 }
 
+static ProgramSentence consumeSentence(LV1::Program&);
+
 // where 'value' are the [1], [2], .. words from the sentence
 // ..returns empty opt if any non-word
 static std::optional<Term> extractValue(const ProgramSentence&);
 
-ReturnStatement buildReturnStatement(const ProgramSentence& sentence, context_t* cx) {
-    auto& malformed_stmt = *cx->malformed_stmt;
-    auto& fallthrough = *cx->fallthrough;
+MayFail<MayFail_<ReturnStatement>> consumeReturnStatement(LV1::Program& prog) {
+    auto sentence = consumeSentence(prog);
+    ASSERT (sentence.programWords.size() >= 1);
 
-    ASSERT (!malformed_stmt && !fallthrough);
-    auto value = std::optional<Expression>();
-    if (sentence.programWords.size() >= 1) {
-        auto value_as_term = extractValue(sentence);
-        unless (value_as_term) {
-            MALFORMED_STMT("value is an unknown Expression");
-        }
-        value = buildExpression(*value_as_term, cx);
-        if (fallthrough) {
-            MALFORMED_STMT("value is an unknown Expression");
-        }
+
+    if (sentence.programWords.size() == 1) {
+        return MayFail_<ReturnStatement>{}; // std::nullopt
     }
-    return ReturnStatement{value};
+
+
+    auto value_as_term = extractValue(sentence);
+    unless (value_as_term) {
+        return Malformed(MayFail_<ReturnStatement>(Expression_()), ERR(251));
+    }
+    auto value = buildExpression(*value_as_term);
+    if (value.has_error()) {
+        return Malformed(MayFail_<ReturnStatement>(value), ERR(252));
+    }
+
+
+    return MayFail_<ReturnStatement>{value};
+}
+
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
 }
 
 static std::optional<Term> extractValue(const ProgramSentence& sentence) {
+    ASSERT (sentence.programWords.size() >= 2);
+
     auto rhs_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 1,
         sentence.programWords.end()
@@ -64,4 +78,22 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
         words.push_back(get_word(e));
     }
     return Term{words};
+}
+
+MayFail_<ReturnStatement>::MayFail_(std::optional<MayFail<Expression_>> value) : value(value){}
+
+MayFail_<ReturnStatement>::MayFail_(ReturnStatement returnStmt) {
+    auto value = std::optional<MayFail<Expression_>>();
+    if (returnStmt.value) {
+        value = wrap_expr(*returnStmt.value);
+    }
+    this->value = value;
+}
+
+MayFail_<ReturnStatement>::operator ReturnStatement() const {
+    auto value = std::optional<Expression>();
+    if (this->value) {
+        value = unwrap_expr(this->value->value());
+    }
+    return ReturnStatement{value};
 }

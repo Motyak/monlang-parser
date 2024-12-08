@@ -36,9 +36,6 @@ inline std::vector<std::string> split(const std::string& str, const std::string&
     return res;
 }
 
-template <typename T>
-inline const char* itoa(T num) {
-    return std::to_string(num).c_str();
-}
+#define INT2CSTR(num) (std::to_string(num).c_str())
 
 #endif // STR_UTILS_H

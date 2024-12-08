@@ -232,6 +232,7 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
         "Association",
         "CurlyBracketsGroup",
         "ParenthesesGroup",
+        "SquareBracketsTerm",
     };
 
     auto line = peekLine(tis); // -> ProgramWord...
@@ -240,11 +241,14 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     auto first_candidate_found = std::string("");
     for (auto column: columns) {
-        if (vec_contains(CANDIDATES, column)) {
-            first_candidate_found = column;
-            break;
+        for (auto candidate: CANDIDATES) {
+            if (column.starts_with(candidate)) {
+                first_candidate_found = candidate;
+                goto BREAK_DOUBLE_LOOP;
+            }
         }
     }
+    BREAK_DOUBLE_LOOP:
     ASSERT (first_candidate_found != "");
 
     if (first_candidate_found == "Atom") {
@@ -265,6 +269,10 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     else if (first_candidate_found == "ParenthesesGroup") {
         return move_to_heap(buildParenthesesGroup());
+    }
+
+    else if (first_candidate_found == "SquareBracketsTerm") {
+        return move_to_heap(buildSquareBracketsTerm());
     }
 
     else {
@@ -328,11 +336,14 @@ Word LV1AstBuilder::buildWord() {
 
     auto first_candidate_found = std::string("");
     for (auto column: columns) {
-        if (vec_contains(CANDIDATES, column)) {
-            first_candidate_found = column;
-            break;
+        for (auto candidate: CANDIDATES) {
+            if (column.starts_with(candidate)) {
+                first_candidate_found = candidate;
+                goto BREAK_DOUBLE_LOOP;
+            }
         }
     }
+    BREAK_DOUBLE_LOOP:
     ASSERT (first_candidate_found != "");
 
     if (first_candidate_found == "Atom") {
@@ -470,7 +481,21 @@ PostfixParenthesesGroup LV1AstBuilder::buildPostfixParenthesesGroup() {
 }
 
 SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
-    TODO();
+    ENTERING_BUILD_ROUTINE();
+
+    consumeLine(tis); // -> ... SquareBracketsTerm
+
+    unless (peekLine(tis).type == INCR) {
+        SHOULD_NOT_HAPPEN(); // empty sbt
+    }
+    auto term = buildTerm();
+
+    auto peekedLine = peekLine(tis);
+    unless (peekedLine.type == DECR || peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN(); // should only have 1 term
+    }
+
+    return SquareBracketsTerm{term};
 }
 
 PostfixSquareBracketsGroup LV1AstBuilder::buildPostfixSquareBracketsGroup() {

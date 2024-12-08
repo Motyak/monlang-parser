@@ -3,6 +3,22 @@
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
+
+static Term toTerm(const ProgramSentence&);
+static ProgramSentence consumeSentence(LV1::Program&);
+
+MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& prog) {
+    auto sentence = consumeSentence(prog);
+    ASSERT (sentence.programWords.size() > 0);
+
+    auto term = toTerm(sentence);
+    auto expression = buildExpression(term);
+    if (expression.has_error()) {
+        return Malformed(MayFail_<ExpressionStatement>{expression}, ERR(591));
+    }
+    return MayFail_<ExpressionStatement>{expression};
+}
+
 static Term toTerm(const ProgramSentence& sentence) {
     std::vector<Word> words;
     for (auto e: sentence.programWords) {
@@ -11,14 +27,23 @@ static Term toTerm(const ProgramSentence& sentence) {
     return Term{words};
 }
 
-ExpressionStatement buildExpressionStatement(const ProgramSentence& sentence, context_t* cx) {
-    auto& malformed_stmt = *cx->malformed_stmt;
-    auto& fallthrough = *cx->fallthrough;
-    auto& term = *cx->term;
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
+}
 
-    ASSERT (!malformed_stmt && !fallthrough);
-    ASSERT (sentence.programWords.size() > 0);
+MayFail_<ExpressionStatement>::MayFail_(MayFail<Expression_> expression) : expression(expression){}
 
-    term = toTerm(sentence);
-    return ExpressionStatement{buildExpression(term, cx)};
+MayFail_<ExpressionStatement>::MayFail_(ExpressionStatement exprStmt) {
+    this->expression = wrap_expr(exprStmt.expression);
+}
+
+MayFail_<ExpressionStatement>::operator ExpressionStatement() const {
+    auto expression = unwrap_expr(this->expression.value());
+    return ExpressionStatement{expression};
 }

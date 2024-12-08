@@ -1,6 +1,7 @@
 #include <monlang-LV2/stmt/ForeachStatement.h>
 
 /* impl only */
+
 #include <monlang-LV1/ast/Atom.h>
 
 #include <utils/assert-utils.h>
@@ -12,7 +13,7 @@
     return ForeachStatement()
 
 bool peekForeachStatement(const ProgramSentence& sentence) {
-    unless (sentence.programWords.size() >= 3) {
+    unless (sentence.programWords.size() >= 1) {
         return false;
     }
     unless (std::holds_alternative<Atom*>(sentence.programWords[0])) {
@@ -22,51 +23,80 @@ bool peekForeachStatement(const ProgramSentence& sentence) {
     return atom.value == "foreach";
 }
 
-// returns empty opt in case any non-word
+static ProgramSentence consumeSentence(LV1::Program&);
+
+// returns empty opt if non-word
 static std::optional<Term> extractIterable(const ProgramSentence&);
 
-ForeachStatement buildForeachStatement(const ProgramSentence& sentence, context_t* cx) {
-    auto& malformed_stmt = *cx->malformed_stmt;
-    auto& fallthrough = *cx->fallthrough;
+MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) {
+    auto sentence = consumeSentence(prog);
+    unless (sentence.programWords.size() >= 3) {
+        return Malformed(MayFail_<ForeachStatement>{Expression_(), MayFail_<BlockExpression>()}, ERR(321));
+    }
 
-    ASSERT (!malformed_stmt && !fallthrough);
-    ASSERT (sentence.programWords.size() >= 3);
 
     auto iterable_as_term = extractIterable(sentence);
     unless (iterable_as_term) {
-        MALFORMED_STMT("iterable isn't a valid expression");
+        return Malformed(MayFail_<ForeachStatement>{Expression_(), MayFail_<BlockExpression>()}, ERR(322));
     }
-    auto iterable = buildExpression(*iterable_as_term, cx);
-    if (fallthrough) {
-        MALFORMED_STMT("iterable isn't a valid expression");
+    auto iterable = buildExpression(*iterable_as_term);
+    if (iterable.has_error()) {
+        return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(323));
     }
+
 
     auto pw = sentence.programWords.back();
     unless (holds_word(pw)) {
-        MALFORMED_STMT("invalid foreach block");
+        return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(324));
     }
     auto word = get_word(pw);
-    auto block = buildBlockExpression(word, cx);
-    if (fallthrough) {
-        MALFORMED_STMT("invalid foreach block");
+    auto block = buildBlockExpression(word);
+    if (block.has_error()) {
+        return Malformed(MayFail_<ForeachStatement>{iterable, block}, ERR(325));
     }
 
-    return ForeachStatement{iterable, block};
+
+    return MayFail_<ForeachStatement>{iterable, block};
+}
+
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
 }
 
 static std::optional<Term> extractIterable(const ProgramSentence& sentence) {
-    auto rhs_as_sentence = std::vector<ProgramWord>(
+    ASSERT (sentence.programWords.size() >= 3);
+
+    auto iterable_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 1,
         sentence.programWords.end() - 1
     );
 
     std::vector<Word> words;
-    for (auto e: rhs_as_sentence) {
+    for (auto e: iterable_as_sentence) {
         unless (holds_word(e)) {
             return {};
         }
-        // perform a deep copy of the words instead
         words.push_back(get_word(e));
     }
     return Term{words};
+}
+
+MayFail_<ForeachStatement>::MayFail_(MayFail<Expression_> iterable, MayFail<MayFail_<ForeachBlock>> block)
+        : iterable(iterable), block(block){}
+
+MayFail_<ForeachStatement>::MayFail_(ForeachStatement foreachStmt) {
+    this->iterable = wrap_expr(foreachStmt.iterable);
+    this->block = wrap(foreachStmt.block);
+}
+
+MayFail_<ForeachStatement>::operator ForeachStatement() const {
+    auto iterable = unwrap_expr(this->iterable.value());
+    auto block = unwrap(this->block.value());
+    return ForeachStatement{iterable, block};
 }

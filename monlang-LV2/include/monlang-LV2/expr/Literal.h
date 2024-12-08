@@ -1,13 +1,9 @@
 #ifndef LITERAL_H
 #define LITERAL_H
 
+#include <monlang-LV2/ast/expr/Literal.h>
+
 #include <monlang-LV1/ast/Word.h>
-
-#include <string>
-
-struct Literal {
-    std::string str;
-};
 
 bool peekLiteral(const Word&);
 

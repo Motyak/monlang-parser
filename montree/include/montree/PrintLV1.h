@@ -1,15 +1,8 @@
 #ifndef PRINT_LV1_H
 #define PRINT_LV1_H
 
-#include <monlang-LV1/common.h>
-#include <monlang-LV1/Program.h>
-#include <monlang-LV1/ProgramSentence.h>
-#include <monlang-LV1/Word.h>
-
-#include <monlang-LV1/Term.h>
-
-/* interface only */
 #include <monlang-LV1/visitors/visitor.h>
+
 #include <stack>
 
 class PrintLV1 : public AstVisitor_<void> {

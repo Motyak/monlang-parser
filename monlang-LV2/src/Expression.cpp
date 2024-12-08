@@ -16,29 +16,18 @@
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
 #include <utils/vec-utils.h>
+#include <utils/variant-utils.h>
 
 #define unless(x) if (!(x))
 
-#define FALLTHROUGH() \
-    fallthrough = true; \
-    return Expression()
-
-Expression buildExpression(const Term& term, context_t* cx) {
-    auto& fallthrough = *cx->fallthrough;
-
-    ASSERT (!fallthrough);
+MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
 
     BEGIN:
 
-    // unless (term_ =~ "Word (OPERATOR Word)*"_) {
-    //     FALLTHROUGH();
-    // }
-    // // covers both blocks below
-
     unless (term_.words.size() % 2 == 1) {
-        FALLTHROUGH();
+        return Malformed(Expression_(), ERR(161));
     }
 
     /* odd-indexed words, starting at [1], must be Atoms..
@@ -48,7 +37,7 @@ Expression buildExpression(const Term& term, context_t* cx) {
 
         for (auto [operators, _]: PRECEDENCE_TABLE) {
             unless (std::holds_alternative<Atom*>(term_.words[i])) {
-                FALLTHROUGH();
+                return Malformed(Expression_(), ERR(162));
             }
             auto optor = std::get<Atom*>(term_.words[i])->value;
 
@@ -59,19 +48,21 @@ Expression buildExpression(const Term& term, context_t* cx) {
         }
 
         unless (optr_found) {
-            FALLTHROUGH();
+            return Malformed(Expression_(), ERR(163));
         }
     }
+
+    // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
     fixPrecedence(term_);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
     // if (term_ =~ "Word Word Word"_) {
-    //     return move_to_heap(buildOperation(term, cx));
+    //     return mayfail_convert<Expression_>(buildOperation(term));
     // }
 
     if (peekOperation(term)) {
-        return move_to_heap(buildOperation(term, cx));
+        return mayfail_convert<Expression_>(buildOperation(term));
     }
 
     // 'Operation' was the only Expression with multiple words
@@ -79,54 +70,54 @@ Expression buildExpression(const Term& term, context_t* cx) {
     Word word = term_.words[0];
 
     // if (word =~ "PostfixParenthesesGroup"_) {
-    //     return move_to_heap(buildFunctionCall(word, cx));
+    //     return mayfail_convert<Expression_>(buildFunctionCall(word));
     // }
 
     if (peekFunctionCall(word)) {
-        return move_to_heap(buildFunctionCall(word, cx));
+        return mayfail_convert<Expression_>(buildFunctionCall(word));
     }
 
     // if (word =~ "Association<"
     //                  "ParenthesesGroup<Term<Atom>*>,"
     //                  "CurlyBracketsGroup"
     //              ">"_) {
-    //     return move_to_heap(buildLambda(word, cx));
+    //     return mayfail_convert<Expression_>(buildLambda(word));
     // }
 
     if (peekLambda(word)) {
-        return move_to_heap(buildLambda(word, cx));
+        return mayfail_convert<Expression_>(buildLambda(word));
     }
 
     // if (word =~ "CurlyBracketsGroup"_) {
-    //     return move_to_heap(buildBlockExpression(word, cx));
+    //     return mayfail_convert<Expression_>(buildBlockExpression(word));
     // }
 
     if (peekBlockExpression(word)) {
-        return move_to_heap(buildBlockExpression(word, cx));
+        return mayfail_convert<Expression_>(buildBlockExpression(word));
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
-    //     return move_to_heap(buildLiteral(word));
+    //     return mayfail_convert<Expression_>(buildLiteral(word));
     // }
 
     if (peekLiteral(word)) {
-        return move_to_heap(buildLiteral(word));
+        return (Expression_)move_to_heap(buildLiteral(word));
     }
 
     // if (word =~ "Atom<$.*>"_) {
-    //     return move_to_heap(buildSpecialSymbol(word));
+    //     return mayfail_convert<Expression_>(buildSpecialSymbol(word));
     // }
 
     if (peekSpecialSymbol(word)) {
-        return move_to_heap(buildSpecialSymbol(word));
+        return (Expression_)move_to_heap(buildSpecialSymbol(word));
     }
 
     // if (word =~ "Atom"_) {
-    //     return move_to_heap(buildLvalue(word));
+    //     return mayfail_convert<Expression_>(buildLvalue(word));
     // }
 
     if (peekLvalue(word)) {
-        return move_to_heap(buildLvalue(word));
+        return (Expression_)move_to_heap(buildLvalue(word));
     }
 
     // // if grouped expression => unwrap then go back to beginning
@@ -146,6 +137,23 @@ Expression buildExpression(const Term& term, context_t* cx) {
     }
 
     /* reached fall-through */
-    fallthrough = true;
-    return Expression(); // return stub
+    return Malformed(Expression_(), ERR(169));
+}
+
+Expression unwrap_expr(Expression_ expression) {
+    return std::visit(overload{
+        [](Literal* expr) -> Expression {return expr;},
+        [](SpecialSymbol* expr) -> Expression {return expr;},
+        [](Lvalue* expr) -> Expression {return expr;},
+        [](auto* mf_) -> Expression {return move_to_heap(unwrap(*mf_));},
+    }, expression);
+}
+
+Expression_ wrap_expr(Expression expression) {
+    return std::visit(overload{
+        [](Literal* expr) -> Expression_ {return expr;},
+        [](SpecialSymbol* expr) -> Expression_ {return expr;},
+        [](Lvalue* expr) -> Expression_ {return expr;},
+        [](auto* mf_) -> Expression_ {return move_to_heap(wrap(*mf_));},
+    }, expression);
 }

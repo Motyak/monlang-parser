@@ -42,8 +42,8 @@ SpecialSymbol \
 Literal \
 Lvalue \
 
-OBJS := $(ENTITIES:%=obj/%.o) obj/context.o obj/context_init.o obj/precedence.o
-DEPS := $(ENTITIES:%=.deps/%.d) .deps/context.d .deps/context_init.d .deps/precedence.d
+OBJS := $(ENTITIES:%=obj/%.o) obj/precedence.o
+DEPS := $(ENTITIES:%=.deps/%.d) .deps/precedence.d
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)

@@ -15,6 +15,98 @@
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
+#include <utils/variant-utils.h>
+
+static ProgramSentence consumeSentence(LV1::Program&);
+
+MayFail<Statement_> consumeStatement(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto peekedSentence = prog.sentences[0];
+
+    // if (peekedSentence =~ "ProgramWord Atom<`:=`> ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeAssignment(prog));
+    // }
+
+    if (peekAssignment(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeAssignment(prog));
+    }
+
+    // if (peekedSentence =~ "ProgramWord Atom<OPERATOR`=`> ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeAccumulation(prog));
+    // }
+
+    if (peekAccumulation(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeAccumulation(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`let`> ProgramWord ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeLetStatement(prog));
+    // }
+
+    if (peekLetStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeLetStatement(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`var`> ProgramWord ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeVarStatement(prog));
+    // }
+
+    if (peekVarStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeVarStatement(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`return`> ProgramWord*"_) {
+    //     return mayfail_convert<Statement_>(consumeReturnStatement(prog));
+    // }
+
+    if (peekReturnStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeReturnStatement(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`break`> ProgramWord*"_) {
+    //     return (Statement_)move_to_heap(BreakStatement{});
+    // }
+
+    if (peekBreakStatement(peekedSentence)) {
+        consumeSentence(prog);
+        return (Statement_)move_to_heap(BreakStatement{});
+    }
+
+    // if (peekedSentence =~ "Atom<`continue`> ProgramWord*"_) {
+    //     return (Statement_)move_to_heap(ContinueStatement{});
+    // }
+
+    if (peekContinueStatement(peekedSentence)) {
+        consumeSentence(prog);
+        return (Statement_)move_to_heap(ContinueStatement{});
+    }
+
+    // if (peekedSentence =~ "Atom<`die`> ProgramWord*"_) {
+    //     return (Statement_)move_to_heap(DieStatement{});
+    // }
+
+    if (peekDieStatement(peekedSentence)) {
+        consumeSentence(prog);
+        return (Statement_)move_to_heap(DieStatement{});
+    }
+
+    // if (peekedSentence =~ "Atom<`foreach`> ProgramWord ProgramWord+"_) {
+    //     return mayfail_convert<Statement_>(consumeForeachStatement(prog));
+    // }
+
+    if (peekForeachStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeForeachStatement(prog));
+    }
+
+    // if (peekGuard(peekedSentence)) {
+    //     return mayfail_convert<Statement_>(consumeGuard(prog));
+    // }
+
+    // ...
+
+    /* fall-through statement */
+    return mayfail_convert<Statement_>(consumeExpressionStatement(prog));
+}
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
     ASSERT (prog.sentences.size() > 0);
@@ -26,90 +118,20 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
     return res;
 }
 
-Statement consumeStatement(LV1::Program& prog, context_t* cx) {
-    auto& sentence = *cx->sentence;
+Statement unwrap_stmt(Statement_ statement) {
+    return std::visit(overload{
+        [](BreakStatement* stmt) -> Statement {return stmt;},
+        [](ContinueStatement* stmt) -> Statement {return stmt;},
+        [](DieStatement* stmt) -> Statement {return stmt;},
+        [](auto* mf_) -> Statement {return move_to_heap(unwrap(*mf_));},
+    }, statement);
+}
 
-    ASSERT (prog.sentences.size() > 0);
-    sentence = consumeSentence(prog);
-
-    // if (sentence =~ "ProgramWord Atom<`:=`> ProgramWord+"_) {
-    //     return move_to_heap(buildAssignment(sentence, cx));
-    // }
-
-    if (peekAssignment(sentence)) {
-        return move_to_heap(buildAssignment(sentence, cx));
-    }
-
-    // if (sentence =~ "ProgramWord Atom<OPERATOR`=`> ProgramWord+"_) {
-    //     return move_to_heap(buildAccumulation(sentence, cx));
-    // }
-
-    if (peekAccumulation(sentence)) {
-        return move_to_heap(buildAccumulation(sentence, cx));
-    }
-
-    // if (sentence =~ "Atom<`let`> ProgramWord ProgramWord+"_) {
-    //     return move_to_heap(buildLetStatement(sentence, cx));
-    // }
-
-    if (peekLetStatement(sentence)) {
-        return move_to_heap(buildLetStatement(sentence, cx));
-    }
-
-    // if (sentence =~ "Atom<`var`> ProgramWord ProgramWord+"_) {
-    //     return move_to_heap(buildVarStatement(sentence, cx));
-    // }
-
-    if (peekVarStatement(sentence)) {
-        return move_to_heap(buildVarStatement(sentence, cx));
-    }
-
-    // if (sentence =~ "Atom<`return`> ProgramWord*"_) {
-    //     return move_to_heap(buildReturnStatement(sentence, cx));
-    // }
-
-    if (peekReturnStatement(sentence)) {
-        return move_to_heap(buildReturnStatement(sentence, cx));
-    }
-
-    // if (sentence =~ "Atom<`break`> ProgramWord*"_) {
-    //     return move_to_heap(BreakStatement{});
-    // }
-
-    if (peekBreakStatement(sentence)) {
-        return move_to_heap(BreakStatement{});
-    }
-
-    // if (sentence =~ "Atom<`continue`> ProgramWord*"_) {
-    //     return move_to_heap(ContinueStatement{});
-    // }
-
-    if (peekContinueStatement(sentence)) {
-        return move_to_heap(ContinueStatement{});
-    }
-
-    // if (sentence =~ "Atom<`die`> ProgramWord*"_) {
-    //     return move_to_heap(DieStatement{});
-    // }
-
-    if (peekDieStatement(sentence)) {
-        return move_to_heap(DieStatement{});
-    }
-
-    // if (sentence =~ "Atom<`foreach`> ProgramWord ProgramWord+"_) {
-    //     return move_to_heap(buildForeachStatement(sentence, cx));
-    // }
-
-    if (peekForeachStatement(sentence)) {
-        return move_to_heap(buildForeachStatement(sentence, cx));
-    }
-
-    // if (peekGuard(sentence)) {
-    //     return move_to_heap(buildGuard(sentence, cx));
-    // }
-
-    // ...
-
-    /* fall-through statement */
-    return move_to_heap(buildExpressionStatement(sentence, cx));
+Statement_ wrap_stmt(Statement statement) {
+    return std::visit(overload{
+        [](BreakStatement* stmt) -> Statement_ {return stmt;},
+        [](ContinueStatement* stmt) -> Statement_ {return stmt;},
+        [](DieStatement* stmt) -> Statement_ {return stmt;},
+        [](auto* stmt) -> Statement_ {return move_to_heap(wrap(*stmt));},
+    }, statement);
 }

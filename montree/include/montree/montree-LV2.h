@@ -5,7 +5,7 @@
 #include <monlang-LV1/ast/visitors/visitor.h>
 
 namespace montree {
-    std::string astToString(LV2::Ast, int TAB_SIZE = 2);
+    std::string astToString(LV2::Ast_, int TAB_SIZE = 2);
 
     LV1::Ast buildLV1Ast(const std::string& tree);
 }

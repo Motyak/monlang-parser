@@ -3,6 +3,8 @@
 
 /* impl only */
 
+#include <monlang-LV2/expr/Lvalue.h>
+
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
 
@@ -10,10 +12,6 @@
 #include <utils/assert-utils.h>
 
 #define unless(x) if(!(x))
-
-#define MALFORMED_STMT(err_msg) \
-    malformed_stmt = err_msg; \
-    return Accumulation()
 
 bool peekAccumulation(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 2) {
@@ -42,40 +40,57 @@ bool peekAccumulation(const ProgramSentence& sentence) {
     return optr_found;
 }
 
+static ProgramSentence consumeSentence(LV1::Program&);
+
 // where 'value' are the [2], [3], .. words from the sentence
 // ..returns empty opt if any non-word
 static std::optional<Term> extractValue(const ProgramSentence&);
 
-Accumulation buildAccumulation(const ProgramSentence& sentence, context_t* cx) {
-    auto& malformed_stmt = *cx->malformed_stmt;
-    auto& fallthrough = *cx->fallthrough;
+MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
+    auto sentence = consumeSentence(prog);
+    ASSERT (sentence.programWords.size() >= 2);
 
-    ASSERT (!malformed_stmt && !fallthrough);
-    ASSERT (sentence.programWords.size() >= 3);
-
-    unless (holds_word(sentence.programWords[0])) {
-        MALFORMED_STMT("variable is not a Lvalue");
-    }
-    auto word = get_word(sentence.programWords[0]);
-    unless (peekLvalue(word)) {
-        MALFORMED_STMT("variable is not an Lvalue");
-    }
-    auto variable = buildLvalue(word);
 
     ASSERT (std::holds_alternative<Atom*>(sentence.programWords[1]));
     auto atom = *std::get<Atom*>(sentence.programWords[1]);
     auto optr = atom.value.substr(0, atom.value.size() - 1);
 
+
+    unless (holds_word(sentence.programWords[0])) {
+        return Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(221));
+    }
+    auto word = get_word(sentence.programWords[0]);
+    // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
+    unless (peekLvalue(word)) {
+        return Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(222));
+    }
+    auto variable = buildLvalue(word);
+
+
+    unless (sentence.programWords.size() >= 3) {
+        return Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(223));
+    }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        MALFORMED_STMT("value is an unknown Expression");
+        return Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(224));
     }
-    auto value = buildExpression(*value_as_term, cx);
-    if (fallthrough) {
-        MALFORMED_STMT("value is an unknown Expression");
+    auto value = buildExpression(*value_as_term);
+    if (value.has_error()) {
+        return Malformed(MayFail_<Accumulation>{variable, optr, value}, ERR(225));
     }
 
-    return Accumulation{variable, optr, value};
+
+    return MayFail_<Accumulation>{variable, optr, value};
+}
+
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
 }
 
 static std::optional<Term> extractValue(const ProgramSentence& sentence) {
@@ -92,4 +107,18 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
         words.push_back(get_word(e));
     }
     return Term{words};
+}
+
+MayFail_<Accumulation>::MayFail_(Lvalue variable, identifier_t operator_, MayFail<Expression_> value)
+        : variable(variable), operator_(operator_), value(value){}
+
+MayFail_<Accumulation>::MayFail_(Accumulation accumulation) {
+    this->variable = accumulation.variable;
+    this->operator_ = accumulation.operator_;
+    this->value = wrap_expr(accumulation.value);
+}
+
+MayFail_<Accumulation>::operator Accumulation() const {
+    auto value = unwrap_expr(this->value.value());
+    return Accumulation{this->variable, this->operator_, value};
 }

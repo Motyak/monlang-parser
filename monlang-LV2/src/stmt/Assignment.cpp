@@ -2,16 +2,14 @@
 
 /* impl only */
 
+#include <monlang-LV2/expr/Lvalue.h>
+
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
 
 #include <utils/assert-utils.h>
 
 #define unless(x) if(!(x))
-
-#define MALFORMED_STMT(err_msg) \
-    malformed_stmt = err_msg; \
-    return Assignment()
 
 bool peekAssignment(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 2) {
@@ -27,36 +25,52 @@ bool peekAssignment(const ProgramSentence& sentence) {
     return atom.value == ":=";
 }
 
+static ProgramSentence consumeSentence(LV1::Program&);
+
 // where 'value' are the [2], [3], .. words from the sentence
 // ..returns empty opt if any non-word
 static std::optional<Term> extractValue(const ProgramSentence&);
 
-Assignment buildAssignment(const ProgramSentence& sentence, context_t* cx) {
-    auto& malformed_stmt = *cx->malformed_stmt;
-    auto& fallthrough = *cx->fallthrough;
+MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
+    auto sentence = consumeSentence(prog);
+    ASSERT (sentence.programWords.size() >= 2);
 
-    ASSERT (!malformed_stmt && !fallthrough);
-    ASSERT (sentence.programWords.size() >= 3);
 
     unless (holds_word(sentence.programWords[0])) {
-        MALFORMED_STMT("variable is not a Lvalue");
+        return Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(211));
     }
     auto word = get_word(sentence.programWords[0]);
+    // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
     unless (peekLvalue(word)) {
-        MALFORMED_STMT("variable is not an Lvalue");
+        return Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(212));
     }
     auto variable = buildLvalue(word);
 
+
+    unless (sentence.programWords.size() >= 3) {
+        return Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(213));
+    }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        MALFORMED_STMT("value is an unknown Expression");
+        return Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(214));
     }
-    auto value = buildExpression(*value_as_term, cx);
-    if (fallthrough) {
-        MALFORMED_STMT("value is an unknown Expression");
+    auto value = buildExpression(*value_as_term);
+    if (value.has_error()) {
+        return Malformed(MayFail_<Assignment>{variable, value}, ERR(215));
     }
 
-    return Assignment{variable, value};
+
+    return MayFail_<Assignment>{variable, value};
+}
+
+static ProgramSentence consumeSentence(LV1::Program& prog) {
+    ASSERT (prog.sentences.size() > 0);
+    auto res = prog.sentences[0];
+    prog.sentences = std::vector(
+        prog.sentences.begin() + 1,
+        prog.sentences.end()
+    );
+    return res;
 }
 
 static std::optional<Term> extractValue(const ProgramSentence& sentence) {
@@ -73,4 +87,18 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
         words.push_back(get_word(e));
     }
     return Term{words};
+}
+
+MayFail_<Assignment>::MayFail_(Lvalue variable, MayFail<Expression_> value)
+        : variable(variable), value(value){}
+
+MayFail_<Assignment>::MayFail_(Assignment assignment) {
+    auto value = wrap_expr(assignment.value);
+    this->variable = assignment.variable;
+    this->value = value;
+}
+
+MayFail_<Assignment>::operator Assignment() const {
+    auto value = unwrap_expr(this->value.value());
+    return Assignment{this->variable, value};
 }
