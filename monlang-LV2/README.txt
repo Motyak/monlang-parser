@@ -85,6 +85,8 @@
 324 Malformed ForeachStatement, contains a non-Word as block
 325 Malformed ForeachStatement, contains a Malformed BlockExpression as block
 
+591 Malformed ExpressionStatement, contains a Malformed Statement
+
 ~~~
 
 611 Malformed Operation, contains a Malformed Expression as left operand

@@ -350,11 +350,13 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     currIndent--;
 
 
-    outputLine("-> arguments");
+    output("-> arguments");
     unless (!functionCall->arguments.empty()) {
         outputLine(" (none)");
+        currIndent--;
         return;
     }
+    outputLine();
     currIndent++;
     for (auto arg: functionCall->arguments) {
         operator()(arg);

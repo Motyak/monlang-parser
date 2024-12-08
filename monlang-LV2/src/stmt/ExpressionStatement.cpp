@@ -12,7 +12,11 @@ MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& 
     ASSERT (sentence.programWords.size() > 0);
 
     auto term = toTerm(sentence);
-    return MayFail_<ExpressionStatement>{buildExpression(term)};
+    auto expression = buildExpression(term);
+    if (expression.has_error()) {
+        return Malformed(MayFail_<ExpressionStatement>{expression}, ERR(591));
+    }
+    return MayFail_<ExpressionStatement>{expression};
 }
 
 static Term toTerm(const ProgramSentence& sentence) {
