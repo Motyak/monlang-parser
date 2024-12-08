@@ -52,13 +52,13 @@
 
 ~~~
 
-211 Malformed Assignment, contains a non-Atom word as variable
+211 Malformed Assignment, contains a non-Word as variable
 212 Malformed Assignment, contains a non-Lvalue expression as variable
 213 Malformed Assignment, contains less than 3 words (no value)
 214 Malformed Assignment, contains a non-Word as part of the value
 215 Malformed Assignment, contains a Malformed Expression as value
 
-221 Malformed Accumulation, contains a non-Atom word as variable
+221 Malformed Accumulation, contains a non-Word as variable
 222 Malformed Accumulation, contains a non-Lvalue expression as variable
 223 Malformed Accumulation, contains less than 3 words (no value)
 224 Malformed Accumulation, contains a non-Word as part of the value

@@ -31,7 +31,7 @@ TEST_CASE ("labelize literal", "[test-4211][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize literal", "[test-4251][let]") {
+TEST_CASE ("labelize grouped expr", "[test-4251][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
