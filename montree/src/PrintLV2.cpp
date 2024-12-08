@@ -23,6 +23,7 @@
 
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>
+#include <utils/defer-util.h>
 
 #include <cstdarg>
 
@@ -83,9 +84,11 @@ void PrintLV2::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
         numbering.push(NO_NUMBERING);
     }
 
+    standalone_stmt = standalone_expr = false;
     for (auto statement: prog_.statements) {
         operator()(statement);
     }
+    standalone_stmt = standalone_expr = true;
 
     if (prog_.statements.size() > 0) {
         currIndent--;
@@ -114,7 +117,10 @@ void PrintLV2::operator()(const MayFail<Statement_>& statement) {
 void PrintLV2::operator()(const MayFail<Expression_>& expression) {
     this->currExpression = expression; // needed by expr handlers
     auto expression_ = expression.val;
-    output(expression.has_error()? "~> " : "-> ");
+
+    if (standalone_expr) {
+        output(expression.has_error()? "~> " : "-> ");
+    }
 
     unless (!is_stub(expression_)) {
         outputLine("Expression");
@@ -199,7 +205,8 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     outputLine("-> identifier: `", letStatement->identifier.c_str(), "`");
 
 
-    unless (!is_stub(letStatement->value.val)) {
+    if (is_stub(letStatement->value.val)
+            && !letStatement->value.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -224,7 +231,8 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
     outputLine("-> identifier: `", varStatement->identifier.c_str(), "`");
 
 
-    unless (!is_stub(varStatement->value.val)) {
+    if (is_stub(varStatement->value.val)
+            && !varStatement->value.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
