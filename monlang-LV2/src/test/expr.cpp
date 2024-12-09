@@ -174,11 +174,9 @@ TEST_CASE ("operation from term of atoms", "[test-2117][expr]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Expression: Operation
-       |  -> leftOperand
-       |    -> Expression: Literal: `1`
+       |  -> Expression: Literal: `1`
        |  -> operator: `+`
-       |  -> rightOperand
-       |    -> Expression: Literal: `1`
+       |  -> Expression: Literal: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

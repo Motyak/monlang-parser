@@ -165,11 +165,9 @@ TEST_CASE ("labelize operation", "[test-4214][let]") {
        |-> Statement: LetStatement
        |  -> identifier: `sum`
        |  -> Expression: Operation
-       |    -> leftOperand
-       |      -> Expression: Literal: `1`
+       |    -> Expression: Literal: `1`
        |    -> operator: `+`
-       |    -> rightOperand
-       |      -> Expression: Literal: `1`
+       |    -> Expression: Literal: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

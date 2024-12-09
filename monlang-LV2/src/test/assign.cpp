@@ -165,11 +165,9 @@ TEST_CASE ("assign operation", "[test-4114][assign]") {
        |-> Statement: Assignment
        |  -> Lvalue: `somevar`
        |  -> Expression: Operation
-       |    -> leftOperand
-       |      -> Expression: Literal: `1`
+       |    -> Expression: Literal: `1`
        |    -> operator: `+`
-       |    -> rightOperand
-       |      -> Expression: Literal: `1`
+       |    -> Expression: Literal: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

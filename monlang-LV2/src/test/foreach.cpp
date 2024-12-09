@@ -150,11 +150,9 @@ TEST_CASE ("iterable operation", "[test-4313][foreach]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
        |  -> Expression: Operation
-       |    -> leftOperand
-       |      -> Expression: Lvalue: `list_a`
+       |    -> Expression: Lvalue: `list_a`
        |    -> operator: `+`
-       |    -> rightOperand
-       |      -> Expression: Lvalue: `list_b`
+       |    -> Expression: Lvalue: `list_b`
        |  -> BlockExpression
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall

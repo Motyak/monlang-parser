@@ -246,6 +246,8 @@ PRECEDENCE_TABLE = {
     {{"^"}, RIGHT_ASSOCIATIVE},
     {{"*", "/", "%"}, LEFT_ASSOCIATIVE},
     {{"+", "-"}, LEFT_ASSOCIATIVE},
+    {{"<", "<=", ">", ">="}, LEFT_ASSOCIATIVE},
+    {{"==", "<>"}, LEFT_ASSOCIATIVE},
 };
 
 namespace {

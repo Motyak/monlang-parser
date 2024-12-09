@@ -359,10 +359,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
         currIndent--;
         return;
     }
-    outputLine("-> leftOperand");
-    currIndent++;
     operator()(operation->leftOperand);
-    currIndent--;
 
 
     outputLine("-> operator: `", operation->operator_.c_str(), "`");
@@ -373,10 +370,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
         currIndent--;
         return;
     }
-    outputLine("-> rightOperand");
-    currIndent++;
     operator()(operation->rightOperand);
-    currIndent--;
 
 
     currIndent--;
