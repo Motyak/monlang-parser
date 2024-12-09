@@ -5,7 +5,7 @@
 
 #include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>
-#include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/BlockExpression.h> // ForeachBlock
 
 #include <monlang-LV1/ast/Program.h>
 

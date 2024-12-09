@@ -23,7 +23,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     ASSERT (prog.sentences.size() > 0);
     auto peekedSentence = prog.sentences[0];
 
-    // if (peekedSentence =~ "ProgramWord Atom<`:=`> ProgramWord+"_) {
+    // if (peekedSentence =~ "ProgramWord Atom<`:=`> ProgramWord*"_) {
     //     return mayfail_convert<Statement_>(consumeAssignment(prog));
     // }
 
@@ -31,7 +31,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
         return mayfail_convert<Statement_>(consumeAssignment(prog));
     }
 
-    // if (peekedSentence =~ "ProgramWord Atom<OPERATOR`=`> ProgramWord+"_) {
+    // if (peekedSentence =~ "ProgramWord Atom<OPERATOR`=`> ProgramWord*"_) {
     //     return mayfail_convert<Statement_>(consumeAccumulation(prog));
     // }
 
@@ -39,7 +39,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
         return mayfail_convert<Statement_>(consumeAccumulation(prog));
     }
 
-    // if (peekedSentence =~ "Atom<`let`> ProgramWord ProgramWord+"_) {
+    // if (peekedSentence =~ "Atom<`let`> ProgramWord*"_) {
     //     return mayfail_convert<Statement_>(consumeLetStatement(prog));
     // }
 
@@ -47,7 +47,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
         return mayfail_convert<Statement_>(consumeLetStatement(prog));
     }
 
-    // if (peekedSentence =~ "Atom<`var`> ProgramWord ProgramWord+"_) {
+    // if (peekedSentence =~ "Atom<`var`> ProgramWord*"_) {
     //     return mayfail_convert<Statement_>(consumeVarStatement(prog));
     // }
 
@@ -90,7 +90,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
         return (Statement_)move_to_heap(DieStatement{});
     }
 
-    // if (peekedSentence =~ "Atom<`foreach`> ProgramWord ProgramWord+"_) {
+    // if (peekedSentence =~ "Atom<`foreach`> ProgramWord*"_) {
     //     return mayfail_convert<Statement_>(consumeForeachStatement(prog));
     // }
 

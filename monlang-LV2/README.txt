@@ -24,8 +24,9 @@
 
 32 ForeachStatement
 33 WhileStatement
+34 DoWhileStatement
 
-34 DeferStatement
+35 DeferStatement
 
 59 ExpressionStatement
 
@@ -84,6 +85,23 @@
 323 Malformed ForeachStatement, contains a Malformed Expression as iterable
 324 Malformed ForeachStatement, contains a non-Word as block
 325 Malformed ForeachStatement, contains a Malformed BlockExpression as block
+
+331 Malformed WhileStatement, contains less than 2 words (no condition)
+332 Malformed WhileStatement, contains a non-SquareBracketsTerm as condition
+333 Malformed WhileStatement, contains a Malformed Expression as part of condition
+334 Malformed WhileStatement, contains less than 3 words (no block)
+335 Malformed WhileStatement, contains a non-Word as block
+336 Malformed WhileStatement, contains a Malformed BlockExpression as block
+337 Malformed WhileStatement, contains more than 3 words
+
+341 Malformed DoStatement, contains less than 2 words (no block)
+342 Malformed DoStatement, contains a non-Word as block
+343 Malformed DoStatement, contains a Malformed BlockExpression as block
+344 Malformed DoStatement, contains more than 2 words
+345 Malformed DoWhileStatement, contains less than 2 words (no condition)
+346 Malformed DoWhileStatement, contains a non-SquareBracketsTerm as condition
+347 Malformed DoWhileStatement, contains a Malformed Expression as part of condition
+348 Malformed DoWhileStatement, contains more than 2 words
 
 591 Malformed ExpressionStatement, contains a Malformed Statement
 

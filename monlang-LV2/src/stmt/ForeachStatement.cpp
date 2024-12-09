@@ -8,10 +8,6 @@
 
 #define unless(x) if(!(x))
 
-#define MALFORMED_STMT(err_msg) \
-    malformed_stmt = err_msg; \
-    return ForeachStatement()
-
 bool peekForeachStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
