@@ -296,6 +296,7 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
 }
 
 void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
+    auto currStatement_ = currStatement; // backup because gets overwritten when visiting the block expression
     outputLine("WhileStatement");
     currIndent++;
 
@@ -317,10 +318,15 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
     operator()(&whileStatement->block.val);
 
 
+    if (currStatement_.has_error() && !whileStatement->block.has_error()) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
+    }
+
     currIndent--;
 }
 
 void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
+    auto currStatement_ = currStatement; // backup because gets overwritten when visiting the block expression
     outputLine("DoWhileStatement");
     currIndent++;
 
