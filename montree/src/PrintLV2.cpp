@@ -11,6 +11,7 @@
 #include <monlang-LV2/stmt/ContinueStatement.h>
 #include <monlang-LV2/stmt/DieStatement.h>
 #include <monlang-LV2/stmt/ForeachStatement.h>
+#include <monlang-LV2/stmt/WhileStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <monlang-LV2/expr/Operation.h>
@@ -290,6 +291,53 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     output(foreachStatement->block.has_error()? "~> " : "-> ");
     operator()(&foreachStatement->block.val);
 
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
+    outputLine("WhileStatement");
+    currIndent++;
+
+
+    unless (!is_stub(whileStatement->condition.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    operator()(whileStatement->condition);
+
+
+    unless (!whileStatement->block.val._stub) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    output(whileStatement->block.has_error()? "~> " : "-> ");
+    operator()(&whileStatement->block.val);
+
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
+    outputLine("DoWhileStatement");
+    currIndent++;
+
+    unless (!doWhileStatement->block.val._stub) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    output(doWhileStatement->block.has_error()? "~> " : "-> ");
+    operator()(&doWhileStatement->block.val);
+
+    unless (!is_stub(doWhileStatement->condition.val)) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    operator()(doWhileStatement->condition);
 
     currIndent--;
 }

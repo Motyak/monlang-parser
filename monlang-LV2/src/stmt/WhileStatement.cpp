@@ -33,7 +33,6 @@ bool peekDoWhileStatement(const ProgramSentence& sentence) {
 static ProgramSentence consumeSentence(LV1::Program&);
 
 MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
-    auto iterate_at_least_once = false;
     auto sentence = consumeSentence(prog);
 
 
@@ -45,65 +44,64 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
 
     /* while condition */
     unless (sentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(331));
+        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), until_loop}, ERR(331));
     }
     auto pw = sentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(332));
+        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), until_loop}, ERR(332));
     }
     auto sbt = *std::get<SquareBracketsTerm*>(pw);
     auto condition = buildExpression(sbt.term);
     if (condition.has_error()) {
-        return Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(333));
+        return Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(333));
     }
 
 
-    /* while loop */
+    /* while block */
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(334));
+        return Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(334));
     }
     auto block_as_pw = sentence.programWords[2];
     unless (holds_word(block_as_pw)) {
-        return Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(335));
+        return Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(335));
     }
     auto block_as_word = get_word(block_as_pw);
     auto block = buildBlockExpression(block_as_word);
     if (block.has_error()) {
-        return Malformed(MayFail_<WhileStatement>{condition, block, false, iterate_at_least_once}, ERR(336));
+        return Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(336));
     }
 
 
     /* check if additional words */
     if (sentence.programWords.size() > 3) {
-        return Malformed(MayFail_<WhileStatement>{condition, block, false, iterate_at_least_once}, ERR(337));
+        return Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(337));
     }
 
 
-    return MayFail_<WhileStatement>{condition, block, until_loop, iterate_at_least_once};
+    return MayFail_<WhileStatement>{condition, block, until_loop};
 }
 
-MayFail<MayFail_<WhileStatement>> consumeDoWhileStatement(LV1::Program& prog) {
-    auto iterate_at_least_once = true;
+MayFail<MayFail_<DoWhileStatement>> consumeDoWhileStatement(LV1::Program& prog) {
     auto currSentence = consumeSentence(prog);
 
-    /* while loop */
+    /* while block */
     unless (currSentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(341));
+        return Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), Expression_(), false}, ERR(341));
     }
     auto block_as_pw = currSentence.programWords[1];
     unless (holds_word(block_as_pw)) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), false, iterate_at_least_once}, ERR(342));
+        return Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), Expression_(), false}, ERR(342));
     }
     auto block_as_word = get_word(block_as_pw);
     auto block = buildBlockExpression(block_as_word);
     if (block.has_error()) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), block, false, iterate_at_least_once}, ERR(343));
+        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), false}, ERR(343));
     }
 
 
     /* check if additional words */
     if (currSentence.programWords.size() > 2) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), block, false, iterate_at_least_once}, ERR(344));
+        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), false}, ERR(344));
     }
 
 
@@ -117,26 +115,26 @@ MayFail<MayFail_<WhileStatement>> consumeDoWhileStatement(LV1::Program& prog) {
 
     /* while condition */
     unless (currSentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), block, until_loop, iterate_at_least_once}, ERR(345));
+        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), until_loop}, ERR(345));
     }
     auto pw = currSentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), block, until_loop, iterate_at_least_once}, ERR(346));
+        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), until_loop}, ERR(346));
     }
     auto sbt = *std::get<SquareBracketsTerm*>(pw);
     auto condition = buildExpression(sbt.term);
     if (condition.has_error()) {
-        return Malformed(MayFail_<WhileStatement>{condition, block, until_loop, iterate_at_least_once}, ERR(347));
+        return Malformed(MayFail_<DoWhileStatement>{block, condition, until_loop}, ERR(347));
     }
 
 
     /* check if additional words */
     if (currSentence.programWords.size() > 2) {
-        return Malformed(MayFail_<WhileStatement>{condition, block, until_loop, iterate_at_least_once}, ERR(348));
+        return Malformed(MayFail_<DoWhileStatement>{block, condition, until_loop}, ERR(348));
     }
 
 
-    return MayFail_<WhileStatement>{condition, block, until_loop, iterate_at_least_once};
+    return MayFail_<DoWhileStatement>{block, condition, until_loop};
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -147,4 +145,36 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
         prog.sentences.end()
     );
     return res;
+}
+
+MayFail_<WhileStatement>::MayFail_(MayFail<Expression_> condition, MayFail<MayFail_<WhileBlock>> block, bool until_loop)
+        : condition(condition), block(block), until_loop(until_loop){}
+
+MayFail_<WhileStatement>::MayFail_(WhileStatement whileStmt) {
+    this->condition = wrap_expr(whileStmt.condition);
+    this->block = wrap(whileStmt.block);
+    this->until_loop = whileStmt.until_loop;
+}
+
+MayFail_<WhileStatement>::operator WhileStatement() const {
+    auto condition = unwrap_expr(this->condition.value());
+    auto block = unwrap(this->block.value());
+    auto until_loop = this->until_loop;
+    return WhileStatement{condition, block, until_loop};
+}
+
+MayFail_<DoWhileStatement>::MayFail_(MayFail<MayFail_<WhileBlock>> block, MayFail<Expression_> condition, bool until_loop)
+        : block(block), condition(condition), until_loop(until_loop){}
+
+MayFail_<DoWhileStatement>::MayFail_(DoWhileStatement doWhileStmt) {
+    this->block = wrap(doWhileStmt.block);
+    this->condition = wrap_expr(doWhileStmt.condition);
+    this->until_loop = doWhileStmt.until_loop;
+}
+
+MayFail_<DoWhileStatement>::operator DoWhileStatement() const {
+    auto block = unwrap(this->block.value());
+    auto condition = unwrap_expr(this->condition.value());
+    auto until_loop = this->until_loop;
+    return DoWhileStatement{block, condition, until_loop};
 }

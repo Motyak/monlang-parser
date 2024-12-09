@@ -9,7 +9,13 @@ using WhileBlock = BlockExpression;
 struct WhileStatement {
     Expression condition;
     WhileBlock block;
-    bool iterate_at_least_once = false;
+    bool until_loop = false;
+};
+
+struct DoWhileStatement {
+    WhileBlock block;
+    Expression condition;
+    bool until_loop = false;
 };
 
 #endif // AST_WHILE_STATEMENT_H

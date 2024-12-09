@@ -11,6 +11,7 @@
 #include <monlang-LV2/stmt/ContinueStatement.h>
 #include <monlang-LV2/stmt/DieStatement.h>
 #include <monlang-LV2/stmt/ForeachStatement.h>
+#include <monlang-LV2/stmt/WhileStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <utils/assert-utils.h>
@@ -96,6 +97,22 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     if (peekForeachStatement(peekedSentence)) {
         return mayfail_convert<Statement_>(consumeForeachStatement(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`while|until`> ProgramWord*"_) {
+    //     return mayfail_convert<Statement_>(consumeForeachStatement(prog));
+    // }
+
+    if (peekWhileStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeWhileStatement(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`do`> ProgramWord*"_) {
+    //     return mayfail_convert<Statement_>(consumeForeachStatement(prog));
+    // }
+
+    if (peekDoWhileStatement(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeDoWhileStatement(prog));
     }
 
     // if (peekGuard(peekedSentence)) {

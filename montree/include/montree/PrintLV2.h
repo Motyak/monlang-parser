@@ -24,6 +24,8 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(ContinueStatement*);
     void operator()(DieStatement*);
     void operator()(MayFail_<ForeachStatement>*);
+    void operator()(MayFail_<WhileStatement>*);
+    void operator()(MayFail_<DoWhileStatement>*);
     void operator()(MayFail_<ExpressionStatement>*);
 
     /* expressions */

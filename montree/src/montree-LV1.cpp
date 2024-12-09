@@ -17,5 +17,6 @@ std::string montree::astToString(LV1::Ast_ ast, int TAB_SIZE) {
 }
 
 LV1::Program generateLV1Program(int seed) {
+    (void)seed;
     TODO();
 }

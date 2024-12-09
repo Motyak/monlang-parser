@@ -76,7 +76,8 @@ Line consumeLine(TreeInputStream& tis) {
     else if (line_tab_size < tis.prev_tab_size) {
         ASSERT (tis.prev_nesting_level > 0);
         type = DECR;
-        nesting_level = tis.prev_nesting_level - 1;
+        auto indent_size = tis.prev_tab_size / tis.prev_nesting_level;
+        nesting_level = line_tab_size / indent_size;
     }
     else {
         type = standard;
@@ -214,11 +215,8 @@ ProgramSentence LV1AstBuilder::buildProgramSentence() {
         if (peekedLine.type == INCR) {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildProgramWord()
         }
-        if (peekedLine.nestingLevel < parentNestingLevel) {
-            SHOULD_NOT_HAPPEN(); // should be greater or equal
-        }
     }
-    until (peekedLine.nestingLevel == parentNestingLevel || peekedLine.type == END);
+    until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
 
     return ProgramSentence{programWords};
 }
@@ -310,11 +308,8 @@ Term LV1AstBuilder::buildTerm() {
         if (peekedLine.type == INCR) {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
         }
-        if (peekedLine.nestingLevel < parentNestingLevel) {
-            SHOULD_NOT_HAPPEN(); // should be greater or equal
-        }
     }
-    until (peekedLine.nestingLevel == parentNestingLevel || peekedLine.type == END);
+    until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
 
     return Term{words};
 }

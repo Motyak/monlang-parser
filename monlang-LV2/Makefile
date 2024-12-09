@@ -32,6 +32,7 @@ ForeachStatement \
 LetStatement \
 ReturnStatement \
 VarStatement \
+WhileStatement \
 
 EXPR_ENTITIES := \
 Operation \

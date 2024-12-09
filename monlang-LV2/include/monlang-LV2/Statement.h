@@ -29,7 +29,8 @@ using Statement_ = std::variant<
 
     /* loop statements */
     MayFail_<ForeachStatement>*, // foreach <iterable> <block>
-    // MayFail_<WhileStatement>*, // while, do..while, until, do..until
+    MayFail_<WhileStatement>*, // while, until
+    MayFail_<DoWhileStatement>*, // do..while, do..until
 
     // MayFail_<DeferStatement>*, // defer <block-expression>
 
