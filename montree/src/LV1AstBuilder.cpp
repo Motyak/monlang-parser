@@ -175,7 +175,8 @@ LV1::Ast LV1AstBuilder::buildAst() {
 LV1::Program LV1AstBuilder::buildProgram() {
     ENTERING_BUILD_ROUTINE();
 
-    consumeLine(tis); // -> Program
+    // we allow sequence of programs in one same stream
+    auto parentNestingLevel = consumeLine(tis).nestingLevel; // -> Program
 
     auto peekedLine = peekLine(tis);
     if (peekedLine.type == DECR) {
@@ -193,7 +194,7 @@ LV1::Program LV1AstBuilder::buildProgram() {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildProgramSentence()
         }
     }
-    until (peekedLine.type == DECR || peekedLine.type == END);
+    until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
 
     return LV1::Program{sentences};
 }

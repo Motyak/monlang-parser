@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("expression statement", "[test-3111][stmt]") {
+TEST_CASE ("expression statement", "[test-1211][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `somevar`
@@ -28,7 +28,7 @@ TEST_CASE ("expression statement", "[test-3111][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assignment", "[test-3112][stmt]") {
+TEST_CASE ("assignment", "[test-1212][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -55,7 +55,7 @@ TEST_CASE ("assignment", "[test-3112][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("accumulation", "[test-3113][stmt]") {
+TEST_CASE ("accumulation", "[test-1213][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `count`
@@ -83,7 +83,7 @@ TEST_CASE ("accumulation", "[test-3113][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("let statement", "[test-3114][stmt]") {
+TEST_CASE ("let statement", "[test-1214][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -110,7 +110,7 @@ TEST_CASE ("let statement", "[test-3114][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("var statement", "[test-3115][stmt]") {
+TEST_CASE ("var statement", "[test-1215][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `var`
@@ -137,7 +137,7 @@ TEST_CASE ("var statement", "[test-3115][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("return statement", "[test-3116][stmt]") {
+TEST_CASE ("return statement", "[test-1216][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `return`
@@ -162,7 +162,7 @@ TEST_CASE ("return statement", "[test-3116][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("break statement", "[test-3117][stmt]") {
+TEST_CASE ("break statement", "[test-1217][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `break`
@@ -183,7 +183,7 @@ TEST_CASE ("break statement", "[test-3117][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("continue statement", "[test-3118][stmt]") {
+TEST_CASE ("continue statement", "[test-1218][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `continue`
@@ -204,7 +204,7 @@ TEST_CASE ("continue statement", "[test-3118][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("die statement", "[test-3119][stmt]") {
+TEST_CASE ("die statement", "[test-1219][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `die`
@@ -225,7 +225,7 @@ TEST_CASE ("die statement", "[test-3119][stmt]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("foreach statement", "[test-3121][stmt]") {
+TEST_CASE ("foreach statement", "[test-1221][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -254,6 +254,94 @@ TEST_CASE ("foreach statement", "[test-3121][stmt]") {
     auto input_ast = montree::buildLV1Ast(input);
     auto input_sentence = std::get<ProgramSentence>(input_ast);
     auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("while statement", "[test-1222][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `while`
+       |  -> ProgramWord #2: SquareBracketsTerm
+       |    -> Term
+       |      -> Word #1: Atom: `i`
+       |      -> Word #2: Atom: `>`
+       |      -> Word #3: Atom: `0`
+       |  -> ProgramWord #3: CurlyBracketsGroup
+       |    -> ProgramSentence
+       |      -> ProgramWord: PostfixParenthesesGroup
+       |        -> Word: Atom: `doit`
+       |        -> ParenthesesGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: WhileStatement
+       |  -> Expression: Operation
+       |    -> Expression: Lvalue: `i`
+       |    -> operator: `>`
+       |    -> Expression: Literal: `0`
+       |  -> BlockExpression
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: FunctionCall
+       |        -> function
+       |          -> Expression: Lvalue: `doit`
+       |        -> arguments (none)
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("do while statement", "[test-1223][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> Program
+       |  -> ProgramSentence #1
+       |    -> ProgramWord #1: Atom: `do`
+       |    -> ProgramWord #2: CurlyBracketsGroup
+       |      -> ProgramSentence
+       |        -> ProgramWord: PostfixParenthesesGroup
+       |          -> Word: Atom: `doit`
+       |          -> ParenthesesGroup (empty)
+       |  -> ProgramSentence #2
+       |    -> ProgramWord #1: Atom: `while`
+       |    -> ProgramWord #2: SquareBracketsTerm
+       |      -> Term
+       |        -> Word #1: Atom: `i`
+       |        -> Word #2: Atom: `>`
+       |        -> Word #3: Atom: `0`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: DoWhileStatement
+       |  -> BlockExpression
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: FunctionCall
+       |        -> function
+       |          -> Expression: Lvalue: `doit`
+       |        -> arguments (none)
+       |  -> Expression: Operation
+       |    -> Expression: Lvalue: `i`
+       |    -> operator: `>`
+       |    -> Expression: Literal: `0`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_prog = std::get<Program>(input_ast);
 
     auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
