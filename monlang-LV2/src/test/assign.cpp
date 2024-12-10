@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign literal", "[test-4111][assign]") {
+TEST_CASE ("assign literal", "[test-2111][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -31,7 +31,7 @@ TEST_CASE ("assign literal", "[test-4111][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign grouped expr", "[test-4151][assign]") {
+TEST_CASE ("assign grouped expr", "[test-2151][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -60,7 +60,7 @@ TEST_CASE ("assign grouped expr", "[test-4151][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign special symbol", "[test-4131][assign]") {
+TEST_CASE ("assign special symbol", "[test-2131][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -87,7 +87,7 @@ TEST_CASE ("assign special symbol", "[test-4131][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign lvalue to lvalue", "[test-4112][assign]") {
+TEST_CASE ("assign lvalue to lvalue", "[test-2112][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -114,7 +114,7 @@ TEST_CASE ("assign lvalue to lvalue", "[test-4112][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign lambda", "[test-4113][assign]") {
+TEST_CASE ("assign lambda", "[test-2113][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -151,7 +151,7 @@ TEST_CASE ("assign lambda", "[test-4113][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign operation", "[test-4114][assign]") {
+TEST_CASE ("assign operation", "[test-2114][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -183,7 +183,7 @@ TEST_CASE ("assign operation", "[test-4114][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign block expression", "[test-4115][assign]") {
+TEST_CASE ("assign block expression", "[test-2115][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -214,7 +214,7 @@ TEST_CASE ("assign block expression", "[test-4115][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign function call", "[test-4116][assign]") {
+TEST_CASE ("assign function call", "[test-2116][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -251,7 +251,7 @@ TEST_CASE ("assign function call", "[test-4116][assign]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("ERR contains a non-Word as variable", "[test-4117][assign][err]") {
+TEST_CASE ("ERR contains a non-Word as variable", "[test-2117][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: SquareBracketsTerm
@@ -278,7 +278,7 @@ TEST_CASE ("ERR contains a non-Word as variable", "[test-4117][assign][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Lvalue word as variable", "[test-4118][assign][err]") {
+TEST_CASE ("ERR contains a non-Lvalue word as variable", "[test-2118][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: ParenthesesGroup (empty)
@@ -303,7 +303,7 @@ TEST_CASE ("ERR contains a non-Lvalue word as variable", "[test-4118][assign][er
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains less than 3 words (no value)", "[test-4119][assign][err]") {
+TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2119][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -329,7 +329,7 @@ TEST_CASE ("ERR contains less than 3 words (no value)", "[test-4119][assign][err
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Word as part of the value", "[test-4120][assign][err]") {
+TEST_CASE ("ERR contains a non-Word as part of the value", "[test-2120][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -358,7 +358,7 @@ TEST_CASE ("ERR contains a non-Word as part of the value", "[test-4120][assign][
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a Malformed Expression as value", "[test-4121][assign][err]") {
+TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2121][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`

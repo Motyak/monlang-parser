@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lvalue condition", "[test-4411][while]") {
+TEST_CASE ("lvalue condition", "[test-3311][while]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -20,8 +20,9 @@ TEST_CASE ("lvalue condition", "[test-4411][while]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: WhileStatement
-       |  -> Expression: Lvalue: `end`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -42,7 +43,7 @@ TEST_CASE ("lvalue condition", "[test-4411][while]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("grouped expr condition", "[test-4412][while]") {
+TEST_CASE ("grouped expr condition", "[test-3312][while]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -60,8 +61,9 @@ TEST_CASE ("grouped expr condition", "[test-4412][while]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: WhileStatement
-       |  -> Expression: Lvalue: `end`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -82,7 +84,7 @@ TEST_CASE ("grouped expr condition", "[test-4412][while]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("block condition", "[test-4413][while]") {
+TEST_CASE ("block condition", "[test-3313][while]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -100,10 +102,11 @@ TEST_CASE ("block condition", "[test-4413][while]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: WhileStatement
-       |  -> Expression: BlockExpression
-       |    -> Statement: ExpressionStatement
-       |      -> Expression: Lvalue: `end`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: BlockExpression
+       |      -> Statement: ExpressionStatement
+       |        -> Expression: Lvalue: `end`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -124,7 +127,7 @@ TEST_CASE ("block condition", "[test-4413][while]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("function call condition", "[test-4414][while]") {
+TEST_CASE ("function call condition", "[test-3314][while]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -144,12 +147,13 @@ TEST_CASE ("function call condition", "[test-4414][while]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: WhileStatement
-       |  -> Expression: FunctionCall
-       |    -> function
-       |      -> Expression: Lvalue: `end?`
-       |    -> arguments
-       |      -> Expression: Lvalue: `stream`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: FunctionCall
+       |      -> function
+       |        -> Expression: Lvalue: `end?`
+       |      -> arguments
+       |        -> Expression: Lvalue: `stream`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -170,7 +174,7 @@ TEST_CASE ("function call condition", "[test-4414][while]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("operation condition", "[test-4415][while]") {
+TEST_CASE ("operation condition", "[test-3315][while]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `while`
@@ -188,11 +192,12 @@ TEST_CASE ("operation condition", "[test-4415][while]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: WhileStatement
-       |  -> Expression: Operation
-       |    -> Expression: Lvalue: `i`
-       |    -> operator: `>`
-       |    -> Expression: Literal: `0`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: Operation
+       |      -> Expression: Lvalue: `i`
+       |      -> operator: `>`
+       |      -> Expression: Literal: `0`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -215,7 +220,7 @@ TEST_CASE ("operation condition", "[test-4415][while]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("ERR contains less than 2 words (no condition)", "[test-4416][while][err]") {
+TEST_CASE ("ERR contains less than 2 words (no condition)", "[test-3316][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `while`
@@ -239,7 +244,7 @@ TEST_CASE ("ERR contains less than 2 words (no condition)", "[test-4416][while][
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-SquareBracketsTerm as condition", "[test-4416][while][err]") {
+TEST_CASE ("ERR contains a non-SquareBracketsTerm as condition", "[test-3316][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -264,7 +269,7 @@ TEST_CASE ("ERR contains a non-SquareBracketsTerm as condition", "[test-4416][wh
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a Malformed Expression as part of condition", "[test-4417][while][err]") {
+TEST_CASE ("ERR contains a Malformed Expression as part of condition", "[test-3317][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -292,7 +297,7 @@ TEST_CASE ("ERR contains a Malformed Expression as part of condition", "[test-44
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains less than 3 words (no block)", "[test-4418][while][err]") {
+TEST_CASE ("ERR contains less than 3 words (no block)", "[test-3318][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -303,7 +308,8 @@ TEST_CASE ("ERR contains less than 3 words (no block)", "[test-4418][while][err]
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: WhileStatement
-       |  -> Expression: Lvalue: `end`
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
        |  ~> ERR-334
     )EOF");
 
@@ -320,7 +326,7 @@ TEST_CASE ("ERR contains less than 3 words (no block)", "[test-4418][while][err]
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Word as block", "[test-4419][while][err]") {
+TEST_CASE ("ERR contains a non-Word as block", "[test-3319][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -334,7 +340,8 @@ TEST_CASE ("ERR contains a non-Word as block", "[test-4419][while][err]") {
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: WhileStatement
-       |  -> Expression: Lvalue: `end`
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
        |  ~> ERR-335
     )EOF");
 
@@ -351,7 +358,7 @@ TEST_CASE ("ERR contains a non-Word as block", "[test-4419][while][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-4420][while][err]") {
+TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3320][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -366,8 +373,9 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-4420][whi
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: WhileStatement
-       |  -> Expression: Lvalue: `end`
-       |  ~> BlockExpression
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
+       |  ~> block
        |    ~> Statement: ExpressionStatement
        |      ~> Expression
        |        ~> ERR-161
@@ -386,7 +394,7 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-4420][whi
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains more than 3 words", "[test-4421][while][err]") {
+TEST_CASE ("ERR contains more than 3 words", "[test-3321][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
@@ -403,8 +411,9 @@ TEST_CASE ("ERR contains more than 3 words", "[test-4421][while][err]") {
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: WhileStatement
-       |  -> Expression: Lvalue: `end`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function

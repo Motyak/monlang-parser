@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize literal", "[test-4211][let]") {
+TEST_CASE ("labelize literal", "[test-2311][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -31,7 +31,7 @@ TEST_CASE ("labelize literal", "[test-4211][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize grouped expr", "[test-4251][let]") {
+TEST_CASE ("labelize grouped expr", "[test-2351][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -60,7 +60,7 @@ TEST_CASE ("labelize grouped expr", "[test-4251][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize special value", "[test-4231][let]") {
+TEST_CASE ("labelize special value", "[test-2331][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -87,7 +87,7 @@ TEST_CASE ("labelize special value", "[test-4231][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize lvalue", "[test-4212][let]") {
+TEST_CASE ("labelize lvalue", "[test-2312][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -114,7 +114,7 @@ TEST_CASE ("labelize lvalue", "[test-4212][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize lambda", "[test-4213][let]") {
+TEST_CASE ("labelize lambda", "[test-2313][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -151,7 +151,7 @@ TEST_CASE ("labelize lambda", "[test-4213][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize operation", "[test-4214][let]") {
+TEST_CASE ("labelize operation", "[test-2314][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -183,7 +183,7 @@ TEST_CASE ("labelize operation", "[test-4214][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize block expression", "[test-4215][let]") {
+TEST_CASE ("labelize block expression", "[test-2315][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -214,7 +214,7 @@ TEST_CASE ("labelize block expression", "[test-4215][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize function call", "[test-4216][let]") {
+TEST_CASE ("labelize function call", "[test-2316][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -251,7 +251,7 @@ TEST_CASE ("labelize function call", "[test-4216][let]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("ERR contains less than 2 words (no variable)", "[test-4217][let][err]") {
+TEST_CASE ("ERR contains less than 2 words (no variable)", "[test-2317][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `let`
@@ -275,7 +275,7 @@ TEST_CASE ("ERR contains less than 2 words (no variable)", "[test-4217][let][err
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Atom word as variable", "[test-4218][let][err]") {
+TEST_CASE ("ERR contains a non-Atom word as variable", "[test-2318][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -300,7 +300,7 @@ TEST_CASE ("ERR contains a non-Atom word as variable", "[test-4218][let][err]") 
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains less than 3 words (no value)", "[test-4219][let][err]") {
+TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2319][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -326,7 +326,7 @@ TEST_CASE ("ERR contains less than 3 words (no value)", "[test-4219][let][err]")
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Word as part of the value", "[test-4220][let][err]") {
+TEST_CASE ("ERR contains a non-Word as part of the value", "[test-2320][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -355,7 +355,7 @@ TEST_CASE ("ERR contains a non-Word as part of the value", "[test-4220][let][err
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a Malformed Expression as value", "[test-4221][let][err]") {
+TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2321][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`

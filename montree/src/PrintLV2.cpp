@@ -276,7 +276,12 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
         currIndent--;
         return;
     }
+
+    output(foreachStatement->iterable.has_error()? "~> " : "-> ");
+    outputLine("iterable");
+    currIndent++;
     operator()(foreachStatement->iterable);
+    currIndent--;
 
 
     unless (!foreachStatement->block.val._stub) {
@@ -284,8 +289,22 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
         currIndent--;
         return;
     }
-    output(foreachStatement->block.has_error()? "~> " : "-> ");
-    operator()(&foreachStatement->block.val);
+
+    auto any_malformed_stmt = false;
+    for (auto statement: foreachStatement->block.val.statements) {
+        if (statement.has_error()) {
+            any_malformed_stmt = true;
+        }
+        break;
+    }
+
+    output(any_malformed_stmt? "~> " : "-> ");
+    outputLine("block");
+    currIndent++;
+    for (auto statement: foreachStatement->block.val.statements) {
+        operator()(statement);
+    }
+    currIndent--;
 
 
     currIndent--;
@@ -302,7 +321,11 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
         currIndent--;
         return;
     }
+    output(whileStatement->condition.has_error()? "~> " : "-> ");
+    outputLine("condition");
+    currIndent++;
     operator()(whileStatement->condition);
+    currIndent--;
 
 
     unless (!whileStatement->block.val._stub) {
@@ -311,7 +334,12 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
         return;
     }
     output(whileStatement->block.has_error()? "~> " : "-> ");
-    operator()(&whileStatement->block.val);
+    outputLine("block");
+    currIndent++;
+    for (auto statement: whileStatement->block.val.statements) {
+        operator()(statement);
+    }
+    currIndent--;
 
 
     if (currStatement_.has_error() && !whileStatement->block.has_error()) {
@@ -327,19 +355,28 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     currIndent++;
 
     unless (!doWhileStatement->block.val._stub) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }
     output(doWhileStatement->block.has_error()? "~> " : "-> ");
-    operator()(&doWhileStatement->block.val);
+    outputLine("block");
+    currIndent++;
+    for (auto statement: doWhileStatement->block.val.statements) {
+        operator()(statement);
+    }
+    currIndent--;
 
     unless (!is_stub(doWhileStatement->condition.val)) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }
+    output(doWhileStatement->condition.has_error()? "~> " : "-> ");
+    outputLine("condition");
+    currIndent++;
     operator()(doWhileStatement->condition);
+    currIndent--;
 
     currIndent--;
 }

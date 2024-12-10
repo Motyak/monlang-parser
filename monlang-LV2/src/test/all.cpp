@@ -6,12 +6,13 @@
 #include "assign.cpp" // assignment with all types of expression..
                       // .., (tests accumulation as well)
 
-#include "let.cpp" // let statements with all types of expression..
-                      // .., (tests var statements as well)
+#include "let.cpp" // let statement with all types of expression..
+                      // .., (tests var statement as well)
 
-#include "foreach.cpp" // foreach statements with all types of expression
+#include "foreach.cpp" // foreach statement with all types of expression
 
-#include "while.cpp" // while statements with all types of expression
+#include "while.cpp" // while statement with all types of expression
+#include "dowhile.cpp" // do while statement with all types of expression
 
 // #include "int.cpp" // nested expr and nested stmt
 

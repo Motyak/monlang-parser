@@ -241,8 +241,9 @@ TEST_CASE ("foreach statement", "[test-1221][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
-       |  -> Expression: Lvalue: `things`
-       |  -> BlockExpression
+       |  -> iterable
+       |    -> Expression: Lvalue: `things`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -282,11 +283,12 @@ TEST_CASE ("while statement", "[test-1222][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: WhileStatement
-       |  -> Expression: Operation
-       |    -> Expression: Lvalue: `i`
-       |    -> operator: `>`
-       |    -> Expression: Literal: `0`
-       |  -> BlockExpression
+       |  -> condition
+       |    -> Expression: Operation
+       |      -> Expression: Lvalue: `i`
+       |      -> operator: `>`
+       |      -> Expression: Literal: `0`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -328,16 +330,17 @@ TEST_CASE ("do while statement", "[test-1223][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> BlockExpression
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> Expression: Operation
-       |    -> Expression: Lvalue: `i`
-       |    -> operator: `>`
-       |    -> Expression: Literal: `0`
+       |  -> condition
+       |    -> Expression: Operation
+       |      -> Expression: Lvalue: `i`
+       |      -> operator: `>`
+       |      -> Expression: Literal: `0`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

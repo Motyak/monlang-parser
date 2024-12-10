@@ -7,7 +7,7 @@
 // TODO: add as first test case the list literal once implemented '[1, 2, 3]'
 
 // TODO: change this to use a grouped literal once we define the list literal '[1, 2, 3]'
-TEST_CASE ("iterable grouped expr (lvalue here)", "[test-4311][foreach]") {
+TEST_CASE ("iterable grouped expr (lvalue here)", "[test-3211][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -25,8 +25,9 @@ TEST_CASE ("iterable grouped expr (lvalue here)", "[test-4311][foreach]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
-       |  -> Expression: Lvalue: `things`
-       |  -> BlockExpression
+       |  -> iterable
+       |    -> Expression: Lvalue: `things`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -48,7 +49,7 @@ TEST_CASE ("iterable grouped expr (lvalue here)", "[test-4311][foreach]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("iterable special value", "[test-4331][foreach]") {
+TEST_CASE ("iterable special value", "[test-3231][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -64,8 +65,9 @@ TEST_CASE ("iterable special value", "[test-4331][foreach]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
-       |  -> Expression: SpecialSymbol: `$1`
-       |  -> BlockExpression
+       |  -> iterable
+       |    -> Expression: SpecialSymbol: `$1`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -87,7 +89,7 @@ TEST_CASE ("iterable special value", "[test-4331][foreach]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("iterable function call", "[test-4312][foreach]") {
+TEST_CASE ("iterable function call", "[test-3212][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -105,11 +107,12 @@ TEST_CASE ("iterable function call", "[test-4312][foreach]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
-       |  -> Expression: FunctionCall
-       |    -> function
-       |      -> Expression: Lvalue: `List`
-       |    -> arguments (none)
-       |  -> BlockExpression
+       |  -> iterable
+       |    -> Expression: FunctionCall
+       |      -> function
+       |        -> Expression: Lvalue: `List`
+       |      -> arguments (none)
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -131,7 +134,7 @@ TEST_CASE ("iterable function call", "[test-4312][foreach]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("iterable operation", "[test-4313][foreach]") {
+TEST_CASE ("iterable operation", "[test-3213][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -149,11 +152,12 @@ TEST_CASE ("iterable operation", "[test-4313][foreach]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
-       |  -> Expression: Operation
-       |    -> Expression: Lvalue: `list_a`
-       |    -> operator: `+`
-       |    -> Expression: Lvalue: `list_b`
-       |  -> BlockExpression
+       |  -> iterable
+       |    -> Expression: Operation
+       |      -> Expression: Lvalue: `list_a`
+       |      -> operator: `+`
+       |      -> Expression: Lvalue: `list_b`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -175,7 +179,7 @@ TEST_CASE ("iterable operation", "[test-4313][foreach]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("iterable block expression", "[test-4314][foreach]") {
+TEST_CASE ("iterable block expression", "[test-3214][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -193,10 +197,11 @@ TEST_CASE ("iterable block expression", "[test-4314][foreach]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
-       |  -> Expression: BlockExpression
-       |    -> Statement: ExpressionStatement
-       |      -> Expression: Lvalue: `list_a`
-       |  -> BlockExpression
+       |  -> iterable
+       |    -> Expression: BlockExpression
+       |      -> Statement: ExpressionStatement
+       |        -> Expression: Lvalue: `list_a`
+       |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
@@ -220,7 +225,7 @@ TEST_CASE ("iterable block expression", "[test-4314][foreach]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("ERR contains less than 3 words", "[test-4315][foreach][err]") {
+TEST_CASE ("ERR contains less than 3 words", "[test-3215][foreach][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `foreach`
@@ -244,7 +249,7 @@ TEST_CASE ("ERR contains less than 3 words", "[test-4315][foreach][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Word as part of iterable", "[test-4316][foreach][err]") {
+TEST_CASE ("ERR contains a non-Word as part of iterable", "[test-3216][foreach][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -278,7 +283,7 @@ TEST_CASE ("ERR contains a non-Word as part of iterable", "[test-4316][foreach][
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a Malformed Expression as iterable", "[test-4317][foreach][err]") {
+TEST_CASE ("ERR contains a Malformed Expression as iterable", "[test-3217][foreach][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -311,7 +316,7 @@ TEST_CASE ("ERR contains a Malformed Expression as iterable", "[test-4317][forea
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Word as block", "[test-4318][foreach][err]") {
+TEST_CASE ("ERR contains a non-Word as block", "[test-3218][foreach][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -323,7 +328,8 @@ TEST_CASE ("ERR contains a non-Word as block", "[test-4318][foreach][err]") {
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: ForeachStatement
-       |  -> Expression: Lvalue: `list`
+       |  -> iterable
+       |    -> Expression: Lvalue: `list`
        |  ~> ERR-324
     )EOF");
 
@@ -340,7 +346,7 @@ TEST_CASE ("ERR contains a non-Word as block", "[test-4318][foreach][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-4319][foreach][err]") {
+TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3219][foreach][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -353,8 +359,9 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-4319][for
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: ForeachStatement
-       |  -> Expression: Lvalue: `list`
-       |  ~> BlockExpression
+       |  -> iterable
+       |    -> Expression: Lvalue: `list`
+       |  ~> block
        |    ~> Statement: ExpressionStatement
        |      ~> Expression
        |        ~> ERR-161
