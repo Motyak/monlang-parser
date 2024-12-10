@@ -51,8 +51,6 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     bool startOfNewLine = true;
     MayFail<Statement_> currStatement;
     MayFail<Expression_> currExpression;
-    bool standalone_stmt = true;
-    bool standalone_expr = true;
 };
 
 #endif // PRINT_LV2_H

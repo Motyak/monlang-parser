@@ -85,11 +85,9 @@ void PrintLV2::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
         numbering.push(NO_NUMBERING);
     }
 
-    standalone_stmt = standalone_expr = false;
     for (auto statement: prog_.statements) {
         operator()(statement);
     }
-    standalone_stmt = standalone_expr = true;
 
     if (prog_.statements.size() > 0) {
         currIndent--;
@@ -119,9 +117,7 @@ void PrintLV2::operator()(const MayFail<Expression_>& expression) {
     this->currExpression = expression; // needed by expr handlers
     auto expression_ = expression.val;
 
-    if (standalone_expr) {
-        output(expression.has_error()? "~> " : "-> ");
-    }
+    output(expression.has_error()? "~> " : "-> ");
 
     unless (!is_stub(expression_)) {
         outputLine("Expression");
