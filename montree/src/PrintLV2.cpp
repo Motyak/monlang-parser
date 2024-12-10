@@ -367,6 +367,10 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     }
     currIndent--;
 
+    if (doWhileStatement->block.has_error()) {
+        return;
+    }
+
     unless (!is_stub(doWhileStatement->condition.val)) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
@@ -377,6 +381,11 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     currIndent++;
     operator()(doWhileStatement->condition);
     currIndent--;
+
+
+    if (currStatement_.has_error()) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
+    }
 
     currIndent--;
 }
