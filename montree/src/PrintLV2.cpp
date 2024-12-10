@@ -352,12 +352,13 @@ void PrintLV2::operator()(MayFail_<ExpressionStatement>* expressionStatement) {
 }
 
 void PrintLV2::operator()(MayFail_<Operation>* operation) {
+    auto currExpression_ = currExpression; // backup because we operation contains expressions as well
     outputLine("Operation");
     currIndent++;
 
 
     unless (!is_stub(operation->leftOperand.val)) {
-        outputLine("~> ", SERIALIZE_ERR(currExpression));
+        outputLine("~> ", SERIALIZE_ERR(currExpression_));
         currIndent--;
         return;
     }
@@ -368,7 +369,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
 
 
     unless (!is_stub(operation->rightOperand.val)) {
-        outputLine("~> ", SERIALIZE_ERR(currExpression));
+        outputLine("~> ", SERIALIZE_ERR(currExpression_));
         currIndent--;
         return;
     }
@@ -393,14 +394,22 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     operator()(functionCall->function);
     currIndent--;
 
-
-    output("-> arguments");
     unless (!functionCall->arguments.empty()) {
-        outputLine(" (none)");
+        outputLine("-> arguments (none)");
         currIndent--;
         return;
     }
-    outputLine();
+
+    auto any_malformed_arg = false;
+    for (auto arg: functionCall->arguments) {
+        if (arg.has_error()) {
+            any_malformed_arg = true;
+            break;
+        }
+    }
+
+    output(any_malformed_arg? "~> " : "-> ");
+    outputLine("arguments");
     currIndent++;
     for (auto arg: functionCall->arguments) {
         operator()(arg);
@@ -415,12 +424,31 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     outputLine("Lambda");
     currIndent++;
 
-    int i = 1;
-    for (auto parameter: lambda->parameters) {
-        outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.c_str(), "`");
+    if (lambda->parameters.empty()) {
+        outputLine("-> (no parameters)");
+    } else {
+        int i = 1;
+        for (auto parameter: lambda->parameters) {
+            outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.c_str(), "`");
+        }
     }
 
-    outputLine("-> body");
+    unless (!lambda->body.statements.empty()) {
+        outputLine("-> body (empty)");
+        currIndent--;
+        return;
+    }
+
+    auto any_malformed_stmt = false;
+    for (auto stmt: lambda->body.statements) {
+        if (stmt.has_error()) {
+            any_malformed_stmt = true;
+            break;
+        }
+    }
+
+    output(any_malformed_stmt? "~> " : "-> ");
+    outputLine("body");
     currIndent++;
     for (auto statement: lambda->body.statements) {
         operator()(statement);

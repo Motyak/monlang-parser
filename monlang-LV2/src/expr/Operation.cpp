@@ -23,7 +23,7 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
 
     auto rightOperand = buildExpression(Term{{term.words[2]}});
     if (rightOperand.has_error()) {
-        return Malformed(MayFail_<Operation>{leftOperand, operator_, Expression_()}, ERR(612));
+        return Malformed(MayFail_<Operation>{leftOperand, operator_, rightOperand}, ERR(612));
     }
 
     return MayFail_<Operation>{leftOperand, operator_, rightOperand};

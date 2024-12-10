@@ -103,7 +103,7 @@
 347 Malformed DoWhileStatement, contains a Malformed Expression as part of condition
 348 Malformed DoWhileStatement, contains more than 2 words
 
-591 Malformed ExpressionStatement, contains a Malformed Statement
+591 Malformed ExpressionStatement, contains a Malformed Expression
 
 ~~~
 

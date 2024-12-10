@@ -22,10 +22,10 @@ MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
     std::vector<MayFail<Expression_>> arguments;
     for (auto term: ppg.rightPart.terms) {
         auto expression = buildExpression(term);
+        arguments.push_back(expression);
         if (expression.has_error()) {
             return Malformed(MayFail_<FunctionCall>{function, arguments}, ERR(622));
         }
-        arguments.push_back(expression);
     }
 
     return MayFail_<FunctionCall>{function, arguments};

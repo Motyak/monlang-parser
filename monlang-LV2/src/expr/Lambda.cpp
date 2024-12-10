@@ -50,10 +50,10 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
     MayFail_<LambdaBlock> body;
     until (rightPart.sentences.empty()) {
         auto statement = consumeStatement(rightPart);
+        body.statements.push_back(statement);
         if (statement.has_error()) {
             return Malformed(MayFail_<Lambda>{parameters, body}, ERR(631));
         }
-        body.statements.push_back(statement);
     }
 
     return MayFail_<Lambda>{parameters, body};
