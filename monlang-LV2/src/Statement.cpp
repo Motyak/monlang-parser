@@ -99,7 +99,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
         return mayfail_convert<Statement_>(consumeForeachStatement(prog));
     }
 
-    // if (peekedSentence =~ "Atom<`while|until`> ProgramWord*"_) {
+    // if (peekedSentence =~ "Atom<while|until> ProgramWord*"_) {
     //     return mayfail_convert<Statement_>(consumeForeachStatement(prog));
     // }
 

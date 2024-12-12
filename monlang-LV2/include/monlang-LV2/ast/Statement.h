@@ -38,7 +38,8 @@ using Statement = std::variant<
 
     // /* conditional statements */
     // Guard*, // [ <cond> ] || <jump-when-fails>
-    // IfStatement*, // if..elsif..else, unless
+    // UnlessStatement*, // unless
+    // IfStatement*, // if..elsif..else
 
     /* loop statements */
     ForeachStatement*, // foreach <iterable> <block>
