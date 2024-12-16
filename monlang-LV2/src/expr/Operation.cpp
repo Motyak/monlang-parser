@@ -3,6 +3,8 @@
 /* impl only */
 
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ParenthesesGroup.h>
+#include <monlang-LV1/ast/common.h>
 
 #include <utils/assert-utils.h>
 
@@ -10,8 +12,10 @@ bool peekOperation(const Term& term) {
     return term.words.size() == 3;
 }
 
-MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
+MayFail<MayFail_<Operation>> buildOperation(const Term& term, std::stack<Alteration>* alterations) {
     ASSERT (term.words.size() == 3);
+    ASSERT (alterations != nullptr);
+    ASSERT (!alterations->empty());
 
     ASSERT (std::holds_alternative<Atom*>(term.words[1]));
     auto operator_ = std::get<Atom*>(term.words[1])->value;
@@ -26,6 +30,22 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
         return Malformed(MayFail_<Operation>{leftOperand, operator_, rightOperand}, ERR(612));
     }
 
+    /* fix operands' _tokenLen by popping alterations stack */
+    if (alterations->top() == Alteration::LEFT_OPND) {
+        leftOperand.val._tokenLen -= sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+                + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+    }
+    else if (alterations->top() == Alteration::RIGHT_OPND) {
+        rightOperand.val._tokenLen -= sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+                + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+    }
+    else /* ::NONE */ {
+        ; // do nothing
+    }
+    alterations->pop();
+
+    // TODO: setter _tokenLen NON PAS par rapport à term._tokenLen (créé par fixPrecedence())..
+    //       ..MAIS en faisant la somme des opérandes + opérateur + espaces ? WAAAAAAH
     return MayFail_<Operation>{leftOperand, operator_, rightOperand};
 }
 

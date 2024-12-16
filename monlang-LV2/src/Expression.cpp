@@ -54,15 +54,16 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
-    fixPrecedence(term_);
+    std::stack<Alteration> alterations; // used by buildOperation(), to deduce original token length
+    fixPrecedence(term_, &alterations);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
     // if (term_ =~ "Word Word Word"_) {
-    //     return mayfail_convert<Expression_>(buildOperation(term));
+    //     return mayfail_convert<Expression_>(buildOperation(term_, &alterations));
     // }
 
-    if (peekOperation(term)) {
-        return mayfail_convert<Expression_>(buildOperation(term));
+    if (peekOperation(term_)) {
+        return mayfail_convert<Expression_>(buildOperation(term_, &alterations));
     }
 
     // 'Operation' was the only Expression with multiple words

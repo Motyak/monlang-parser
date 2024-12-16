@@ -7,6 +7,7 @@
 #include <utils/vec-utils.h>
 #include <utils/mem-utils.h>
 #include <utils/str-utils.h>
+#include <utils/loop-utils.h>
 
 #include <cstdint>
 
@@ -95,7 +96,7 @@ ParenthesesGroup ParenthesesGroup_(Term term, Operator op) {
 }
 
 // explicit cast
-Word Word_(ParenthesesGroup pg) {
+Word Word__(ParenthesesGroup pg) {
     return move_to_heap(pg);
 }
 
@@ -111,7 +112,7 @@ void parenthesize_optn(Term* term, Operator op) {
     // concat both ends with the new parenthesized operation
     std::vector<Word> new_words = vec_concat({
         left_words,
-        {Word_(operation)},
+        {Word__(operation)},
         right_words,
     });
 
@@ -122,7 +123,17 @@ void parenthesize_optn(Term* term, Operator op) {
 } // anonymous namespace
 
 #ifdef TEST_OPTR
-// g++ -D TEST_OPTR -o main.elf src/Precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_OPTR -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+
+Term Term_(std::string operation) {
+    auto str_vec = split(operation, " ");
+    std::vector<Word> words;
+    for (auto token: str_vec) {
+        words.push_back(Atom_(token));
+    }
+    return Term{words};
+}
+
 int main()
 {
     Term input = Term_("1 + 2 * 2 ^ 3 ^ 2 + 91 ^ 1");
@@ -150,7 +161,17 @@ int main()
 #endif // TEST_OPTR
 
 #ifdef TEST_OPND
-// g++ -D TEST_OPND -o main.elf src/Precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_OPND -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+
+Term Term_(std::string operation) {
+    auto str_vec = split(operation, " ");
+    std::vector<Word> words;
+    for (auto token: str_vec) {
+        words.push_back(Atom_(token));
+    }
+    return Term{words};
+}
+
 int main()
 {
     Term input = Term_("1 + 2 * 2 ^ 3 ^ 2 + 91 ^ 1");
@@ -172,7 +193,17 @@ int main()
 #endif // TEST_OPND
 
 #ifdef TEST_PREV_NEXT_OPTR
-// g++ -D TEST_PREV_NEXT_OPTR -o main.elf src/Precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_PREV_NEXT_OPTR -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+
+Term Term_(std::string operation) {
+    auto str_vec = split(operation, " ");
+    std::vector<Word> words;
+    for (auto token: str_vec) {
+        words.push_back(Atom_(token));
+    }
+    return Term{words};
+}
+
 int main()
 {
     Term input = Term_("1 + 2 * 2 ^ 3 ^ 2 + 91 ^ 1");
@@ -208,10 +239,37 @@ int main()
 #endif // TEST_PREV_NEXT_OPTR
 
 #ifdef TEST_PARENTHESIZE
-// g++ -D TEST_PARENTHESIZE -o main.elf src/Precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_PARENTHESIZE -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+
+#include <monlang-LV1/ast/visitors/Unparse.h>
+
+Term Term_(std::string operation) {
+    auto str_vec = split(operation, " ");
+    std::vector<Word> words;
+    for (auto token: str_vec) {
+        words.push_back(Atom_(token));
+    }
+    return Term{words};
+}
+
+std::ostream& operator<<(std::ostream& os, Term term) {
+    /* first wrap term into parentheses group, to convert it into an AST (Word) */
+    auto pg = ParenthesesGroup{{term}};
+    auto word = (ProgramWord)move_to_heap(pg);
+
+    std::ostringstream oss;
+    visitAst(Unparse(oss), word);
+
+    /* then remove extra parentheses */
+    std::string tmp = oss.str();
+    auto res = std::string(tmp.begin() + 1, tmp.end() - 1);
+    return os << res;
+}
+
 int main()
 {
     Term input = Term_("1 + 2 * 2 ^ 3 ^ 2 + 91 ^ 1");
+    std::cerr << "Term: " << input << std::endl;
 
     {
         auto op = optr(input, 1);
@@ -219,6 +277,8 @@ int main()
         parenthesize_optn(&input, op);
         ASSERT (std::holds_alternative<ParenthesesGroup*>(input.words[0]));
     }
+
+    std::cerr << "Term: " << input << std::endl;
 
     {
         auto op = optr(input, 1);
@@ -229,9 +289,33 @@ int main()
         ASSERT (std::holds_alternative<ParenthesesGroup*>(first_word_inside_pg));
     }
 
+    std::cerr << "Term: " << input << std::endl;
 }
 #endif // TEST_PARENTHESIZE
 
+#ifdef TEST_PRECEDENCE
+// g++ -D TEST_PRECEDENCE -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+
+#include <monlang-LV1/Term.h>
+#include <monlang-LV1/ast/visitors/Unparse.h>
+
+std::ostream& operator<<(std::ostream& os, Term term) {
+    std::ostringstream oss;
+    visitAst(Unparse(oss), term);
+    return os << oss.str();
+}
+
+int main()
+{
+    auto iss = std::istringstream("1 + 2 * (1 + 2 * 3)");
+    Term input = (Term)consumeTerm(iss);
+    std::cerr << "Term: " << input << std::endl;
+
+    fixPrecedence(input);
+
+    std::cerr << "Term: " << input << std::endl;
+}
+#endif // TEST_PRECEDENCE
 
 ///////////////////////////////////////////////////////////
 // NON-STATIC PART
@@ -257,8 +341,9 @@ namespace {
     };
 }
 
-// returns false if no op found, true otherwise
-static bool parenthesizeFirstEncounteredOp(Term*, std::vector<std::string> opvals, Direction);
+// returns the position of the freshly parenthesized operation operator..
+// ..or UINT(-1) if no operation were found
+static UINT parenthesizeFirstEncounteredOp(Term*, std::vector<std::string> opvals, Direction);
 
 void fixPrecedence(Term& term) {
     ASSERT (term.words.size() % 2 == 1);
@@ -269,12 +354,15 @@ void fixPrecedence(Term& term) {
 
     for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
         auto direction = assoc == LEFT_ASSOCIATIVE? ITERATE_LEFT_TO_RIGHT : ITERATE_RIGHT_TO_LEFT;
-        while (term.words.size() > 3 && parenthesizeFirstEncounteredOp(&term, optrs, direction))
-            ; // until 3 words size term or no more operator found
+        while (term.words.size() > 3
+                && UINT(-1) != parenthesizeFirstEncounteredOp(&term, optrs, direction)) {
+
+            ; // until 3 words size term or no more operation found
+        }
     }
 }
 
-static bool parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> opvals, Direction direction) {
+static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> opvals, Direction direction) {
     std::optional<Operator> op;
     std::optional<Operator> (*next)(Term, Operator);
 
@@ -291,10 +379,49 @@ static bool parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
     while (op) {
         if (vec_contains(opvals, op->val)) {
             parenthesize_optn(/*OUT*/term, *op);
-            return true;
+            return op->pos;
         }
         op = next(*term, *op);
     }
 
-    return false; // no op found
+    return -1; // no op found
+}
+
+// overloaded function to accept a tracing object by reference
+void fixPrecedence(Term& term, std::stack<Alteration>* alterations) {
+    ASSERT (term.words.size() % 2 == 1);
+    ASSERT (alterations != nullptr);
+
+    unless (term.words.size() > 3) {
+        return; // nothing to do
+    }
+
+    UINT prev_optr_pos;
+    UINT cur_optr_pos;
+    for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
+        auto direction = assoc == LEFT_ASSOCIATIVE? ITERATE_LEFT_TO_RIGHT : ITERATE_RIGHT_TO_LEFT;
+        LOOP while (term.words.size() > 3
+                && UINT(-1) != (cur_optr_pos = parenthesizeFirstEncounteredOp(&term, optrs, direction))) {
+
+            ; // until 3 words size term or no more operation found
+
+            if (__first_it) {
+                alterations->push(Alteration::NONE);
+            }
+            else if (cur_optr_pos < prev_optr_pos) {
+                alterations->push(Alteration::LEFT_OPND);
+            }
+            else if (cur_optr_pos > prev_optr_pos) {
+                alterations->push(Alteration::RIGHT_OPND);
+            }
+            else {
+                SHOULD_NOT_HAPPEN();
+            }
+
+            // save cur_optr_pos for next iteration
+            prev_optr_pos = cur_optr_pos;
+
+            ENDLOOP
+        }
+    }
 }

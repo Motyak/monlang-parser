@@ -317,7 +317,7 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
 
 
     unless (!is_stub(whileStatement->condition.val)) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }
@@ -329,7 +329,7 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
 
 
     unless (!whileStatement->block.val._stub) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }

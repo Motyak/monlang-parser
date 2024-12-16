@@ -3,7 +3,7 @@
 
 #include <monlang-LV2/ast/expr/Operation.h>
 
-#include <monlang-LV2/common.h>
+#include <monlang-LV2/precedence.h> // Alteration
 #include <monlang-LV2/Expression.h>
 
 #include <monlang-LV1/ast/Term.h>
@@ -25,6 +25,6 @@ struct MayFail_<Operation> {
 
 bool peekOperation(const Term&);
 
-MayFail<MayFail_<Operation>> buildOperation(const Term&);
+MayFail<MayFail_<Operation>> buildOperation(const Term&, std::stack<Alteration>*);
 
 #endif // OPERATION_H
