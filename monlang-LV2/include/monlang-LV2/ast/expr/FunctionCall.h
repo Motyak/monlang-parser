@@ -8,6 +8,10 @@
 struct FunctionCall {
     Expression function;
     std::vector<Expression> arguments;
+
+    size_t _tokenLen = 0;
+    FunctionCall() = default;
+    FunctionCall(const Expression&, const std::vector<Expression>&);
 };
 
 #endif // AST_FUNCTION_CALL_H

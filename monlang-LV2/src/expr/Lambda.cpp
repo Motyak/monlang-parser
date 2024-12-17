@@ -56,8 +56,13 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
         }
     }
 
-    return MayFail_<Lambda>{parameters, body};
+    auto lambda = MayFail_<Lambda>{parameters, body};
+    lambda._tokenLen = assoc._tokenLen;
+    return lambda;
 }
+
+Lambda::Lambda(const std::vector<identifier_t>& parameters, const LambdaBlock& body)
+        : parameters(parameters), body(body){}
 
 MayFail_<Lambda>::MayFail_(std::vector<identifier_t> paramters, MayFail_<LambdaBlock> body) : parameters(paramters), body(body){}
 
@@ -68,6 +73,7 @@ MayFail_<Lambda>::MayFail_(Lambda lambda) {
     }
     this->parameters = lambda.parameters;
     this->body = MayFail_<LambdaBlock>{bodyStatements};
+    this->_tokenLen = lambda._tokenLen;
 }
 
 MayFail_<Lambda>::operator Lambda() const {
@@ -75,5 +81,7 @@ MayFail_<Lambda>::operator Lambda() const {
     for (auto e: this->body.statements) {
         bodyStatements.push_back(unwrap_stmt(e.value()));
     }
-    return Lambda{this->parameters, LambdaBlock{bodyStatements}};
+    auto lambda = Lambda{this->parameters, LambdaBlock{bodyStatements}};
+    lambda._tokenLen = this->_tokenLen;
+    return lambda;
 }

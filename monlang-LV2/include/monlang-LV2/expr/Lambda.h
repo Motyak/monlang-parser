@@ -13,6 +13,7 @@ struct MayFail_<Lambda> {
     std::vector<identifier_t> parameters;
     MayFail_<LambdaBlock> body;
 
+    size_t _tokenLen = 0;
     MayFail_() = default;
     explicit MayFail_(std::vector<identifier_t>, MayFail_<LambdaBlock>);
 

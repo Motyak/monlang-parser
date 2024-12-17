@@ -13,5 +13,9 @@ Lvalue buildLvalue(const Word& word) {
     ASSERT (std::holds_alternative<Atom*>(word));
 
     auto atom = *std::get<Atom*>(word);
-    return Lvalue{atom.value};
+    auto lvalue = Lvalue{atom.value};
+    lvalue._tokenLen = atom._tokenLen;
+    return lvalue;
 }
+
+Lvalue::Lvalue(const std::string& identifier) : identifier(identifier){}

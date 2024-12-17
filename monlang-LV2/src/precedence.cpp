@@ -388,16 +388,15 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
 }
 
 // overloaded function to accept a tracing object by reference
-void fixPrecedence(Term& term, std::stack<Alteration>* alterations) {
+void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
     ASSERT (term.words.size() % 2 == 1);
-    ASSERT (alterations != nullptr);
 
     unless (term.words.size() > 3) {
         return; // nothing to do
     }
 
-    UINT prev_optr_pos;
-    UINT cur_optr_pos;
+    auto prev_optr_pos = UINT();
+    auto cur_optr_pos = UINT();
     for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
         auto direction = assoc == LEFT_ASSOCIATIVE? ITERATE_LEFT_TO_RIGHT : ITERATE_RIGHT_TO_LEFT;
         LOOP while (term.words.size() > 3
@@ -406,13 +405,13 @@ void fixPrecedence(Term& term, std::stack<Alteration>* alterations) {
             ; // until 3 words size term or no more operation found
 
             if (__first_it) {
-                alterations->push(Alteration::NONE);
+                alterations.push(Alteration::NONE);
             }
             else if (cur_optr_pos < prev_optr_pos) {
-                alterations->push(Alteration::LEFT_OPND);
+                alterations.push(Alteration::LEFT_OPND);
             }
             else if (cur_optr_pos > prev_optr_pos) {
-                alterations->push(Alteration::RIGHT_OPND);
+                alterations.push(Alteration::RIGHT_OPND);
             }
             else {
                 SHOULD_NOT_HAPPEN();

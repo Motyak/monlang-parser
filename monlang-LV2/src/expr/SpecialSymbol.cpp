@@ -24,5 +24,9 @@ SpecialSymbol buildSpecialSymbol(const Word& word) {
     ASSERT (std::holds_alternative<Atom*>(word));
     auto atom = *std::get<Atom*>(word);
 
-    return SpecialSymbol{atom.value};
+    auto specialSymbol = SpecialSymbol{atom.value};
+    specialSymbol._tokenLen = atom._tokenLen;
+    return specialSymbol;
 }
+
+SpecialSymbol::SpecialSymbol(const std::string& str) : str(str){}

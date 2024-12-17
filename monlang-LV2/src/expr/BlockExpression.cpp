@@ -26,8 +26,12 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
         }
     }
 
-    return MayFail_<BlockExpression>{statements};
+    auto blockExpr = MayFail_<BlockExpression>{statements};
+    blockExpr._tokenLen = cbg._tokenLen;
+    return blockExpr;
 }
+
+BlockExpression::BlockExpression(const std::vector<Statement>& statements) : statements(statements){}
 
 MayFail_<BlockExpression>::MayFail_() : statements(), _stub(true){}
 
@@ -39,6 +43,7 @@ MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {
         statements.push_back(wrap_stmt(e));
     }
     this->statements = statements;
+    this->_tokenLen = blockExpr._tokenLen;
 }
 
 MayFail_<BlockExpression>::operator BlockExpression() const {
@@ -46,5 +51,7 @@ MayFail_<BlockExpression>::operator BlockExpression() const {
     for (auto e: this->statements) {
         statements.push_back(unwrap_stmt(e.value()));
     }
-    return BlockExpression{statements};
+    auto blockExpr = BlockExpression{statements};
+    blockExpr._tokenLen = this->_tokenLen;
+    return blockExpr;
 }

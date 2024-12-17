@@ -3,7 +3,6 @@
 
 #include <monlang-LV2/ast/expr/Operation.h>
 
-#include <monlang-LV2/precedence.h> // Alteration
 #include <monlang-LV2/Expression.h>
 
 #include <monlang-LV1/ast/Term.h>
@@ -16,6 +15,7 @@ struct MayFail_<Operation> {
     identifier_t operator_; // should we define a specific 'binary operator' type ?
     MayFail<Expression_> rightOperand;
 
+    size_t _tokenLen = 0;
     MayFail_() = default;
     explicit MayFail_(MayFail<Expression_>, identifier_t, MayFail<Expression_>);
 
@@ -25,6 +25,6 @@ struct MayFail_<Operation> {
 
 bool peekOperation(const Term&);
 
-MayFail<MayFail_<Operation>> buildOperation(const Term&, std::stack<Alteration>*);
+MayFail<MayFail_<Operation>> buildOperation(const Term&);
 
 #endif // OPERATION_H

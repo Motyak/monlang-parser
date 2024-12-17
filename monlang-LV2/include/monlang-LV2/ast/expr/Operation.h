@@ -9,6 +9,10 @@ struct Operation {
     Expression leftOperand;
     identifier_t operator_; // should we define a specific 'binary operator' type ?
     Expression rightOperand;
+
+    size_t _tokenLen = 0;
+    Operation() = default;
+    Operation(const Expression&, const identifier_t&, const Expression&);
 };
 
 #endif // AST_OPERATION_H

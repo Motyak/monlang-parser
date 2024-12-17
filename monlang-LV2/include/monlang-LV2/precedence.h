@@ -22,6 +22,6 @@ enum class Alteration {
     NONE
 };
 // overloaded function to accept a tracing object by reference
-void fixPrecedence(Term&, std::stack<Alteration>*);
+void fixPrecedence(Term&, std::stack<Alteration>&);
 
 #endif // PRECEDENCE_H

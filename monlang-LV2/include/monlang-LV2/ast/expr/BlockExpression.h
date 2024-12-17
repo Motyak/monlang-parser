@@ -7,6 +7,10 @@
 
 struct BlockExpression {
     std::vector<Statement> statements;
+
+    size_t _tokenLen = 0;
+    BlockExpression() = default;
+    BlockExpression(const std::vector<Statement>&);
 };
 
 #endif // AST_BLOCK_EXPRESSION_H

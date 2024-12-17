@@ -28,10 +28,16 @@ MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
         }
     }
 
-    return MayFail_<FunctionCall>{function, arguments};
+    auto functionCall = MayFail_<FunctionCall>{function, arguments};
+    functionCall._tokenLen = ppg._tokenLen;
+    return functionCall;
 }
 
-MayFail_<FunctionCall>::MayFail_(MayFail<Expression_> function, std::vector<MayFail<Expression_>> arguments) : function(function), arguments(arguments){}
+FunctionCall::FunctionCall(const Expression& function, const std::vector<Expression>& arguments)
+        : function(function), arguments(arguments){}
+
+MayFail_<FunctionCall>::MayFail_(MayFail<Expression_> function, std::vector<MayFail<Expression_>> arguments)
+        : function(function), arguments(arguments){}
 
 MayFail_<FunctionCall>::MayFail_(FunctionCall functionCall) {
     auto function = wrap_expr(functionCall.function);
@@ -42,6 +48,7 @@ MayFail_<FunctionCall>::MayFail_(FunctionCall functionCall) {
 
     this->function = function;
     this->arguments = arguments;
+    this->_tokenLen = functionCall._tokenLen;
 }
 
 MayFail_<FunctionCall>::operator FunctionCall() const {
@@ -50,5 +57,7 @@ MayFail_<FunctionCall>::operator FunctionCall() const {
     for (auto e: this->arguments) {
         arguments.push_back(unwrap_expr(e.value()));
     }
-    return FunctionCall{function, arguments};
+    auto functionCall = FunctionCall{function, arguments};
+    functionCall._tokenLen = this->_tokenLen;
+    return functionCall;
 }

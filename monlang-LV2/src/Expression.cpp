@@ -20,6 +20,8 @@
 
 #define unless(x) if (!(x))
 
+static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alteration>&);
+
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
@@ -54,16 +56,23 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
-    std::stack<Alteration> alterations; // used by buildOperation(), to deduce original token length
-    fixPrecedence(term_, &alterations);
+    auto unalteredTermTokenLen = term_._tokenLen;
+    std::stack<Alteration> alterations; // require to adjust Operation operand _tokenLen
+                                        // ..accoding to fixPrecedence()
+    fixPrecedence(term_, /*OUT*/alterations);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
     // if (term_ =~ "Word Word Word"_) {
-    //     return mayfail_convert<Expression_>(buildOperation(term_, &alterations));
+    //     ..
     // }
 
     if (peekOperation(term_)) {
-        return mayfail_convert<Expression_>(buildOperation(term_, &alterations));
+        auto operation = buildOperation(term_);
+        operation.val._tokenLen = unalteredTermTokenLen;
+        if (!alterations.empty()) {
+            fixOperandTokenLen(operation, alterations);
+        }
+        return mayfail_convert<Expression_>(operation);
     }
 
     // 'Operation' was the only Expression with multiple words
@@ -139,6 +148,26 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     /* reached fall-through */
     return Malformed(Expression_(), ERR(169));
+}
+
+static void fixOperandTokenLen(MayFail<MayFail_<Operation>>& operation, std::stack<Alteration>& alterations) {
+    ASSERT (!alterations.empty());
+    if (alterations.top() == Alteration::LEFT_OPND) {
+        size_t newTokenLen = token_len(operation.val.leftOperand.val)
+                - sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+                - sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+        set_token_len(operation.val.leftOperand.val, newTokenLen);
+    }
+    else if (alterations.top() == Alteration::RIGHT_OPND) {
+        size_t newTokenLen = token_len(operation.val.rightOperand.val)
+                - sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+                - sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+        set_token_len(operation.val.rightOperand.val, newTokenLen);
+    }
+    else /* ::NONE */ {
+        ; // do nothing
+    }
+    alterations.pop();
 }
 
 Expression unwrap_expr(Expression_ expression) {

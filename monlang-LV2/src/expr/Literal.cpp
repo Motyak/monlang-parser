@@ -26,5 +26,9 @@ Literal buildLiteral(const Word& word) {
     ASSERT (std::holds_alternative<Atom*>(word));
     auto atom = *std::get<Atom*>(word);
 
-    return Literal{atom.value};
+    auto literal = Literal{atom.value};
+    literal._tokenLen = atom._tokenLen;
+    return literal;
 }
+
+Literal::Literal(const std::string& str) : str(str){}
