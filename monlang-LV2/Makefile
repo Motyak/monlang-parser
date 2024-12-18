@@ -4,8 +4,8 @@ export CXX := ccache g++
 
 SHELL := /bin/bash
 RM := rm -rf
-CXXFLAGS := --std=c++23 -Wall -Wextra -Og -ggdb3 -I include -I monlang-LV1
-CXXFLAGS_TEST = $(CXXFLAGS) $(addprefix -I ,$(LIB_INCLUDE_DIRS))
+CXXFLAGS = --std=c++23 -Wall -Wextra -Og -ggdb3 -I include $(addprefix -I ,$(LIB_INCLUDE_DIRS))
+CXXFLAGS_TEST = $(CXXFLAGS)
 DEPFLAGS = -MMD -MP -MF .deps/$*.d
 DEPFLAGS_TEST = -MMD -MP -MF .deps/test/$*.d
 ARFLAGS = D -M < <(tools/aggregate-libs.mri.sh $@ $^); :
@@ -22,17 +22,17 @@ Expression \
 $(EXPR_ENTITIES:%=expr/%)
 
 STMT_ENTITIES := \
-Accumulation \
 Assignment \
+Accumulation \
+LetStatement \
+VarStatement \
+ReturnStatement \
 BreakStatement \
 ContinueStatement \
 DieStatement \
-ExpressionStatement \
 ForeachStatement \
-LetStatement \
-ReturnStatement \
-VarStatement \
 WhileStatement \
+ExpressionStatement \
 
 EXPR_ENTITIES := \
 Operation \
@@ -60,13 +60,16 @@ all: main
 
 main: $(OBJS)
 
+dist: $(OBJS)
+	./release.sh $^
+
 clean:
 	$(RM) obj/* .deps/*
 
 mrproper:
-	$(RM) obj .deps bin lib/test-libs.a $(LIB_OBJ_DIRS)
+	$(RM) obj .deps bin dist lib/libs.a lib/test-libs.a $(LIB_OBJ_DIRS)
 
-.PHONY: all main clean mrproper
+.PHONY: all main dist clean mrproper
 
 ###########################################################
 
@@ -76,8 +79,7 @@ $(OBJS): obj/%.o: src/%.cpp
 $(TEST_OBJS): obj/test/%.o: src/test/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)
 
-# test-libs.a must appear before monlang-LV1.a because montree depends on LV1
-$(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/test-libs.a lib/monlang-LV1.a
+$(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/libs.a lib/test-libs.a
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 -include $(DEPS) $(TEST_DEPS)
@@ -86,29 +88,43 @@ $(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/test-libs.a lib/monlang-L
 # libs
 ############################################################
 
-## aggregate all test lib (.o, .a) into one static lib ##
+## aggregate all main code dependencies (.o, .a) into one static lib ##
+.SECONDEXPANSION:
+lib/libs.a: $$(libs)
+# when BUILD_LIBS_ONCE is unset => we always enter this recipe
+	$(if $(call shouldrebuild, $@, $^), \
+		$(AR) $(ARFLAGS) $@ $^)
+
+## aggregate all test code dependencies (.o, .a) into one static lib ##
 .SECONDEXPANSION:
 lib/test-libs.a: $$(test_libs)
 # when BUILD_LIBS_ONCE is unset => we always enter this recipe
 	$(if $(call shouldrebuild, $@, $^), \
 		$(AR) $(ARFLAGS) $@ $^)
 
-## compiles lib used for testing (catch2) ##
+## build lib monlang-LV1 ##
+libs += lib/monlang-LV1/dist/monlang-LV1.a
+$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/monlang-LV1)), \
+	.PHONY: lib/monlang-LV1/dist/monlang-LV1.a)
+lib/monlang-LV1/dist/monlang-LV1.a:
+	$(MAKE) -C lib/monlang-LV1 dist
+
+## build lib used for testing (catch2) ##
 test_libs += lib/catch2/obj/catch_amalgamated.o
 lib/catch2/obj/catch_amalgamated.o:
 	$(MAKE) -C lib/catch2
 
-## compiles our own lib used for testing (montree) ##
+## build our own lib used for testing (montree) ##
 test_libs += lib/montree/dist/montree.a
 $(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/montree)), \
 	.PHONY: lib/montree/dist/montree.a)
 lib/montree/dist/montree.a:
-	$(MAKE) -C lib/montree
+	$(MAKE) -C lib/montree dist
 
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-${call shell_onrun, mkdir -p {obj,.deps}/{stmt,expr,test} bin/test ${LIB_OBJ_DIRS}}
+${call shell_onrun, mkdir -p {obj,.deps}/{stmt,expr,test} dist bin/test ${LIB_OBJ_DIRS}}
 
 ## debug settings ##
 $(call shell_onrun, [ ! -e bin/test/.gdbinit ] && cp .gdbinit bin/test/.gdbinit)

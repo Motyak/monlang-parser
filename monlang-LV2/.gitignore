@@ -1,5 +1,7 @@
 .deps
 bin
 obj
+dist
+lib/libs.a
 lib/test-libs.a
 lib/*/obj

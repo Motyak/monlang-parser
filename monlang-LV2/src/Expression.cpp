@@ -6,8 +6,8 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
-#include <monlang-LV2/expr/Literal.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
+#include <monlang-LV2/expr/Literal.h>
 #include <monlang-LV2/expr/Lvalue.h>
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
@@ -106,20 +106,20 @@ MayFail<Expression_> buildExpression(const Term& term) {
         return mayfail_convert<Expression_>(buildBlockExpression(word));
     }
 
-    // if (word =~ "Atom<[0-9]+>"_) {
-    //     return mayfail_convert<Expression_>(buildLiteral(word));
-    // }
-
-    if (peekLiteral(word)) {
-        return (Expression_)move_to_heap(buildLiteral(word));
-    }
-
     // if (word =~ "Atom<$.*>"_) {
     //     return mayfail_convert<Expression_>(buildSpecialSymbol(word));
     // }
 
     if (peekSpecialSymbol(word)) {
         return (Expression_)move_to_heap(buildSpecialSymbol(word));
+    }
+
+    // if (word =~ "Atom<[0-9]+>"_) {
+    //     return mayfail_convert<Expression_>(buildLiteral(word));
+    // }
+
+    if (peekLiteral(word)) {
+        return (Expression_)move_to_heap(buildLiteral(word));
     }
 
     // if (word =~ "Atom"_) {

@@ -30,9 +30,9 @@ OBJS := $(SRC_FILENAMES:%=obj/%.o)
 
 ###########################################################
 
-all: dist
+all: main
 
-build: $(OBJS)
+main: $(OBJS)
 
 dist: dist/montree.a
 
@@ -43,7 +43,7 @@ mrproper:
 	$(RM) obj .deps
 
 
-.PHONY: all build dist clean mrproper
+.PHONY: all main dist clean mrproper
 
 ###########################################################
 
@@ -58,4 +58,4 @@ dist/montree.a: $(OBJS)
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-$(call shell_onrun, mkdir -p obj dist .deps)
+$(call shell_onrun, mkdir -p obj .deps dist)
