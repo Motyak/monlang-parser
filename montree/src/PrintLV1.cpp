@@ -18,6 +18,7 @@
 
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>
+#include <utils/assert-utils.h>
 #include <cstdarg>
 
 #define until(x) while(!(x))

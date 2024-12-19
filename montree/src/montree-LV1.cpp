@@ -3,6 +3,8 @@
 #include <montree/PrintLV1.h>
 #include <montree/LV1AstGenerator.h>
 
+#include <utils/assert-utils.h>
+
 #include <iostream>
 
 std::string montree::astToString(LV1::Ast_ ast, int TAB_SIZE) {
