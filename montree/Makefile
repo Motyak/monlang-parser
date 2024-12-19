@@ -34,7 +34,8 @@ all: main
 
 main: $(OBJS)
 
-dist: dist/montree.a
+dist: $(OBJS)
+	./release.sh $^
 
 clean:
 	$(RM) obj/* .deps/*
@@ -49,9 +50,6 @@ mrproper:
 
 $(OBJS): obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
-
-dist/montree.a: $(OBJS)
-	$(AR) $(ARFLAGS) $@ $^
 
 -include $(DEPS)
 

@@ -14,53 +14,20 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 
 ###########################################################
 
-ENTITIES = \
-Program \
-Statement \
-$(STMT_ENTITIES:%=stmt/%) \
-Expression \
-$(EXPR_ENTITIES:%=expr/%)
-
-STMT_ENTITIES := \
-Assignment \
-Accumulation \
-LetStatement \
-VarStatement \
-ReturnStatement \
-BreakStatement \
-ContinueStatement \
-DieStatement \
-ForeachStatement \
-WhileStatement \
-ExpressionStatement \
-
-EXPR_ENTITIES := \
-Operation \
-FunctionCall \
-Lambda \
-BlockExpression \
-SpecialSymbol \
-Literal \
-Lvalue \
-
-OBJS := $(ENTITIES:%=obj/%.o) obj/precedence.o
-DEPS := $(ENTITIES:%=.deps/%.d) .deps/precedence.d
-
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
 TEST_OBJS = $(TEST_FILENAMES:%=obj/test/%.o)
 TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
 LIB_OBJ_DIRS := $(foreach lib,$(wildcard lib/*/),$(lib:%/=%)/obj) # for cleaning
-LIB_INCLUDE_DIRS := $(foreach lib,$(wildcard lib/*/),$(lib:%/=%)/include)
 
 ###########################################################
 
 all: main
 
-main: $(OBJS)
+main: $(OBJS) lib/libs.a
 
-dist: $(OBJS)
+dist: $(OBJS) lib/libs.a
 	./release.sh $^
 
 clean:
@@ -109,24 +76,23 @@ $(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/monlang-LV1)), \
 lib/monlang-LV1/dist/monlang-LV1.a:
 	$(MAKE) -C lib/monlang-LV1 dist
 
+## build lib monlang-LV2 ##
+libs += lib/monlang-LV2/dist/monlang-LV2.a
+$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/monlang-LV2)), \
+	.PHONY: lib/monlang-LV2/dist/monlang-LV2.a)
+lib/monlang-LV2/dist/monlang-LV2.a:
+	$(MAKE) -C lib/monlang-LV2 dist
+
 ## build lib used for testing (catch2) ##
 test_libs += lib/catch2/obj/catch_amalgamated.o
 test_lib_include_dirs += lib/catch2/include
 lib/catch2/obj/catch_amalgamated.o:
 	$(MAKE) -C lib/catch2
 
-## build our own lib used for testing (montree) ##
-test_libs += lib/montree/dist/montree.a
-test_lib_include_dirs += lib/montree/dist
-$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/montree)), \
-	.PHONY: lib/montree/dist/montree.a)
-lib/montree/dist/montree.a:
-	$(MAKE) -C lib/montree dist
-
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-${call shell_onrun, mkdir -p {obj,.deps}/{stmt,expr,test} dist bin/test ${LIB_OBJ_DIRS}}
+${call shell_onrun, mkdir -p {obj,.deps,bin}/test dist ${LIB_OBJ_DIRS}}
 
 ## debug settings ##
 $(call shell_onrun, [ -e bin/test/.gdbinit ] || cp .gdbinit bin/test/.gdbinit)
