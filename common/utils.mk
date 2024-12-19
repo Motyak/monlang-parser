@@ -41,7 +41,8 @@ endef
 #       $(shell ! $(MAKE) -qsC $(1) && echo true)$(if $(.SHELLSTATUS:1=),$(eval __SHOULDREBUILD += $(1)))
 define askmake
 $(shell echo \
-	$(shell ! $(MAKE) -qsC $(1) && echo true) \
+	$(shell true) \
+	$(call shell_onrun, ! $(MAKE) -qsC $(1) && echo true) \
 	$(if $(.SHELLSTATUS:1=),$(eval __SHOULDREBUILD += $(1))))
 endef
 
