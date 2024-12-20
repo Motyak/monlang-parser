@@ -43,6 +43,9 @@ function make {
     eval "${final_cmd:-$make_prefix}"
 }
 
+# detect broken symbolic links
+find . -xtype l -exec echo 'WARN: Broken symlink: {}' \;
+
 ## add (back) make autocompletion for our new definition of make
 source tools/bash_completion_make # exports _make function
 complete -F _make make

@@ -19,8 +19,6 @@ TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
 TEST_OBJS = $(TEST_FILENAMES:%=obj/test/%.o)
 TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
-LIB_OBJ_DIRS := $(foreach lib,$(wildcard lib/*/),$(lib:%/=%)/obj) # for cleaning
-
 ###########################################################
 
 all: main
@@ -34,7 +32,7 @@ clean:
 	$(RM) obj/* .deps/*
 
 mrproper:
-	$(RM) obj .deps bin dist lib/libs.a lib/test-libs.a $(LIB_OBJ_DIRS)
+	$(RM) obj .deps bin dist lib/libs.a lib/test-libs.a
 
 .PHONY: all main dist clean mrproper
 
@@ -69,19 +67,16 @@ lib/test-libs.a: $$(test_libs)
 	$(if $(call shouldrebuild, $@, $^), \
 		$(AR) $(ARFLAGS) $@ $^)
 
-## build lib monlang-LV1 ##
+# lib monlang-LV1 (manually built and updated when desired..
+# .., additional release from monlang/)
 libs += lib/monlang-LV1/dist/monlang-LV1.a
-$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/monlang-LV1)), \
-	.PHONY: lib/monlang-LV1/dist/monlang-LV1.a)
-lib/monlang-LV1/dist/monlang-LV1.a:
-	$(MAKE) -C lib/monlang-LV1 dist
 
 ## build lib monlang-LV2 ##
 libs += lib/monlang-LV2/dist/monlang-LV2.a
 $(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/monlang-LV2)), \
 	.PHONY: lib/monlang-LV2/dist/monlang-LV2.a)
 lib/monlang-LV2/dist/monlang-LV2.a:
-	$(MAKE) -C lib/monlang-LV2 dist
+	$(MAKE) -C lib/monlang-LV2 dist/monlang-LV2.a
 
 ## build lib used for testing (catch2) ##
 test_libs += lib/catch2/obj/catch_amalgamated.o
@@ -92,11 +87,12 @@ lib/catch2/obj/catch_amalgamated.o:
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed
-${call shell_onrun, mkdir -p {obj,.deps,bin}/test dist ${LIB_OBJ_DIRS}}
+${call shell_onrun, mkdir -p {.deps,obj,bin}/test dist}
 
 ## debug settings ##
 $(call shell_onrun, [ -e bin/test/.gdbinit ] || cp .gdbinit bin/test/.gdbinit)
 $(call shell_onrun, grep -qs '^set auto-load safe-path /$$' ~/.gdbinit || echo "set auto-load safe-path /" >> ~/.gdbinit)
 
+## shall not rely on these ##
 # .DELETE_ON_ERROR:
 .SUFFIXES:

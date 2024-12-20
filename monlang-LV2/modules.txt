@@ -1,10 +1,14 @@
+
+
+
+
 Module monlang-LV1
   -> fournit les interfaces dist/monlang-LV1/ast/**/*.h utilisée par le main de monlang-LV2
   -> fournit les interfaces dist/monlang-LV1/**/*.h utilisées par montree-LV1 et monlang-parser
   -> fournit la librarie dist/monlang-LV1.a utilisée par le main de monlang-LV2 et monlang-parser
-    -> fournit les objets obj/release/*.o de monlang-LV1/**/*.h
+    -> fournit les objets obj/**/*.o de monlang-LV1/**/*.h
   -> build binaire tests
-    -> utilise les objets de montree-LV1.h
+    -> utilise les objets de montree-LV1.h (au travers de montree.a)
     -> utilise les objets de monlang-LV1/**/*.h
 
 Module monlang-LV2

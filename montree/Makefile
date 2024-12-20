@@ -1,7 +1,7 @@
 include utils.mk # shell_onrun
 
 CXXFLAGS := --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
-DEPFLAGS = -MMD -MP -MF .deps/$(notdir $*.d)
+DEPFLAGS = -MMD -MP -MF .deps/$*.d
 RM := rm -rf
 ARFLAGS := rcsvD
 
@@ -34,9 +34,6 @@ all: main
 
 main: $(OBJS)
 
-dist: $(OBJS)
-	./release.sh $^
-
 clean:
 	$(RM) obj/* .deps/*
 
@@ -44,12 +41,15 @@ mrproper:
 	$(RM) obj .deps
 
 
-.PHONY: all main dist clean mrproper
+.PHONY: all main clean mrproper
 
 ###########################################################
 
 $(OBJS): obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
+
+dist/montree.a: $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
 
 -include $(DEPS)
 
