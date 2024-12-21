@@ -3,11 +3,17 @@
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 
+/* require knowing all words for token_len() */
+#include <monlang-LV1/ast/SquareBracketsGroup.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
+
 #include <utils/assert-utils.h>
 #include <utils/vec-utils.h>
 #include <utils/mem-utils.h>
 #include <utils/str-utils.h>
-#include <utils/loop-utils.h>
 
 #include <cstdint>
 
@@ -19,20 +25,21 @@ namespace
 
 // TERM CTOR //////////////////////////////////////////////
 
-Word Atom_(std::string val) {
-    return move_to_heap(Atom{val});
-}
-
 // explicit cast
-Atom Atom_(Word word) {
+Atom asAtom(Word word) {
     ASSERT (std::holds_alternative<Atom*>(word));
     return *std::get<Atom*>(word);
+}
+
+Word asWord(Atom atom) {
+    return move_to_heap(atom);
 }
 
 // TERM SELECTORS /////////////////////////////////////////
 
 struct Operator {
-    std::string val;
+    // std::string val;
+    Atom val;
     UINT pos;
 };
 
@@ -48,7 +55,7 @@ Operator optr(Term term, INT nth) {
         pos = term.words.size() - 2 * abs(nth);
     }
 
-    return Operator{Atom_(term.words[pos]).value, pos};
+    return Operator{asAtom(term.words[pos]), pos};
 }
 
 Word left_opnd(Term term, Operator op) {
@@ -66,7 +73,7 @@ std::optional<Operator> prev_optr(Term term, Operator op) {
         return {};
     }
     UINT pos = op.pos - 2;
-    return Operator{Atom_(term.words[pos]).value, pos};
+    return Operator{asAtom(term.words[pos]), pos};
 }
 
 std::optional<Operator> next_optr(Term term, Operator op) {
@@ -74,34 +81,42 @@ std::optional<Operator> next_optr(Term term, Operator op) {
         return {};
     }
     UINT pos = op.pos + 2;
-    return Operator{Atom_(term.words.at(pos)).value, pos};
+    return Operator{asAtom(term.words[pos]), pos};
 }
 
 // TERM MUTATOR ///////////////////////////////////////////
 
 // extract operation from Term, as a sub-Term
-Term Term_(Term term, Operator op) {
+Term extract_optn(Term term, Operator op) {
     std::vector<Word> words;
 
     words.push_back(left_opnd(term, op));
-    words.push_back(Atom_(op.val));
+    words.push_back(asWord(op.val));
     words.push_back(right_opnd(term, op));
 
-    return Term{words};
+    auto res_term = Term{words};
+    res_term._tokenLen = token_len(words[0])
+            + op.val._tokenLen
+            + token_len(words[2])
+            + 2 * sequenceLen(Term::CONTINUATOR_SEQUENCE);
+    return res_term;
 }
 
-// extract operation from Term, as a grouped sub-Term
-ParenthesesGroup ParenthesesGroup_(Term term, Operator op) {
-    return ParenthesesGroup{{Term_(term, op)}};
+ParenthesesGroup ParenthesesGroup_(Term term) {
+    auto pg = ParenthesesGroup{{term}};
+    pg._tokenLen = term._tokenLen
+            + sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+            + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+    return pg;
 }
 
 // explicit cast
-Word Word__(ParenthesesGroup pg) {
+Word asWord(ParenthesesGroup pg) {
     return move_to_heap(pg);
 }
 
 void parenthesize_optn(Term* term, Operator op) {
-    auto operation = ParenthesesGroup_(*term, op);
+    auto operation = ParenthesesGroup_(extract_optn(*term, op));
 
     // copy all words BEFORE operation
     auto left_words = std::vector<Word>(term->words.begin(), term->words.begin() + op.pos - 1);
@@ -112,7 +127,7 @@ void parenthesize_optn(Term* term, Operator op) {
     // concat both ends with the new parenthesized operation
     std::vector<Word> new_words = vec_concat({
         left_words,
-        {Word__(operation)},
+        {asWord(operation)},
         right_words,
     });
 
@@ -123,7 +138,7 @@ void parenthesize_optn(Term* term, Operator op) {
 } // anonymous namespace
 
 #ifdef TEST_OPTR
-// g++ -D TEST_OPTR -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_OPTR -o main.elf src/precedence.cpp lib/monlang-LV1/dist/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 
 Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
@@ -140,28 +155,28 @@ int main()
 
     {
         auto op = optr(input, 1);
-        std::cout << "#1 <=> [" << op.pos << "]: " << op.val << std::endl;
+        std::cout << "#1 <=> [" << op.pos << "]: " << op.val.value << std::endl;
     }
 
     {
         auto op = optr(input, -6);
-        std::cout << "#-6 <=> [" << op.pos << "]: " << op.val << std::endl;
+        std::cout << "#-6 <=> [" << op.pos << "]: " << op.val.value << std::endl;
     }
 
     {
         auto op = optr(input, -1);
-        std::cout << "#-1 <=> [" << op.pos << "]: " << op.val << std::endl;
+        std::cout << "#-1 <=> [" << op.pos << "]: " << op.val.value << std::endl;
     }
 
     {
         auto op = optr(input, 6);
-        std::cout << "#6 <=> [" << op.pos << "]: " << op.val << std::endl;
+        std::cout << "#6 <=> [" << op.pos << "]: " << op.val.value << std::endl;
     }
 }
 #endif // TEST_OPTR
 
 #ifdef TEST_OPND
-// g++ -D TEST_OPND -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_OPND -o main.elf src/precedence.cpp lib/monlang-LV1/dist/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 
 Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
@@ -180,20 +195,20 @@ int main()
         auto op = optr(input, 1);
         auto leftopnd = std::get<Atom*>(left_opnd(input, op))->value;
         auto rightopnd = std::get<Atom*>(right_opnd(input, op))->value;
-        std::cout << "#1: " << leftopnd << " " << op.val << " " << rightopnd << std::endl;
+        std::cout << "#1: " << leftopnd << " " << op.val.value << " " << rightopnd << std::endl;
     }
 
     {
         auto op = optr(input, -1);
         auto leftopnd = std::get<Atom*>(left_opnd(input, op))->value;
         auto rightopnd = std::get<Atom*>(right_opnd(input, op))->value;
-        std::cout << "#-1: " << leftopnd << " " << op.val << " " << rightopnd << std::endl;
+        std::cout << "#-1: " << leftopnd << " " << op.val.value << " " << rightopnd << std::endl;
     }
 }
 #endif // TEST_OPND
 
 #ifdef TEST_PREV_NEXT_OPTR
-// g++ -D TEST_PREV_NEXT_OPTR -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_PREV_NEXT_OPTR -o main.elf src/precedence.cpp lib/monlang-LV1/dist/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 
 Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
@@ -210,36 +225,30 @@ int main()
 
     {
         auto op = optr(input, 2);
-        std::cout << "#2: " << op.val << std::endl;
-        std::cout << "<prev>: " << prev_optr(input, op).value().val << std::endl;
-        std::cout << "---" << std::endl;
-    }
-
-    {
-        auto op = optr(input, 2);
-        std::cout << "#2: " << op.val << std::endl;
-        std::cout << "<next>: " << next_optr(input, op).value().val << std::endl;
+        std::cout << "#2: " << op.val.value << std::endl;
+        std::cout << "<prev>: " << prev_optr(input, op).value().val.value << std::endl;
+        std::cout << "<next>: " << next_optr(input, op).value().val.value << std::endl;
         std::cout << "---" << std::endl;
     }
 
     // // ERR
     // {
     //     auto op = optr(input, 1);
-    //     std::cout << "#1: " << op.val << std::endl;
-    //     std::cout << "<prev>: " << prev_optr(input, op).value().val << std::endl;
+    //     std::cout << "#1: " << op.val.value << std::endl;
+    //     std::cout << "<prev>: " << prev_optr(input, op).value().val.value << std::endl;
     // }
 
     // // ERR
     // {
     //     auto op = optr(input, -1);
-    //     std::cout << "#-1: " << op.val << std::endl;
-    //     std::cout << "<next>: " << next_optr(input, op).value().val << std::endl;
+    //     std::cout << "#-1: " << op.val.value << std::endl;
+    //     std::cout << "<next>: " << next_optr(input, op).value().val.value << std::endl;
     // }
 }
 #endif // TEST_PREV_NEXT_OPTR
 
 #ifdef TEST_PARENTHESIZE
-// g++ -D TEST_PARENTHESIZE -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_PARENTHESIZE -o main.elf src/precedence.cpp lib/monlang-LV1/dist/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 
 #include <monlang-LV1/ast/visitors/Unparse.h>
 
@@ -294,7 +303,7 @@ int main()
 #endif // TEST_PARENTHESIZE
 
 #ifdef TEST_PRECEDENCE
-// g++ -D TEST_PRECEDENCE -o main.elf src/precedence.cpp lib/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+// g++ -D TEST_PRECEDENCE -o main.elf src/precedence.cpp lib/monlang-LV1/dist/monlang-LV1.a --std=c++23 -Wall -Wextra -Og -ggdb3 -I include -I lib/monlang-LV1/dist
 
 #include <monlang-LV1/Term.h>
 #include <monlang-LV1/ast/visitors/Unparse.h>
@@ -377,7 +386,7 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
     }
 
     while (op) {
-        if (vec_contains(opvals, op->val)) {
+        if (vec_contains(opvals, op->val.value)) {
             parenthesize_optn(/*OUT*/term, *op);
             return op->pos;
         }
@@ -391,23 +400,31 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
 void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
     ASSERT (term.words.size() % 2 == 1);
 
+    if (term.words.size() == 3) {
+        alterations.push(Alteration::NONE); // useless ?
+    }
+
     unless (term.words.size() > 3) {
         return; // nothing to do
     }
 
+    auto first_it = true;
     auto prev_optr_pos = UINT();
     auto cur_optr_pos = UINT();
     for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
         auto direction = assoc == LEFT_ASSOCIATIVE? ITERATE_LEFT_TO_RIGHT : ITERATE_RIGHT_TO_LEFT;
-        LOOP while (term.words.size() > 3
+        while (term.words.size() > 3
                 && UINT(-1) != (cur_optr_pos = parenthesizeFirstEncounteredOp(&term, optrs, direction))) {
 
             ; // until 3 words size term or no more operation found
 
-            if (__first_it) {
-                alterations.push(Alteration::NONE);
+            if (first_it) {
+                first_it = false;
+                alterations.push(Alteration::DONE); // last alteration first
+                // useless ?
             }
-            else if (cur_optr_pos < prev_optr_pos) {
+
+            if (cur_optr_pos < prev_optr_pos) {
                 alterations.push(Alteration::LEFT_OPND);
             }
             else if (cur_optr_pos > prev_optr_pos) {
@@ -419,8 +436,6 @@ void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
 
             // save cur_optr_pos for next iteration
             prev_optr_pos = cur_optr_pos;
-
-            ENDLOOP
         }
     }
 }

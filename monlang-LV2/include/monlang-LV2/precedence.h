@@ -17,9 +17,10 @@ PRECEDENCE_TABLE;
 void fixPrecedence(Term&);
 
 enum class Alteration {
+    NONE,
     LEFT_OPND,
     RIGHT_OPND,
-    NONE
+    DONE,
 };
 // overloaded function to accept a tracing object by reference
 void fixPrecedence(Term&, std::stack<Alteration>&);

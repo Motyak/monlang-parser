@@ -21,10 +21,13 @@
 #define unless(x) if (!(x))
 
 static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alteration>&);
+static void fixExprTokenLen(MayFail<Expression_>&, int groupedExprNesting);
+static void fixExprTokenLen(Expression_&, int groupedExprNesting);
 
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
+    auto groupedExprNesting = 0;
 
     BEGIN:
 
@@ -56,8 +59,8 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
-    auto unalteredTermTokenLen = term_._tokenLen;
-    std::stack<Alteration> alterations; // require to adjust Operation operand _tokenLen
+    auto unalteredTerm = term_; // required to set Operation _tokenLen
+    static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
                                         // ..accoding to fixPrecedence()
     fixPrecedence(term_, /*OUT*/alterations);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
@@ -68,11 +71,13 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     if (peekOperation(term_)) {
         auto operation = buildOperation(term_);
-        operation.val._tokenLen = unalteredTermTokenLen;
+        operation.val._tokenLen = unalteredTerm._tokenLen;
         if (!alterations.empty()) {
             fixOperandTokenLen(operation, alterations);
         }
-        return mayfail_convert<Expression_>(operation);
+        auto expr = mayfail_convert<Expression_>(operation);
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // 'Operation' was the only Expression with multiple words
@@ -84,7 +89,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekFunctionCall(word)) {
-        return mayfail_convert<Expression_>(buildFunctionCall(word));
+        auto expr = mayfail_convert<Expression_>(buildFunctionCall(word));
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // if (word =~ "Association<"
@@ -95,7 +102,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLambda(word)) {
-        return mayfail_convert<Expression_>(buildLambda(word));
+        auto expr = mayfail_convert<Expression_>(buildLambda(word));
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // if (word =~ "CurlyBracketsGroup"_) {
@@ -103,7 +112,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekBlockExpression(word)) {
-        return mayfail_convert<Expression_>(buildBlockExpression(word));
+        auto expr = mayfail_convert<Expression_>(buildBlockExpression(word));
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // if (word =~ "Atom<$.*>"_) {
@@ -111,7 +122,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekSpecialSymbol(word)) {
-        return (Expression_)move_to_heap(buildSpecialSymbol(word));
+        auto expr = (Expression_)move_to_heap(buildSpecialSymbol(word));
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
@@ -119,7 +132,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLiteral(word)) {
-        return (Expression_)move_to_heap(buildLiteral(word));
+        auto expr = (Expression_)move_to_heap(buildLiteral(word));
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // if (word =~ "Atom"_) {
@@ -127,7 +142,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLvalue(word)) {
-        return (Expression_)move_to_heap(buildLvalue(word));
+        auto expr = (Expression_)move_to_heap(buildLvalue(word));
+        fixExprTokenLen(expr, groupedExprNesting);
+        return expr;
     }
 
     // // if grouped expression => unwrap then go back to beginning
@@ -142,6 +159,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
         // if grouped expression => unwrap then go back to beginning
         if (group.terms.size() == 1) {
             term_ = group.terms[0];
+            groupedExprNesting++;
             goto BEGIN; // prevent unnecessary recursive call
         }
     }
@@ -152,22 +170,38 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
 static void fixOperandTokenLen(MayFail<MayFail_<Operation>>& operation, std::stack<Alteration>& alterations) {
     ASSERT (!alterations.empty());
+
     if (alterations.top() == Alteration::LEFT_OPND) {
         size_t newTokenLen = token_len(operation.val.leftOperand.val)
                 - sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
                 - sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
         set_token_len(operation.val.leftOperand.val, newTokenLen);
     }
+
     else if (alterations.top() == Alteration::RIGHT_OPND) {
         size_t newTokenLen = token_len(operation.val.rightOperand.val)
                 - sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
                 - sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
         set_token_len(operation.val.rightOperand.val, newTokenLen);
     }
-    else /* ::NONE */ {
+
+    else /* ::NONE or ::DONE */ {
         ; // do nothing
     }
+
     alterations.pop();
+}
+
+static void fixExprTokenLen(MayFail<Expression_>& expr, int groupedExprNesting) {
+    fixExprTokenLen(expr.val, groupedExprNesting);
+}
+
+static void fixExprTokenLen(Expression_& expr, int groupedExprNesting) {
+    size_t newTokenLen = token_len(expr) + groupedExprNesting * (
+        sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+        + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE)
+    );
+    set_token_len(expr, newTokenLen);
 }
 
 Expression unwrap_expr(Expression_ expression) {
