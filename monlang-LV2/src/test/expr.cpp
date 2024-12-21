@@ -115,7 +115,6 @@ TEST_CASE ("lambda from pg-cbg association", "[test-1615][expr]") {
        |        -> ProgramWord: Atom: `x`
     )EOF");
 
-    /* TODO: will make '-> parameter #1 #2 #...' when multiple parameters */
     auto expect = tommy_str(R"EOF(
        |-> Expression: Lambda
        |  -> parameter #1: `x`
