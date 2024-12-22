@@ -32,22 +32,24 @@ struct MayFail;
 template <>
 class MayFail<void> {
   public:
+    std::optional<Error> err;
+
+    explicit MayFail(const std::optional<Error>& err) : err(err){}
     MayFail(const Error& err) : err(err){} // convenient inside functions returning MayFail<void>
-    MayFail(const std::optional<Error>& err) : err(err){}
 
     bool has_error() const {return !!err;}
     Error error() const {return err.value();} // throws if no err
 
     operator bool() const {return !err;} // convenient when calling functions returning MayFail<void>
-
-    std::optional<Error> err;
 };
 
-#define OK() return MayFail<void>(std::nullopt)
+#define OK() MayFail<void>(std::nullopt)
 
 template <typename T>
 class MayFail : public MayFail<void> {
   public:
+    T val; // accessible for simple unwrapping regardless of err
+
     MayFail() : MayFail<void>(std::nullopt){}
     MayFail(const T& val) : MayFail<void>(std::nullopt), val(val){}
     explicit MayFail(const T& val, const std::optional<Error>& err) : MayFail<void>(err), val(val){} // keep it explicit
@@ -56,9 +58,8 @@ class MayFail : public MayFail<void> {
         MF__ASSERT (!err);
         return val;
     }
-    explicit operator T() const {return val;}
 
-    T val; // accessible for simple unwrapping regardless of err
+    explicit operator T() const {return value();}
 };
 
 template <typename T>
@@ -72,6 +73,8 @@ struct MayFail_;
 template <typename T>
 class MayFail<MayFail_<T>> : public MayFail<void> {
   public:
+    MayFail_<T> val;
+
     MayFail() : MayFail<void>(std::nullopt){}
     MayFail(const MayFail_<T>& val) : MayFail<void>(std::nullopt), val(val){}
     explicit MayFail(const T& val) : MayFail<void>(std::nullopt), val(MayFail_<T>(val)){} // keep it explicit
@@ -81,10 +84,9 @@ class MayFail<MayFail_<T>> : public MayFail<void> {
         MF__ASSERT (!err);
         return val;
     }
-    explicit operator T() const {return (T)val;} // the explicit cast to T needs to be provided..
-                                                 // ..by each individual MayFail_<> specializations
 
-    MayFail_<T> val;
+    explicit operator T() const {return (T)value();} // the explicit cast to T needs to be provided..
+                                                     // ..by each individual MayFail_<> specializations
 };
 
 template <typename T>
