@@ -1,4 +1,12 @@
 {
+    "search.exclude": {
+        "**/lib": true,
+        "**/monlang-LV1": true
+    },
+    "files.exclude": {
+        "**/lib": true,
+        "**/monlang-LV1": true
+    },
     "files.associations": {
         "*.cpp": "cpp",
         "vector": "cpp",
