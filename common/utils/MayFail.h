@@ -6,6 +6,7 @@
 #define MAYFAIL_H
 
 #include <iostream>
+#include <optional>
 
 #define MF__ASSERT(condition) \
     if (!(condition)) { \
