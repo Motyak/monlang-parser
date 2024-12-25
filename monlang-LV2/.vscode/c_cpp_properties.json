@@ -4,7 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/lib/*/include"
+
+                /* test libs */
+                "${workspaceFolder}/lib/catch2/include",
+                "${workspaceFolder}/lib/montree/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

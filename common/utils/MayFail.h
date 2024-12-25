@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <optional>
+#include <variant>
 
 #define MF__ASSERT(condition) \
     if (!(condition)) { \
@@ -64,11 +65,6 @@ class MayFail : public MayFail<void> {
 };
 
 template <typename T>
-MayFail<T> Malformed(const T& val, const Error& err) {
-    return MayFail(val, err);
-}
-
-template <typename T>
 struct MayFail_;
 
 template <typename T>
@@ -89,6 +85,14 @@ class MayFail<MayFail_<T>> : public MayFail<void> {
     explicit operator T() const {return (T)value();} // the explicit cast to T needs to be provided..
                                                      // ..by each individual MayFail_<> specializations
 };
+
+// Template type aliases to semantically indicate when a MayFail 100% contains a malformed entity.
+// Constructors Malformed() and Malformed(const T&) should never be called.
+// NOTE: originally, we had a template function named Malformed calling the MayFail constructor..
+// ..that sets val and err, but now we want an actual type so that we can use it as a union field..
+// ..in the parsing function result.
+template <typename T> using Malformed = MayFail<T>;
+template <typename T> using Malformed_ = MayFail_<T>;
 
 template <typename T>
 T unwrap(const MayFail_<T>& mf_) {

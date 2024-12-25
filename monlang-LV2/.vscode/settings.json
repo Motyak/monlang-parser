@@ -1,11 +1,11 @@
 {
     "search.exclude": {
-        "**/lib": true,
-        "**/monlang-LV1": true
+        "**/lib/monlang-LV1": true,
+        "**/lib/montree": true,
     },
     "files.exclude": {
-        "**/lib": true,
-        "**/monlang-LV1": true
+        "**/lib/monlang-LV1": true,
+        "**/lib/montree": true,
     },
     "files.associations": {
         "*.cpp": "cpp",

@@ -3,10 +3,12 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/monlang-LV2/include/**",
-                "${workspaceFolder}/montree/include/**",
-                "${workspaceFolder}/monlang-LV1/dist/**",
-                "${workspaceFolder}/monlang-LV2/lib/**"
+                // "${workspaceFolder}/include", // will be
+                "${workspaceFolder}/monlang-LV1/dist", // tmp
+                "${workspaceFolder}/monlang-LV2/include", // tmp
+
+                /* test libs */
+                "${workspaceFolder}/lib/catch2/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
