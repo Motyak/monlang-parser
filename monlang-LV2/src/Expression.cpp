@@ -60,7 +60,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
     auto unalteredTerm = term_; // required to set Operation _tokenLen
-    static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
+    std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
                                         // ..accoding to fixPrecedence()
     fixPrecedence(term_, /*OUT*/alterations);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
@@ -73,10 +73,18 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto operation = buildOperation(term_);
         operation.val._tokenLen = unalteredTerm._tokenLen;
         if (!alterations.empty()) {
-            fixOperandTokenLen(operation, alterations);
+            fixOperandTokenLen(operation, alterations); // uncount added implicit parentheses (syntax transformation by fixPrecedence())
         }
         auto expr = mayfail_convert<Expression_>(operation);
-        fixExprTokenLen(expr, groupedExprNesting);
+        fixExprTokenLen(expr, groupedExprNesting); // count removed parentheses (group unwrap in buildExpression()), whether explicit or implicit
+
+        /*
+            it's ok if expr _tokenLen looks wrong at this point,
+            if it's going to be used as an operand for a bigger operation,
+            then it will probably be fixed by fixOperandTokenLen() at
+            the time of parsing the parent operation
+        */
+
         return expr;
     }
 

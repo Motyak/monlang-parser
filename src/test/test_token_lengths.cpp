@@ -29,6 +29,22 @@
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("a lot of unnecessary parentheses", "[test-9730][expr]") {
+    auto input = tommy_str(R"EOF(
+        ((1))
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 5);
+
+    auto literal = *std::get<Literal*>(expr);
+    REQUIRE (token_len(literal) == 5);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("single operation", "[test-9731][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2
