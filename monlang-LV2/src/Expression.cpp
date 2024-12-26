@@ -12,6 +12,11 @@
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/Atom.h>
+/* only required to set_token_len on a Word */
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
@@ -21,13 +26,10 @@
 #define unless(x) if (!(x))
 
 static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alteration>&);
-static void fixExprTokenLen(MayFail<Expression_>&, int groupedExprNesting);
-static void fixExprTokenLen(Expression_&, int groupedExprNesting);
 
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
-    auto groupedExprNesting = 0;
 
     BEGIN:
 
@@ -73,10 +75,8 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto operation = buildOperation(term_);
         operation.val._tokenLen = unalteredTerm._tokenLen;
         if (!alterations.empty()) {
-            fixOperandTokenLen(operation, alterations); // uncount implicit parentheses (syntax transformation by fixPrecedence(), then counted in groupedExprNesting)
+            fixOperandTokenLen(operation, alterations); // uncount implicit parentheses (syntax transformation by fixPrecedence(), then counted after unwrapping expr)
         }
-        auto expr = mayfail_convert<Expression_>(operation);
-        fixExprTokenLen(expr, groupedExprNesting); // count removed parentheses (group unwrap in buildExpression()), whether explicit or implicit
 
         /*
             it's ok if expr _tokenLen looks wrong at this point,
@@ -85,21 +85,21 @@ MayFail<Expression_> buildExpression(const Term& term) {
             the time of building the parent operation
         */
 
-        return expr;
+        return mayfail_convert<Expression_>(operation);
     }
 
     // 'Operation' was the only Expression with multiple words
     ASSERT (term_.words.size() == 1);
     Word word = term_.words[0];
+    // keep term token length
+    set_token_len(word, term_._tokenLen);
 
     // if (word =~ "PostfixParenthesesGroup"_) {
     //     return mayfail_convert<Expression_>(buildFunctionCall(word));
     // }
 
     if (peekFunctionCall(word)) {
-        auto expr = mayfail_convert<Expression_>(buildFunctionCall(word));
-        fixExprTokenLen(expr, groupedExprNesting);
-        return expr;
+        return mayfail_convert<Expression_>(buildFunctionCall(word));
     }
 
     // if (word =~ "Association<"
@@ -110,9 +110,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLambda(word)) {
-        auto expr = mayfail_convert<Expression_>(buildLambda(word));
-        fixExprTokenLen(expr, groupedExprNesting);
-        return expr;
+        return mayfail_convert<Expression_>(buildLambda(word));
     }
 
     // if (word =~ "CurlyBracketsGroup"_) {
@@ -120,9 +118,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekBlockExpression(word)) {
-        auto expr = mayfail_convert<Expression_>(buildBlockExpression(word));
-        fixExprTokenLen(expr, groupedExprNesting);
-        return expr;
+        return mayfail_convert<Expression_>(buildBlockExpression(word));
     }
 
     // if (word =~ "Atom<$.*>"_) {
@@ -130,9 +126,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekSpecialSymbol(word)) {
-        auto expr = (Expression_)move_to_heap(buildSpecialSymbol(word));
-        fixExprTokenLen(expr, groupedExprNesting);
-        return expr;
+        return (Expression_)move_to_heap(buildSpecialSymbol(word));
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
@@ -140,9 +134,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLiteral(word)) {
-        auto expr = (Expression_)move_to_heap(buildLiteral(word));
-        fixExprTokenLen(expr, groupedExprNesting);
-        return expr;
+        return (Expression_)move_to_heap(buildLiteral(word));
     }
 
     // if (word =~ "Atom"_) {
@@ -150,9 +142,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLvalue(word)) {
-        auto expr = (Expression_)move_to_heap(buildLvalue(word));
-        fixExprTokenLen(expr, groupedExprNesting);
-        return expr;
+        return (Expression_)move_to_heap(buildLvalue(word));
     }
 
     // // if grouped expression => unwrap then go back to beginning
@@ -166,8 +156,11 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning
         if (group.terms.size() == 1) {
+            auto saveTokenLen = term_._tokenLen;
             term_ = group.terms[0];
-            groupedExprNesting++;
+            // keep original term token length
+            term_._tokenLen = saveTokenLen;
+
             goto BEGIN; // prevent unnecessary recursive call
         }
     }
@@ -198,18 +191,6 @@ static void fixOperandTokenLen(MayFail<MayFail_<Operation>>& operation, std::sta
     }
 
     alterations.pop();
-}
-
-static void fixExprTokenLen(MayFail<Expression_>& expr, int groupedExprNesting) {
-    fixExprTokenLen(expr.val, groupedExprNesting);
-}
-
-static void fixExprTokenLen(Expression_& expr, int groupedExprNesting) {
-    size_t newTokenLen = token_len(expr) + groupedExprNesting * (
-        sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
-        + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE)
-    );
-    set_token_len(expr, newTokenLen);
 }
 
 Expression unwrap_expr(Expression_ expression) {
