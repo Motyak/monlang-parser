@@ -372,6 +372,9 @@ void fixPrecedence(Term& term) {
 }
 
 static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> opvals, Direction direction) {
+    unless (term->words.size() >= 3) {
+        return -1; // no op found
+    }
     std::optional<Operator> op;
     std::optional<Operator> (*next)(Term, Operator);
 
@@ -400,34 +403,32 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
 void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
     ASSERT (term.words.size() % 2 == 1);
 
+    // if (term.words.size() == 3) {
+    //     alterations.push(Alteration::NONE);
+    // }
+
     unless (term.words.size() > 3) {
-        alterations.push(Alteration::NONE);
         return; // nothing to do
     }
 
     auto first_it = true;
-    auto prev_optr_pos = UINT();
-    auto cur_optr_pos = UINT();
+    UINT prev_optr_pos;
+    UINT cur_optr_pos;
     for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
         auto direction = assoc == LEFT_ASSOCIATIVE? ITERATE_LEFT_TO_RIGHT : ITERATE_RIGHT_TO_LEFT;
-        while (term.words.size() > 3
-                && UINT(-1) != (cur_optr_pos = parenthesizeFirstEncounteredOp(&term, optrs, direction))) {
+        while (UINT(-1) != (cur_optr_pos = parenthesizeFirstEncounteredOp(&term, optrs, direction))) {
 
-            ; // until 3 words size term or no more operation found
+            ; // until no more operation found
 
             if (first_it) {
                 first_it = false;
-                alterations.push(Alteration::DONE); // last alteration first
+                // alterations.push(Alteration::DONE); // last alteration first
             }
-
-            if (cur_optr_pos < prev_optr_pos) {
+            else if (cur_optr_pos >= prev_optr_pos) {
                 alterations.push(Alteration::LEFT_OPND);
             }
-            else if (cur_optr_pos > prev_optr_pos) {
+            else /* if (!first_it && cur_optr_pos < prev_optr_pos) */ {
                 alterations.push(Alteration::RIGHT_OPND);
-            }
-            else {
-                SHOULD_NOT_HAPPEN();
             }
 
             // save cur_optr_pos for next iteration

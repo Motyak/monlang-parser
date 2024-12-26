@@ -22,6 +22,7 @@
 #include <utils/mem-utils.h>
 #include <utils/vec-utils.h>
 #include <utils/variant-utils.h>
+#include <utils/defer-util.h>
 
 #define unless(x) if (!(x))
 
@@ -30,6 +31,15 @@ static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alterat
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
+    std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
+    // static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
+    //                                                         // ..accoding to fixPrecedence()
+    // static thread_local auto recursive_call = 0;
+    // if (!recursive_call++) {
+    //     // if parent call..
+    //     alterations = std::stack<Alteration>(); // ..reset alterations
+    // }
+    // defer {recursive_call--;};
 
     BEGIN:
 
@@ -62,8 +72,6 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
     auto unalteredTerm = term_; // required to set Operation _tokenLen
-    std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
-                                        // ..accoding to fixPrecedence()
     fixPrecedence(term_, /*OUT*/alterations);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
@@ -79,7 +87,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
         }
 
         /*
-            it's ok if expr _tokenLen looks wrong at this point,
+            it's ok if operation _tokenLen looks wrong at this point,
             if it's going to be used as an operand,
             then it will be fixed by fixOperandTokenLen() at
             the time of building the parent operation

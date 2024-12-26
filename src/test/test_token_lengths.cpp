@@ -62,7 +62,24 @@ TEST_CASE ("single operation", "[test-9731][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained operations (implicit parentheses)", "[test-9732][expr]") {
+TEST_CASE ("chained operations (implicit parentheses), left association", "[test-9761][expr]") {
+    auto input = tommy_str(R"EOF(
+        1 + 2 + 3
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 9);
+
+    auto operation = *std::get<Operation*>(expr);
+    REQUIRE (token_len(operation.leftOperand) == 5); // 1 + 2
+    REQUIRE (token_len(operation.rightOperand) == 1); // 3
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("chained operations (implicit parentheses), right association", "[test-9732][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 * 3
     )EOF");
@@ -119,3 +136,33 @@ TEST_CASE ("chained nested operation", "[test-9734][expr]") {
     REQUIRE (token_len(operation.leftOperand) == 1); // 1
     REQUIRE (token_len(operation.rightOperand) == 15); // 2 * (3 + 4 * 5)
 }
+
+///////////////////////////////////////////////////////////
+
+// TEST_CASE ("hardcore mode", "[test-9735][expr]") {
+//     auto input = tommy_str(R"EOF(
+//         (1 + 2) * 2 ^ 3 ^ ((2 + 91)) ^ 1
+//     )EOF");
+
+//     auto iss = std::istringstream(input);
+//     auto term = (Term)consumeTerm(iss);
+//     auto expr = unwrap_expr(buildExpression(term).value());
+//     REQUIRE (token_len(expr) == 32);
+
+//     auto operation = *std::get<Operation*>(expr);
+//     auto operation_ = *std::get<Operation*>(operation.rightOperand);
+//     auto operation__ = *std::get<Operation*>(operation_.rightOperand);
+//     auto operation___ = *std::get<Operation*>(operation__.rightOperand);
+
+//     REQUIRE (token_len(operation___.leftOperand) == 10); // ((2 + 91))
+//     REQUIRE (token_len(operation___.rightOperand) == 1); // 1
+
+//     REQUIRE (token_len(operation__.leftOperand) == 1); // 3
+//     REQUIRE (token_len(operation__.rightOperand) == 14); // ((2 + 91)) ^ 1
+
+//     REQUIRE (token_len(operation_.leftOperand) == 1); // 2
+//     REQUIRE (token_len(operation_.rightOperand) == 18); // 3 ^ ((2 + 91)) ^ 1
+
+//     REQUIRE (token_len(operation.leftOperand) == 7); // (1 + 2)
+//     REQUIRE (token_len(operation.rightOperand) == 22); // 2 ^ 3 ^ ((2 + 91)) ^ 1
+// }
