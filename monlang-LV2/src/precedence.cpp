@@ -400,11 +400,8 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
 void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
     ASSERT (term.words.size() % 2 == 1);
 
-    if (term.words.size() == 3) {
-        alterations.push(Alteration::NONE); // useless ?
-    }
-
     unless (term.words.size() > 3) {
+        alterations.push(Alteration::NONE);
         return; // nothing to do
     }
 
@@ -421,7 +418,6 @@ void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
             if (first_it) {
                 first_it = false;
                 alterations.push(Alteration::DONE); // last alteration first
-                // useless ?
             }
 
             if (cur_optr_pos < prev_optr_pos) {

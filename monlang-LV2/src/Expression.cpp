@@ -73,16 +73,16 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto operation = buildOperation(term_);
         operation.val._tokenLen = unalteredTerm._tokenLen;
         if (!alterations.empty()) {
-            fixOperandTokenLen(operation, alterations); // uncount added implicit parentheses (syntax transformation by fixPrecedence())
+            fixOperandTokenLen(operation, alterations); // uncount implicit parentheses (syntax transformation by fixPrecedence(), then counted in groupedExprNesting)
         }
         auto expr = mayfail_convert<Expression_>(operation);
         fixExprTokenLen(expr, groupedExprNesting); // count removed parentheses (group unwrap in buildExpression()), whether explicit or implicit
 
         /*
             it's ok if expr _tokenLen looks wrong at this point,
-            if it's going to be used as an operand for a bigger operation,
-            then it will probably be fixed by fixOperandTokenLen() at
-            the time of parsing the parent operation
+            if it's going to be used as an operand,
+            then it will be fixed by fixOperandTokenLen() at
+            the time of building the parent operation
         */
 
         return expr;

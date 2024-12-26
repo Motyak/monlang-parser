@@ -81,7 +81,7 @@ TEST_CASE ("chained operations (implicit parentheses)", "[test-9732][expr]") {
 
 TEST_CASE ("nested operation (explicit parentheses)", "[test-9733][expr]") {
     auto input = tommy_str(R"EOF(
-        1 + (2 * 3)
+        (1 + 2) * 3
     )EOF");
 
     auto iss = std::istringstream(input);
@@ -90,8 +90,8 @@ TEST_CASE ("nested operation (explicit parentheses)", "[test-9733][expr]") {
     REQUIRE (token_len(expr) == 11);
 
     auto operation = *std::get<Operation*>(expr);
-    REQUIRE (token_len(operation.leftOperand) == 1);
-    REQUIRE (token_len(operation.rightOperand) == 7);
+    REQUIRE (token_len(operation.leftOperand) == 7);
+    REQUIRE (token_len(operation.rightOperand) == 1);
 }
 
 ///////////////////////////////////////////////////////////
