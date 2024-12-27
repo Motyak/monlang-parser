@@ -20,7 +20,7 @@ enum class Alteration {
     NONE,
     LEFT_OPND,
     RIGHT_OPND,
-    DONE,
+    SKIP, // when current case has already been pushed ultérieurement
 };
 // overloaded function to accept a tracing object by reference
 void fixPrecedence(Term&, std::stack<Alteration>&);

@@ -403,17 +403,26 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
 void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
     ASSERT (term.words.size() % 2 == 1);
 
+    if (term.words.size() == 1) {
+        return;
+    }
+
+    if (!alterations.empty() && alterations.top() == Alteration::SKIP) {
+        ASSERT (term.words.size() == 3);
+        alterations.pop();
+        return;
+    }
+
     if (term.words.size() == 3) {
         alterations.push(Alteration::NONE);
+        return;
     }
 
-    unless (term.words.size() > 3) {
-        return; // nothing to do
-    }
+    ASSERT (term.words.size() > 3);
 
-    const auto second_last_while_loop_it = /*last*/ term.words.size() / 2 /*but one*/ - 1;
-    auto count_while_loop_it = 0;
-    Term savedTerm; // used to store the term at second last while loop iteration
+    const size_t second_last_while_loop_it = /*last*/ term.words.size() / 2 /*but one*/ - 1;
+    size_t count_while_loop_it = 0;
+    Term savedTerm; // used to store the term at second last 'while loop' iteration
     UINT prev_optr_pos;
     UINT cur_optr_pos;
     for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
@@ -439,6 +448,12 @@ void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
                 savedTerm = term; // save term for the final result
             }
         }
+    }
+
+    // foreach alteration pushed, minus 1, push a '::SKIP' alteration..
+    // ..(otherwise would push ::NONE because term would be size 3)
+    for (size_t i = 1; i <= count_while_loop_it - 1 - 1; ++i) {
+        alterations.push(Alteration::SKIP);
     }
 
     ASSERT (savedTerm.words.size() == 3);
