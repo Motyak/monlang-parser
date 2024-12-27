@@ -164,17 +164,21 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning
         if (group.terms.size() == 1) {
-            // if explicit parentheses..
-            if (alterations.empty() || alterations.top() == Alteration::NONE) {
-                /* preserve original term _tokenLen */
-                auto saveTokenLen = term_._tokenLen;
-                term_ = group.terms[0];
-                term_._tokenLen = saveTokenLen;
-            }
-            // if implicit parentheses
-            else {
-                term_ = group.terms[0];
-            }
+            // // if explicit parentheses..
+            // if (alterations.empty() || alterations.top() == Alteration::NONE) {
+            //     /* preserve original term _tokenLen */
+            //     auto saveTokenLen = term_._tokenLen;
+            //     term_ = group.terms[0];
+            //     term_._tokenLen = saveTokenLen;
+            // }
+            // // if implicit parentheses
+            // else {
+            //     term_ = group.terms[0];
+            // }
+
+            auto saveTokenLen = term_._tokenLen;
+            term_ = group.terms[0];
+            term_._tokenLen = saveTokenLen;
 
             goto BEGIN; // prevent unnecessary recursive call
         }
