@@ -403,15 +403,17 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
 void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
     ASSERT (term.words.size() % 2 == 1);
 
-    // if (term.words.size() == 3) {
-    //     alterations.push(Alteration::NONE);
-    // }
+    if (term.words.size() == 3) {
+        alterations.push(Alteration::NONE);
+    }
 
     unless (term.words.size() > 3) {
         return; // nothing to do
     }
 
-    auto first_it = true;
+    const auto second_last_while_loop_it = /*last*/ term.words.size() / 2 /*but one*/ - 1;
+    auto count_while_loop_it = 0;
+    Term savedTerm; // used to store the term at second last while loop iteration
     UINT prev_optr_pos;
     UINT cur_optr_pos;
     for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
@@ -420,9 +422,8 @@ void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
 
             ; // until no more operation found
 
-            if (first_it) {
-                first_it = false;
-                // alterations.push(Alteration::DONE); // last alteration first
+            if (++count_while_loop_it == 1) {
+                ; // nothing can be pushed yet, prev_opt_pos is unknown
             }
             else if (cur_optr_pos >= prev_optr_pos) {
                 alterations.push(Alteration::LEFT_OPND);
@@ -433,6 +434,13 @@ void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
 
             // save cur_optr_pos for next iteration
             prev_optr_pos = cur_optr_pos;
+
+            if (count_while_loop_it == second_last_while_loop_it) {
+                savedTerm = term; // save term for the final result
+            }
         }
     }
+
+    ASSERT (savedTerm.words.size() == 3);
+    term = savedTerm;
 }

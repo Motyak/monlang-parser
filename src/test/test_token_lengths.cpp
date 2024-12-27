@@ -29,7 +29,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("a lot of unnecessary parentheses", "[test-9730][expr]") {
+TEST_CASE ("additional parentheses", "[test-9730][expr]") {
     auto input = tommy_str(R"EOF(
         ((1))
     )EOF");
@@ -62,7 +62,7 @@ TEST_CASE ("single operation", "[test-9731][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained operations (implicit parentheses), left association", "[test-9761][expr]") {
+TEST_CASE ("chained operations, left association", "[test-9761][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 + 3
     )EOF");
@@ -79,7 +79,7 @@ TEST_CASE ("chained operations (implicit parentheses), left association", "[test
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained operations (implicit parentheses), right association", "[test-9732][expr]") {
+TEST_CASE ("chained operations, right association", "[test-9732][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 * 3
     )EOF");
@@ -96,7 +96,7 @@ TEST_CASE ("chained operations (implicit parentheses), right association", "[tes
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("nested operation (explicit parentheses)", "[test-9733][expr]") {
+TEST_CASE ("explicit parentheses", "[test-9733][expr]") {
     auto input = tommy_str(R"EOF(
         (1 + 2) * 3
     )EOF");
@@ -139,30 +139,133 @@ TEST_CASE ("chained nested operation", "[test-9734][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-// TEST_CASE ("hardcore mode", "[test-9735][expr]") {
-//     auto input = tommy_str(R"EOF(
-//         (1 + 2) * 2 ^ 3 ^ ((2 + 91)) ^ 1
-//     )EOF");
+TEST_CASE ("hardcore mode", "[test-9735][expr]") {
+    auto input = tommy_str(R"EOF(
+        1 ^ 2 ^ ((3 + 4)) ^ 5
+    )EOF");
 
-//     auto iss = std::istringstream(input);
-//     auto term = (Term)consumeTerm(iss);
-//     auto expr = unwrap_expr(buildExpression(term).value());
-//     REQUIRE (token_len(expr) == 32);
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 21);
 
-//     auto operation = *std::get<Operation*>(expr);
-//     auto operation_ = *std::get<Operation*>(operation.rightOperand);
-//     auto operation__ = *std::get<Operation*>(operation_.rightOperand);
-//     auto operation___ = *std::get<Operation*>(operation__.rightOperand);
+    auto operation = *std::get<Operation*>(expr);
+    auto operation_ = *std::get<Operation*>(operation.rightOperand);
+    auto operation__ = *std::get<Operation*>(operation_.rightOperand);
 
-//     REQUIRE (token_len(operation___.leftOperand) == 10); // ((2 + 91))
-//     REQUIRE (token_len(operation___.rightOperand) == 1); // 1
+    REQUIRE (token_len(operation__.leftOperand) == 9); // ((3 + 4))
+    REQUIRE (token_len(operation__.rightOperand) == 1); // 5
 
-//     REQUIRE (token_len(operation__.leftOperand) == 1); // 3
-//     REQUIRE (token_len(operation__.rightOperand) == 14); // ((2 + 91)) ^ 1
+    REQUIRE (token_len(operation_.leftOperand) == 1); // 2
+    REQUIRE (token_len(operation_.rightOperand) == 13); // ((3 + 4)) ^ 5
 
-//     REQUIRE (token_len(operation_.leftOperand) == 1); // 2
-//     REQUIRE (token_len(operation_.rightOperand) == 18); // 3 ^ ((2 + 91)) ^ 1
+    REQUIRE (token_len(operation.leftOperand) == 1); // 1
+    REQUIRE (token_len(operation.rightOperand) == 17); // 2 ^ ((3 + 4)) ^ 5
 
-//     REQUIRE (token_len(operation.leftOperand) == 7); // (1 + 2)
-//     REQUIRE (token_len(operation.rightOperand) == 22); // 2 ^ 3 ^ ((2 + 91)) ^ 1
-// }
+}
+
+///////////////////////////////////////////////////////////
+// further investigate: chained nested operation
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("chained nested operation, right association then left association", "[test-9771][expr]") {
+    auto input = tommy_str(R"EOF(
+        1 + 2 * (3 + 4 + 5)
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 19);
+
+    auto operation = *std::get<Operation*>(expr);
+    auto operation_ = *std::get<Operation*>(operation.rightOperand);
+    auto operation__ = *std::get<Operation*>(operation_.rightOperand);
+
+    REQUIRE (token_len(operation__.leftOperand) == 5); // 3 + 4
+    REQUIRE (token_len(operation__.rightOperand) == 1); // 5
+
+    REQUIRE (token_len(operation_.leftOperand) == 1); // 2
+    REQUIRE (token_len(operation_.rightOperand) == 11); // (3 + 4 + 5)
+
+    REQUIRE (token_len(operation.leftOperand) == 1); // 1
+    REQUIRE (token_len(operation.rightOperand) == 15); // 2 * (3 + 4 + 5)
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("chained nested operation, left association then right association", "[test-9772][expr]") {
+    auto input = tommy_str(R"EOF(
+        1 + 2 + (3 + 4 * 5)
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 19);
+
+    auto operation = *std::get<Operation*>(expr);
+    auto operation_left = *std::get<Operation*>(operation.leftOperand);
+    auto operation_right = *std::get<Operation*>(operation.rightOperand);
+
+    REQUIRE (token_len(operation_left.leftOperand) == 1); // 1
+    REQUIRE (token_len(operation_left.rightOperand) == 1); // 2
+
+    REQUIRE (token_len(operation_right.leftOperand) == 1); // 3
+    REQUIRE (token_len(operation_right.rightOperand) == 5); // 4 * 5
+
+    REQUIRE (token_len(operation.leftOperand) == 5); // 1 + 2
+    REQUIRE (token_len(operation.rightOperand) == 11); // (3 + 4 * 5)
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("chained nested operation, right association then left association, parentheses first", "[test-9773][expr]") {
+    auto input = tommy_str(R"EOF(
+        (1 + 2 * 3) + 4 + 5
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 19);
+
+    auto operation = *std::get<Operation*>(expr);
+    auto operation_ = *std::get<Operation*>(operation.leftOperand);
+    auto operation__ = *std::get<Operation*>(operation_.leftOperand);
+
+    REQUIRE (token_len(operation__.leftOperand) == 1); // 1
+    REQUIRE (token_len(operation__.rightOperand) == 5); // 2 * 3
+
+    REQUIRE (token_len(operation_.leftOperand) == 11); // (1 + 2 * 3)
+    REQUIRE (token_len(operation_.rightOperand) == 1); // 4
+
+    REQUIRE (token_len(operation.leftOperand) == 15); // (1 + 2 * 3) + 4
+    REQUIRE (token_len(operation.rightOperand) == 1); // 5
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("chained nested operation, left association then right association, parentheses first", "[test-9774][expr]") {
+    auto input = tommy_str(R"EOF(
+        (1 + 2 + 3) + 4 * 5
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 19);
+
+    auto operation = *std::get<Operation*>(expr);
+    auto operation_left = *std::get<Operation*>(operation.leftOperand);
+    auto operation_right = *std::get<Operation*>(operation.rightOperand);
+
+    REQUIRE (token_len(operation_left.leftOperand) == 5); // 1 + 2
+    REQUIRE (token_len(operation_left.rightOperand) == 1); // 3
+
+    REQUIRE (token_len(operation_right.leftOperand) == 1); // 4
+    REQUIRE (token_len(operation_right.rightOperand) == 1); // 5
+
+    REQUIRE (token_len(operation.leftOperand) == 11); // (1 + 2 + 3)
+    REQUIRE (token_len(operation.rightOperand) == 5); // 4 * 5
+}

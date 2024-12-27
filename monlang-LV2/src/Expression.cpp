@@ -31,9 +31,9 @@ static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alterat
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
-    std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
-    // static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
-    //                                                         // ..accoding to fixPrecedence()
+    // std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
+    static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
+                                                            // ..accoding to fixPrecedence()
     // static thread_local auto recursive_call = 0;
     // if (!recursive_call++) {
     //     // if parent call..
