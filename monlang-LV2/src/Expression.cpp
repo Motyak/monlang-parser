@@ -26,7 +26,7 @@
 
 #define unless(x) if (!(x))
 
-static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alteration>&);
+static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alteration>&, size_t& alt_count);
 
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
@@ -34,12 +34,14 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
     static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
                                                             // ..accoding to fixPrecedence()
-    // static thread_local auto recursive_call = 0;
-    // if (!recursive_call++) {
-    //     // if parent call..
-    //     alterations = std::stack<Alteration>(); // ..reset alterations
-    // }
-    // defer {recursive_call--;};
+    static thread_local size_t alt_count = 0; // count of handled LEFT/RIGHT_OPND alterations
+    static thread_local size_t recursive_call = 0;
+    if (!recursive_call++) {
+        /* if parent call.. */
+        alterations = std::stack<Alteration>(); // reset alterations
+        alt_count = 0; // reset alt_count
+    }
+    defer {recursive_call--;};
 
     BEGIN:
 
@@ -83,7 +85,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto operation = buildOperation(term_);
         operation.val._tokenLen = unalteredTerm._tokenLen;
         if (!alterations.empty()) {
-            fixOperandTokenLen(operation, alterations); // uncount implicit parentheses (syntax transformation by fixPrecedence(), then counted after unwrapping expr)
+            fixOperandTokenLen(operation, alterations, alt_count); // uncount implicit parentheses (syntax transformation by fixPrecedence(), then counted after unwrapping expr)
         }
 
         /*
@@ -164,21 +166,14 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning
         if (group.terms.size() == 1) {
-            // // if explicit parentheses..
-            // if (alterations.empty() || alterations.top() == Alteration::NONE) {
-            //     /* preserve original term _tokenLen */
-            //     auto saveTokenLen = term_._tokenLen;
-            //     term_ = group.terms[0];
-            //     term_._tokenLen = saveTokenLen;
-            // }
-            // // if implicit parentheses
-            // else {
-            //     term_ = group.terms[0];
-            // }
-
             auto saveTokenLen = term_._tokenLen;
             term_ = group.terms[0];
             term_._tokenLen = saveTokenLen;
+
+            // // if we unwrap explicit parentheses => reset alt_count back to 0
+            // if (alterations.empty() || alterations.top() == Alteration::NONE) {
+            //     alt_count = 0;
+            // }
 
             goto BEGIN; // prevent unnecessary recursive call
         }
@@ -188,25 +183,32 @@ MayFail<Expression_> buildExpression(const Term& term) {
     return Malformed(Expression_(), ERR(169));
 }
 
-static void fixOperandTokenLen(MayFail<MayFail_<Operation>>& operation, std::stack<Alteration>& alterations) {
+static void fixOperandTokenLen(MayFail<MayFail_<Operation>>& operation, std::stack<Alteration>& alterations, size_t& alt_count) {
     ASSERT (!alterations.empty());
 
     if (alterations.top() == Alteration::LEFT_OPND) {
+        size_t nb_of_chars_to_remove = ++alt_count * (
+            sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+            + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE)
+        );
         size_t newTokenLen = token_len(operation.val.leftOperand.val)
-                - sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
-                - sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+                - nb_of_chars_to_remove;
         set_token_len(operation.val.leftOperand.val, newTokenLen);
     }
 
     else if (alterations.top() == Alteration::RIGHT_OPND) {
+        size_t nb_of_chars_to_remove = ++alt_count * (
+            sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
+            + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE)
+        );
         size_t newTokenLen = token_len(operation.val.rightOperand.val)
-                - sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
-                - sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+                - nb_of_chars_to_remove;
         set_token_len(operation.val.rightOperand.val, newTokenLen);
     }
 
-    else /* ::NONE or ::DONE */ {
+    else /* ::NONE (or ::SKIP ?) */ {
         ; // do nothing
+        alt_count = 0; // doesn't work for test-9772
     }
 
     alterations.pop();
