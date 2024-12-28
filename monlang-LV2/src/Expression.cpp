@@ -26,22 +26,9 @@
 
 #define unless(x) if (!(x))
 
-static void fixOperandTokenLen(MayFail<MayFail_<Operation>>&, std::stack<Alteration>&, size_t& alt_count);
-
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
-    // std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
-    static thread_local std::stack<Alteration> alterations; // required to adjust Operation operand _tokenLen
-                                                            // ..accoding to fixPrecedence()
-    static thread_local size_t alt_count = 0; // count of handled LEFT/RIGHT_OPND alterations
-    static thread_local size_t recursive_call = 0;
-    if (!recursive_call++) {
-        /* if parent call.. */
-        alterations = std::stack<Alteration>(); // reset alterations
-        alt_count = 0; // reset alt_count
-    }
-    defer {recursive_call--;};
 
     BEGIN:
 
@@ -73,8 +60,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
-    auto unalteredTerm = term_; // required to set Operation _tokenLen
-    fixPrecedence(term_, /*OUT*/alterations);
+    fixPrecedence(term_);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
     // if (term_ =~ "Word Word Word"_) {
@@ -83,17 +69,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     if (peekOperation(term_)) {
         auto operation = buildOperation(term_);
-        operation.val._tokenLen = unalteredTerm._tokenLen;
-        if (!alterations.empty()) {
-            fixOperandTokenLen(operation, alterations, alt_count); // uncount implicit parentheses (syntax transformation by fixPrecedence(), then counted after unwrapping expr)
-        }
-
-        /*
-            it's ok if operation _tokenLen looks wrong at this point,
-            if it's going to be used as an operand,
-            then it will be fixed by fixOperandTokenLen() at
-            the time of building the parent operation
-        */
+        operation.val._tokenLen = term_._tokenLen;
 
         return mayfail_convert<Expression_>(operation);
     }
@@ -170,48 +146,12 @@ MayFail<Expression_> buildExpression(const Term& term) {
             term_ = group.terms[0];
             term_._tokenLen = saveTokenLen;
 
-            // // if we unwrap explicit parentheses => reset alt_count back to 0
-            // if (alterations.empty() || alterations.top() == Alteration::NONE) {
-            //     alt_count = 0;
-            // }
-
             goto BEGIN; // prevent unnecessary recursive call
         }
     }
 
     /* reached fall-through */
     return Malformed(Expression_(), ERR(169));
-}
-
-static void fixOperandTokenLen(MayFail<MayFail_<Operation>>& operation, std::stack<Alteration>& alterations, size_t& alt_count) {
-    ASSERT (!alterations.empty());
-
-    if (alterations.top() == Alteration::LEFT_OPND) {
-        size_t nb_of_chars_to_remove = ++alt_count * (
-            sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
-            + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE)
-        );
-        size_t newTokenLen = token_len(operation.val.leftOperand.val)
-                - nb_of_chars_to_remove;
-        set_token_len(operation.val.leftOperand.val, newTokenLen);
-    }
-
-    else if (alterations.top() == Alteration::RIGHT_OPND) {
-        size_t nb_of_chars_to_remove = ++alt_count * (
-            sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
-            + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE)
-        );
-        size_t newTokenLen = token_len(operation.val.rightOperand.val)
-                - nb_of_chars_to_remove;
-        set_token_len(operation.val.rightOperand.val, newTokenLen);
-    }
-
-    else /* ::NONE (or ::SKIP ?) */ {
-        ; // do nothing
-        alt_count = 0; // doesn't work for test-9772
-    }
-
-    alterations.pop();
 }
 
 Expression unwrap_expr(Expression_ expression) {

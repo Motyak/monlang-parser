@@ -38,14 +38,13 @@ Word asWord(Atom atom) {
 // TERM SELECTORS /////////////////////////////////////////
 
 struct Operator {
-    // std::string val;
     Atom val;
-    UINT pos;
+    UINT pos; // within a Term, starting at Word [0], [1], ...
 };
 
 Operator optr(Term term, INT nth) {
     ASSERT (nth != 0);
-    ASSERT (abs(nth) * 2 <= term.words.size());
+    ASSERT (term.words.size() >= abs(nth) * 2uz + 1);
 
     UINT pos;
     if (nth > 0) {
@@ -59,27 +58,37 @@ Operator optr(Term term, INT nth) {
 }
 
 Word left_opnd(Term term, Operator op) {
-    ASSERT (term.words.size() >= op.pos);
+    ASSERT (op.pos % 2 == 1);
+    ASSERT (term.words.size() >= op.pos + 2);
     return term.words[op.pos - 1];
 }
 
 Word right_opnd(Term term, Operator op) {
+    ASSERT (op.pos % 2 == 1);
     ASSERT (term.words.size() >= op.pos + 2);
     return term.words[op.pos + 1];
 }
 
 std::optional<Operator> prev_optr(Term term, Operator op) {
-    if (op.pos < 2) {
+    ASSERT (op.pos % 2 == 1);
+    ASSERT (term.words.size() >= op.pos + 2);
+
+    if (op.pos == 1) {
         return {};
     }
+
     UINT pos = op.pos - 2;
     return Operator{asAtom(term.words[pos]), pos};
 }
 
 std::optional<Operator> next_optr(Term term, Operator op) {
-    if (op.pos >= term.words.size() - 2) {
+    ASSERT (op.pos % 2 == 1);
+    ASSERT (term.words.size() >= op.pos + 2);
+
+    if (op.pos == term.words.size() - 2) {
         return {};
     }
+
     UINT pos = op.pos + 2;
     return Operator{asAtom(term.words[pos]), pos};
 }
@@ -89,24 +98,24 @@ std::optional<Operator> next_optr(Term term, Operator op) {
 // extract operation from Term, as a sub-Term
 Term extract_optn(Term term, Operator op) {
     std::vector<Word> words;
-
     words.push_back(left_opnd(term, op));
     words.push_back(asWord(op.val));
     words.push_back(right_opnd(term, op));
 
     auto res_term = Term{words};
     res_term._tokenLen = token_len(words[0])
+            + sequenceLen(Term::CONTINUATOR_SEQUENCE)
             + op.val._tokenLen
-            + token_len(words[2])
-            + 2 * sequenceLen(Term::CONTINUATOR_SEQUENCE);
+            + sequenceLen(Term::CONTINUATOR_SEQUENCE)
+            + token_len(words[2]);
+
     return res_term;
 }
 
 ParenthesesGroup ParenthesesGroup_(Term term) {
     auto pg = ParenthesesGroup{{term}};
-    pg._tokenLen = term._tokenLen
-            + sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE)
-            + sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+    pg._tokenLen = term._tokenLen; // !!! we deliberately don't count..
+                                   // ..the implicit parentheses around the term
     return pg;
 }
 
@@ -143,8 +152,8 @@ void parenthesize_optn(Term* term, Operator op) {
 Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
     std::vector<Word> words;
-    for (auto token: str_vec) {
-        words.push_back(Atom_(token));
+    for (auto str: str_vec) {
+        words.push_back(asWord(Atom{str}));
     }
     return Term{words};
 }
@@ -182,7 +191,7 @@ Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
     std::vector<Word> words;
     for (auto token: str_vec) {
-        words.push_back(Atom_(token));
+        words.push_back(asWord(Atom{token}));
     }
     return Term{words};
 }
@@ -214,7 +223,7 @@ Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
     std::vector<Word> words;
     for (auto token: str_vec) {
-        words.push_back(Atom_(token));
+        words.push_back(asWord(Atom{token}));
     }
     return Term{words};
 }
@@ -256,7 +265,7 @@ Term Term_(std::string operation) {
     auto str_vec = split(operation, " ");
     std::vector<Word> words;
     for (auto token: str_vec) {
-        words.push_back(Atom_(token));
+        words.push_back(asWord(Atom{token}));
     }
     return Term{words};
 }
@@ -278,6 +287,7 @@ std::ostream& operator<<(std::ostream& os, Term term) {
 int main()
 {
     Term input = Term_("1 + 2 * 2 ^ 3 ^ 2 + 91 ^ 1");
+    size_t original_input_token_len = input._tokenLen;
     std::cerr << "Term: " << input << std::endl;
 
     {
@@ -299,6 +309,7 @@ int main()
     }
 
     std::cerr << "Term: " << input << std::endl;
+    ASSERT (input._tokenLen == original_input_token_len);
 }
 #endif // TEST_PARENTHESIZE
 
@@ -320,7 +331,9 @@ int main()
     Term input = (Term)consumeTerm(iss);
     std::cerr << "Term: " << input << std::endl;
 
+    ASSERT (std::holds_alternative<Atom*>(input.words[2]));
     fixPrecedence(input);
+    ASSERT (std::holds_alternative<ParenthesesGroup*>(input.words[2]));
 
     std::cerr << "Term: " << input << std::endl;
 }
@@ -373,7 +386,7 @@ void fixPrecedence(Term& term) {
 
 static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> opvals, Direction direction) {
     unless (term->words.size() >= 3) {
-        return -1; // no op found
+        return -1; // no optn can be found
     }
     std::optional<Operator> op;
     std::optional<Operator> (*next)(Term, Operator);
@@ -396,66 +409,5 @@ static UINT parenthesizeFirstEncounteredOp(Term* term, std::vector<std::string> 
         op = next(*term, *op);
     }
 
-    return -1; // no op found
-}
-
-// overloaded function to accept a tracing object by reference
-void fixPrecedence(Term& term, std::stack<Alteration>& alterations) {
-    ASSERT (term.words.size() % 2 == 1);
-
-    if (term.words.size() == 1) {
-        return;
-    }
-
-    if (!alterations.empty() && alterations.top() == Alteration::SKIP) {
-        ASSERT (term.words.size() == 3);
-        alterations.pop();
-        return;
-    }
-
-    if (term.words.size() == 3) {
-        alterations.push(Alteration::NONE);
-        return;
-    }
-
-    ASSERT (term.words.size() > 3);
-
-    const size_t second_last_while_loop_it = /*last*/ term.words.size() / 2 /*but one*/ - 1;
-    size_t count_while_loop_it = 0;
-    Term savedTerm; // used to store the term at second last 'while loop' iteration
-    UINT prev_optr_pos;
-    UINT cur_optr_pos;
-    for (auto [optrs, assoc]: PRECEDENCE_TABLE) {
-        auto direction = assoc == LEFT_ASSOCIATIVE? ITERATE_LEFT_TO_RIGHT : ITERATE_RIGHT_TO_LEFT;
-        while (UINT(-1) != (cur_optr_pos = parenthesizeFirstEncounteredOp(&term, optrs, direction))) {
-
-            ; // until no more operation found
-
-            if (++count_while_loop_it == 1) {
-                ; // nothing can be pushed yet, prev_opt_pos is unknown
-            }
-            else if (cur_optr_pos >= prev_optr_pos) {
-                alterations.push(Alteration::LEFT_OPND);
-            }
-            else /* if (!first_it && cur_optr_pos < prev_optr_pos) */ {
-                alterations.push(Alteration::RIGHT_OPND);
-            }
-
-            // save cur_optr_pos for next iteration
-            prev_optr_pos = cur_optr_pos;
-
-            if (count_while_loop_it == second_last_while_loop_it) {
-                savedTerm = term; // save term for the final result
-            }
-        }
-    }
-
-    // foreach alteration pushed, minus 1, push a '::SKIP' alteration..
-    // ..(otherwise would push ::NONE because term would be size 3)
-    for (size_t i = 1; i <= count_while_loop_it - 1 - 1; ++i) {
-        alterations.push(Alteration::SKIP);
-    }
-
-    ASSERT (savedTerm.words.size() == 3);
-    term = savedTerm;
+    return -1; // no optn found
 }
