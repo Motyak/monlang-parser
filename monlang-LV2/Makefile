@@ -51,8 +51,6 @@ TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
 TEST_OBJS = $(TEST_FILENAMES:%=obj/test/%.o)
 TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
-LIB_ARTIFACT_DIRS := ${foreach lib,${wildcard lib/*/},$(lib:%/=%)/{.deps,obj,dist,bin}} # for cleaning
-
 ###########################################################
 
 all: main

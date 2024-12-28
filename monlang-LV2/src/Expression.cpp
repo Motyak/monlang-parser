@@ -22,7 +22,6 @@
 #include <utils/mem-utils.h>
 #include <utils/vec-utils.h>
 #include <utils/variant-utils.h>
-#include <utils/defer-util.h>
 
 #define unless(x) if (!(x))
 

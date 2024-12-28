@@ -44,6 +44,8 @@ TEST_CASE ("additional parentheses", "[test-9730][expr]") {
 }
 
 ///////////////////////////////////////////////////////////
+// Operation, precedence
+///////////////////////////////////////////////////////////
 
 TEST_CASE ("single operation", "[test-9731][expr]") {
     auto input = tommy_str(R"EOF(
@@ -113,59 +115,6 @@ TEST_CASE ("explicit parentheses", "[test-9733][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained nested operation", "[test-9734][expr]") {
-    auto input = tommy_str(R"EOF(
-        1 + 2 * (3 + 4 * 5)
-    )EOF");
-
-    auto iss = std::istringstream(input);
-    auto term = (Term)consumeTerm(iss);
-    auto expr = unwrap_expr(buildExpression(term).value());
-    REQUIRE (token_len(expr) == 19);
-
-    auto operation = *std::get<Operation*>(expr);
-    auto operation_ = *std::get<Operation*>(operation.rightOperand);
-    auto operation__ = *std::get<Operation*>(operation_.rightOperand);
-
-    REQUIRE (token_len(operation__.leftOperand) == 1); // 3
-    REQUIRE (token_len(operation__.rightOperand) == 5); // 4 * 5
-
-    REQUIRE (token_len(operation_.leftOperand) == 1); // 2
-    REQUIRE (token_len(operation_.rightOperand) == 11); // (3 + 4 * 5)
-
-    REQUIRE (token_len(operation.leftOperand) == 1); // 1
-    REQUIRE (token_len(operation.rightOperand) == 15); // 2 * (3 + 4 * 5)
-}
-
-///////////////////////////////////////////////////////////
-
-// TEST_CASE ("hardcore mode", "[test-9735][expr]") {
-//     auto input = tommy_str(R"EOF(
-//         1 ^ 2 ^ ((3 + 4)) ^ 5
-//     )EOF");
-
-//     auto iss = std::istringstream(input);
-//     auto term = (Term)consumeTerm(iss);
-//     auto expr = unwrap_expr(buildExpression(term).value());
-//     REQUIRE (token_len(expr) == 21);
-
-//     auto operation = *std::get<Operation*>(expr);
-//     auto operation_ = *std::get<Operation*>(operation.rightOperand);
-//     auto operation__ = *std::get<Operation*>(operation_.rightOperand);
-
-//     REQUIRE (token_len(operation__.leftOperand) == 9); // ((3 + 4))
-//     REQUIRE (token_len(operation__.rightOperand) == 1); // 5
-
-//     REQUIRE (token_len(operation_.leftOperand) == 1); // 2
-//     REQUIRE (token_len(operation_.rightOperand) == 13); // ((3 + 4)) ^ 5
-
-//     REQUIRE (token_len(operation.leftOperand) == 1); // 1
-//     REQUIRE (token_len(operation.rightOperand) == 17); // 2 ^ ((3 + 4)) ^ 5
-
-// }
-
-///////////////////////////////////////////////////////////
-
 TEST_CASE ("4 chained operations", "[test-9735][expr]") {
     auto input = tommy_str(R"EOF(
         1 ^ 2 ^ 3 ^ 4
@@ -191,7 +140,31 @@ TEST_CASE ("4 chained operations", "[test-9735][expr]") {
 }
 
 ///////////////////////////////////////////////////////////
-// further investigate: chained nested operation
+
+TEST_CASE ("chained nested operation", "[test-9734][expr]") {
+    auto input = tommy_str(R"EOF(
+        1 + 2 * (3 + 4 * 5)
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 19);
+
+    auto operation = *std::get<Operation*>(expr);
+    auto operation_ = *std::get<Operation*>(operation.rightOperand);
+    auto operation__ = *std::get<Operation*>(operation_.rightOperand);
+
+    REQUIRE (token_len(operation__.leftOperand) == 1); // 3
+    REQUIRE (token_len(operation__.rightOperand) == 5); // 4 * 5
+
+    REQUIRE (token_len(operation_.leftOperand) == 1); // 2
+    REQUIRE (token_len(operation_.rightOperand) == 11); // (3 + 4 * 5)
+
+    REQUIRE (token_len(operation.leftOperand) == 1); // 1
+    REQUIRE (token_len(operation.rightOperand) == 15); // 2 * (3 + 4 * 5)
+}
+
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("chained nested operation, right association then left association", "[test-9771][expr]") {
