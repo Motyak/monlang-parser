@@ -5,3 +5,4 @@ dist
 lib/libs.a
 lib/test-libs.a
 lib/*/obj
+*.elf
