@@ -13,23 +13,26 @@
 #include <monlang-LV2/ast/expr/SpecialSymbol.h>
 
 ///////////////////////////////////////////////////////////
+// expr
+///////////////////////////////////////////////////////////
 
-// TEST_CASE ("lvalue token length", "[test-9711][expr]") {
-//     auto input = tommy_str(R"EOF(
-//         somevar
-//     )EOF");
+TEST_CASE ("literal", "[test-9711][expr]") {
+    auto input = tommy_str(R"EOF(
+        1
+    )EOF");
 
-//     auto iss = std::istringstream(input);
-//     auto term = (Term)consumeTerm(iss);
-//     auto expr = unwrap_expr(buildExpression(term).value());
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 1);
 
-//     REQUIRE (true);
-//     REQUIRE (token_len(expr) == 1);
-// }
+    auto literal = *std::get<Literal*>(expr);
+    REQUIRE (token_len(literal) == 1);
+}
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("additional parentheses", "[test-9730][expr]") {
+TEST_CASE ("literal with additional parentheses", "[test-9712][expr]") {
     auto input = tommy_str(R"EOF(
         ((1))
     )EOF");
@@ -44,7 +47,105 @@ TEST_CASE ("additional parentheses", "[test-9730][expr]") {
 }
 
 ///////////////////////////////////////////////////////////
-// Operation, precedence
+
+TEST_CASE ("special symbol", "[test-9713][expr]") {
+    auto input = tommy_str(R"EOF(
+        $fds
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 4);
+
+    auto specialSymbol = *std::get<SpecialSymbol*>(expr);
+    REQUIRE (token_len(specialSymbol) == 4);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("lvalue", "[test-9714][expr]") {
+    auto input = tommy_str(R"EOF(
+        somevar
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 7);
+
+    auto lvalue = *std::get<Lvalue*>(expr);
+    REQUIRE (token_len(lvalue) == 7);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("lambda", "[test-9715][expr]") {
+    auto input = tommy_str(R"EOF(
+        (x):{x}
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 7);
+
+    auto lambda = *std::get<Lambda*>(expr);
+    REQUIRE (token_len(lambda) == 7);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("function call", "[test-9716][expr]") {
+    auto input = tommy_str(R"EOF(
+        doit()
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 6);
+
+    auto functionCall = *std::get<FunctionCall*>(expr);
+    REQUIRE (token_len(functionCall) == 6);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("single line block expr", "[test-9717][expr]") {
+    auto input = tommy_str(R"EOF(
+        {1}
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 3);
+
+    auto blockExpr = *std::get<BlockExpression*>(expr);
+    REQUIRE (token_len(blockExpr) == 3);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("multiline block expr", "[test-9718][expr]") {
+    auto input = tommy_str(R"EOF(
+        {
+            1
+        }
+    )EOF");
+
+    auto iss = std::istringstream(input);
+    auto term = (Term)consumeTerm(iss);
+    auto expr = unwrap_expr(buildExpression(term).value());
+    REQUIRE (token_len(expr) == 9);
+
+    auto blockExpr = *std::get<BlockExpression*>(expr);
+    REQUIRE (token_len(blockExpr) == 9);
+}
+
+///////////////////////////////////////////////////////////
+// expr - Operation, precedence
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("single operation", "[test-9731][expr]") {
