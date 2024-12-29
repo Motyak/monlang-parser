@@ -2,7 +2,9 @@
 #include <utils/tommystring.h>
 #include <catch2/catch_amalgamated.hpp>
 #include <monlang-LV1/Term.h>
+#include <monlang-LV1/Program.h>
 #include <monlang-LV2/Expression.h>
+#include <monlang-LV2/Statement.h>
 
 #include <monlang-LV2/ast/expr/BlockExpression.h>
 #include <monlang-LV2/ast/expr/FunctionCall.h>
@@ -11,6 +13,19 @@
 #include <monlang-LV2/ast/expr/Lvalue.h>
 #include <monlang-LV2/ast/expr/Operation.h>
 #include <monlang-LV2/ast/expr/SpecialSymbol.h>
+
+#include <monlang-LV2/ast/stmt/Assignment.h>
+#include <monlang-LV2/ast/stmt/Accumulation.h>
+#include <monlang-LV2/ast/stmt/LetStatement.h>
+#include <monlang-LV2/ast/stmt/VarStatement.h>
+#include <monlang-LV2/ast/stmt/Guard.h>
+#include <monlang-LV2/ast/stmt/ReturnStatement.h>
+#include <monlang-LV2/ast/stmt/BreakStatement.h>
+#include <monlang-LV2/ast/stmt/ContinueStatement.h>
+#include <monlang-LV2/ast/stmt/DieStatement.h>
+#include <monlang-LV2/ast/stmt/ForeachStatement.h>
+#include <monlang-LV2/ast/stmt/WhileStatement.h>
+#include <monlang-LV2/ast/stmt/ExpressionStatement.h>
 
 ///////////////////////////////////////////////////////////
 // expr
@@ -148,7 +163,7 @@ TEST_CASE ("multiline block expr", "[test-9718][expr]") {
 // expr - Operation, precedence
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("single operation", "[test-9731][expr]") {
+TEST_CASE ("single operation", "[test-9719][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2
     )EOF");
@@ -165,7 +180,7 @@ TEST_CASE ("single operation", "[test-9731][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained operations, left association", "[test-9761][expr]") {
+TEST_CASE ("chained operations, left association", "[test-9720][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 + 3
     )EOF");
@@ -182,7 +197,7 @@ TEST_CASE ("chained operations, left association", "[test-9761][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained operations, right association", "[test-9732][expr]") {
+TEST_CASE ("chained operations, right association", "[test-9721][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 * 3
     )EOF");
@@ -199,7 +214,7 @@ TEST_CASE ("chained operations, right association", "[test-9732][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("explicit parentheses", "[test-9733][expr]") {
+TEST_CASE ("explicit parentheses", "[test-9722][expr]") {
     auto input = tommy_str(R"EOF(
         (1 + 2) * 3
     )EOF");
@@ -216,7 +231,7 @@ TEST_CASE ("explicit parentheses", "[test-9733][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("4 chained operations", "[test-9735][expr]") {
+TEST_CASE ("4 chained operations", "[test-9723][expr]") {
     auto input = tommy_str(R"EOF(
         1 ^ 2 ^ 3 ^ 4
     )EOF");
@@ -242,7 +257,7 @@ TEST_CASE ("4 chained operations", "[test-9735][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained nested operation", "[test-9734][expr]") {
+TEST_CASE ("chained nested operation", "[test-9724][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 * (3 + 4 * 5)
     )EOF");
@@ -268,7 +283,7 @@ TEST_CASE ("chained nested operation", "[test-9734][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained nested operation, right association then left association", "[test-9771][expr]") {
+TEST_CASE ("chained nested operation, right association then left association", "[test-9725][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 * (3 + 4 + 5)
     )EOF");
@@ -294,7 +309,7 @@ TEST_CASE ("chained nested operation, right association then left association", 
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained nested operation, left association then right association", "[test-9772][expr]") {
+TEST_CASE ("chained nested operation, left association then right association", "[test-9726][expr]") {
     auto input = tommy_str(R"EOF(
         1 + 2 + (3 + 4 * 5)
     )EOF");
@@ -320,7 +335,7 @@ TEST_CASE ("chained nested operation, left association then right association", 
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained nested operation, right association then left association, parentheses first", "[test-9773][expr]") {
+TEST_CASE ("chained nested operation, right association then left association, parentheses first", "[test-9727][expr]") {
     auto input = tommy_str(R"EOF(
         (1 + 2 * 3) + 4 + 5
     )EOF");
@@ -346,7 +361,7 @@ TEST_CASE ("chained nested operation, right association then left association, p
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("chained nested operation, left association then right association, parentheses first", "[test-9774][expr]") {
+TEST_CASE ("chained nested operation, left association then right association, parentheses first", "[test-9728][expr]") {
     auto input = tommy_str(R"EOF(
         (1 + 2 + 3) + 4 * 5
     )EOF");
@@ -368,4 +383,26 @@ TEST_CASE ("chained nested operation, left association then right association, p
 
     REQUIRE (token_len(operation.leftOperand) == 11); // (1 + 2 + 3)
     REQUIRE (token_len(operation.rightOperand) == 5); // 4 * 5
+}
+
+///////////////////////////////////////////////////////////
+// stmt
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("assignment", "[test-9729][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |somevar := value
+       |
+    )EOF");
+
+    auto iss = std::istringstream(input);
+
+    auto prog = (Program)consumeProgram(iss);
+    auto stmt = unwrap_stmt(consumeStatement(prog).value());
+    // REQUIRE (token_len(stmt) == 16); //TODO: uncomment once all stmt have the new field
+
+    auto assignment = *std::get<Assignment*>(stmt);
+    REQUIRE (token_len(assignment) == 17);
+    REQUIRE (token_len(assignment.variable) == 7); // somevar
+    REQUIRE (token_len(assignment.value) == 5); // value
 }

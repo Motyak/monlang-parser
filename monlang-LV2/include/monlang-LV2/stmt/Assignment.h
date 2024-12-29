@@ -13,10 +13,11 @@ struct MayFail_<Assignment> {
     Lvalue variable;
     MayFail<Expression_> value;
 
+    size_t _tokenLen = 0;
     MayFail_() = default;
-    explicit MayFail_(Lvalue, MayFail<Expression_>);
+    explicit MayFail_(const Lvalue&, const MayFail<Expression_>&);
 
-    explicit MayFail_(Assignment);
+    explicit MayFail_(const Assignment&);
     explicit operator Assignment() const;
 };
 

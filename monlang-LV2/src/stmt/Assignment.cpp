@@ -6,6 +6,13 @@
 
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
+/* require knowing all words for token_len() */
+#include <monlang-LV1/ast/ParenthesesGroup.h>
+#include <monlang-LV1/ast/SquareBracketsGroup.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
 
 #include <utils/assert-utils.h>
 
@@ -59,8 +66,9 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
         return Malformed(MayFail_<Assignment>{variable, value}, ERR(215));
     }
 
-
-    return MayFail_<Assignment>{variable, value};
+    auto assignment = MayFail_<Assignment>{variable, value};
+    assignment._tokenLen = sentence._tokenLen;
+    return assignment;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -79,26 +87,38 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
         sentence.programWords.end()
     );
 
+    size_t wordsTokenLen = 0;
     std::vector<Word> words;
     for (auto e: value_as_sentence) {
         unless (holds_word(e)) {
             return {};
         }
-        words.push_back(get_word(e));
+        auto word = get_word(e);
+        words.push_back(word);
+        wordsTokenLen += token_len(word);
     }
-    return Term{words};
+
+    auto term = Term{words};
+    term._tokenLen = wordsTokenLen
+            + (words.size() - 1) * sequenceLen(Term::CONTINUATOR_SEQUENCE);
+    return term;
 }
 
-MayFail_<Assignment>::MayFail_(Lvalue variable, MayFail<Expression_> value)
+Assignment::Assignment(const Lvalue& variable, const Expression& value) : variable(variable), value(value){}
+
+MayFail_<Assignment>::MayFail_(const Lvalue& variable, const MayFail<Expression_>& value)
         : variable(variable), value(value){}
 
-MayFail_<Assignment>::MayFail_(Assignment assignment) {
+MayFail_<Assignment>::MayFail_(const Assignment& assignment) {
     auto value = wrap_expr(assignment.value);
     this->variable = assignment.variable;
     this->value = value;
+    this->_tokenLen = assignment._tokenLen;
 }
 
 MayFail_<Assignment>::operator Assignment() const {
     auto value = unwrap_expr(this->value.value());
-    return Assignment{this->variable, value};
+    auto assignment = Assignment{this->variable, value};
+    assignment._tokenLen = this->_tokenLen;
+    return assignment;
 }

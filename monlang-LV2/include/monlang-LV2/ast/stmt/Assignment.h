@@ -7,6 +7,10 @@
 struct Assignment {
     Lvalue variable;
     Expression value;
+
+    size_t _tokenLen = 0;
+    Assignment() = default;
+    Assignment(const Lvalue&, const Expression&);
 };
 
 #endif // AST_ASSIGNMENT_H
