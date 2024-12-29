@@ -8,7 +8,8 @@
                 "${workspaceFolder}/monlang-LV2/include", // tmp
 
                 /* test libs */
-                "${workspaceFolder}/lib/catch2/include"
+                "${workspaceFolder}/lib/catch2/include",
+                "${workspaceFolder}/montree/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
