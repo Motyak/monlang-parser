@@ -8,7 +8,10 @@ struct Assignment {
     Lvalue variable;
     Expression value;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     Assignment() = default;
     Assignment(const Lvalue&, const Expression&);
 };

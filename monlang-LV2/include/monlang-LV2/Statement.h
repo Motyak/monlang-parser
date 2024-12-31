@@ -45,4 +45,14 @@ MayFail<Statement_> consumeStatement(LV1::Program&);
 Statement unwrap_stmt(Statement_);
 Statement_ wrap_stmt(Statement);
 
+template <typename T> size_t token_leading_newlines(const T& statement) {
+    return statement._tokenLeadingNewlines;
+}
+template <typename T> size_t token_indent_spaces(const T& statement) {
+    return statement._tokenIndentSpaces;
+}
+template <typename T> size_t token_trailing_newlines(const T& statement) {
+    return statement._tokenTrailingNewlines;
+}
+
 #endif // STATEMENT_H

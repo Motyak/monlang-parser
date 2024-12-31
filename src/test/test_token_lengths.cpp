@@ -389,7 +389,33 @@ TEST_CASE ("chained nested operation, left association then right association, p
 // stmt
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assignment", "[test-9729][stmt]") {
+TEST_CASE ("statement leading/trailing newlines and indent spaces", "[test-9729][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |{
+       |\s\s\s\s
+       |
+       |    somevar := value
+       |
+       |\s\s\s\s
+       |}
+       |
+    )EOF");
+
+    auto iss = std::istringstream(input);
+
+    auto prog = (LV1::Program)consumeProgram(iss);
+    auto stmt = unwrap_stmt(consumeStatement(prog).value());
+    auto exprStmt = *std::get<ExpressionStatement*>(stmt);
+    auto blockExpr = *std::get<BlockExpression*>(exprStmt.expression);
+    auto assignment = *std::get<Assignment*>(blockExpr.statements.at(0));
+    REQUIRE (token_leading_newlines(assignment) == 6);
+    REQUIRE (token_indent_spaces(assignment) == 4);
+    REQUIRE (token_trailing_newlines(assignment) == 6);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("assignment", "[test-9730][stmt]") {
     auto input = tommy_str(R"EOF(
        |somevar := value
        |
@@ -397,9 +423,9 @@ TEST_CASE ("assignment", "[test-9729][stmt]") {
 
     auto iss = std::istringstream(input);
 
-    auto prog = (Program)consumeProgram(iss);
+    auto prog = (LV1::Program)consumeProgram(iss);
     auto stmt = unwrap_stmt(consumeStatement(prog).value());
-    // REQUIRE (token_len(stmt) == 16); //TODO: uncomment once all stmt have the new field
+    // REQUIRE (token_len(stmt) == 17); //TODO: uncomment once all stmt have the new field
 
     auto assignment = *std::get<Assignment*>(stmt);
     REQUIRE (token_len(assignment) == 17);

@@ -144,7 +144,6 @@ TEST_CASE ("function call from postfix parentheses group", "[test-1616][expr]") 
     )EOF");
 
     /* TODO: Lvalue will be able to contain indent, later on */
-    /* TODO: will be able to add Lvalue #1, #2, #.. if multiple args */
     auto expect = tommy_str(R"EOF(
        |-> Expression: FunctionCall
        |  -> function

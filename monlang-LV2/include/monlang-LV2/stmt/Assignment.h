@@ -13,7 +13,10 @@ struct MayFail_<Assignment> {
     Lvalue variable;
     MayFail<Expression_> value;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
     explicit MayFail_(const Lvalue&, const MayFail<Expression_>&);
 

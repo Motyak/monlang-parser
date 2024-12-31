@@ -67,7 +67,10 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
     }
 
     auto assignment = MayFail_<Assignment>{variable, value};
+    assignment._tokenLeadingNewlines = sentence._tokenLeadingNewlines;
+    assignment._tokenIndentSpaces = sentence._tokenIndentSpaces;
     assignment._tokenLen = sentence._tokenLen;
+    assignment._tokenTrailingNewlines = sentence._tokenTrailingNewlines;
     return assignment;
 }
 
@@ -110,15 +113,24 @@ MayFail_<Assignment>::MayFail_(const Lvalue& variable, const MayFail<Expression_
         : variable(variable), value(value){}
 
 MayFail_<Assignment>::MayFail_(const Assignment& assignment) {
-    auto value = wrap_expr(assignment.value);
     this->variable = assignment.variable;
-    this->value = value;
+    this->value = wrap_expr(assignment.value);
+
+    this->_tokenLeadingNewlines = assignment._tokenLeadingNewlines;
+    this->_tokenIndentSpaces = assignment._tokenIndentSpaces;
     this->_tokenLen = assignment._tokenLen;
+    this->_tokenTrailingNewlines = assignment._tokenTrailingNewlines;
 }
 
 MayFail_<Assignment>::operator Assignment() const {
+    auto variable = this->variable;
     auto value = unwrap_expr(this->value.value());
-    auto assignment = Assignment{this->variable, value};
+    auto assignment = Assignment{variable, value};
+
+    assignment._tokenLeadingNewlines = this->_tokenLeadingNewlines;
+    assignment._tokenIndentSpaces = this->_tokenIndentSpaces;
     assignment._tokenLen = this->_tokenLen;
+    assignment._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+
     return assignment;
 }
