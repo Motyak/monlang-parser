@@ -9,11 +9,9 @@
 #include <optional>
 #include <variant>
 
-#define MF__ASSERT(condition) \
-    if (!(condition)) { \
-        std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
-                << " line " << __LINE__ << std::endl; \
-        std::terminate(); \
+#define MAYFAIL_CHECK(err) \
+    if (err) { \
+        throw std::runtime_error("bad MayFail access (" + err.value().fmt + ")"); \
     }
 
 template <typename T>
@@ -57,7 +55,7 @@ class MayFail : public MayFail<void> {
     explicit MayFail(const T& val, const std::optional<Error>& err) : MayFail<void>(err), val(val){} // keep it explicit
 
     T value() const {
-        MF__ASSERT (!err);
+        MAYFAIL_CHECK(err);
         return val;
     }
 
@@ -78,7 +76,7 @@ class MayFail<MayFail_<T>> : public MayFail<void> {
     explicit MayFail(const MayFail_<T>& val, const std::optional<Error>& err) : MayFail<void>(err), val(val){} // keep it explicit
 
     MayFail_<T> value() const {
-        MF__ASSERT (!err);
+        MAYFAIL_CHECK(err);
         return val;
     }
 
