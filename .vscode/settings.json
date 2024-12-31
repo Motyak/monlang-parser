@@ -2,25 +2,21 @@
     "C_Cpp.autoAddFileAssociations": false,
     "search.useIgnoreFiles": true, // exclude files in .gitignore
     "search.exclude": {
-        "**/lib/monlang-LV1": true, // modules that depend on monlang-LV1 module
-        "**/lib/monlang-LV2": true, // modules that depend on monlang-LV2 module
-        "**/lib/montree": true, // modules that depend on montree module
+        /* we only want monlang-LV1/include/monlang */
+        "include/monlang-LV1": true,
+        "monlang-LV2/include/monlang-LV1": true,
+        "montree/include/monlang-LV1": true,
 
-        "**/include/utils": true, // modules that use utils interface
-
-
-        "monlang-LV1/include/*": true, // interfaces used by monlang-LV1 module..
-        "monlang-LV1/include/monlang-LV1": false, // .., except itself
-
-        "monlang-LV2/include/*": true, // interfaces used by monlang-LV2 module..
-        "monlang-LV2/include/monlang-LV2": false, // .., except itself
-
-        "montree/include/*": true, // interfaces used by montree module..
-        "montree/include/montree": false, // .., except itself
-
+        /* we only want monlang-LV2/include/monlang-LV2 */
+        "include/monlang-LV2": true,
+        "montree/include/monlang-LV2": true,
 
         "monlang-LV1/lib/*": true, // monlang-LV1 dependencies
         "monlang-LV2/lib/*": true, // monlang-LV2 dependencies
+
+        "**/lib/monlang-LV1": true, // modules that depend on monlang-LV1 module
+        "**/lib/monlang-LV2": true, // modules that depend on monlang-LV2 module
+        "**/lib/montree": true, // modules that depend on montree module
     },
 }
 
