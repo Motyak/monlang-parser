@@ -18,6 +18,18 @@
 
 #define unless(x) if(!(x))
 
+#define SET_TOKEN_FIELDS(assignment, sentence) \
+    assignment._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    assignment._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    assignment._tokenLen = sentence._tokenLen; \
+    assignment._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
+#define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
+    malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    malformed.val._tokenLen = sentence._tokenLen; \
+    malformed.val._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
 bool peekAssignment(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 2) {
         return false;
@@ -44,33 +56,40 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
 
 
     unless (holds_word(sentence.programWords[0])) {
-        return Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(211));
+        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(211));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto word = get_word(sentence.programWords[0]);
     // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
     unless (peekLvalue(word)) {
-        return Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(212));
+        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(212));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto variable = buildLvalue(word);
 
 
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(213));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(213));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(214));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(214));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        return Malformed(MayFail_<Assignment>{variable, value}, ERR(215));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, value}, ERR(215));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
 
     auto assignment = MayFail_<Assignment>{variable, value};
-    assignment._tokenLeadingNewlines = sentence._tokenLeadingNewlines;
-    assignment._tokenIndentSpaces = sentence._tokenIndentSpaces;
-    assignment._tokenLen = sentence._tokenLen;
-    assignment._tokenTrailingNewlines = sentence._tokenTrailingNewlines;
+    SET_TOKEN_FIELDS(assignment, /*from*/ sentence);
     return assignment;
 }
 

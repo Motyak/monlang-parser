@@ -3,6 +3,7 @@
 #include <catch2/catch_amalgamated.hpp>
 #include <monlang-LV1/Term.h>
 #include <monlang-LV1/Program.h>
+#include <monlang-LV1/CurlyBracketsGroup.h>
 #include <monlang-LV2/Expression.h>
 #include <monlang-LV2/Statement.h>
 
@@ -389,7 +390,26 @@ TEST_CASE ("chained nested operation, left association then right association, p
 // stmt
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("statement leading/trailing newlines and indent spaces", "[test-9729][stmt]") {
+TEST_CASE ("malformed sentence also contains leading newlines + indent spaces", "[test-9729][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |{
+       |
+       |\s\s\s\s wrong indent
+       |}
+       |
+    )EOF");
+
+    auto iss = std::istringstream(input);
+
+    auto malformed_cbg = consumeCurlyBracketsGroupStrictly(iss);
+    auto malformed_sentence = malformed_cbg.val.sentences.at(0);
+    REQUIRE (token_leading_newlines(malformed_sentence.val) == 1);
+    REQUIRE (token_indent_spaces(malformed_sentence.val) == 4);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("statement leading/trailing newlines and indent spaces", "[test-9730][stmt]") {
     auto input = tommy_str(R"EOF(
        |{
        |\s\s\s\s
@@ -415,7 +435,7 @@ TEST_CASE ("statement leading/trailing newlines and indent spaces", "[test-9729]
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assignment", "[test-9730][stmt]") {
+TEST_CASE ("assignment", "[test-9731][stmt]") {
     auto input = tommy_str(R"EOF(
        |somevar := value
        |

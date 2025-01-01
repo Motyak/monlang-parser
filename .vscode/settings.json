@@ -1,4 +1,5 @@
 {
+    "search.quickOpen.includeHistory": false,
     "C_Cpp.autoAddFileAssociations": false,
     "search.useIgnoreFiles": true, // exclude files in .gitignore
     "search.exclude": {
