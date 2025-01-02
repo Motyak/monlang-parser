@@ -14,6 +14,8 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 
 ###########################################################
 
+OBJS := obj/parse.o
+
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
 TEST_OBJS = $(TEST_FILENAMES:%=obj/test/%.o)

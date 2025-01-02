@@ -3,9 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                // "${workspaceFolder}/include", // will be
-                "${workspaceFolder}/monlang-LV1/dist", // tmp
-                "${workspaceFolder}/monlang-LV2/include", // tmp
+                "${workspaceFolder}/include",
 
                 /* test libs */
                 "${workspaceFolder}/lib/catch2/include",
