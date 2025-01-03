@@ -15,6 +15,7 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 ###########################################################
 
 OBJS := obj/parse.o
+BINS := bin/main.elf
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
@@ -25,7 +26,7 @@ TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
 all: main
 
-main: $(OBJS) lib/libs.a
+main: bin/main.elf
 
 dist: $(OBJS) lib/libs.a
 	./release.sh $^
@@ -40,8 +41,11 @@ mrproper:
 
 ###########################################################
 
-$(OBJS): obj/%.o: src/%.cpp
+$(OBJS) obj/main.o: obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
+
+$(BINS): bin/%.elf: obj/%.o $(OBJS) lib/libs.a
+	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(TEST_OBJS): obj/test/%.o: src/test/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)

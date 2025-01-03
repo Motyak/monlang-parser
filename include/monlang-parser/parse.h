@@ -27,19 +27,13 @@ struct ParsingResult {
 };
 
 Malformed<Malformed_<LV1::Program>>
-asMalformedLV1(const ParsingResult::Variant& result) {
-    return std::get<0>(result);
-}
+asMalformedLV1(const ParsingResult::Variant&);
 
 Malformed<Malformed_<LV2::Program>>
-asMalformedLV2(const ParsingResult::Variant& result) {
-    return std::get<1>(result);
-}
+asMalformedLV2(const ParsingResult::Variant&);
 
 LV2::Program
-asCorrectLV2(const ParsingResult::Variant& result) {
-    return std::get<2>(result);
-}
+asCorrectLV2(const ParsingResult::Variant&);
 
 #ifdef PARSE_RESULT_TEST
 // g++ -x c++ -D PARSE_RESULT_TEST -c include/monlang-parser/parse.h -o main.o --std=c++23 -Wall -Wextra -I include

@@ -4,6 +4,21 @@ using ParsingResult::Status::LV1_ERR;
 using ParsingResult::Status::LV2_ERR;
 using ParsingResult::Status::LV2_OK;
 
+Malformed<Malformed_<LV1::Program>>
+asMalformedLV1(const ParsingResult::Variant& result) {
+    return std::get<0>(result);
+}
+
+Malformed<Malformed_<LV2::Program>>
+asMalformedLV2(const ParsingResult::Variant& result) {
+    return std::get<1>(result);
+}
+
+LV2::Program
+asCorrectLV2(const ParsingResult::Variant& result) {
+    return std::get<2>(result);
+}
+
 ParsingResult parse(std::istringstream& input) {
     auto progLV1 = consumeProgram(input);
     if (progLV1.has_error()) {
