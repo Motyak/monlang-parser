@@ -4,7 +4,7 @@ export CXX := ccache g++
 
 SHELL := /bin/bash
 RM := rm -rf
-CXXFLAGS = --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+CXXFLAGS = --std=c++23 -Wall -Wextra -Wno-unused-label -Og -ggdb3 -I include
 CXXFLAGS_TEST = $(CXXFLAGS) $(addprefix -I ,$(test_lib_include_dirs))
 DEPFLAGS = -MMD -MP -MF .deps/$*.d
 DEPFLAGS_TEST = -MMD -MP -MF .deps/test/$*.d
