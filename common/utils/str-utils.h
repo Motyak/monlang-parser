@@ -14,7 +14,7 @@ inline std::string replace_all(const std::string& str, const std::string& from, 
         _str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
     }
-    return str;
+    return _str;
 }
 
 #define escape_newlines(str) (replace_all(str, std::string(1, /*LF*/char(10)), "\\n"))
