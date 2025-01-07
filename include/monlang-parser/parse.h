@@ -3,7 +3,39 @@
 
 #include <monlang-LV1/Program.h>
 #include <monlang-LV2/Program.h>
+#include <monlang-LV1/ast/visitors/visitor.h>
+#include <monlang-LV2/ast/visitors/visitor.h>
+
 #include <utils/assert-utils.h>
+
+#include <map>
+
+using TokenId = size_t;
+
+struct Token {
+    std::string name;
+    size_t start;
+    size_t end;
+
+    bool is_malformed = false;
+    std::string err_title = "";
+    std::string err_desc = "";
+};
+
+template <typename T>
+class Tokens {
+  private:
+    std::vector<Token> tokens;
+    std::map<T, TokenId> token; // TODO: Ast as key will cause issue, think
+
+  public:
+    Tokens() = default;
+    Tokens(const std::vector<Token>&, const std::map<T, TokenId>&);
+    Token& operator[](TokenId); // TODO: returns a copy?
+    Token& operator[](T); // TODO: returns a copy?
+};
+using LV1Tokens = Tokens<LV1::Ast>;
+using LV2Tokens = Tokens<LV2::Ast>;
 
 struct ParsingResult {
     enum Status {
@@ -21,11 +53,17 @@ struct ParsingResult {
     >;
     Variant variant;
 
-    std::string filename = "<STDIN>";
+    ParsingResult() = default;
+    ParsingResult(const Status&, const Variant&);
 
     operator Variant() const {
         return variant;
     }
+
+    std::string _filename = "<STDIN>";
+    std::optional<LV1::Program> _correctLV1 = std::nullopt;
+    LV1Tokens _tokensLV1;
+    std::optional<LV2Tokens> _tokensLV2 = std::nullopt;
 };
 
 Malformed<Malformed_<LV1::Program>>
