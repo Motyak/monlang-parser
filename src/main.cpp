@@ -104,16 +104,23 @@ int fileinput_main(int argc, char* argv[]) {
 void handleParsingResult(const ParsingResult& parsingRes) {
     if (parsingRes.status < 0) {
         std::cerr << "malformed input" << std::endl;
-        return;
     }
-
-    std::cerr << "correct input" << std::endl;
+    else {
+        std::cerr << "correct input" << std::endl;
+    }
 
     unless (dir_exists("out")) return;
 
+    /* blank all out/ files */
+    {
+        std::ofstream("out/LV1.ast.txt", std::ios::trunc);
+        std::ofstream("out/LV2.ast.txt", std::ios::trunc);
+        std::ofstream("out/traceback.txt", std::ios::trunc);
+    }
+
     /* write out/LV1.ast.txt */
     {
-        auto file = std::ofstream("out/LV1.ast.txt", std::ios::trunc);
+        auto file = std::ofstream("out/LV1.ast.txt", std::ios::app);
         auto print_to_file = PrintLV1(file);
         MayFail<MayFail_<LV1::Program>> ast =
                 parsingRes.status == LV1_ERR? asMalformedLV1(parsingRes)
@@ -124,7 +131,7 @@ void handleParsingResult(const ParsingResult& parsingRes) {
     if (parsingRes.status > LV1_ERR)
     /* write out/LV2.ast.txt */
     {
-        auto file = std::ofstream("out/LV2.ast.txt", std::ios::trunc);
+        auto file = std::ofstream("out/LV2.ast.txt", std::ios::app);
         auto print_to_file = PrintLV2(file);
         MayFail<MayFail_<LV2::Program>> ast =
                 parsingRes.status == LV2_ERR? asMalformedLV2(parsingRes)
