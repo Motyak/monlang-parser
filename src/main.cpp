@@ -67,28 +67,27 @@ int stdinput_main(int argc, char* argv[]) {
     }
 }
 
+// TODO: move some of the logic in `parse(const std::string& filename)`..
+//       ..that will call `parse(std::istringstream&)`
 int fileinput_main(int argc, char* argv[]) {
     (void)argc;
     const auto filename = argv[1];
 
-    std::string input_str;
+    ParsingResult parsingRes;
     try {
-        input_str = slurp_file(filename);
+        parsingRes = parse(filename);
     }
-    catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
+    catch (const CantOpenFileException&) {
+        std::cerr << "Failed to open file `" << filename << "`" << std::endl;
         return 13;
     }
-
-    auto input_iss = std::istringstream(input_str);
-    auto parsingRes = parse(input_iss);
 
     handleParsingResult(parsingRes);
 
     switch (parsingRes.status) {
         case LV2_OK: return 0;
-        case LV1_ERR: return 1;
-        case LV2_ERR: return 2;
+        case LV1_ERR: return 11;
+        case LV2_ERR: return 12;
 
         default: SHOULD_NOT_HAPPEN();
     }
@@ -101,4 +100,7 @@ void handleParsingResult(const ParsingResult& parsingRes) {
     }
 
     std::cerr << "correct input" << std::endl;
+
+    // if out/ directory exists..
+    // .., then write individual files in it: LV1.ast.txt, LV2.ast.txt and traceback.txt
 }

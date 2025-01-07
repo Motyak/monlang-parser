@@ -1,5 +1,7 @@
 #include <monlang-parser/parse.h>
 
+#include <utils/file-utils.h>
+
 using ParsingResult::Status::LV1_ERR;
 using ParsingResult::Status::LV2_ERR;
 using ParsingResult::Status::LV2_OK;
@@ -35,6 +37,12 @@ ParsingResult parse(std::istringstream& input) {
 }
 
 ParsingResult parse(const std::string& filename) {
-    (void)filename;
-    TODO();
+    auto input_str = slurp_file(filename);
+
+    auto input_iss = std::istringstream(input_str);
+
+    auto parsingRes = parse(input_iss);
+    parsingRes.filename = filename;
+
+    return parsingRes;
 }

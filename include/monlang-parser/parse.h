@@ -21,6 +21,8 @@ struct ParsingResult {
     >;
     Variant variant;
 
+    std::string filename = "<STDIN>";
+
     operator Variant() const {
         return variant;
     }
