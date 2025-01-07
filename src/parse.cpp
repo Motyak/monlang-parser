@@ -31,15 +31,16 @@ ParsingResult parse(std::istringstream& input) {
     }
 
     auto correctLV1 = (LV1::Program)progLV1;
+    auto backupCorrectLV1 = correctLV1;
     auto progLV2 = consumeProgram(correctLV1);
     if (progLV2.has_error()) {
         auto res = ParsingResult{LV2_ERR, progLV2};
-        res._correctLV1 = correctLV1;
+        res._correctLV1 = backupCorrectLV1;
         return res;
     }
 
     auto res = ParsingResult{LV2_OK, (LV2::Program)progLV2};
-    res._correctLV1 = correctLV1;
+    res._correctLV1 = backupCorrectLV1;
     return res;
 }
 

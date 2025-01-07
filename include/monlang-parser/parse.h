@@ -60,7 +60,7 @@ struct ParsingResult {
         return variant;
     }
 
-    std::string _filename = "<STDIN>";
+    std::string _filename = "<stdin>";
     std::optional<LV1::Program> _correctLV1 = std::nullopt;
     LV1Tokens _tokensLV1;
     std::optional<LV2Tokens> _tokensLV2 = std::nullopt;

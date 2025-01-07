@@ -4,7 +4,7 @@ export CXX := ccache g++
 
 SHELL := /bin/bash
 RM := rm -rf
-CXXFLAGS = --std=c++23 -Wall -Wextra -Wno-unused-label -Og -ggdb3 -I include
+CXXFLAGS = --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
 CXXFLAGS_TEST = $(CXXFLAGS) $(addprefix -I ,$(test_lib_include_dirs))
 DEPFLAGS = -MMD -MP -MF .deps/$*.d
 DEPFLAGS_TEST = -MMD -MP -MF .deps/test/$*.d
@@ -15,7 +15,7 @@ BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
 ###########################################################
 
 OBJS := obj/parse.o
-BINS := bin/main.elf
+DEPS := $(OBJS:obj/%.o=.deps/%.d)
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))
 TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
@@ -26,10 +26,7 @@ TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
 all: main
 
-main: bin/main.elf
-
-dist: $(OBJS) lib/libs.a
-	./release.sh $^
+main: $(OBJS) lib/libs.a
 
 clean:
 	$(RM) obj/* .deps/*
@@ -44,14 +41,20 @@ mrproper:
 $(OBJS) obj/main.o: obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
-$(BINS): bin/%.elf: obj/%.o $(OBJS) lib/libs.a
-	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
-
 $(TEST_OBJS): obj/test/%.o: src/test/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)
 
 $(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/libs.a lib/test-libs.a
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+
+dist/monlang-parser.a: ARFLAGS = rcsvD
+dist/monlang-parser.a: $(OBJS) lib/libs.a # montree/dist/montree.a probably? ..
+#                                        .. Or should the module using monlang-parser also use montree ?
+	$(AR) $(ARFLAGS) $@ $^
+
+bin/main.elf: ADDITIONAL_CXXFLAGS = -Wno-unused-label -I montree/include -MMD -MP -MF .deps/main.d
+bin/main.elf: src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a
+	$(CXX) -o $@ src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a $(CXXFLAGS) $(ADDITIONAL_CXXFLAGS)
 
 -include $(DEPS) $(TEST_DEPS)
 

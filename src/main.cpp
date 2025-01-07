@@ -1,8 +1,16 @@
 
 #include <monlang-parser/parse.h>
 
+#include <montree/PrintLV1.h>
+#include <montree/PrintLV2.h>
+
 #include <utils/iostream-utils.h>
 #include <utils/file-utils.h>
+#include <utils/fs-utils.h>
+
+#include <fstream>
+
+#define unless(x) if(!(x))
 
 using ParsingResult::Status::LV1_ERR;
 using ParsingResult::Status::LV2_ERR;
@@ -101,6 +109,32 @@ void handleParsingResult(const ParsingResult& parsingRes) {
 
     std::cerr << "correct input" << std::endl;
 
-    // if out/ directory exists..
-    // .., then write individual files in it: LV1.ast.txt, LV2.ast.txt and traceback.txt
+    unless (dir_exists("out")) return;
+
+    /* write out/LV1.ast.txt */
+    {
+        auto file = std::ofstream("out/LV1.ast.txt", std::ios::trunc);
+        auto print_to_file = PrintLV1(file);
+        MayFail<MayFail_<LV1::Program>> ast =
+                parsingRes.status == LV1_ERR? asMalformedLV1(parsingRes)
+                : MayFail(MayFail_<Program>(parsingRes._correctLV1.value()));
+        print_to_file(ast);
+    }
+
+    if (parsingRes.status > LV1_ERR)
+    /* write out/LV2.ast.txt */
+    {
+        auto file = std::ofstream("out/LV2.ast.txt", std::ios::trunc);
+        auto print_to_file = PrintLV2(file);
+        MayFail<MayFail_<LV2::Program>> ast =
+                parsingRes.status == LV2_ERR? asMalformedLV2(parsingRes)
+                : MayFail(MayFail_<LV2::Program>(asCorrectLV2(parsingRes)));
+        print_to_file(ast);
+    }
+
+    if (parsingRes.status < LV2_OK)
+    /* write out/traceback.txt */
+    {
+        //TODO: later
+    }
 }
