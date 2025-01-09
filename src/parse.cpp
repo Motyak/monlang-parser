@@ -24,8 +24,14 @@ asCorrectLV2(const ParsingResult::Variant& result) {
     return std::get<2>(result);
 }
 
-ParsingResult parse(std::istringstream& input) {
-    auto progLV1 = consumeProgram(input);
+ParsingResult parseStr(const std::string& input) {
+    //TODO: check for UTF8_ERR // byte sequence cannot be interpreted as text (UTF8)
+    //TODO: check for CHARSET_ERR // byte lies outside ASCII character sub-set comprising of LF(10), SPACE(32) and all visible characters (33-126)
+    //TODO???: check for LINEFEED_ERR // non-empty line is missing a trailing LF character
+    //  -> already catch by LV1 ProgramSentence
+    auto iss = std::istringstream(input);
+
+    auto progLV1 = consumeProgram(iss);
     if (progLV1.has_error()) {
         return ParsingResult{LV1_ERR, progLV1};
     }
@@ -44,12 +50,9 @@ ParsingResult parse(std::istringstream& input) {
     return res;
 }
 
-ParsingResult parse(const std::string& filename) {
+ParsingResult parseFile(const std::string& filename) {
     auto input_str = slurp_file(filename);
-
-    auto input_iss = std::istringstream(input_str);
-
-    auto parsingRes = parse(input_iss);
+    auto parsingRes = parseStr(input_str);
     parsingRes._filename = filename;
 
     return parsingRes;

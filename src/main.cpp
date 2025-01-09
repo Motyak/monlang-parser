@@ -4,6 +4,7 @@
 #include <montree/PrintLV1.h>
 #include <montree/PrintLV2.h>
 
+#include <utils/assert-utils.h>
 #include <utils/iostream-utils.h>
 #include <utils/file-utils.h>
 #include <utils/fs-utils.h>
@@ -45,8 +46,7 @@ int repl_main(int argc, char* argv[]) {
     auto input_str = slurp_stdin(/*repeatable*/true);
 
     Eval:
-    auto input_iss = std::istringstream(input_str);
-    auto parsingRes = parse(input_iss);
+    auto parsingRes = parseStr(input_str);
 
     Print:
     handleParsingResult(parsingRes);
@@ -60,10 +60,7 @@ int stdinput_main(int argc, char* argv[]) {
     (void)argv;
 
     auto input_str = slurp_stdin(/*repeatable*/false);
-
-    auto input_iss = std::istringstream(input_str);
-    auto parsingRes = parse(input_iss);
-
+    auto parsingRes = parseStr(input_str);
     handleParsingResult(parsingRes);
 
     switch (parsingRes.status) {
@@ -75,15 +72,13 @@ int stdinput_main(int argc, char* argv[]) {
     }
 }
 
-// TODO: move some of the logic in `parse(const std::string& filename)`..
-//       ..that will call `parse(std::istringstream&)`
 int fileinput_main(int argc, char* argv[]) {
     (void)argc;
     const auto filename = argv[1];
 
     ParsingResult parsingRes;
     try {
-        parsingRes = parse(filename);
+        parsingRes = parseFile(filename);
     }
     catch (const CantOpenFileException&) {
         std::cerr << "Failed to open file `" << filename << "`" << std::endl;
@@ -111,13 +106,14 @@ void handleParsingResult(const ParsingResult& parsingRes) {
 
     unless (dir_exists("out")) return;
 
-    /* blank all out/ files */
+    /* empty all out/ files */
     {
         std::ofstream("out/LV1.ast.txt", std::ios::trunc);
         std::ofstream("out/LV2.ast.txt", std::ios::trunc);
         std::ofstream("out/traceback.txt", std::ios::trunc);
     }
 
+    // if (parsingRes.status > CHARSET_ERR)
     /* write out/LV1.ast.txt */
     {
         auto file = std::ofstream("out/LV1.ast.txt", std::ios::app);

@@ -1,41 +1,10 @@
 #ifndef PARSE_H
 #define PARSE_H
 
+#include <monlang-parser/Tokens.h>
+
 #include <monlang-LV1/Program.h>
 #include <monlang-LV2/Program.h>
-#include <monlang-LV1/ast/visitors/visitor.h>
-#include <monlang-LV2/ast/visitors/visitor.h>
-
-#include <utils/assert-utils.h>
-
-#include <map>
-
-using TokenId = size_t;
-
-struct Token {
-    std::string name;
-    size_t start;
-    size_t end;
-
-    bool is_malformed = false;
-    std::string err_title = "";
-    std::string err_desc = "";
-};
-
-template <typename T>
-class Tokens {
-  private:
-    std::vector<Token> tokens;
-    std::map<T, TokenId> token; // TODO: Ast as key will cause issue, think
-
-  public:
-    Tokens() = default;
-    Tokens(const std::vector<Token>&, const std::map<T, TokenId>&);
-    Token& operator[](TokenId); // TODO: returns a copy?
-    Token& operator[](T); // TODO: returns a copy?
-};
-using LV1Tokens = Tokens<LV1::Ast>;
-using LV2Tokens = Tokens<LV2::Ast>;
 
 struct ParsingResult {
     enum Status {
@@ -76,6 +45,7 @@ LV2::Program
 asCorrectLV2(const ParsingResult::Variant&);
 
 #ifdef PARSE_RESULT_TEST
+#include <utils/assert-utils.h>
 // g++ -x c++ -D PARSE_RESULT_TEST -c include/monlang-parser/parse.h -o main.o --std=c++23 -Wall -Wextra -I include
 // g++ main.o lib/monlang-LV1/dist/monlang-LV1.a lib/monlang-LV2/dist/monlang-LV2.a -o main.elf
 int main()
@@ -104,7 +74,7 @@ int main()
 }
 #endif // PARSE_H_MAIN
 
-ParsingResult parse(std::istringstream&);
-ParsingResult parse(const std::string& filename);
+ParsingResult parseStr(const std::string& bytes);
+ParsingResult parseFile(const std::string& filename);
 
 #endif // PARSE_H

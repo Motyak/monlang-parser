@@ -48,15 +48,15 @@ $(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/libs.a lib/test-libs.a
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 dist/monlang-parser.a: ARFLAGS = rcsvD
-dist/monlang-parser.a: $(OBJS) lib/libs.a # montree/dist/montree.a probably? ..
-#                                        .. Or should the module using monlang-parser also use montree ?
+dist/monlang-parser.a: $(OBJS) lib/libs.a # montree/dist/montree.a probably?
+#                                             -> the module using monlang-parser shall also use montree
 	$(AR) $(ARFLAGS) $@ $^
 
 bin/main.elf: ADDITIONAL_CXXFLAGS = -Wno-unused-label -I montree/include -MMD -MP -MF .deps/main.d
 bin/main.elf: src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a
 	$(CXX) -o $@ src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a $(CXXFLAGS) $(ADDITIONAL_CXXFLAGS)
 
--include $(DEPS) $(TEST_DEPS)
+-include $(DEPS) $(TEST_DEPS) .deps/main.d
 
 ############################################################
 # libs
