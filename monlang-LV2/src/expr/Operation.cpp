@@ -16,12 +16,12 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
     ASSERT (std::holds_alternative<Atom*>(term.words[1]));
     auto operator_ = std::get<Atom*>(term.words[1])->value;
 
-    auto leftOperand = buildExpression(as_term(term.words[0]));
+    auto leftOperand = buildExpression((Term)term.words[0]);
     if (leftOperand.has_error()) {
         return Malformed(MayFail_<Operation>{Expression_(), operator_, Expression_()}, ERR(611));
     }
 
-    auto rightOperand = buildExpression(as_term(term.words[2]));
+    auto rightOperand = buildExpression((Term)term.words[2]);
     if (rightOperand.has_error()) {
         return Malformed(MayFail_<Operation>{leftOperand, operator_, rightOperand}, ERR(612));
     }

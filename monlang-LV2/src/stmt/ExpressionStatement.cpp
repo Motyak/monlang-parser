@@ -3,28 +3,18 @@
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
-
-static Term toTerm(const ProgramSentence&);
 static ProgramSentence consumeSentence(LV1::Program&);
 
 MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
     ASSERT (sentence.programWords.size() > 0);
 
-    auto term = toTerm(sentence);
+    auto term = (Term)sentence;
     auto expression = buildExpression(term);
     if (expression.has_error()) {
         return Malformed(MayFail_<ExpressionStatement>{expression}, ERR(591));
     }
     return MayFail_<ExpressionStatement>{expression};
-}
-
-static Term toTerm(const ProgramSentence& sentence) {
-    std::vector<Word> words;
-    for (auto e: sentence.programWords) {
-        words.push_back(get_word(e));
-    }
-    return Term{words};
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
