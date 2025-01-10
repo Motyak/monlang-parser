@@ -12,11 +12,6 @@
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/Atom.h>
-/* only required to set_token_len on a Word */
-#include <monlang-LV1/ast/CurlyBracketsGroup.h>
-#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
-#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
-#include <monlang-LV1/ast/Association.h>
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
@@ -75,9 +70,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     // 'Operation' was the only Expression with multiple words
     ASSERT (term_.words.size() == 1);
-    Word word = term_.words[0];
-    // keep term token length
-    set_token_len(word, term_._tokenLen);
+    auto word = (Word)term_.words[0];
 
     // if (word =~ "PostfixParenthesesGroup"_) {
     //     return mayfail_convert<Expression_>(buildFunctionCall(word));
@@ -137,6 +130,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     //     goto BEGIN; // prevent unnecessary recursive call
     // }
 
+    // TODO: unwrap as long as there are nested groups, before doing the 'goto BEGIN'
     if (std::holds_alternative<ParenthesesGroup*>(word)) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning

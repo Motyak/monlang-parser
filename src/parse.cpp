@@ -1,4 +1,5 @@
 #include <monlang-parser/parse.h>
+#include <monlang-parser/ReconstructLV1Tokens.h>
 
 #include <utils/file-utils.h>
 
@@ -33,7 +34,10 @@ ParsingResult parseStr(const std::string& input) {
 
     auto progLV1 = consumeProgram(iss);
     if (progLV1.has_error()) {
-        return ParsingResult{LV1_ERR, progLV1};
+        auto res = ParsingResult{LV1_ERR, progLV1};
+        auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1);
+        fill_tokens(progLV1);
+        return res;
     }
 
     auto correctLV1 = (LV1::Program)progLV1;
@@ -41,11 +45,15 @@ ParsingResult parseStr(const std::string& input) {
     auto progLV2 = consumeProgram(correctLV1);
     if (progLV2.has_error()) {
         auto res = ParsingResult{LV2_ERR, progLV2};
+        auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1);
+        fill_tokens(progLV1);
         res._correctLV1 = backupCorrectLV1;
         return res;
     }
 
     auto res = ParsingResult{LV2_OK, (LV2::Program)progLV2};
+    auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1);
+    fill_tokens(progLV1);
     res._correctLV1 = backupCorrectLV1;
     return res;
 }

@@ -15,7 +15,6 @@ struct Token {
     size_t end;
 
     bool is_malformed = false;
-    std::string err_title = "";
     std::string err_desc = "";
 };
 

@@ -12,6 +12,9 @@
         "include/monlang-LV2": true,
         "montree/include/monlang-LV2": true,
 
+        /* we only want common/utils */
+        "**/include/utils": true,
+
         "monlang-LV1/lib/*": true, // monlang-LV1 dependencies
         "monlang-LV2/lib/*": true, // monlang-LV2 dependencies
 

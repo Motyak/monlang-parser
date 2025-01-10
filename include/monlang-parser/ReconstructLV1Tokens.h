@@ -26,7 +26,12 @@ class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
 
   private:
     LV1Tokens& tokens;
-    MayFail<ProgramWord_> curWord; // May be a ProgramWord or a Word, so let's name it `word`
+    size_t curPos = 0;
+
+    bool isProgramWord;
+    MayFail<ProgramWord_> curWord;
+
+    TokenId newToken(const LV1::Ast_&);
 };
 
 #endif // RECONSTRUCT_LV1_TOKENS_H

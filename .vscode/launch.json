@@ -1,13 +1,61 @@
 {
     "configurations": [
         {
-            "name": "(gdb) debug",
+            "name": "(gdb) parser test",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/test/test_token_lengths.elf",
-            "args": ["[test-9715]"],
+            "args": ["[test-9731]"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) LV2 test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/monlang-LV2/bin/test/expr.elf",
+            "args": ["[test-1616]"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/monlang-LV2",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) main",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/main.elf",
+            "args": ["in.txt"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
