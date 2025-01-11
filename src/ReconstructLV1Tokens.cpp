@@ -20,13 +20,13 @@
 #define token tokens._vec.at(tokenId)
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
-    /* reset state */
-    tokens = {};
-    curPos = 0;
+    // /* reset state */
+    // tokens = {};
+    // curPos = 0;
 
     auto tokenId = newToken(prog);
     token.is_malformed = prog.has_error();
-    token.name = token.is_malformed? "Malformed Program" : "Program";
+    token.name = "Program";
 
     if (token.is_malformed) {
         token.err_desc = prog.error().fmt; // TODO: map this to the actual error description
@@ -43,7 +43,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& sentence) {
     auto tokenId = newToken(sentence);
     token.is_malformed = sentence.has_error();
-    token.name = sentence.has_error()? "Malformed ProgramSentence" : "ProgramSentence";
+    token.name = "ProgramSentence";
 
     if (token.is_malformed) {
         token.err_desc = sentence.error().fmt; // TODO: map this to the actual error description
@@ -55,6 +55,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
     token.start = curPos;
     auto backupCurPos = curPos;
     for (auto pw: sentence.val.programWords) {
+        // TODO: increment curPos by sequenceLen of Sentence continuator (except first iteration)
         operator()(pw);
     }
     curPos = backupCurPos;
@@ -73,7 +74,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<ProgramWord_>& pw) {
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
     auto tokenId = newToken(term);
     token.is_malformed = term.has_error();
-    token.name = token.is_malformed? "Malformed Term" : "Term";
+    token.name = "Term";
 
     if (token.is_malformed) {
         token.err_desc = term.error().fmt; // TODO: map this to the actual error description
@@ -96,7 +97,7 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken(entity);
     token.is_malformed = curWord.has_error();
-    token.name = token.is_malformed? "Malformed Atom" : "Atom";
+    token.name = "Atom";
 
     if (token.is_malformed) {
         token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
