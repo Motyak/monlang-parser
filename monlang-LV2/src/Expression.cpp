@@ -70,7 +70,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     // 'Operation' was the only Expression with multiple words
     ASSERT (term_.words.size() == 1);
-    auto word = (Word)term_.words[0];
+    auto word = (Word)term_;
 
     // if (word =~ "PostfixParenthesesGroup"_) {
     //     return mayfail_convert<Expression_>(buildFunctionCall(word));
