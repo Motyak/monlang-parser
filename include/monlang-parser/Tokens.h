@@ -1,3 +1,7 @@
+/*
+    standalone header, no .cpp
+*/
+
 #ifndef TOKENS_H
 #define TOKENS_H
 
