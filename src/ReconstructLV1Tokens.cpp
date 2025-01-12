@@ -16,13 +16,14 @@
 #include <monlang-LV1/Association.h>
 
 #include <utils/assert-utils.h>
+#include <utils/loop-utils.h>
 
 #define token tokens._vec.at(tokenId)
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
-    // /* reset state */
-    // tokens = {};
-    // curPos = 0;
+    /* reset state */
+    tokens = {};
+    curPos = 0;
 
     auto tokenId = newToken(prog);
     token.is_malformed = prog.has_error();
@@ -38,6 +39,11 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     }
     // special case, no _tokenLen
     token.end = curPos;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& sentence) {
@@ -54,15 +60,28 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
 
     token.start = curPos;
     auto backupCurPos = curPos;
-    for (auto pw: sentence.val.programWords) {
-        // TODO: increment curPos by sequenceLen of Sentence continuator (except first iteration)
+    LOOP for (auto pw: sentence.val.programWords) {
+        if (!__first_it) {
+            curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        }
         operator()(pw);
+        ENDLOOP
     }
     curPos = backupCurPos;
     curPos += sentence.val._tokenLen;
     token.end = curPos;
 
     curPos += sentence.val._tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = tokens._vec.back().end;
+        }
+        tokens.traceback.push_back(token);
+    }
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<ProgramWord_>& pw) {
@@ -81,8 +100,27 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
     }
 
     token.start = curPos;
+    auto backupCurPos = curPos;
+    LOOP for (auto word: term.val.words) {
+        if (!__first_it) {
+            curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
+        }
+        operator()(word);
+        ENDLOOP
+    }
+    curPos = backupCurPos;
     curPos += term.val._tokenLen;
     token.end = curPos;
+
+    if (token.is_malformed) {
+        if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = tokens._vec.back().end;
+        }
+        tokens.traceback.push_back(token);
+    }
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<Word_>& word) {
@@ -106,6 +144,11 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
     token.start = curPos;
     curPos += atom->_tokenLen;
     token.end = curPos;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>*) {

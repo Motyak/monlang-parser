@@ -21,16 +21,18 @@ struct Token {
     size_t end;
 
     bool is_malformed = false;
+    size_t err_start = 0; // only malformed token, not necessarily equal to start
     std::string err_desc = "";
 };
 
 template <typename T>
 class Tokens {
   public:
-    Tokens() = default;
-    Tokens(const std::vector<Token>&, const EntityMap<T, TokenId>&);
     Token& operator[](TokenId); // TODO: returns a copy?
     Token& operator[](T); // TODO: returns a copy?
+    // TODO: add a .size() that returns vec size ?
+
+    std::vector<Token> traceback; // stack of malformed tokens
 
     std::vector<Token> _vec;
     EntityMap<T, TokenId> _map;
