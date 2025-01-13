@@ -38,4 +38,15 @@ inline std::vector<std::string> split(const std::string& str, const std::string&
 
 #define INT2CSTR(num) (std::to_string(num).c_str())
 
+inline std::string rjust(const std::string& str, size_t width, char fillchar=' ') {
+    if (str.size() >= width) {
+        return str;
+    }
+    return std::string(width - str.size(), fillchar) + str;
+}
+
+inline std::string rjust(size_t nb, size_t width, char fillchar=' ') {
+    return rjust(std::to_string(nb), width, fillchar);
+}
+
 #endif // STR_UTILS_H

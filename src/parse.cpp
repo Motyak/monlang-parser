@@ -35,18 +35,19 @@ static std::vector<size_t> calculateNewlinesPos(const std::string& input) {
     return res;
 }
 
-ParsingResult parseStr(const std::string& input) {
+ParsingResult parse(const Source& text) {
     //TODO: check for UTF8_ERR // byte sequence cannot be interpreted as text (UTF8)
     //TODO: check for CHARSET_ERR // byte lies outside ASCII character sub-set comprising of LF(10), SPACE(32) and all visible characters (33-126)
     //TODO???: check for LINEFEED_ERR // non-empty line is missing a trailing LF character
     //  -> already catch by LV1 ProgramSentence
-    auto newlinesPos = calculateNewlinesPos(input);
-    auto iss = std::istringstream(input);
+    auto newlinesPos = calculateNewlinesPos(text);
+    auto iss = std::istringstream(text);
 
     auto progLV1 = consumeProgram(iss);
     if (progLV1.has_error()) {
         auto res = ParsingResult{LV1_ERR, progLV1};
-        auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1, newlinesPos);
+        res._source = text;
+        auto fill_tokens = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
         fill_tokens(progLV1);
         return res;
     }
@@ -56,23 +57,17 @@ ParsingResult parseStr(const std::string& input) {
     auto progLV2 = consumeProgram(correctLV1);
     if (progLV2.has_error()) {
         auto res = ParsingResult{LV2_ERR, progLV2};
-        auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1);
+        res._source = text;
+        auto fill_tokens = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
         fill_tokens(progLV1);
         res._correctLV1 = backupCorrectLV1;
         return res;
     }
 
     auto res = ParsingResult{LV2_OK, (LV2::Program)progLV2};
-    auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1);
+    res._source = text;
+    auto fill_tokens = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
     fill_tokens(progLV1);
     res._correctLV1 = backupCorrectLV1;
     return res;
-}
-
-ParsingResult parseFile(const std::string& filename) {
-    auto input_str = slurp_file(filename);
-    auto parsingRes = parseStr(input_str);
-    parsingRes._filename = filename;
-
-    return parsingRes;
 }

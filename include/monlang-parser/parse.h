@@ -6,6 +6,16 @@
 #include <monlang-LV1/Program.h>
 #include <monlang-LV2/Program.h>
 
+struct Source {
+    std::string name; // e.g.: `file.txt`, `<stdin>`, default is `<str>`
+    std::string text; // bytes
+
+    Source() = default;
+    Source(const std::string& text) : name("<str>"), text(text){} // TODO: .cpp
+    Source(const std::string& name, const std::string& text) : name(name), text(text){} // TODO: .cpp
+    operator std::string() const {return text;} // TODO: .cpp
+};
+
 struct ParsingResult {
     enum Status {
         // ...
@@ -29,7 +39,7 @@ struct ParsingResult {
         return variant;
     }
 
-    std::string _filename = "<stdin>";
+    Source _source; // for reporting eventual traceback
     std::optional<LV1::Program> _correctLV1 = std::nullopt;
     LV1Tokens _tokensLV1; // TODO: will become std::optional
     // std::optional<LV2Tokens> _tokensLV2 = std::nullopt; // TODO: impl
@@ -74,7 +84,6 @@ int main()
 }
 #endif // PARSE_H_MAIN
 
-ParsingResult parseStr(const std::string& bytes);
-ParsingResult parseFile(const std::string& filename);
+ParsingResult parse(const Source& text);
 
 #endif // PARSE_H
