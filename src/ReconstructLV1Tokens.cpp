@@ -33,12 +33,12 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
         token.err_desc = prog.error().fmt; // TODO: map this to the actual error description
     }
 
-    token.start = curPos;
+    token.start = asTokenPosition(curPos);
     for (auto sentence: prog.val.sentences) {
         operator()(sentence);
     }
     // special case, no _tokenLen
-    token.end = curPos;
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -58,7 +58,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
     curPos += sentence.val._tokenLeadingNewlines;
     curPos += sentence.val._tokenIndentSpaces;
 
-    token.start = curPos;
+    token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     LOOP for (auto pw: sentence.val.programWords) {
         if (!__first_it) {
@@ -69,7 +69,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
     }
     curPos = backupCurPos;
     curPos += sentence.val._tokenLen;
-    token.end = curPos;
+    token.end = asTokenPosition(curPos);
 
     curPos += sentence.val._tokenTrailingNewlines;
 
@@ -99,7 +99,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
         token.err_desc = term.error().fmt; // TODO: map this to the actual error description
     }
 
-    token.start = curPos;
+    token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     LOOP for (auto word: term.val.words) {
         if (!__first_it) {
@@ -110,7 +110,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
     }
     curPos = backupCurPos;
     curPos += term.val._tokenLen;
-    token.end = curPos;
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
@@ -141,9 +141,9 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
         token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
     }
 
-    token.start = curPos;
+    token.start = asTokenPosition(curPos);
     curPos += atom->_tokenLen;
-    token.end = curPos;
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -182,9 +182,21 @@ void ReconstructLV1Tokens::operator()(MayFail_<Association>*) {
 
 ///////////////////////////////////////////////////////////////
 
-ReconstructLV1Tokens::ReconstructLV1Tokens(LV1Tokens& tokens) : tokens(tokens){}
+ReconstructLV1Tokens::ReconstructLV1Tokens(LV1Tokens& tokens, const std::vector<size_t>& newlinesPos)
+        : tokens(tokens), newlinesPos(newlinesPos){}
 
 TokenId ReconstructLV1Tokens::newToken(const LV1::Ast_& entity) {
     tokens._vec.push_back(Token{});
     return tokens._map[entity] = tokens._vec.size() - 1;
+}
+
+TokenPosition ReconstructLV1Tokens::asTokenPosition(size_t index) {
+    if (newlinesPos.empty()) {
+        return TokenPosition{index, 0, 0};
+    }
+    auto lower_bound = std::lower_bound(newlinesPos.begin(), newlinesPos.end(), index);
+    size_t line = lower_bound - newlinesPos.begin() + 1;
+    size_t column = lower_bound - 1 < newlinesPos.begin()? index + 1 : index - *(lower_bound - 1);
+
+    return TokenPosition{index, line, column};
 }

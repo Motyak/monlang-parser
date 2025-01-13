@@ -15,13 +15,22 @@
 
 using TokenId = size_t;
 
+struct TokenPosition {
+    size_t i; // stringstream absolute index
+    size_t line;
+    size_t column;
+    TokenPosition() : i(0), line(0), column(0){} // TODO: create .cpp
+    TokenPosition(size_t i, size_t line, size_t column) : i(i), line(line), column(column){} // TODO: create .cpp
+    operator size_t(){return i;} // TODO: create .cpp
+};
+
 struct Token {
     std::string name;
-    size_t start;
-    size_t end;
+    TokenPosition start;
+    TokenPosition end;
 
     bool is_malformed = false;
-    size_t err_start = 0; // only malformed token, not necessarily equal to start
+    TokenPosition err_start = {}; // only malformed token, not necessarily equal to start
     std::string err_desc = "";
 };
 

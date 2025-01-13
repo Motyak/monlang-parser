@@ -25,17 +25,28 @@ asCorrectLV2(const ParsingResult::Variant& result) {
     return std::get<2>(result);
 }
 
+static std::vector<size_t> calculateNewlinesPos(const std::string& input) {
+    std::vector<size_t> res;
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == NEWLINE) {
+            res.push_back(i);
+        }
+    }
+    return res;
+}
+
 ParsingResult parseStr(const std::string& input) {
     //TODO: check for UTF8_ERR // byte sequence cannot be interpreted as text (UTF8)
     //TODO: check for CHARSET_ERR // byte lies outside ASCII character sub-set comprising of LF(10), SPACE(32) and all visible characters (33-126)
     //TODO???: check for LINEFEED_ERR // non-empty line is missing a trailing LF character
     //  -> already catch by LV1 ProgramSentence
+    auto newlinesPos = calculateNewlinesPos(input);
     auto iss = std::istringstream(input);
 
     auto progLV1 = consumeProgram(iss);
     if (progLV1.has_error()) {
         auto res = ParsingResult{LV1_ERR, progLV1};
-        auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1);
+        auto fill_tokens = ReconstructLV1Tokens(res._tokensLV1, newlinesPos);
         fill_tokens(progLV1);
         return res;
     }
