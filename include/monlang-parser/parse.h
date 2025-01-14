@@ -11,9 +11,9 @@ struct Source {
     std::string text; // bytes
 
     Source() = default;
-    Source(const std::string& text) : name("<str>"), text(text){} // TODO: .cpp
-    Source(const std::string& name, const std::string& text) : name(name), text(text){} // TODO: .cpp
-    operator std::string() const {return text;} // TODO: .cpp
+    Source(const std::string& name, const std::string& text);
+    Source(const std::string& text); // default name: `<str>`
+    operator std::string() const; // returns text
 };
 
 struct ParsingResult {

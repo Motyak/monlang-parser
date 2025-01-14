@@ -159,8 +159,39 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>*) {
     TODO();
 }
 
-void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>*) {
-    TODO();
+void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "ParenthesesGroup";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
+    LOOP for (auto term: pg->terms) {
+        if (!__first_it) {
+            curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
+        }
+        operator()(term);
+        ENDLOOP
+    }
+    curPos = backupCurPos;
+    curPos += pg->_tokenLen;
+    token.end = asTokenPosition(curPos);
+
+    if (token.is_malformed) {
+        if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = tokens._vec.back().end;
+        }
+        tokens.traceback.push_back(token);
+    }
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>*) {

@@ -19,9 +19,9 @@ struct TokenPosition {
     size_t i; // stringstream absolute index
     size_t line;
     size_t column;
-    TokenPosition() : i(0), line(0), column(0){} // TODO: create .cpp
-    TokenPosition(size_t i, size_t line, size_t column) : i(i), line(line), column(column){} // TODO: create .cpp
-    operator size_t(){return i;} // TODO: create .cpp
+    TokenPosition() : i(0), line(0), column(0){}
+    TokenPosition(size_t i, size_t line, size_t column) : i(i), line(line), column(column){}
+    operator size_t() { return i; }
 };
 
 struct Token {
@@ -37,9 +37,9 @@ struct Token {
 template <typename T>
 class Tokens {
   public:
-    Token& operator[](TokenId); // TODO: returns a copy?
-    Token& operator[](T); // TODO: returns a copy?
-    // TODO: add a .size() that returns vec size ?
+    Token& operator[](TokenId id) { return _vec.at(id); }
+    Token& operator[](T entity) { return this[_map.at(entity)]; }
+    size_t size() const { return _vec.size(); }
 
     std::vector<Token> traceback; // stack of malformed tokens
 

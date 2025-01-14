@@ -9,6 +9,7 @@
 #include <utils/file-utils.h>
 #include <utils/fs-utils.h>
 #include <utils/str-utils.h>
+#include <utils/loop-utils.h>
 
 #include <fstream>
 
@@ -155,11 +156,62 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
 
     auto sourceLines = split(parsingRes._source, "\n");
 
+    /*
+        The first arrow `^` indicates the start of the malformed token,
+        the second arrow `^` indicates the start of the error.
+        e.g.:
+        in/group_notok.txt:2:9: error: Malformed Term
+            2 | (fds, sd]f)
+              |       ^ ^ERR-103
+
+        If the two arrows point to the same location, you will only see one.
+        e.g.:
+        in/group_notok.txt:2:1: error: Malformed ProgramSentence
+            2 | (fds, sd]f)
+              | ^ERR-129
+        (Here the ProgramSentence error is an inner Malformed ParenthesesGroup)
+
+        Finally, if the token start on a line above where error start,
+        then only the second arrow will be printed (line where error starts).
+        e.g. :
+        in/group_notok.txt:2:1: error: Malformed Program
+            2 | (fds, sd]f)
+              | ^ERR-119
+        (Program always start at line 1, but here we show line 2,
+        where the Malformed ProgramSentence is located)
+
+    */
     if (parsingRes.status == LV1_ERR) {
-        for (auto token: parsingRes._tokensLV1.traceback) {
-            out << parsingRes._source.name << ":" << token.err_start.line << ":" << token.err_start.column << ": " << "error: Malformed " << token.name << "\n";
-            out << rjust(token.err_start.line, 5) << " | " << sourceLines.at(token.err_start.line - 1) << "\n";
-            out << "      | " << rjust("^", token.err_start.column) << token.err_desc << "\n";
+        TokenPosition err_start;
+        LOOP for (auto token: parsingRes._tokensLV1.traceback) {
+            if (__first_it) {
+                /* ! will use token.err_start then set err_start for next iteration */
+                auto print_token_start_as_well = token.start.line == token.err_start.line && token.start.column != token.err_start.column;
+                out << parsingRes._source.name << ":" << token.err_start.line << ":" << token.err_start.column << ": " << "error: Malformed " << token.name << "\n";
+                out << rjust(token.err_start.line, 5) << " | " << sourceLines.at(token.err_start.line - 1) << "\n";
+                if (print_token_start_as_well) {
+                    auto the_two_arrows = "^" + std::string(token.err_start.column - token.start - 1, SPACE) + "^";
+                    out << "      | " << rjust(the_two_arrows, token.err_start.column) << token.err_desc << "\n";
+                }
+                else {
+                    out << "      | " << rjust("^", token.err_start.column) << token.err_desc << "\n";
+                }
+            }
+            else {
+                /* ! will use err_start, set in previous iteration, rather than token.err_start */
+                auto print_token_start_as_well = token.start.line == err_start.line && token.start.column != err_start.column;
+                out << parsingRes._source.name << ":" << err_start.line << ":" << err_start.column << ": " << "error: Malformed " << token.name << "\n";
+                out << rjust(err_start.line, 5) << " | " << sourceLines.at(err_start.line - 1) << "\n";
+                if (print_token_start_as_well) {
+                    auto the_two_arrows = "^" + std::string(err_start.column - token.start - 1, SPACE) + "^";
+                    out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_desc << "\n";
+                }
+                else {
+                    out << "      | " << rjust("^", err_start.column) << token.err_desc << "\n";
+                }
+            }
+            err_start = token.start;
+            ENDLOOP
         }
     }
 

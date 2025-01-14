@@ -71,3 +71,11 @@ ParsingResult parse(const Source& text) {
     res._correctLV1 = backupCorrectLV1;
     return res;
 }
+
+Source::Source(const std::string& text) : name("<str>"), text(text){}
+
+Source::Source(const std::string& name, const std::string& text) : name(name), text(text){}
+
+Source::operator std::string() const {
+    return text;
+}
