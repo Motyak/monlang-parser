@@ -27,11 +27,12 @@ class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
 
   private:
     LV1Tokens& tokens;
-    size_t curPos = 0;
     const std::vector<size_t> newlinesPos; // sorted asc
 
+    size_t curPos = 0;
     bool isProgramWord;
     MayFail<ProgramWord_> curWord;
+    TokenId lastCorrectToken = -1;
 
     TokenId newToken(const LV1::Ast_&);
     TokenPosition asTokenPosition(size_t index);

@@ -24,6 +24,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     /* reset state */
     tokens = {};
     curPos = 0;
+    // lastCorrectToken = -1;
 
     auto tokenId = newToken(prog);
     token.is_malformed = prog.has_error();
@@ -34,8 +35,13 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     }
 
     token.start = asTokenPosition(curPos);
+    auto backupLastCorrectToken = lastCorrectToken;
     for (auto sentence: prog.val.sentences) {
+        auto sentenceTokenId = tokens._vec.size();
         operator()(sentence);
+        if (!tokens._vec.at(sentenceTokenId).is_malformed) {
+            lastCorrectToken = sentenceTokenId;
+        }
     }
     // special case, no _tokenLen
     token.end = asTokenPosition(curPos - !!curPos);
@@ -44,6 +50,8 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
         token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& sentence) {
@@ -60,11 +68,17 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
     LOOP for (auto pw: sentence.val.programWords) {
         if (!__first_it) {
             curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
         }
+        auto pwTokenId = tokens._vec.size();
         operator()(pw);
+        if (!tokens._vec.at(pwTokenId).is_malformed) {
+            lastCorrectToken = pwTokenId;
+        }
         ENDLOOP
     }
     curPos = backupCurPos;
@@ -74,14 +88,16 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
     curPos += sentence.val._tokenTrailingNewlines;
 
     if (token.is_malformed) {
-        if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.back().end + 1);
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
         }
         tokens.traceback.push_back(token);
     }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<ProgramWord_>& pw) {
@@ -101,11 +117,17 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
     LOOP for (auto word: term.val.words) {
         if (!__first_it) {
             curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
         }
+        auto wordTokenId = tokens._vec.size();
         operator()(word);
+        if (!tokens._vec.at(wordTokenId).is_malformed) {
+            lastCorrectToken = wordTokenId;
+        }
         ENDLOOP
     }
     curPos = backupCurPos;
@@ -113,14 +135,16 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
     token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
-        if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.back().end + 1);
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
         }
         tokens.traceback.push_back(token);
     }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<Word_>& word) {
@@ -171,12 +195,18 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
     LOOP for (auto term: pg->terms) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
+        auto termTokenId = tokens._vec.size();
         operator()(term);
+        if (!tokens._vec.at(termTokenId).is_malformed) {
+            lastCorrectToken = termTokenId;
+        }
         ENDLOOP
     }
     curPos = backupCurPos;
@@ -184,14 +214,16 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
     token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
-        if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.back().end + 1); // TODO: not always correct ?
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
         }
         tokens.traceback.push_back(token);
     }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>*) {
