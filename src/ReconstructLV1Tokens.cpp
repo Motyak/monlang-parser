@@ -38,7 +38,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
         operator()(sentence);
     }
     // special case, no _tokenLen
-    token.end = asTokenPosition(curPos);
+    token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -69,7 +69,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
     }
     curPos = backupCurPos;
     curPos += sentence.val._tokenLen;
-    token.end = asTokenPosition(curPos);
+    token.end = asTokenPosition(curPos - !!curPos);
 
     curPos += sentence.val._tokenTrailingNewlines;
 
@@ -78,7 +78,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
             token.err_start = token.start;
         }
         else {
-            token.err_start = tokens._vec.back().end;
+            token.err_start = asTokenPosition(tokens._vec.back().end + 1);
         }
         tokens.traceback.push_back(token);
     }
@@ -110,14 +110,14 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
     }
     curPos = backupCurPos;
     curPos += term.val._tokenLen;
-    token.end = asTokenPosition(curPos);
+    token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
         if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = tokens._vec.back().end;
+            token.err_start = asTokenPosition(tokens._vec.back().end + 1);
         }
         tokens.traceback.push_back(token);
     }
@@ -143,7 +143,7 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
 
     token.start = asTokenPosition(curPos);
     curPos += atom->_tokenLen;
-    token.end = asTokenPosition(curPos);
+    token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -181,14 +181,14 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
     }
     curPos = backupCurPos;
     curPos += pg->_tokenLen;
-    token.end = asTokenPosition(curPos);
+    token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
         if (tokens._vec.empty() || tokens._vec.back().is_malformed) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = tokens._vec.back().end;
+            token.err_start = asTokenPosition(tokens._vec.back().end + 1); // TODO: not always correct ?
         }
         tokens.traceback.push_back(token);
     }
@@ -223,11 +223,11 @@ TokenId ReconstructLV1Tokens::newToken(const LV1::Ast_& entity) {
 
 TokenPosition ReconstructLV1Tokens::asTokenPosition(size_t index) {
     if (newlinesPos.empty()) {
-        return TokenPosition{index, 0, 0};
+        return TokenPosition{index, 1, index + 1};
     }
     auto lower_bound = std::lower_bound(newlinesPos.begin(), newlinesPos.end(), index);
     size_t line = lower_bound - newlinesPos.begin() + 1;
-    size_t column = lower_bound - 1 < newlinesPos.begin()? index + 1 : index - *(lower_bound - 1);
+    size_t column = lower_bound == newlinesPos.begin()? index + 1 : index - *(lower_bound - 1);
 
     return TokenPosition{index, line, column};
 }
