@@ -7,24 +7,6 @@ using ParsingResult::Status::LV1_ERR;
 using ParsingResult::Status::LV2_ERR;
 using ParsingResult::Status::LV2_OK;
 
-ParsingResult::ParsingResult(const Status& status, const Variant& variant)
-        : status(status), variant(variant){}
-
-Malformed<Malformed_<LV1::Program>>
-asMalformedLV1(const ParsingResult::Variant& result) {
-    return std::get<0>(result);
-}
-
-Malformed<Malformed_<LV2::Program>>
-asMalformedLV2(const ParsingResult::Variant& result) {
-    return std::get<1>(result);
-}
-
-LV2::Program
-asCorrectLV2(const ParsingResult::Variant& result) {
-    return std::get<2>(result);
-}
-
 static std::vector<size_t> calculateNewlinesPos(const std::string& input) {
     std::vector<size_t> res;
     for (size_t i = 0; i < input.size(); ++i) {
@@ -78,4 +60,26 @@ Source::Source(const std::string& name, const std::string& text) : name(name), t
 
 Source::operator std::string() const {
     return text;
+}
+
+ParsingResult::ParsingResult(const Status& status, const Variant& variant)
+        : status(status), variant(variant){}
+
+ParsingResult::operator Variant() const {
+    return variant;
+}
+
+Malformed<Malformed_<LV1::Program>>
+asMalformedLV1(const ParsingResult::Variant& result) {
+    return std::get<0>(result);
+}
+
+Malformed<Malformed_<LV2::Program>>
+asMalformedLV2(const ParsingResult::Variant& result) {
+    return std::get<1>(result);
+}
+
+LV2::Program
+asCorrectLV2(const ParsingResult::Variant& result) {
+    return std::get<2>(result);
 }

@@ -226,8 +226,51 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>*) {
-    TODO();
+void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "CurlyBracketsGroup";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += sequenceLen(CurlyBracketsGroup::INITIATOR_SEQUENCE);
+    if (cbg->term.has_value()) {
+        /* oneline cbg */
+        operator()(cbg->term.value());
+    }
+    else {
+        /* multiline cbg */
+        curPos += 1; // newline
+        for (auto sentence: cbg->sentences) {
+            auto sentenceTokenId = tokens._vec.size();
+            operator()(sentence);
+            if (!tokens._vec.at(sentenceTokenId).is_malformed) {
+                lastCorrectToken = sentenceTokenId;
+            }
+        }
+    }
+    curPos = backupCurPos;
+    curPos += cbg->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>*) {

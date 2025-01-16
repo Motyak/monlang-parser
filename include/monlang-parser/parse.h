@@ -34,10 +34,7 @@ struct ParsingResult {
 
     ParsingResult() = default;
     ParsingResult(const Status&, const Variant&);
-
-    operator Variant() const {
-        return variant;
-    }
+    operator Variant() const;
 
     Source _source; // for reporting eventual traceback
     std::optional<LV1::Program> _correctLV1 = std::nullopt;
