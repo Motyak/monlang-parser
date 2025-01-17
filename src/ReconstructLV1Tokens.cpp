@@ -175,12 +175,80 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
     }
 }
 
-void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>*) {
-    TODO();
+void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "SquareBracketsTerm";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += sequenceLen(SquareBracketsTerm::INITIATOR_SEQUENCE);
+    operator()(sbt->term);
+    curPos = backupCurPos;
+    curPos += sbt->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>*) {
-    TODO();
+void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "SquareBracketsGroup";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
+    LOOP for (auto term: sbg->terms) {
+        if (!__first_it) {
+            curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
+        }
+        auto termTokenId = tokens._vec.size();
+        operator()(term);
+        if (!tokens._vec.at(termTokenId).is_malformed) {
+            lastCorrectToken = termTokenId;
+        }
+        ENDLOOP
+    }
+    curPos = backupCurPos;
+    curPos += sbg->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
@@ -273,8 +341,37 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>*) {
-    TODO();
+void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "PostfixSquareBracketsGroup";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(MayFail(wrap_w(psbg->leftPart)));
+    operator()(mayfail_convert<Word_>(psbg->rightPart));
+    curPos = backupCurPos;
+    curPos += psbg->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
