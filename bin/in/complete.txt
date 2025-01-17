@@ -1,0 +1,7 @@
+let push (x):{
+    let merge (list1, list2):{
+        [ left(list1) <> 'nil ] || return list2
+        List(left(list1), $self(right(list1), list2))
+    }
+    m_back := merge(m_back, List(x, 'nil))
+}

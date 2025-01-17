@@ -32,7 +32,7 @@ clean:
 	$(RM) obj/* .deps/*
 
 mrproper:
-	$(RM) obj .deps bin dist lib/libs.a lib/test-libs.a
+	$(RM) obj .deps bin/*.elf bin/out bin/test dist lib/libs.a lib/test-libs.a
 
 .PHONY: all main dist clean mrproper
 

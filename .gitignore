@@ -1,5 +1,7 @@
 .deps
-bin
+bin/main.elf
+bin/out
+bin/test
 obj
 dist
 lib/libs.a

@@ -1,0 +1,4 @@
+(param):{
+    fds
+    fds[sdf):azer
+}
