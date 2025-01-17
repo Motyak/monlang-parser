@@ -164,14 +164,17 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
             2 | (fds, sd]f)
               |       ^ ^ERR-103
 
-        If the two arrows point to the same location, you will only see one.
+        We prioritize printing the error_start arrow over the token_start arrow,
+        as seen in the following cases:
+
+        - If the two arrows point to the same location, you will only see one.
         e.g.:
         in/group_notok.txt:2:1: error: Malformed ProgramSentence
             2 | (fds, sd]f)
               | ^ERR-129
         (Here the ProgramSentence error is an inner Malformed ParenthesesGroup)
 
-        Finally, if the token start on a line above where error start,
+        - If the token start on a line above where error start,
         then only the second arrow will be printed (line where error starts).
         e.g. :
         in/group_notok.txt:2:1: error: Malformed Program
