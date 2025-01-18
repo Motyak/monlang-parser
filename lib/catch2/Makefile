@@ -1,5 +1,6 @@
 ifdef X86
 CXXFLAGS += -m32
+LDFLAGS += -m32
 endif
 
 all: obj/catch_amalgamated.o
