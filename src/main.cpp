@@ -189,7 +189,7 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
         LOOP for (auto token: parsingRes._tokensLV1.traceback) {
             if (__first_it) {
                 /* will initialize err_start with token.err_start */
-                err_start = token.err_start; // one off for `(fds<EOF>`
+                err_start = token.err_start;
             }
 
             /* here will use err_start set in previous iteration, NEVER token.err_start */
@@ -209,7 +209,27 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
     }
 
     else if (parsingRes.status == LV2_ERR) {
-        //TODO
+        TokenPosition err_start;
+        LOOP for (auto token: parsingRes._tokensLV2.value().traceback) {
+            if (__first_it) {
+                /* will initialize err_start with token.err_start */
+                err_start = token.err_start;
+            }
+
+            /* here will use err_start set in previous iteration, NEVER token.err_start */
+            auto print_token_start_as_well = token.start.line == err_start.line && token.start.column != err_start.column;
+            out << parsingRes._source.name << ":" << err_start.line << ":" << err_start.column << ": LV2 error: Malformed " << token.name << "\n";
+            out << rjust(err_start.line, 5) << " | " << sourceLines.at(err_start.line - 1) << "\n";
+            if (print_token_start_as_well) {
+                auto the_two_arrows = "^" + std::string(err_start.column - token.start.column - 1, SPACE) + "^";
+                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_desc << "\n";
+            }
+            else {
+                out << "      | " << rjust("^", err_start.column) << token.err_desc << "\n";
+            }
+            err_start = token.start;
+            ENDLOOP
+        }
     }
 
     else {

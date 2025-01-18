@@ -9,6 +9,7 @@ MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& 
     auto sentence = consumeSentence(prog);
     ASSERT (sentence.programWords.size() > 0);
 
+    // TODO: if sentence contains any ProgramWord => return malformed expr stmt accordingly
     auto term = (Term)sentence;
     auto expression = buildExpression(term);
     if (expression.has_error()) {

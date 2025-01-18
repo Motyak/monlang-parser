@@ -1,5 +1,6 @@
 #include <monlang-parser/parse.h>
 #include <monlang-parser/ReconstructLV1Tokens.h>
+#include <monlang-parser/ReconstructLV2Tokens.h>
 
 #include <utils/file-utils.h>
 
@@ -29,8 +30,8 @@ ParsingResult parse(const Source& text) {
     if (progLV1.has_error()) {
         auto res = ParsingResult{LV1_ERR, progLV1};
         res._source = text;
-        auto fill_tokens = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-        fill_tokens(progLV1);
+        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
+        fill_tokensLV1(progLV1);
         return res;
     }
 
@@ -40,17 +41,23 @@ ParsingResult parse(const Source& text) {
     if (progLV2.has_error()) {
         auto res = ParsingResult{LV2_ERR, progLV2};
         res._source = text;
-        auto fill_tokens = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-        fill_tokens(progLV1);
         res._correctLV1 = backupCorrectLV1;
+        res._tokensLV2 = LV2Tokens(); // init std::optional
+        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
+        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2.value(), newlinesPos);
+        fill_tokensLV1(progLV1);
+        fill_tokensLV2(progLV2);
         return res;
     }
 
     auto res = ParsingResult{LV2_OK, (LV2::Program)progLV2};
     res._source = text;
-    auto fill_tokens = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-    fill_tokens(progLV1);
     res._correctLV1 = backupCorrectLV1;
+    res._tokensLV2 = LV2Tokens(); // init std::optional
+    auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
+    auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2.value(), newlinesPos);
+    fill_tokensLV1(progLV1);
+    fill_tokensLV2(progLV2);
     return res;
 }
 

@@ -24,6 +24,9 @@ bool EntityEqual<LV1::Ast_>::operator()(const MayFail<MayFail_<Program>>& prog_a
     if (prog_a.has_error() != prog_b.has_error()) {
         return false;
     }
+    if (prog_a.has_error() && prog_a.err->code != prog_b.err->code) {
+        return false;
+    }
     if (prog_a.val.sentences.size() != prog_b.val.sentences.size()) {
         return false;
     }
@@ -39,6 +42,9 @@ bool EntityEqual<LV1::Ast_>::operator()(const MayFail<MayFail_<ProgramSentence>>
     if (sen_a.has_error() != sen_b.has_error()) {
         return false;
     }
+    if (sen_a.has_error() && sen_a.err->code != sen_b.err->code) {
+        return false;
+    }
     if (sen_a.val.programWords.size() != sen_b.val.programWords.size()) {
         return false;
     }
@@ -52,6 +58,9 @@ bool EntityEqual<LV1::Ast_>::operator()(const MayFail<MayFail_<ProgramSentence>>
 
 bool EntityEqual<LV1::Ast_>::operator()(const MayFail<ProgramWord_>& pw_a, const MayFail<ProgramWord_>& pw_b) const {
     if (pw_a.has_error() != pw_b.has_error()) {
+        return false;
+    }
+    if (pw_a.has_error() && pw_a.err->code != pw_b.err->code) {
         return false;
     }
     return std::visit(
@@ -70,6 +79,9 @@ bool EntityEqual<LV1::Ast_>::operator()(const MayFail<MayFail_<Term>>& term_a, c
     if (term_a.has_error() != term_b.has_error()) {
         return false;
     }
+    if (term_a.has_error() && term_a.err->code != term_b.err->code) {
+        return false;
+    }
     if (term_a.val.words.size() != term_b.val.words.size()) {
         return false;
     }
@@ -83,6 +95,9 @@ bool EntityEqual<LV1::Ast_>::operator()(const MayFail<MayFail_<Term>>& term_a, c
 
 bool EntityEqual<LV1::Ast_>::operator()(const MayFail<Word_>& word_a, const MayFail<Word_>& word_b) const {
     if (word_a.has_error() != word_b.has_error()) {
+        return false;
+    }
+    if (word_a.has_error() && word_a.err->code != word_b.err->code) {
         return false;
     }
     return std::visit(

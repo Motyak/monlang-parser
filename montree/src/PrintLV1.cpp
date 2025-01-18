@@ -421,7 +421,7 @@ void PrintLV1::operator()(MayFail_<Association>* assoc) {
     numbering = std::stack<int>({NO_NUMBERING});
 
     currIndent++;
-    operator()(assoc->rightPart); // ?
+    operator()(assoc->rightPart);
     currIndent--;
 
     numbering = savedStack;

@@ -16,4 +16,7 @@ using EntityMap = std::unordered_map<K, V, std::hash<K>, EntityEqual<K>>;
 // EntityEqual and std::hash template specializations for LV1::Ast_
 #include <monlang-parser/LV1EntityMap.h>
 
+// EntityEqual and std::hash template specializations for LV2::Ast_
+#include <monlang-parser/LV2EntityMap.h>
+
 #endif // ENTITY_MAP_H
