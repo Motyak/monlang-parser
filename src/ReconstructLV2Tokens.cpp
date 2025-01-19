@@ -30,6 +30,14 @@
 
 #define token tokens._vec.at(tokenId)
 
+// should only be used to check for Statement_()
+static bool is_stub(const Statement_& stmt) {
+    return std::visit(
+        [](auto* ptr){return ptr == nullptr;},
+        stmt
+    );
+}
+
 // should only be used to check for Expression_()
 static bool is_stub(const Expression_& expr) {
     return std::visit(
@@ -73,6 +81,26 @@ void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& pro
 }
 
 void ReconstructLV2Tokens::operator()(const MayFail<Statement_>& stmt) {
+    if (is_stub(stmt.val)) {
+        auto tokenId = newToken(stmt);
+        token.is_malformed = stmt.has_error();
+        token.name = "Statement";
+
+        if (token.is_malformed) {
+            token.err_desc = stmt.error().fmt; // TODO: map this to the actual error description
+        }
+
+        token.start = asTokenPosition(curPos);
+        token.end = asTokenPosition(curPos - !!curPos);
+
+        if (token.is_malformed) {
+            token.err_start = token.start;
+            tokens.traceback.push_back(token);
+        }
+
+        return;
+    }
+
     curStmt = stmt; // needed by stmt handlers
     std::visit(*this, stmt.val);
 }
@@ -155,7 +183,6 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>*) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
-    // TODO: should be able to fail if contains any ProgramWord
     operator()(exprStmt->expression);
 }
 

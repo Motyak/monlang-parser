@@ -59,6 +59,14 @@ void (PrintLV2::output)(const char* strs...) {
     startOfNewLine = false;
 }
 
+// should only be used to check for Statement_()
+static bool is_stub(const Statement_& stmt) {
+    return std::visit(
+        [](auto* ptr){return ptr == nullptr;},
+        stmt
+    );
+}
+
 // should only be used to check for Expression_()
 static bool is_stub(const Expression_& expr) {
     return std::visit(
@@ -98,6 +106,14 @@ void PrintLV2::operator()(const MayFail<Statement_>& statement) {
     this->currStatement = statement; // needed by stmt handlers
     auto statement_ = statement.val;
     output(statement.has_error()? "~> " : "-> ");
+
+    unless (!is_stub(statement_)) {
+        outputLine("Statement");
+        currIndent++;
+        outputLine("~> ", SERIALIZE_ERR(statement));
+        currIndent--;
+        return;
+    }
 
     if (numbering.empty()) {
         output("Statement: ");

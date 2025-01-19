@@ -18,6 +18,8 @@
 #include <utils/mem-utils.h>
 #include <utils/variant-utils.h>
 
+#define unless(x) if(!(x))
+
 static ProgramSentence consumeSentence(LV1::Program&);
 
 MayFail<Statement_> consumeStatement(LV1::Program& prog) {
@@ -120,6 +122,13 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     // ...
+
+    for (auto pw: peekedSentence.programWords) {
+        unless (holds_word(pw)) {
+            consumeSentence(prog);
+            return Malformed(Statement_(), ERR(121));
+        }
+    }
 
     /* fall-through statement */
     return mayfail_convert<Statement_>(consumeExpressionStatement(prog));

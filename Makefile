@@ -95,6 +95,12 @@ test_lib_include_dirs += lib/catch2/include
 lib/catch2/obj/catch_amalgamated.o:
 	$(MAKE) -C lib/catch2
 
+## build lib montree used in main.elf only ##
+$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, montree)), \
+	.PHONY: montree/dist/montree.a)
+montree/dist/montree.a:
+	$(MAKE) -C montree dist/montree.a
+
 ###########################################################
 
 # will create all necessary directories after the Makefile is parsed

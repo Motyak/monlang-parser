@@ -352,3 +352,33 @@ TEST_CASE ("do while statement", "[test-1223][stmt]") {
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
+
+//==============================================================
+// ERR
+//==============================================================
+
+TEST_CASE ("ERR Unknown Statement", "[test-1224][stmt][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Program
+       |  -> ProgramSentence
+       |    -> ProgramWord #1: Atom: `a`
+       |    -> ProgramWord #2: Atom: `+`
+       |    -> ProgramWord #3: SquareBracketsTerm
+       |      -> Term
+       |        -> Word: Atom: `fds`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement
+       |  ~> ERR-121
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_prog = std::get<Program>(input_ast);
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
