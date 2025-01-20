@@ -18,7 +18,7 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
 
     auto leftOperand = buildExpression((Term)term.words[0]);
     if (leftOperand.has_error()) {
-        return Malformed(MayFail_<Operation>{Expression_(), operator_, Expression_()}, ERR(611));
+        return Malformed(MayFail_<Operation>{leftOperand, operator_, Expression_()}, ERR(611));
     }
 
     auto rightOperand = buildExpression((Term)term.words[2]);

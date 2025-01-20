@@ -16,7 +16,7 @@ MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
     auto ppg = *std::get<PostfixParenthesesGroup*>(word);
     auto function = buildExpression((Term)ppg.leftPart);
     if (function.has_error()) {
-        return Malformed(MayFail_<FunctionCall>{}, ERR(621));
+        return Malformed(MayFail_<FunctionCall>{function, {}}, ERR(621));
     }
 
     std::vector<MayFail<Expression_>> arguments;

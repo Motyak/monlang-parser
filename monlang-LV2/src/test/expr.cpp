@@ -293,12 +293,14 @@ TEST_CASE ("Malformed Operation, contains a Malformed Expression as LEFT operand
 
     auto expect = tommy_str(R"EOF(
        |~> Expression: Operation
-       |  ~> ERR-611
+       |  ~> Expression
+       |    ~> ERR-161
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
+    REQUIRE (output.error().fmt == "ERR-611");
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);
@@ -321,12 +323,14 @@ TEST_CASE ("Malformed Operation, contains a Malformed Expression as RIGHT operan
        |~> Expression: Operation
        |  -> Expression: Lvalue: `a`
        |  -> operator: `+`
-       |  ~> ERR-612
+       |  ~> Expression
+       |    ~> ERR-161
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
+    REQUIRE (output.error().fmt == "ERR-612");
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);
@@ -347,12 +351,15 @@ TEST_CASE ("Malformed FunctionCall, contains a Malformed Expression as FUNCTION"
 
     auto expect = tommy_str(R"EOF(
        |~> Expression: FunctionCall
-       |  ~> ERR-621
+       |  ~> function
+       |    ~> Expression
+       |      ~> ERR-161
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
+    REQUIRE (output.error().fmt == "ERR-621");
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);

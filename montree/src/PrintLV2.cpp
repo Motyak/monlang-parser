@@ -28,7 +28,6 @@
 
 #include <cstdarg>
 
-#define unless(x) if(!(x))
 #define until(x) while(!(x))
 
 #define SERIALIZE_ERR(malformedMayfail) malformedMayfail.error().fmt.c_str()
@@ -107,7 +106,7 @@ void PrintLV2::operator()(const MayFail<Statement_>& statement) {
     auto statement_ = statement.val;
     output(statement.has_error()? "~> " : "-> ");
 
-    unless (!is_stub(statement_)) {
+    if (is_stub(statement_)) {
         outputLine("Statement");
         currIndent++;
         outputLine("~> ", SERIALIZE_ERR(statement));
@@ -135,7 +134,7 @@ void PrintLV2::operator()(const MayFail<Expression_>& expression) {
 
     output(expression.has_error()? "~> " : "-> ");
 
-    unless (!is_stub(expression_)) {
+    if (is_stub(expression_)) {
         outputLine("Expression");
         currIndent++;
         outputLine("~> ", SERIALIZE_ERR(expression));
@@ -153,7 +152,7 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
 
 
     // we assume that empty identifier means stub
-    unless (assignment->variable.identifier != "") {
+    if (assignment->variable.identifier == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -180,7 +179,7 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
 
 
     // we assume that empty identifier means stub
-    unless (accumulation->variable.identifier != "") {
+    if (accumulation->variable.identifier == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -212,7 +211,7 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
 
 
     // we assume that empty identifier means stub
-    unless (letStatement->identifier != "") {
+    if (letStatement->identifier == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -238,7 +237,7 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
 
 
     // we assume that empty identifier means stub
-    unless (varStatement->identifier != "") {
+    if (varStatement->identifier == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -262,7 +261,7 @@ void PrintLV2::operator()(MayFail_<ReturnStatement>* returnStatement) {
     outputLine("ReturnStatement");
     if (returnStatement->value) {
         currIndent++;
-        unless (!is_stub(returnStatement->value->val)) {
+        if (is_stub(returnStatement->value->val)) {
             outputLine("~> ", SERIALIZE_ERR(currStatement));
             currIndent--;
             return;
@@ -430,18 +429,24 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
     currIndent++;
 
 
-    unless (!is_stub(operation->leftOperand.val)) {
+    if (is_stub(operation->leftOperand.val)
+            && !operation->leftOperand.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currExpression_));
         currIndent--;
         return;
     }
     operator()(operation->leftOperand);
 
+    if (operation->leftOperand.has_error()) {
+        return;
+    }
+
 
     outputLine("-> operator: `", operation->operator_.c_str(), "`");
 
 
-    unless (!is_stub(operation->rightOperand.val)) {
+    if (is_stub(operation->rightOperand.val)
+            && !operation->rightOperand.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currExpression_));
         currIndent--;
         return;
@@ -457,17 +462,23 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     currIndent++;
 
 
-    unless (!is_stub(functionCall->function.val)) {
+    if (is_stub(functionCall->function.val)
+            && !functionCall->function.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currExpression));
         currIndent--;
         return;
     }
-    outputLine("-> function");
+    output(functionCall->function.has_error()? "~> " : "-> ");
+    outputLine("function");
     currIndent++;
     operator()(functionCall->function);
     currIndent--;
 
-    unless (!functionCall->arguments.empty()) {
+    if (functionCall->function.has_error()) {
+        return;
+    }
+
+    if (functionCall->arguments.empty()) {
         outputLine("-> arguments (none)");
         currIndent--;
         return;
@@ -506,7 +517,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
         }
     }
 
-    unless (!lambda->body.statements.empty()) {
+    if (lambda->body.statements.empty()) {
         outputLine("-> body (empty)");
         currIndent--;
         return;
