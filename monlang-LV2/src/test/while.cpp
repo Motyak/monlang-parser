@@ -281,7 +281,9 @@ TEST_CASE ("ERR contains a Malformed Expression as part of condition", "[test-33
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: WhileStatement
-       |  ~> ERR-333
+       |  ~> condition
+       |    ~> Expression
+       |      ~> ERR-161
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -289,6 +291,7 @@ TEST_CASE ("ERR contains a Malformed Expression as part of condition", "[test-33
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (output.error().fmt == "ERR-333");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -386,6 +389,7 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3320][whi
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (output.error().fmt == "ERR-336");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

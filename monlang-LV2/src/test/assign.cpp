@@ -370,7 +370,8 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2121][assign][
     auto expect = tommy_str(R"EOF(
        |~> Statement: Assignment
        |  -> Lvalue: `somevar`
-       |  ~> ERR-215
+       |  ~> Expression
+       |    ~> ERR-161
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -378,6 +379,7 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2121][assign][
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (output.error().fmt == "ERR-215");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

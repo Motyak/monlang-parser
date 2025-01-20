@@ -376,6 +376,7 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2321][let][err
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (output.error().fmt == "ERR-235");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

@@ -450,13 +450,16 @@ TEST_CASE ("Malformed DoWhileStatement, contains a Malformed Expression as part 
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  ~> ERR-347
+       |  ~> condition
+       |    ~> Expression
+       |      ~> ERR-161
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_prog = std::get<Program>(input_ast);
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (output.error().fmt == "ERR-347");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

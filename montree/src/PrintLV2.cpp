@@ -162,7 +162,8 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
     operator()(&assignment->variable);
 
 
-    unless (!is_stub(assignment->value.val)) {
+    if (is_stub(assignment->value.val)
+            && !assignment->value.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -193,7 +194,8 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     */
 
 
-    unless (!is_stub(accumulation->value.val)) {
+    if (is_stub(accumulation->value.val)
+            && !accumulation->value.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -287,7 +289,8 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     currIndent++;
 
 
-    unless (!is_stub(foreachStatement->iterable.val)) {
+    if (is_stub(foreachStatement->iterable.val)
+            && !foreachStatement->iterable.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -299,8 +302,11 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     operator()(foreachStatement->iterable);
     currIndent--;
 
+    if (foreachStatement->iterable.has_error()) {
+        return;
+    }
 
-    unless (!foreachStatement->block.val._stub) {
+    if (foreachStatement->block.val._stub) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -332,7 +338,8 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
     currIndent++;
 
 
-    unless (!is_stub(whileStatement->condition.val)) {
+    if (is_stub(whileStatement->condition.val)
+            && !whileStatement->condition.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
@@ -343,8 +350,11 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
     operator()(whileStatement->condition);
     currIndent--;
 
+    if (whileStatement->condition.has_error()) {
+        return;
+    }
 
-    unless (!whileStatement->block.val._stub) {
+    if (whileStatement->block.val._stub) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
@@ -370,7 +380,7 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     outputLine("DoWhileStatement");
     currIndent++;
 
-    unless (!doWhileStatement->block.val._stub) {
+    if (doWhileStatement->block.val._stub) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
@@ -387,7 +397,8 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
         return;
     }
 
-    unless (!is_stub(doWhileStatement->condition.val)) {
+    if (is_stub(doWhileStatement->condition.val)
+            && !doWhileStatement->condition.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
@@ -399,7 +410,7 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     currIndent--;
 
 
-    if (currStatement_.has_error()) {
+    if (currStatement_.has_error() && !doWhileStatement->condition.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
     }
 
