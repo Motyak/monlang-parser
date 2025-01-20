@@ -30,6 +30,14 @@
     malformed.val._tokenLen = sentence._tokenLen; \
     malformed.val._tokenTrailingNewlines = sentence._tokenTrailingNewlines
 
+static Atom AtomConstant(const std::string& val) {
+    auto atom = Atom{val};
+    atom._tokenLen = val.size();
+    return atom;
+}
+
+const Atom Assignment::SEPARATOR = AtomConstant(":=");
+
 bool peekAssignment(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 2) {
         return false;
@@ -41,7 +49,8 @@ bool peekAssignment(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == ":=";
+    return atom.value == Assignment::SEPARATOR.value;
+
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);

@@ -5,6 +5,8 @@
 #include <monlang-LV2/ast/Expression.h>
 
 struct Assignment {
+    static const Atom SEPARATOR;
+
     Lvalue variable;
     Expression value;
 

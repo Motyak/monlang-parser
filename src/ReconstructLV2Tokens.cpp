@@ -26,6 +26,8 @@
 #include <monlang-LV2/expr/Literal.h>
 #include <monlang-LV2/expr/Lvalue.h>
 
+#include <monlang-LV1/ast/Atom.h>
+
 #include <utils/assert-utils.h>
 
 #define token tokens._vec.at(tokenId)
@@ -138,8 +140,44 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
 // STATEMENTS
 ///////////////////////////////////////////////////////////////
 
-void ReconstructLV2Tokens::operator()(MayFail_<Assignment>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "Assignment";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += assign->_tokenLeadingNewlines;
+    curPos += assign->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(/*const*/&assign->variable);
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += Assignment::SEPARATOR._tokenLen;
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(assign->value);
+    curPos = backupCurPos;
+    curPos += assign->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += assign->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>*) {
