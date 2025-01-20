@@ -180,8 +180,44 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "Accumulation";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += acc->_tokenLeadingNewlines;
+    curPos += acc->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(/*const*/&acc->variable);
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += acc->SEPARATOR()._tokenLen;
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(acc->value);
+    curPos = backupCurPos;
+    curPos += acc->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += acc->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>*) {

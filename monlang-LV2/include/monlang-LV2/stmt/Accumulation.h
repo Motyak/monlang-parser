@@ -14,6 +14,13 @@ struct MayFail_<Accumulation> {
     identifier_t operator_;
     MayFail<Expression_> value;
 
+    Atom SEPARATOR(); // operator_ + SUFFIX
+
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
+
     MayFail_() = default;
     explicit MayFail_(Lvalue, identifier_t, MayFail<Expression_>);
 

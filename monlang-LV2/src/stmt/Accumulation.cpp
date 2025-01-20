@@ -13,6 +13,8 @@
 
 #define unless(x) if(!(x))
 
+const std::string Accumulation::SEPARATOR_SUFFIX = "=";
+
 bool peekAccumulation(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 2) {
         return false;
@@ -24,7 +26,7 @@ bool peekAccumulation(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    unless (atom.value.back() == '=') {
+    unless (atom.value.ends_with(Accumulation::SEPARATOR_SUFFIX)) {
         return false;
     }
     auto optr = atom.value.substr(0, atom.value.size() - 1);
@@ -108,6 +110,23 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     }
     return Term{words};
 }
+
+Atom Accumulation::SEPARATOR() {
+    auto str = operator_ + Accumulation::SEPARATOR_SUFFIX;
+    auto atom = Atom{str};
+    atom._tokenLen = str.size();
+    return atom;
+}
+
+Atom MayFail_<Accumulation>::SEPARATOR() {
+    auto str = operator_ + Accumulation::SEPARATOR_SUFFIX;
+    auto atom = Atom{str};
+    atom._tokenLen = str.size();
+    return atom;
+}
+
+Accumulation::Accumulation(const Lvalue& variable, const identifier_t& operator_, const Expression& value)
+        : variable(variable), operator_(operator_), value(value){}
 
 MayFail_<Accumulation>::MayFail_(Lvalue variable, identifier_t operator_, MayFail<Expression_> value)
         : variable(variable), operator_(operator_), value(value){}
