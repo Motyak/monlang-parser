@@ -26,20 +26,7 @@ bool peekAccumulation(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    unless (atom.value.ends_with(Accumulation::SEPARATOR_SUFFIX)) {
-        return false;
-    }
-    auto optr = atom.value.substr(0, atom.value.size() - 1);
-
-    auto optr_found = false;
-    for (auto [operators, _]: PRECEDENCE_TABLE) {
-        if (vec_contains(operators, optr)) {
-            optr_found = true;
-            break;
-        }
-    }
-
-    return optr_found;
+    return atom.value.ends_with(Accumulation::SEPARATOR_SUFFIX);
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);
@@ -56,7 +43,16 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
     ASSERT (std::holds_alternative<Atom*>(sentence.programWords[1]));
     auto atom = *std::get<Atom*>(sentence.programWords[1]);
     auto optr = atom.value.substr(0, atom.value.size() - 1);
-
+    auto optr_found = false;
+    for (auto [operators, _]: PRECEDENCE_TABLE) {
+        if (vec_contains(operators, optr)) {
+            optr_found = true;
+            break;
+        }
+    }
+    unless (optr_found) {
+        return Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), Expression_()}, ERR(226));
+    }
 
     unless (holds_word(sentence.programWords[0])) {
         return Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(221));
