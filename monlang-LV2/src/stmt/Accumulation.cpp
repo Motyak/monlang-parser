@@ -13,6 +13,18 @@
 
 #define unless(x) if(!(x))
 
+#define SET_TOKEN_FIELDS(accumulation, sentence) \
+    accumulation._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    accumulation._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    accumulation._tokenLen = sentence._tokenLen; \
+    accumulation._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
+#define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
+    malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    malformed.val._tokenLen = sentence._tokenLen; \
+    malformed.val._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
 const std::string Accumulation::SEPARATOR_SUFFIX = "=";
 
 bool peekAccumulation(const ProgramSentence& sentence) {
@@ -51,34 +63,47 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
         }
     }
     unless (optr_found) {
-        return Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), Expression_()}, ERR(226));
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), Expression_()}, ERR(226));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
 
     unless (holds_word(sentence.programWords[0])) {
-        return Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(221));
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(221));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto word = get_word(sentence.programWords[0]);
     // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
     unless (peekLvalue(word)) {
-        return Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(222));
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(222));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto variable = buildLvalue(word);
 
 
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(223));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(223));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(224));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(224));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        return Malformed(MayFail_<Accumulation>{variable, optr, value}, ERR(225));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, value}, ERR(225));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
 
-
-    return MayFail_<Accumulation>{variable, optr, value};
+    auto accumulation = MayFail_<Accumulation>{variable, optr, value};
+    SET_TOKEN_FIELDS(accumulation, /*from*/ sentence);
+    return accumulation;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -127,13 +152,27 @@ Accumulation::Accumulation(const Lvalue& variable, const identifier_t& operator_
 MayFail_<Accumulation>::MayFail_(Lvalue variable, identifier_t operator_, MayFail<Expression_> value)
         : variable(variable), operator_(operator_), value(value){}
 
-MayFail_<Accumulation>::MayFail_(Accumulation accumulation) {
+MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation) {
     this->variable = accumulation.variable;
     this->operator_ = accumulation.operator_;
     this->value = wrap_expr(accumulation.value);
+
+    this->_tokenLeadingNewlines = accumulation._tokenLeadingNewlines;
+    this->_tokenIndentSpaces = accumulation._tokenIndentSpaces;
+    this->_tokenLen = accumulation._tokenLen;
+    this->_tokenTrailingNewlines = accumulation._tokenTrailingNewlines;
 }
 
 MayFail_<Accumulation>::operator Accumulation() const {
+    auto variable = this->variable;
+    auto operator_ = this->operator_;
     auto value = unwrap_expr(this->value.value());
-    return Accumulation{this->variable, this->operator_, value};
+    auto accumulation = Accumulation{variable, operator_, value};
+
+    accumulation._tokenLeadingNewlines = this->_tokenLeadingNewlines;
+    accumulation._tokenIndentSpaces = this->_tokenIndentSpaces;
+    accumulation._tokenLen = this->_tokenLen;
+    accumulation._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+
+    return accumulation;
 }

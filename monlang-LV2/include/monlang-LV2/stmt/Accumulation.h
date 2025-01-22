@@ -24,7 +24,7 @@ struct MayFail_<Accumulation> {
     MayFail_() = default;
     explicit MayFail_(Lvalue, identifier_t, MayFail<Expression_>);
 
-    explicit MayFail_(Accumulation);
+    explicit MayFail_(const Accumulation&);
     explicit operator Accumulation() const;
 };
 
