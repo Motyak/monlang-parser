@@ -13,6 +13,7 @@ struct MayFail_<BlockExpression> {
     std::vector<MayFail<Statement_>> statements;
 
     bool _stub = false;
+    bool _oneline = false;
     size_t _tokenLen = 0;
     MayFail_(); // initializes '_stub' to true
     explicit MayFail_(std::vector<MayFail<Statement_>>);

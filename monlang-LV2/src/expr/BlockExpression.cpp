@@ -22,12 +22,19 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
         auto statement = consumeStatement((Subprogram&)cbg);
         statements.push_back(statement);
         if (statement.has_error()) {
-            return Malformed(MayFail_<BlockExpression>{statements}, ERR(641));
+            auto malformed = Malformed(MayFail_<BlockExpression>{statements}, ERR(641));
+            if (cbg.term) {
+                malformed.val._oneline = true;
+            }
+            return malformed;
         }
     }
 
     auto blockExpr = MayFail_<BlockExpression>{statements};
     blockExpr._tokenLen = cbg._tokenLen;
+    if (cbg.term) {
+        blockExpr._oneline = true;
+    }
     return blockExpr;
 }
 

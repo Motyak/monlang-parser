@@ -395,10 +395,9 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
     curPos += sequenceLen(CurlyBracketsGroup::INITIATOR_SEQUENCE);
-    // TODO: add ._oneLine and uncomment :
-    // if (!blockExpr._oneline) {
+    if (!blockExpr->_oneline) {
         curPos += 1; // newline
-    // }
+    }
     for (auto stmt: blockExpr->statements) {
         operator()(stmt);
     }
