@@ -452,3 +452,23 @@ TEST_CASE ("assignment", "[test-9731][stmt]") {
     REQUIRE (token_len(assignment.variable) == 7); // somevar
     REQUIRE (token_len(assignment.value) == 5); // value
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("accumulation", "[test-9732][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |somevar += value
+       |
+    )EOF");
+
+    auto iss = std::istringstream(input);
+
+    auto prog = (LV1::Program)consumeProgram(iss);
+    auto stmt = unwrap_stmt(consumeStatement(prog).value());
+    // REQUIRE (token_len(stmt) == 17); //TODO: uncomment once all stmt have the new field
+
+    auto accumulation = *std::get<Accumulation*>(stmt);
+    REQUIRE (token_len(accumulation) == 17);
+    REQUIRE (token_len(accumulation.variable) == 7); // somevar
+    REQUIRE (token_len(accumulation.value) == 5); // value
+}
