@@ -362,12 +362,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg
     token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
-        if (lastCorrectToken == size_t(-1)) {
-            token.err_start = token.start;
-        }
-        else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        }
+        token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
 
@@ -395,12 +390,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
-        if (lastCorrectToken == size_t(-1)) {
-            token.err_start = token.start;
-        }
-        else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        }
+        token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
 
@@ -429,12 +419,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<Association>* assoc) {
     token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {
-        if (lastCorrectToken == size_t(-1)) {
-            token.err_start = token.start;
-        }
-        else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        }
+        token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
 

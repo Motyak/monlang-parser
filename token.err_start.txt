@@ -1,0 +1,50 @@
+
+Le champs token.err_start n'est utilisé que pour le premier
+token malformé de la traceback (l'erreur la plus profonde).
+
+Il y a des situations dans lesquelles err_start n'est pas
+égal à token.start :
+
+dans le cas où l'entité peut contenir d'autres entités
+TOUT EN ETANT l'erreur finale ELLE-MÊME
+  -> il faut donc faire pointer le err_start non pas
+     après le dernier token bien formé à l'intérieur
+     (son token.start),
+     mais après le dernier token bien formé AU MÊME NIVEAU.
+
+Pour faire simple: dans le cas où l'entité malformée
+représente l'erreur finale tout en contenant des
+entités bien formées.
+
+Exemple:
+
+~> Program
+  ~> ProgramSentence
+    ~> ProgramWord: ParenthesesGroup
+      -> Term #1
+        -> Word: Atom: `a`
+      ~> Term #2
+        -> Word: ParenthesesGroup
+          -> Term
+            -> Word: Atom: `b`
+        ~> ERR-103
+
+in/group_notok2.txt:1:7: LV1 error: Malformed Term
+    1 | (a, (b)]
+      |     ^ ^ERR-103
+
+Ici on voit que la flèche du ERR-103 a été mise un caractère
+après la fin du dernier token bien formé (Atom `b`)
+au lieu de le mettre à la fin du dernier token bien formé
+AU MÊME NIVEAU que Term (Term #1), donc au ']'.
+
+---
+
+Il y a aussi ce genre d'entités dans LV2:
+  -> foreach statement => si le block est un non-word, tandis que l'iterable est bien formé
+    -> l'erreur finale sera le foreach (ERR-324), mais le foreach contiendra tout de même un iterable bien formé
+  -> while / do..while
+
+
+
+

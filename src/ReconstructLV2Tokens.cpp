@@ -172,12 +172,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     curPos += assign->_tokenTrailingNewlines;
 
     if (token.is_malformed) {
-        // if (lastCorrectToken == size_t(-1)) {
-            token.err_start = token.start;
-        // }
-        // else {
-        //     token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        // }
+        token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
 
@@ -212,12 +207,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     curPos += acc->_tokenTrailingNewlines;
 
     if (token.is_malformed) {
-        // if (lastCorrectToken == size_t(-1)) {
-            token.err_start = token.start;
-        // }
-        // else {
-        //     token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        // }
+        token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
 
@@ -249,14 +239,17 @@ void ReconstructLV2Tokens::operator()(DieStatement*) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>*) {
+    // NOTE: will need to use token.err_start
     TODO();
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>*) {
+    // NOTE: will need to use token.err_start
     TODO();
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>*) {
+    // NOTE: will need to use token.err_start
     TODO();
 }
 
