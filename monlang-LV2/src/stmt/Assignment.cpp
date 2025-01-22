@@ -26,9 +26,7 @@
 
 #define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
-    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces; \
-    malformed.val._tokenLen = sentence._tokenLen; \
-    malformed.val._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
 
 static Atom AtomConstant(const std::string& val) {
     auto atom = Atom{val};
