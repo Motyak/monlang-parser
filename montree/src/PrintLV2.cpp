@@ -545,6 +545,15 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
 void PrintLV2::operator()(MayFail_<BlockExpression>* block) {
     outputLine("BlockExpression");
     currIndent++;
+
+    if (block->statements.size() > 1) {
+        for (int n : range(block->statements.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
     for (auto statement: block->statements) {
         operator()(statement);
     }

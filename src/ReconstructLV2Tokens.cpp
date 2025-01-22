@@ -27,8 +27,12 @@
 #include <monlang-LV2/expr/Lvalue.h>
 
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ParenthesesGroup.h>
+#include <monlang-LV1/ast/Association.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
 
 #include <utils/assert-utils.h>
+#include <utils/loop-utils.h>
 
 #define token tokens._vec.at(tokenId)
 
@@ -168,12 +172,12 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     curPos += assign->_tokenTrailingNewlines;
 
     if (token.is_malformed) {
-        if (lastCorrectToken == size_t(-1)) {
+        // if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
-        }
-        else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        }
+        // }
+        // else {
+        //     token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        // }
         tokens.traceback.push_back(token);
     }
 
@@ -208,12 +212,12 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     curPos += acc->_tokenTrailingNewlines;
 
     if (token.is_malformed) {
-        if (lastCorrectToken == size_t(-1)) {
+        // if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
-        }
-        else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
-        }
+        // }
+        // else {
+        //     token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        // }
         tokens.traceback.push_back(token);
     }
 
@@ -257,27 +261,164 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>*) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "ExpressionStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += exprStmt->_tokenLeadingNewlines;
+    curPos += exprStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
     operator()(exprStmt->expression);
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += exprStmt->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
 }
 
 ///////////////////////////////////////////////////////////////
 // EXPRESSIONS
 ///////////////////////////////////////////////////////////////
 
-void ReconstructLV2Tokens::operator()(MayFail_<Operation>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = curExpr.has_error();
+    token.name = "Operation";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(operation->leftOperand);
+    curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
+    curPos += operation->operator_.size();
+    curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
+    operator()(operation->rightOperand);
+    curPos = backupCurPos;
+    curPos += operation->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = curExpr.has_error();
+    token.name = "FunctionCall";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(functionCall->function);
+    curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
+    LOOP for (auto expr: functionCall->arguments) {
+        if (!__first_it) {
+            curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
+        }
+        operator()(expr);
+        ENDLOOP
+    }
+    curPos = backupCurPos;
+    curPos += functionCall->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<Lambda>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = curExpr.has_error();
+    token.name = "Lambda";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
+    LOOP for (auto param: lambda->parameters) {
+        if (!__first_it) {
+            curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
+        }
+        curPos += param.size();
+        ENDLOOP
+    }
+    curPos += sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
+    curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
+    operator()(&lambda->body);
+    curPos = backupCurPos;
+    curPos += lambda->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = curExpr.has_error();
+    token.name = "BlockExpression";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += sequenceLen(CurlyBracketsGroup::INITIATOR_SEQUENCE);
+    // TODO: add ._oneLine and uncomment :
+    // if (!blockExpr._oneline) {
+        curPos += 1; // newline
+    // }
+    for (auto stmt: blockExpr->statements) {
+        operator()(stmt);
+    }
+    curPos = backupCurPos;
+    curPos += blockExpr->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(Literal* literal) {

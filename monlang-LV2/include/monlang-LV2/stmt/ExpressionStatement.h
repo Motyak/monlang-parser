@@ -12,6 +12,10 @@ template <>
 struct MayFail_<ExpressionStatement> {
     MayFail<Expression_> expression;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
     explicit MayFail_(MayFail<Expression_>);
 

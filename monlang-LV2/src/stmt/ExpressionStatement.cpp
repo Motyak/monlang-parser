@@ -3,6 +3,18 @@
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
+#define SET_TOKEN_FIELDS(assignment, sentence) \
+    assignment._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    assignment._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    assignment._tokenLen = sentence._tokenLen; \
+    assignment._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
+#define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
+    malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    malformed.val._tokenLen = sentence._tokenLen; \
+    malformed.val._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
 static ProgramSentence consumeSentence(LV1::Program&);
 
 MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& prog) {
@@ -13,9 +25,14 @@ MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& 
     auto term = (Term)sentence;
     auto expression = buildExpression(term);
     if (expression.has_error()) {
-        return Malformed(MayFail_<ExpressionStatement>{expression}, ERR(591));
+        auto malformed = Malformed(MayFail_<ExpressionStatement>{expression}, ERR(591));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
-    return MayFail_<ExpressionStatement>{expression};
+
+    auto expressionStatement = MayFail_<ExpressionStatement>{expression};
+    SET_TOKEN_FIELDS(expressionStatement, /*from*/ sentence);
+    return expressionStatement;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -28,13 +45,28 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
     return res;
 }
 
+ExpressionStatement::ExpressionStatement(const Expression& expression)
+        : expression(expression){}
+
 MayFail_<ExpressionStatement>::MayFail_(MayFail<Expression_> expression) : expression(expression){}
 
 MayFail_<ExpressionStatement>::MayFail_(ExpressionStatement exprStmt) {
     this->expression = wrap_expr(exprStmt.expression);
+
+    this->_tokenLeadingNewlines = exprStmt._tokenLeadingNewlines;
+    this->_tokenIndentSpaces = exprStmt._tokenIndentSpaces;
+    this->_tokenLen = exprStmt._tokenLen;
+    this->_tokenTrailingNewlines = exprStmt._tokenTrailingNewlines;
 }
 
 MayFail_<ExpressionStatement>::operator ExpressionStatement() const {
     auto expression = unwrap_expr(this->expression.value());
-    return ExpressionStatement{expression};
+    auto exprStmt = ExpressionStatement{expression};
+
+    exprStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
+    exprStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
+    exprStmt._tokenLen = this->_tokenLen;
+    exprStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+
+    return exprStmt;
 }
