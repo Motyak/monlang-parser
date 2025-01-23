@@ -37,6 +37,7 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(Literal*);
     void operator()(Lvalue*);
 
+    void operator()(_StubExpression_*); // shouldn't happen
     void operator()(auto); // fall-through
 
   private:

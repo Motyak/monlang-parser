@@ -33,6 +33,7 @@
 
 #include <utils/assert-utils.h>
 #include <utils/loop-utils.h>
+#include <utils/variant-utils.h>
 
 #define token tokens._vec.at(tokenId)
 
@@ -44,12 +45,12 @@ static bool is_stub(const Statement_& stmt) {
     );
 }
 
-// should only be used to check for Expression_()
+// should only be used to check for StubExpression_()
 static bool is_stub(const Expression_& expr) {
-    return std::visit(
-        [](auto* ptr){return ptr == nullptr;},
-        expr
-    );
+    return std::visit(overload{
+        [](_StubExpression_*){return true;},
+        [](auto*){return false;},
+    }, expr);
 }
 
 void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
@@ -474,6 +475,10 @@ void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
         token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
+}
+
+void ReconstructLV2Tokens::operator()(_StubExpression_*) {
+    SHOULD_NOT_HAPPEN();
 }
 
 ///////////////////////////////////////////////////////////////

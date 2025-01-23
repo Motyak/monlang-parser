@@ -25,6 +25,8 @@
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>
 #include <utils/defer-util.h>
+#include <utils/variant-utils.h>
+#include <utils/assert-utils.h>
 
 #include <cstdarg>
 
@@ -66,12 +68,12 @@ static bool is_stub(const Statement_& stmt) {
     );
 }
 
-// should only be used to check for Expression_()
+// should only be used to check for StubExpression_()
 static bool is_stub(const Expression_& expr) {
-    return std::visit(
-        [](auto* ptr){return ptr == nullptr;},
-        expr
-    );
+    return std::visit(overload{
+        [](_StubExpression_*){return true;},
+        [](auto*){return false;},
+    }, expr);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -570,6 +572,10 @@ void PrintLV2::operator()(Literal* literal) {
 
 void PrintLV2::operator()(Lvalue* lvalue) {
     outputLine("Lvalue: `", lvalue->identifier.c_str(), "`");
+}
+
+void PrintLV2::operator()(_StubExpression_*) {
+    SHOULD_NOT_HAPPEN();
 }
 
 void PrintLV2::operator()(auto) {

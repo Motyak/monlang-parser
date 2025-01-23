@@ -37,6 +37,8 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(SpecialSymbol*);
     void operator()(Lvalue*);
 
+    void operator()(_StubExpression_*); // shouldn't happen
+
   private:
     LV2Tokens& tokens;
     const std::vector<size_t> newlinesPos; // sorted asc

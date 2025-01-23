@@ -27,7 +27,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     BEGIN:
 
     unless (term_.words.size() % 2 == 1) {
-        return Malformed(Expression_(), ERR(161));
+        return Malformed(StubExpression_(), ERR(161));
     }
 
     /* odd-indexed words, starting at [1], must be Atoms..
@@ -37,7 +37,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
         for (auto [operators, _]: PRECEDENCE_TABLE) {
             unless (std::holds_alternative<Atom*>(term_.words[i])) {
-                return Malformed(Expression_(), ERR(162));
+                return Malformed(StubExpression_(), ERR(162));
             }
             auto optor = std::get<Atom*>(term_.words[i])->value;
 
@@ -48,7 +48,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
         }
 
         unless (optr_found) {
-            return Malformed(Expression_(), ERR(163));
+            return Malformed(StubExpression_(), ERR(163));
         }
     }
 
@@ -144,7 +144,11 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     /* reached fall-through */
-    return Malformed(Expression_(), ERR(169));
+    return Malformed(StubExpression_(), ERR(169));
+}
+
+Expression_ StubExpression_() {
+    return move_to_heap(_StubExpression_{});
 }
 
 Expression unwrap_expr(Expression_ expression) {
@@ -152,6 +156,7 @@ Expression unwrap_expr(Expression_ expression) {
         [](Literal* expr) -> Expression {return expr;},
         [](SpecialSymbol* expr) -> Expression {return expr;},
         [](Lvalue* expr) -> Expression {return expr;},
+        [](_StubExpression_*) -> Expression {SHOULD_NOT_HAPPEN();},
         [](auto* mf_) -> Expression {return move_to_heap(unwrap(*mf_));},
     }, expression);
 }
