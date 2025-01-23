@@ -63,14 +63,14 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
 
 
     unless (holds_word(sentence.programWords[0])) {
-        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(211));
+        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), StubExpression_()}, ERR(211));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto word = get_word(sentence.programWords[0]);
     // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
     unless (peekLvalue(word)) {
-        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), Expression_()}, ERR(212));
+        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), StubExpression_()}, ERR(212));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -78,13 +78,13 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(213));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(213));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto malformed = Malformed(MayFail_<Assignment>{variable, Expression_()}, ERR(214));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(214));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

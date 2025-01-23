@@ -7,6 +7,7 @@ struct SpecialSymbol {
     std::string str;
 
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     SpecialSymbol() = default;
     SpecialSymbol(const std::string&);
 };

@@ -7,7 +7,7 @@
 #include <monlang-LV1/ast/Term.h>
 
 struct _StubExpression_ {
-    ;
+    size_t _groupNesting = 0;
 };
 
 using Expression_ = std::variant<

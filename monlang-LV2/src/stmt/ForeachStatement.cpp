@@ -27,13 +27,13 @@ static std::optional<Term> extractIterable(const ProgramSentence&);
 MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<ForeachStatement>{Expression_(), MayFail_<BlockExpression>()}, ERR(321));
+        return Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, ERR(321));
     }
 
 
     auto iterable_as_term = extractIterable(sentence);
     unless (iterable_as_term) {
-        return Malformed(MayFail_<ForeachStatement>{Expression_(), MayFail_<BlockExpression>()}, ERR(322));
+        return Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, ERR(322));
     }
     auto iterable = buildExpression(*iterable_as_term);
     if (iterable.has_error()) {

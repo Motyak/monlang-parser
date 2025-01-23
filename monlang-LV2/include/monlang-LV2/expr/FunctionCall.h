@@ -14,6 +14,7 @@ struct MayFail_<FunctionCall> {
     std::vector<MayFail<Expression_>> arguments;
 
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     MayFail_() = default;
     explicit MayFail_(MayFail<Expression_>, std::vector<MayFail<Expression_>>);
 

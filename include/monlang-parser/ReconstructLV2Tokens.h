@@ -47,6 +47,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     MayFail<Statement_> curStmt;
     MayFail<Expression_> curExpr;
     TokenId lastCorrectToken = -1;
+    size_t exprGroupNesting = 0;
 
     TokenId newToken(const LV2::Ast_&);
     TokenPosition asTokenPosition(size_t index);
