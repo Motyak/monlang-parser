@@ -122,8 +122,7 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
             token.err_desc = expr.error().fmt; // TODO: map this to the actual error description
         }
 
-        exprGroupNesting = group_nesting(expr.val);
-        curPos += exprGroupNesting;
+        curPos += group_nesting(expr.val);
 
         token.start = asTokenPosition(curPos);
         token.end = asTokenPosition(curPos - !!curPos);
@@ -294,8 +293,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*operation);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*operation);
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
@@ -327,8 +325,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*functionCall);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*functionCall);
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
@@ -364,8 +361,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*lambda);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*lambda);
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
@@ -403,8 +399,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*blockExpr);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*blockExpr);
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
@@ -440,8 +435,7 @@ void ReconstructLV2Tokens::operator()(Literal* literal) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*literal);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*literal);
 
     token.start = asTokenPosition(curPos);
     curPos += literal->_tokenLen;
@@ -464,8 +458,7 @@ void ReconstructLV2Tokens::operator()(SpecialSymbol* ss) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*ss);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*ss);
 
     token.start = asTokenPosition(curPos);
     curPos += ss->_tokenLen;
@@ -488,8 +481,7 @@ void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    exprGroupNesting = group_nesting(*lvalue);
-    curPos += exprGroupNesting;
+    curPos += group_nesting(*lvalue);
 
     token.start = asTokenPosition(curPos);
     curPos += lvalue->_tokenLen;
