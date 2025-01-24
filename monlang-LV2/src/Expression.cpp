@@ -148,8 +148,6 @@ MayFail<Expression_> buildExpression(const Term& term) {
     //     goto BEGIN; // prevent unnecessary recursive call
     // }
 
-    // TODO: unwrap as long as there are nested groups, before doing the 'goto BEGIN',
-    // .. will also prevent using the local variable `nestingGroup` at the very top
     if (std::holds_alternative<ParenthesesGroup*>(word)) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning

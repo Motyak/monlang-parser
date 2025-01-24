@@ -68,14 +68,16 @@
 224 Malformed Accumulation, contains a non-Word as part of the value
 225 Malformed Accumulation, contains a Malformed Expression as value
 
-231 Malformed LetStatement, contains less than 2 words (no variable)
-232 Malformed LetStatement, contains a non-Atom word as variable
+231 Malformed LetStatement, contains less than 2 words (no identifier)
+236 Malformed LetStatement, contains a non-Word as identifier
+232 Malformed LetStatement, contains a non-Atom word as identifier
 233 Malformed LetStatement, contains less than 3 words (no value)
 234 Malformed LetStatement, contains a non-Word as part of the value
 235 Malformed LetStatement, contains a Malformed Expression as value
 
-241 Malformed VarStatement, contains less than 2 words (no variable)
-242 Malformed VarStatement, contains a non-Atom word as variable
+241 Malformed VarStatement, contains less than 2 words (no identifier)
+246 Malformed VarStatement, contains a non-Word as identifier
+242 Malformed VarStatement, contains a non-Atom word as identifier
 243 Malformed VarStatement, contains less than 3 words (no value)
 244 Malformed VarStatement, contains a non-Word as part of the value
 245 Malformed VarStatement, contains a Malformed Expression as value

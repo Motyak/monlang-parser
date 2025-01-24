@@ -251,7 +251,7 @@ TEST_CASE ("labelize function call", "[test-2316][let]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("ERR contains less than 2 words (no variable)", "[test-2317][let][err]") {
+TEST_CASE ("ERR contains less than 2 words (no identifier)", "[test-2317][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `let`
@@ -275,7 +275,34 @@ TEST_CASE ("ERR contains less than 2 words (no variable)", "[test-2317][let][err
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Atom word as variable", "[test-2318][let][err]") {
+TEST_CASE ("ERR contains a non-Word as identifier", "[test-2331][let][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord: Atom: `let`
+       |  -> ProgramWord: SquareBracketsTerm
+       |    -> Term
+       |      -> Word: Atom: `fds`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: LetStatement
+       |  ~> ERR-236
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a non-Atom word as identifier", "[test-2318][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`

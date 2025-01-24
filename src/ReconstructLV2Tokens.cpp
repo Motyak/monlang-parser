@@ -217,12 +217,74 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "LetStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += letStmt->_tokenLeadingNewlines;
+    curPos += letStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += LetStatement::KEYWORD._tokenLen;
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += letStmt->identifier.size();
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(letStmt->value);
+    curPos = backupCurPos;
+    curPos += letStmt->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += letStmt->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "VarStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += varStmt->_tokenLeadingNewlines;
+    curPos += varStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += LetStatement::KEYWORD._tokenLen;
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += varStmt->identifier.size();
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(varStmt->value);
+    curPos = backupCurPos;
+    curPos += varStmt->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += varStmt->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>*) {

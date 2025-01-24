@@ -8,6 +8,24 @@
 
 #define unless(x) if(!(x))
 
+#define SET_TOKEN_FIELDS(letStmt, sentence) \
+    letStmt._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    letStmt._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    letStmt._tokenLen = sentence._tokenLen; \
+    letStmt._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
+#define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
+    malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
+
+static Atom AtomConstant(const std::string& val) {
+    auto atom = Atom{val};
+    atom._tokenLen = val.size();
+    return atom;
+}
+
+const Atom LetStatement::KEYWORD = AtomConstant("let");
+
 bool peekLetStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
@@ -19,7 +37,7 @@ bool peekLetStatement(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == "let";
+    return atom.value == LetStatement::KEYWORD.value;
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);
@@ -33,30 +51,46 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, ERR(231));
+        auto malformed = Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, ERR(231));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
+    unless (holds_word(sentence.programWords[1])) {
+        auto malformed = Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, ERR(236));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto word = get_word(sentence.programWords[1]);
     unless (std::holds_alternative<Atom*>(word)) {
-        return Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, ERR(232));
+        auto malformed = Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, ERR(232));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto atom = *std::get<Atom*>(word);
     auto identifier = atom.value;
 
 
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<LetStatement>{identifier, StubExpression_()}, ERR(233));
+        auto malformed = Malformed(MayFail_<LetStatement>{identifier, StubExpression_()}, ERR(233));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<LetStatement>{identifier, StubExpression_()}, ERR(234));
+        auto malformed = Malformed(MayFail_<LetStatement>{identifier, StubExpression_()}, ERR(234));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        return Malformed(MayFail_<LetStatement>{identifier, value}, ERR(235));
+        auto malformed = Malformed(MayFail_<LetStatement>{identifier, value}, ERR(235));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
 
-
-    return MayFail_<LetStatement>{identifier, value};
+    auto letStmt = MayFail_<LetStatement>{identifier, value};
+    SET_TOKEN_FIELDS(letStmt, /*from*/ sentence);
+    return letStmt;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -86,15 +120,31 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return Term{words};
 }
 
-MayFail_<LetStatement>::MayFail_(identifier_t identifier, MayFail<Expression_> value)
+LetStatement::LetStatement(const identifier_t& identifier, const Expression& value)
         : identifier(identifier), value(value){}
 
-MayFail_<LetStatement>::MayFail_(LetStatement letStmt) {
+MayFail_<LetStatement>::MayFail_(const identifier_t& identifier, const MayFail<Expression_>& value)
+        : identifier(identifier), value(value){}
+
+MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
     this->identifier = letStmt.identifier;
     this->value = wrap_expr(letStmt.value);
+
+    this->_tokenLeadingNewlines = letStmt._tokenLeadingNewlines;
+    this->_tokenIndentSpaces = letStmt._tokenIndentSpaces;
+    this->_tokenLen = letStmt._tokenLen;
+    this->_tokenTrailingNewlines = letStmt._tokenTrailingNewlines;
 }
 
 MayFail_<LetStatement>::operator LetStatement() const {
+    auto identifier = this->identifier;
     auto value = unwrap_expr(this->value.value());
-    return LetStatement{this->identifier, value};
+    auto letStmt = LetStatement{identifier, value};
+
+    letStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
+    letStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
+    letStmt._tokenLen = this->_tokenLen;
+    letStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+
+    return letStmt;
 }

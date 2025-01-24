@@ -8,6 +8,24 @@
 
 #define unless(x) if(!(x))
 
+#define SET_TOKEN_FIELDS(varStmt, sentence) \
+    varStmt._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    varStmt._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    varStmt._tokenLen = sentence._tokenLen; \
+    varStmt._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
+#define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
+    malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
+
+static Atom AtomConstant(const std::string& val) {
+    auto atom = Atom{val};
+    atom._tokenLen = val.size();
+    return atom;
+}
+
+const Atom VarStatement::KEYWORD = AtomConstant("var");
+
 bool peekVarStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
@@ -33,30 +51,46 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(241));
+        auto malformed = Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(241));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
+    unless (holds_word(sentence.programWords[1])) {
+        auto malformed = Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(246));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto word = get_word(sentence.programWords[1]);
     unless (std::holds_alternative<Atom*>(word)) {
-        return Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(242));
+        auto malformed = Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(242));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto atom = *std::get<Atom*>(word);
     auto identifier = atom.value;
 
 
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(243));
+        auto malformed = Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(243));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(244));
+        auto malformed = Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(244));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        return Malformed(MayFail_<VarStatement>{identifier, value}, ERR(245));
+        auto malformed = Malformed(MayFail_<VarStatement>{identifier, value}, ERR(245));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
 
-
-    return MayFail_<VarStatement>{identifier, value};
+    auto varStmt = MayFail_<VarStatement>{identifier, value};
+    SET_TOKEN_FIELDS(varStmt, /*from*/ sentence);
+    return varStmt;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -86,15 +120,31 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return Term{words};
 }
 
+VarStatement::VarStatement(const identifier_t& identifier, const Expression& value)
+        : identifier(identifier), value(value){}
+
 MayFail_<VarStatement>::MayFail_(identifier_t identifier, MayFail<Expression_> value)
         : identifier(identifier), value(value){}
 
-MayFail_<VarStatement>::MayFail_(VarStatement varStmt) {
+MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {
     this->identifier = varStmt.identifier;
     this->value = wrap_expr(varStmt.value);
+
+    this->_tokenLeadingNewlines = varStmt._tokenLeadingNewlines;
+    this->_tokenIndentSpaces = varStmt._tokenIndentSpaces;
+    this->_tokenLen = varStmt._tokenLen;
+    this->_tokenTrailingNewlines = varStmt._tokenTrailingNewlines;
 }
 
 MayFail_<VarStatement>::operator VarStatement() const {
+    auto identifier = this->identifier;
     auto value = unwrap_expr(this->value.value());
-    return VarStatement{this->identifier, value};
+    auto varStmt = VarStatement{identifier, value};
+
+    varStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
+    varStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
+    varStmt._tokenLen = this->_tokenLen;
+    varStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+
+    return varStmt;
 }

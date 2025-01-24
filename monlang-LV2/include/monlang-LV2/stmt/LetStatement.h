@@ -13,10 +13,14 @@ struct MayFail_<LetStatement> {
     identifier_t identifier;
     MayFail<Expression_> value;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(identifier_t, MayFail<Expression_>);
+    explicit MayFail_(const identifier_t&, const MayFail<Expression_>&);
 
-    explicit MayFail_(LetStatement);
+    explicit MayFail_(const LetStatement&);
     explicit operator LetStatement() const;
 };
 

@@ -161,7 +161,7 @@ Atom MayFail_<Accumulation>::SEPARATOR() {
 Accumulation::Accumulation(const Lvalue& variable, const identifier_t& operator_, const Expression& value)
         : variable(variable), operator_(operator_), value(value){}
 
-MayFail_<Accumulation>::MayFail_(Lvalue variable, identifier_t operator_, MayFail<Expression_> value)
+MayFail_<Accumulation>::MayFail_(const Lvalue& variable, const identifier_t& operator_, const MayFail<Expression_>& value)
         : variable(variable), operator_(operator_), value(value){}
 
 MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation) {
