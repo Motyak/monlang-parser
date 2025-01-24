@@ -33,6 +33,7 @@
 
 #include <utils/assert-utils.h>
 #include <utils/loop-utils.h>
+#include <utils/variant-utils.h>
 
 #define token tokens._vec.at(tokenId)
 
@@ -44,12 +45,12 @@ static bool is_stub(const Statement_& stmt) {
     );
 }
 
-// should only be used to check for Expression_()
+// should only be used to check for StubExpression_()
 static bool is_stub(const Expression_& expr) {
-    return std::visit(
-        [](auto* ptr){return ptr == nullptr;},
-        expr
-    );
+    return std::visit(overload{
+        [](_StubExpression_*){return true;},
+        [](auto*){return false;},
+    }, expr);
 }
 
 void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
@@ -120,6 +121,8 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
         if (token.is_malformed) {
             token.err_desc = expr.error().fmt; // TODO: map this to the actual error description
         }
+
+        curPos += group_nesting(expr.val);
 
         token.start = asTokenPosition(curPos);
         token.end = asTokenPosition(curPos - !!curPos);
@@ -290,6 +293,8 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
+    curPos += group_nesting(*operation);
+
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
@@ -319,6 +324,8 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
     if (token.is_malformed) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
+
+    curPos += group_nesting(*functionCall);
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
@@ -353,6 +360,8 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     if (token.is_malformed) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
+
+    curPos += group_nesting(*lambda);
 
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
@@ -390,6 +399,8 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
+    curPos += group_nesting(*blockExpr);
+
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
@@ -424,6 +435,8 @@ void ReconstructLV2Tokens::operator()(Literal* literal) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
+    curPos += group_nesting(*literal);
+
     token.start = asTokenPosition(curPos);
     curPos += literal->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
@@ -444,6 +457,8 @@ void ReconstructLV2Tokens::operator()(SpecialSymbol* ss) {
     if (token.is_malformed) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
+
+    curPos += group_nesting(*ss);
 
     token.start = asTokenPosition(curPos);
     curPos += ss->_tokenLen;
@@ -466,6 +481,8 @@ void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
+    curPos += group_nesting(*lvalue);
+
     token.start = asTokenPosition(curPos);
     curPos += lvalue->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
@@ -474,6 +491,10 @@ void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
         token.err_start = token.start;
         tokens.traceback.push_back(token);
     }
+}
+
+void ReconstructLV2Tokens::operator()(_StubExpression_*) {
+    SHOULD_NOT_HAPPEN();
 }
 
 ///////////////////////////////////////////////////////////////

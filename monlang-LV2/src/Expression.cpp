@@ -23,11 +23,14 @@
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
+    size_t groupNesting = 0;
 
     BEGIN:
 
     unless (term_.words.size() % 2 == 1) {
-        return Malformed(Expression_(), ERR(161));
+        auto expr = StubExpression_();
+        set_group_nesting(expr, groupNesting);
+        return Malformed<Expression_>(expr, ERR(161));
     }
 
     /* odd-indexed words, starting at [1], must be Atoms..
@@ -37,7 +40,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
         for (auto [operators, _]: PRECEDENCE_TABLE) {
             unless (std::holds_alternative<Atom*>(term_.words[i])) {
-                return Malformed(Expression_(), ERR(162));
+                auto expr = StubExpression_();
+                set_group_nesting(expr, groupNesting);
+                return Malformed<Expression_>(expr, ERR(162));
             }
             auto optor = std::get<Atom*>(term_.words[i])->value;
 
@@ -48,7 +53,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
         }
 
         unless (optr_found) {
-            return Malformed(Expression_(), ERR(163));
+            auto expr = StubExpression_();
+            set_group_nesting(expr, groupNesting);
+            return Malformed<Expression_>(expr, ERR(163));
         }
     }
 
@@ -63,8 +70,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     if (peekOperation(term_)) {
         auto operation = buildOperation(term_);
-        operation.val._tokenLen = term_._tokenLen;
-
+        operation.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(operation);
     }
 
@@ -77,7 +83,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekFunctionCall(word)) {
-        return mayfail_convert<Expression_>(buildFunctionCall(word));
+        auto functionCall = buildFunctionCall(word);
+        functionCall.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(functionCall);
     }
 
     // if (word =~ "Association<"
@@ -88,7 +96,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLambda(word)) {
-        return mayfail_convert<Expression_>(buildLambda(word));
+        auto lambda = buildLambda(word);
+        lambda.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(lambda);
     }
 
     // if (word =~ "CurlyBracketsGroup"_) {
@@ -96,7 +106,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekBlockExpression(word)) {
-        return mayfail_convert<Expression_>(buildBlockExpression(word));
+        auto blockExpr = buildBlockExpression(word);
+        blockExpr.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(blockExpr);
     }
 
     // if (word =~ "Atom<$.*>"_) {
@@ -104,7 +116,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekSpecialSymbol(word)) {
-        return (Expression_)move_to_heap(buildSpecialSymbol(word));
+        auto specialSymbol = buildSpecialSymbol(word);
+        specialSymbol._groupNesting = groupNesting;
+        return (Expression_)move_to_heap(specialSymbol);
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
@@ -112,7 +126,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLiteral(word)) {
-        return (Expression_)move_to_heap(buildLiteral(word));
+        auto literal = buildLiteral(word);
+        literal._groupNesting = groupNesting;
+        return (Expression_)move_to_heap(literal);
     }
 
     // if (word =~ "Atom"_) {
@@ -120,7 +136,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     if (peekLvalue(word)) {
-        return (Expression_)move_to_heap(buildLvalue(word));
+        auto lvalue = buildLvalue(word);
+        lvalue._groupNesting = groupNesting;
+        return (Expression_)move_to_heap(lvalue);
     }
 
     // // if grouped expression => unwrap then go back to beginning
@@ -130,11 +148,13 @@ MayFail<Expression_> buildExpression(const Term& term) {
     //     goto BEGIN; // prevent unnecessary recursive call
     // }
 
-    // TODO: unwrap as long as there are nested groups, before doing the 'goto BEGIN'
+    // TODO: unwrap as long as there are nested groups, before doing the 'goto BEGIN',
+    // .. will also prevent using the local variable `nestingGroup` at the very top
     if (std::holds_alternative<ParenthesesGroup*>(word)) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning
         if (group.terms.size() == 1) {
+            groupNesting += 1;
             auto saveTokenLen = term_._tokenLen;
             term_ = group.terms[0];
             term_._tokenLen = saveTokenLen;
@@ -144,7 +164,13 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     /* reached fall-through */
-    return Malformed(Expression_(), ERR(169));
+    auto expr = StubExpression_();
+    set_group_nesting(expr, groupNesting);
+    return Malformed<Expression_>(expr, ERR(169));
+}
+
+Expression_ StubExpression_() {
+    return move_to_heap(_StubExpression_{});
 }
 
 Expression unwrap_expr(Expression_ expression) {
@@ -152,6 +178,7 @@ Expression unwrap_expr(Expression_ expression) {
         [](Literal* expr) -> Expression {return expr;},
         [](SpecialSymbol* expr) -> Expression {return expr;},
         [](Lvalue* expr) -> Expression {return expr;},
+        [](_StubExpression_*) -> Expression {SHOULD_NOT_HAPPEN();},
         [](auto* mf_) -> Expression {return move_to_heap(unwrap(*mf_));},
     }, expression);
 }

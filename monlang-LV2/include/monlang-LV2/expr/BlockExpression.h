@@ -15,6 +15,7 @@ struct MayFail_<BlockExpression> {
     bool _stub = false;
     bool _oneline = false;
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     MayFail_(); // initializes '_stub' to true
     explicit MayFail_(std::vector<MayFail<Statement_>>);
 

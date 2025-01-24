@@ -16,6 +16,7 @@ struct MayFail_<Operation> {
     MayFail<Expression_> rightOperand;
 
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     MayFail_() = default;
     explicit MayFail_(MayFail<Expression_>, identifier_t, MayFail<Expression_>);
 

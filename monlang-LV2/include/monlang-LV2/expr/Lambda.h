@@ -14,6 +14,7 @@ struct MayFail_<Lambda> {
     MayFail_<LambdaBlock> body;
 
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     MayFail_() = default;
     explicit MayFail_(std::vector<identifier_t>, MayFail_<LambdaBlock>);
 

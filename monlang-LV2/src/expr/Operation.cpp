@@ -18,7 +18,7 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
 
     auto leftOperand = buildExpression((Term)term.words[0]);
     if (leftOperand.has_error()) {
-        return Malformed(MayFail_<Operation>{leftOperand, operator_, Expression_()}, ERR(611));
+        return Malformed(MayFail_<Operation>{leftOperand, operator_, StubExpression_()}, ERR(611));
     }
 
     auto rightOperand = buildExpression((Term)term.words[2]);
@@ -26,7 +26,9 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
         return Malformed(MayFail_<Operation>{leftOperand, operator_, rightOperand}, ERR(612));
     }
 
-    return MayFail_<Operation>{leftOperand, operator_, rightOperand};
+    auto operation = MayFail_<Operation>{leftOperand, operator_, rightOperand};
+    operation._tokenLen = term._tokenLen;
+    return operation;
 }
 
 Operation::Operation(const Expression& leftOperand, const identifier_t& operator_, const Expression& rightOperand)

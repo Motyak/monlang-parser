@@ -33,22 +33,22 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<VarStatement>{identifier_t(), Expression_()}, ERR(241));
+        return Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(241));
     }
     auto word = get_word(sentence.programWords[1]);
     unless (std::holds_alternative<Atom*>(word)) {
-        return Malformed(MayFail_<VarStatement>{identifier_t(), Expression_()}, ERR(242));
+        return Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(242));
     }
     auto atom = *std::get<Atom*>(word);
     auto identifier = atom.value;
 
 
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<VarStatement>{identifier, Expression_()}, ERR(243));
+        return Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(243));
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<VarStatement>{identifier, Expression_()}, ERR(244));
+        return Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(244));
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {

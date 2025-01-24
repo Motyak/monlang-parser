@@ -41,7 +41,7 @@ MayFail<MayFail_<ReturnStatement>> consumeReturnStatement(LV1::Program& prog) {
 
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<ReturnStatement>(Expression_()), ERR(251));
+        return Malformed(MayFail_<ReturnStatement>(StubExpression_()), ERR(251));
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {

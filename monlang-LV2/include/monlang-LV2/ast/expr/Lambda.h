@@ -14,6 +14,7 @@ struct Lambda {
     LambdaBlock body;
 
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     Lambda() = default;
     Lambda(const std::vector<identifier_t>&, const LambdaBlock&);
 };

@@ -7,6 +7,7 @@ struct Lvalue {
     std::string identifier; // only identifier supported for now
 
     size_t _tokenLen = 0;
+    size_t _groupNesting = 0;
     Lvalue() = default;
     Lvalue(const std::string&);
 };

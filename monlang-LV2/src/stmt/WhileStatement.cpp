@@ -44,11 +44,11 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
 
     /* while condition */
     unless (sentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), until_loop}, ERR(331));
+        return Malformed(MayFail_<WhileStatement>{StubExpression_(), MayFail_<BlockExpression>(), until_loop}, ERR(331));
     }
     auto pw = sentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        return Malformed(MayFail_<WhileStatement>{Expression_(), MayFail_<BlockExpression>(), until_loop}, ERR(332));
+        return Malformed(MayFail_<WhileStatement>{StubExpression_(), MayFail_<BlockExpression>(), until_loop}, ERR(332));
     }
     auto sbt = *std::get<SquareBracketsTerm*>(pw);
     auto condition = buildExpression(sbt.term);
@@ -86,22 +86,22 @@ MayFail<MayFail_<DoWhileStatement>> consumeDoWhileStatement(LV1::Program& prog) 
 
     /* while block */
     unless (currSentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), Expression_(), false}, ERR(341));
+        return Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), false}, ERR(341));
     }
     auto block_as_pw = currSentence.programWords[1];
     unless (holds_word(block_as_pw)) {
-        return Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), Expression_(), false}, ERR(342));
+        return Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), false}, ERR(342));
     }
     auto block_as_word = get_word(block_as_pw);
     auto block = buildBlockExpression(block_as_word);
     if (block.has_error()) {
-        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), false}, ERR(343));
+        return Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), false}, ERR(343));
     }
 
 
     /* check if additional words */
     if (currSentence.programWords.size() > 2) {
-        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), false}, ERR(344));
+        return Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), false}, ERR(344));
     }
 
 
@@ -115,11 +115,11 @@ MayFail<MayFail_<DoWhileStatement>> consumeDoWhileStatement(LV1::Program& prog) 
 
     /* while condition */
     unless (currSentence.programWords.size() >= 2) {
-        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), until_loop}, ERR(345));
+        return Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), until_loop}, ERR(345));
     }
     auto pw = currSentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        return Malformed(MayFail_<DoWhileStatement>{block, Expression_(), until_loop}, ERR(346));
+        return Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), until_loop}, ERR(346));
     }
     auto sbt = *std::get<SquareBracketsTerm*>(pw);
     auto condition = buildExpression(sbt.term);

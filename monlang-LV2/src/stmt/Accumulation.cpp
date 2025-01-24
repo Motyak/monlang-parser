@@ -68,20 +68,20 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
         }
     }
     unless (optr_found) {
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), Expression_()}, ERR(226));
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), StubExpression_()}, ERR(226));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
     unless (holds_word(sentence.programWords[0])) {
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(221));
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, StubExpression_()}, ERR(221));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto word = get_word(sentence.programWords[0]);
     // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
     unless (peekLvalue(word)) {
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, Expression_()}, ERR(222));
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, StubExpression_()}, ERR(222));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -89,13 +89,13 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(223));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(223));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, Expression_()}, ERR(224));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(224));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
