@@ -379,9 +379,46 @@ void ReconstructLV2Tokens::operator()(DieStatement* dieStmt) {
     curPos += dieStmt->_tokenTrailingNewlines;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>*) {
+void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
     // NOTE: will require lastCorrectToken
-    TODO();
+
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "ForeachStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += foreachStmt->_tokenLeadingNewlines;
+    curPos += foreachStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += ForeachStatement::KEYWORD._tokenLen;
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(foreachStmt->iterable);
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(mayfail_convert<Expression_>(foreachStmt->block));
+    curPos = backupCurPos;
+    curPos += foreachStmt->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += foreachStmt->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>*) {

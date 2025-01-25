@@ -16,10 +16,14 @@ struct MayFail_<ForeachStatement> {
     MayFail<Expression_> iterable;
     MayFail<MayFail_<ForeachBlock>> block;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(MayFail<Expression_>, MayFail<MayFail_<ForeachBlock>>);
+    explicit MayFail_(const MayFail<Expression_>&, const MayFail<MayFail_<ForeachBlock>>&);
 
-    explicit MayFail_(ForeachStatement);
+    explicit MayFail_(const ForeachStatement&);
     explicit operator ForeachStatement() const;
 };
 
