@@ -83,7 +83,7 @@
 245 Malformed VarStatement, contains a Malformed Expression as value
 
 251 Malformed ReturnStatement, contains a non-Word as part of the value
-251 Malformed ReturnStatement, contains a Malformed Expression as value
+252 Malformed ReturnStatement, contains a Malformed Expression as value
 
 321 Malformed ForeachStatement, contains less than 3 words (no iterable AND/OR no block)
 322 Malformed ForeachStatement, contains a non-Word as part of iterable

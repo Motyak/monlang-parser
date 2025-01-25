@@ -12,10 +12,14 @@ template <>
 struct MayFail_<ReturnStatement> {
     std::optional<MayFail<Expression_>> value;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(std::optional<MayFail<Expression_>>);
+    explicit MayFail_(const std::optional<MayFail<Expression_>>&);
 
-    explicit MayFail_(ReturnStatement);
+    explicit MayFail_(const ReturnStatement&);
     explicit operator ReturnStatement() const;
 };
 

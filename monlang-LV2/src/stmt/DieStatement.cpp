@@ -6,6 +6,14 @@
 
 #define unless(x) if(!(x))
 
+static Atom AtomConstant(const std::string& val) {
+    auto atom = Atom{val};
+    atom._tokenLen = val.size();
+    return atom;
+}
+
+const Atom DieStatement::KEYWORD = AtomConstant("die");
+
 bool peekDieStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
@@ -17,5 +25,5 @@ bool peekDieStatement(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == "die";
+    return atom.value == DieStatement::KEYWORD.value;
 }

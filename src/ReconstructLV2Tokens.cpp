@@ -287,20 +287,96 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>* returnStmt) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "ReturnStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += returnStmt->_tokenLeadingNewlines;
+    curPos += returnStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += ReturnStatement::KEYWORD._tokenLen;
+    if (returnStmt->value) {
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        operator()(*returnStmt->value);
+    }
+    curPos = backupCurPos;
+    curPos += returnStmt->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += returnStmt->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(BreakStatement*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(BreakStatement* breakStmt) {
+    /* NOTE: BreakStatement cannot be malformed */
+    ASSERT (!curStmt.has_error());
+
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = false;
+    token.name = "BreakStatement";
+
+    curPos += breakStmt->_tokenLeadingNewlines;
+    curPos += breakStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    // lastCorrectToken = -1;
+    curPos += BreakStatement::KEYWORD._tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += breakStmt->_tokenTrailingNewlines;
 }
 
-void ReconstructLV2Tokens::operator()(ContinueStatement*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(ContinueStatement* continueStmt) {
+    /* NOTE: ContinueStatement cannot be malformed */
+    ASSERT (!curStmt.has_error());
+
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = false;
+    token.name = "ContinueStatement";
+
+    curPos += continueStmt->_tokenLeadingNewlines;
+    curPos += continueStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    // lastCorrectToken = -1;
+    curPos += ContinueStatement::KEYWORD._tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += continueStmt->_tokenTrailingNewlines;
 }
 
-void ReconstructLV2Tokens::operator()(DieStatement*) {
-    TODO();
+void ReconstructLV2Tokens::operator()(DieStatement* dieStmt) {
+    /* NOTE: DieStatement cannot be malformed */
+    ASSERT (!curStmt.has_error());
+
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = false;
+    token.name = "DieStatement";
+
+    curPos += dieStmt->_tokenLeadingNewlines;
+    curPos += dieStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    // lastCorrectToken = -1;
+    curPos += DieStatement::KEYWORD._tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += dieStmt->_tokenTrailingNewlines;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>*) {
@@ -487,72 +563,48 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
 }
 
 void ReconstructLV2Tokens::operator()(Literal* literal) {
-    /* NOTE: normally Literal cannot be malformed ? */
+    /* NOTE: Literal cannot be malformed */
+    ASSERT (!curExpr.has_error());
 
     auto tokenId = newToken(curExpr);
-    token.is_malformed = curExpr.has_error();
+    token.is_malformed = false;
     token.name = "Literal";
-
-    if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
-    }
 
     curPos += group_nesting(*literal);
 
     token.start = asTokenPosition(curPos);
     curPos += literal->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
-
-    if (token.is_malformed) {
-        token.err_start = token.start;
-        tokens.traceback.push_back(token);
-    }
 }
 
-void ReconstructLV2Tokens::operator()(SpecialSymbol* ss) {
-    /* NOTE: normally SpecialSymbol cannot be malformed ? */
+void ReconstructLV2Tokens::operator()(SpecialSymbol* specialSymbol) {
+    /* NOTE: SpecialSymbol cannot be malformed */
+    ASSERT (!curExpr.has_error());
 
     auto tokenId = newToken(curExpr);
-    token.is_malformed = curExpr.has_error();
+    token.is_malformed = false;
     token.name = "SpecialSymbol";
 
-    if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
-    }
-
-    curPos += group_nesting(*ss);
+    curPos += group_nesting(*specialSymbol);
 
     token.start = asTokenPosition(curPos);
-    curPos += ss->_tokenLen;
+    curPos += specialSymbol->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
-
-    if (token.is_malformed) {
-        token.err_start = token.start;
-        tokens.traceback.push_back(token);
-    }
 }
 
 void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
-    /* NOTE: normally Lvalue cannot be malformed ? */
+    /* NOTE: Lvalue cannot be malformed */
+    ASSERT (!curExpr.has_error());
 
     auto tokenId = newToken(curExpr);
-    token.is_malformed = curExpr.has_error();
+    token.is_malformed = false;
     token.name = "Lvalue";
-
-    if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
-    }
 
     curPos += group_nesting(*lvalue);
 
     token.start = asTokenPosition(curPos);
     curPos += lvalue->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
-
-    if (token.is_malformed) {
-        token.err_start = token.start;
-        tokens.traceback.push_back(token);
-    }
 }
 
 void ReconstructLV2Tokens::operator()(_StubExpression_*) {

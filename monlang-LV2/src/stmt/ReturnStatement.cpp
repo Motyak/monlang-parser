@@ -9,6 +9,24 @@
 
 #define unless(x) if(!(x))
 
+#define SET_TOKEN_FIELDS(returnStmt, sentence) \
+    returnStmt._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    returnStmt._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    returnStmt._tokenLen = sentence._tokenLen; \
+    returnStmt._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+
+#define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
+    malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
+
+static Atom AtomConstant(const std::string& val) {
+    auto atom = Atom{val};
+    atom._tokenLen = val.size();
+    return atom;
+}
+
+const Atom ReturnStatement::KEYWORD = AtomConstant("return");
+
 bool peekReturnStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
         return false;
@@ -20,7 +38,7 @@ bool peekReturnStatement(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == "return";
+    return atom.value == ReturnStatement::KEYWORD.value;
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);
@@ -35,21 +53,28 @@ MayFail<MayFail_<ReturnStatement>> consumeReturnStatement(LV1::Program& prog) {
 
 
     if (sentence.programWords.size() == 1) {
-        return MayFail_<ReturnStatement>{}; // std::nullopt
+        auto returnStmt = MayFail_<ReturnStatement>{}; // std::nullopt
+        SET_TOKEN_FIELDS(returnStmt, /*from*/ sentence);
+        return returnStmt;
     }
 
 
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        return Malformed(MayFail_<ReturnStatement>(StubExpression_()), ERR(251));
+        auto malformed = Malformed(MayFail_<ReturnStatement>(StubExpression_()), ERR(251));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        return Malformed(MayFail_<ReturnStatement>(value), ERR(252));
+        auto malformed = Malformed(MayFail_<ReturnStatement>(value), ERR(252));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
     }
 
-
-    return MayFail_<ReturnStatement>{value};
+    auto returnStmt = MayFail_<ReturnStatement>{value};
+    SET_TOKEN_FIELDS(returnStmt, /*from*/ sentence);
+    return returnStmt;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {
@@ -80,14 +105,23 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return Term{words};
 }
 
-MayFail_<ReturnStatement>::MayFail_(std::optional<MayFail<Expression_>> value) : value(value){}
+ReturnStatement::ReturnStatement(const std::optional<Expression>& value)
+        : value(value){}
 
-MayFail_<ReturnStatement>::MayFail_(ReturnStatement returnStmt) {
+MayFail_<ReturnStatement>::MayFail_(const std::optional<MayFail<Expression_>>& value)
+        : value(value){}
+
+MayFail_<ReturnStatement>::MayFail_(const ReturnStatement& returnStmt) {
     auto value = std::optional<MayFail<Expression_>>();
     if (returnStmt.value) {
         value = wrap_expr(*returnStmt.value);
     }
     this->value = value;
+
+    this->_tokenLeadingNewlines = returnStmt._tokenLeadingNewlines;
+    this->_tokenIndentSpaces = returnStmt._tokenIndentSpaces;
+    this->_tokenLen = returnStmt._tokenLen;
+    this->_tokenTrailingNewlines = returnStmt._tokenTrailingNewlines;
 }
 
 MayFail_<ReturnStatement>::operator ReturnStatement() const {
@@ -95,5 +129,12 @@ MayFail_<ReturnStatement>::operator ReturnStatement() const {
     if (this->value) {
         value = unwrap_expr(this->value->value());
     }
-    return ReturnStatement{value};
+    auto returnStmt = ReturnStatement{value};
+
+    returnStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
+    returnStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
+    returnStmt._tokenLen = this->_tokenLen;
+    returnStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+
+    return returnStmt;
 }
