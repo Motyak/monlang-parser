@@ -3,6 +3,14 @@
 /* impl only */
 
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/ProgramSentence.h>
+/* require knowing all words for token_len() */
+#include <monlang-LV1/ast/ParenthesesGroup.h>
+#include <monlang-LV1/ast/SquareBracketsGroup.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
 
 #include <utils/assert-utils.h>
 
@@ -110,14 +118,21 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
         sentence.programWords.end()
     );
 
+    size_t wordsTokenLen = 0;
     std::vector<Word> words;
     for (auto e: rhs_as_sentence) {
         unless (holds_word(e)) {
             return {};
         }
+        auto word = get_word(e);
         words.push_back(get_word(e));
+        wordsTokenLen += token_len(word);
     }
-    return Term{words};
+
+    auto term = Term{words};
+    term._tokenLen = wordsTokenLen
+            + (words.size() - 1) * sequenceLen(Term::CONTINUATOR_SEQUENCE);
+    return term;
 }
 
 LetStatement::LetStatement(const identifier_t& identifier, const Expression& value)

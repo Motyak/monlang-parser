@@ -335,7 +335,7 @@ void ReconstructLV2Tokens::operator()(BreakStatement* breakStmt) {
 
     token.start = asTokenPosition(curPos);
     // lastCorrectToken = -1;
-    curPos += BreakStatement::KEYWORD._tokenLen;
+    curPos += breakStmt->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
 
     curPos += breakStmt->_tokenTrailingNewlines;
@@ -354,7 +354,7 @@ void ReconstructLV2Tokens::operator()(ContinueStatement* continueStmt) {
 
     token.start = asTokenPosition(curPos);
     // lastCorrectToken = -1;
-    curPos += ContinueStatement::KEYWORD._tokenLen;
+    curPos += continueStmt->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
 
     curPos += continueStmt->_tokenTrailingNewlines;
@@ -373,24 +373,24 @@ void ReconstructLV2Tokens::operator()(DieStatement* dieStmt) {
 
     token.start = asTokenPosition(curPos);
     // lastCorrectToken = -1;
-    curPos += DieStatement::KEYWORD._tokenLen;
+    curPos += dieStmt->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
 
     curPos += dieStmt->_tokenTrailingNewlines;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>*) {
-    // NOTE: will need to use token.err_start
+    // NOTE: will require lastCorrectToken
     TODO();
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>*) {
-    // NOTE: will need to use token.err_start
+    // NOTE: will require lastCorrectToken
     TODO();
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>*) {
-    // NOTE: will need to use token.err_start
+    // NOTE: will require lastCorrectToken
     TODO();
 }
 

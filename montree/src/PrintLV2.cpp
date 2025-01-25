@@ -536,6 +536,13 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     output(any_malformed_stmt? "~> " : "-> ");
     outputLine("body");
     currIndent++;
+    if (lambda->body.statements.size() > 1) {
+        for (int n : range(lambda->body.statements.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
     for (auto statement: lambda->body.statements) {
         operator()(statement);
     }

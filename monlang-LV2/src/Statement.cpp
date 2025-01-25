@@ -71,8 +71,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     if (peekBreakStatement(peekedSentence)) {
-        consumeSentence(prog);
-        return (Statement_)move_to_heap(BreakStatement{});
+        return (Statement_)consumeBreakStatement(prog);
     }
 
     // if (peekedSentence =~ "Atom<`continue`> ProgramWord*"_) {
@@ -80,8 +79,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     if (peekContinueStatement(peekedSentence)) {
-        consumeSentence(prog);
-        return (Statement_)move_to_heap(ContinueStatement{});
+        return (Statement_)consumeContinueStatement(prog);
     }
 
     // if (peekedSentence =~ "Atom<`die`> ProgramWord*"_) {
@@ -89,8 +87,7 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
     // }
 
     if (peekDieStatement(peekedSentence)) {
-        consumeSentence(prog);
-        return (Statement_)move_to_heap(DieStatement{});
+        return (Statement_)consumeDieStatement(prog);
     }
 
     // if (peekedSentence =~ "Atom<`foreach`> ProgramWord*"_) {

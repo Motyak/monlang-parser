@@ -1,0 +1,31 @@
+
+fds := sdf
+fds += sdf
+
+let fds sdf
+var fds sdf
+
+return fds
+break
+continue
+die
+
+1 + 1
+fds(sdf)
+(x):{x}
+{x}
+91
+$cur
+
+{
+    fds
+
+
+}
+
+{
+
+
+    -- error
+}
+

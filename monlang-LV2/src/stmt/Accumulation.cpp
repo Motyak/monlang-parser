@@ -122,6 +122,7 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
 }
 
 static std::optional<Term> extractValue(const ProgramSentence& sentence) {
+    ASSERT (sentence.programWords.size() >= 3);
     auto value_as_sentence = std::vector<ProgramWord>(
         sentence.programWords.begin() + 2,
         sentence.programWords.end()
