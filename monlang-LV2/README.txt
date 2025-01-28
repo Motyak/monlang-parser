@@ -50,6 +50,8 @@
 
 161 Malformed Expression, contains an even number of words
 162 Malformed Expression, contains a non-Atom word as operator
+  -> not triggerable when calling consumeProgram(LV1::Program&),
+     only triggerable when calling buildExpression(Term)
 163 Malformed Expression, contains an unknown operator (unfound in precedence table)
 169 Unknown Expression
 

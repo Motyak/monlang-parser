@@ -12,6 +12,12 @@
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/Atom.h>
+/* require knowing all words for token_len() */
+#include <monlang-LV1/ast/SquareBracketsGroup.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
@@ -44,9 +50,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
                 set_group_nesting(expr, groupNesting);
                 return Malformed<Expression_>(expr, ERR(162));
             }
-            auto optor = std::get<Atom*>(term_.words[i])->value;
+            auto optr = std::get<Atom*>(term_.words[i])->value;
 
-            if (vec_contains(operators, optor)) {
+            if (vec_contains(operators, optr)) {
                 optr_found = true;
                 break;
             }
@@ -55,7 +61,14 @@ MayFail<Expression_> buildExpression(const Term& term) {
         unless (optr_found) {
             auto expr = StubExpression_();
             set_group_nesting(expr, groupNesting);
-            return Malformed<Expression_>(expr, ERR(163));
+            auto error = ERR(163);
+            auto offset_count = size_t(0);
+            for (size_t j = 0; j < i; ++j) {
+                offset_count += token_len(term_.words[j]);
+                offset_count += sequenceLen(Term::CONTINUATOR_SEQUENCE);
+            }
+            error._info["unfound_optr_offset"] = offset_count;
+            return Malformed<Expression_>(expr, error);
         }
     }
 

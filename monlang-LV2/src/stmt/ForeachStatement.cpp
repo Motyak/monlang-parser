@@ -72,11 +72,12 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
         return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(324));
     }
     auto word = get_word(pw);
+    // TODO: if not peek block expr => new err
     auto block = buildBlockExpression(word);
     if (block.has_error()) {
         return Malformed(MayFail_<ForeachStatement>{iterable, block}, ERR(325));
     }
-
+    //TODO: if block is a oneline => new err
 
     return MayFail_<ForeachStatement>{iterable, block};
 }

@@ -128,11 +128,11 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
         token.end = asTokenPosition(curPos - !!curPos);
 
         if (token.is_malformed) {
-            token.err_start = token.start; /* TODO: fix this:
-                                               <stdin>:1:1: LV2 error: Malformed Expression
-                                                   1 | a + b $ c
-                                                     | ^ERR-163
-                                           */
+            token.err_start = token.start;
+            if (expr.err->_info.contains("unfound_optr_offset")) {
+                auto unfound_optr_offset = std::any_cast<size_t>(expr.err->_info.at("unfound_optr_offset"));
+                token.err_start = asTokenPosition(token.err_start + unfound_optr_offset);
+            }
             tokens.traceback.push_back(token);
         }
 

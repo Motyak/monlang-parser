@@ -8,6 +8,8 @@
 #include <iostream>
 #include <optional>
 #include <variant>
+#include <map>
+#include <any>
 
 #define MAYFAIL_CHECK(err) \
     if (err) { \
@@ -22,7 +24,12 @@ T* MF__move_to_heap(T obj) {
 struct Error {
     int code;
     std::string fmt;
-    operator int() const;
+
+    std::map<std::string, std::any> _info;
+
+    Error() = default;
+    Error(int code, std::string fmt) : code(code), fmt(fmt){}
+    operator int() const {return code;}
 };
 #define ERR(x) Error{atoi(#x), "ERR-"#x}
 
