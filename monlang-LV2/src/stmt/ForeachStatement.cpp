@@ -65,7 +65,9 @@ static std::optional<Term> extractIterable(const ProgramSentence&);
 MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
     unless (sentence.programWords.size() >= 3) {
-        return Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, ERR(321));
+        auto malformed = Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, ERR(321));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
+        return malformed;
     }
 
 
@@ -73,11 +75,15 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     unless (iterable_as_term) {
         auto error = ERR(322);
         SET_NON_WORD_ERR_OFFSET(error);
-        return Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, error);
+        auto malformed = Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, error);
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
+        return malformed;
     }
     auto iterable = buildExpression(*iterable_as_term);
     if (iterable.has_error()) {
-        return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(323));
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(323));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
+        return malformed;
     }
 
 
@@ -85,17 +91,23 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     unless (holds_word(pw)) {
         auto error = ERR(324);
         SET_NON_WORD_ERR_OFFSET(error);
-        return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, error);
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, error);
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
+        return malformed;
     }
     auto word = get_word(pw);
     // TODO: if not peek block expr => new err
     auto block = buildBlockExpression(word);
     if (block.has_error()) {
-        return Malformed(MayFail_<ForeachStatement>{iterable, block}, ERR(325));
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, block}, ERR(325));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
+        return malformed;
     }
     //TODO: if block is a oneline => new err
 
-    return MayFail_<ForeachStatement>{iterable, block};
+    auto foreachStmt = MayFail_<ForeachStatement>{iterable, block};
+    SET_TOKEN_FIELDS(foreachStmt, /*from*/sentence);
+    return foreachStmt;
 }
 
 static ProgramSentence consumeSentence(LV1::Program& prog) {

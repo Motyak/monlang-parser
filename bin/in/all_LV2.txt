@@ -10,6 +10,10 @@ break
 continue
 die
 
+foreach elements {
+    dosmtg($1)
+}
+
 1 + 1
 fds(sdf)
 (x):{x}
