@@ -129,9 +129,9 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
 
         if (token.is_malformed) {
             token.err_start = token.start;
-            if (expr.err->_info.contains("unfound_optr_offset")) {
-                auto unfound_optr_offset = std::any_cast<size_t>(expr.err->_info.at("unfound_optr_offset"));
-                token.err_start = asTokenPosition(token.err_start + unfound_optr_offset);
+            if (expr.err->_info.contains("err_offset")) {
+                auto err_offset = std::any_cast<size_t>(expr.err->_info.at("err_offset"));
+                token.err_start = asTokenPosition(token.err_start + err_offset);
             }
             tokens.traceback.push_back(token);
         }
@@ -176,6 +176,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 
@@ -211,6 +215,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 
@@ -246,6 +254,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 
@@ -281,6 +293,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 
@@ -316,6 +332,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>* returnStmt) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 
@@ -414,6 +434,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
         }
         else {
             token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
         }
         tokens.traceback.push_back(token);
     }

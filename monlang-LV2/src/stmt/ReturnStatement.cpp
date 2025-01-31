@@ -4,6 +4,14 @@
 
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
+/* require knowing all words for token_len() */
+#include <monlang-LV1/ast/ParenthesesGroup.h>
+#include <monlang-LV1/ast/SquareBracketsGroup.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
+#include <monlang-LV1/ast/SquareBracketsTerm.h>
 
 #include <utils/assert-utils.h>
 
@@ -18,6 +26,17 @@
 #define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
     malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
+
+// sum token len for all words preceding the first non-Word..
+// ..and add it to error offset
+#define SET_NON_WORD_ERR_OFFSET(error) \
+    auto err_offset = size_t(0); \
+    for (size_t i = 0; i < sentence.programWords.size(); ++i) { \
+        unless (holds_word(sentence.programWords[i])) break; \
+        err_offset += token_len(sentence.programWords[i]); \
+        err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
+    } \
+    error._info["err_offset"] = err_offset
 
 static Atom AtomConstant(const std::string& val) {
     auto atom = Atom{val};
@@ -61,7 +80,9 @@ MayFail<MayFail_<ReturnStatement>> consumeReturnStatement(LV1::Program& prog) {
 
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto malformed = Malformed(MayFail_<ReturnStatement>(StubExpression_()), ERR(251));
+        auto error = ERR(251);
+        SET_NON_WORD_ERR_OFFSET(error);
+        auto malformed = Malformed(MayFail_<ReturnStatement>(StubExpression_()), error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

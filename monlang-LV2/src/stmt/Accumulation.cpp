@@ -14,6 +14,7 @@
 #include <monlang-LV1/ast/PostfixParenthesesGroup.h>
 #include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
 #include <monlang-LV1/ast/Association.h>
+#include <monlang-LV1/ast/SquareBracketsTerm.h>
 
 #include <utils/vec-utils.h>
 #include <utils/assert-utils.h>
@@ -29,6 +30,28 @@
 #define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
     malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
+
+// sum token len for all words preceding the nth word..
+// ..and add it to error offset
+#define SET_NTH_WORD_ERR_OFFSET(error, nth) \
+    auto err_offset = size_t(0); \
+    for (size_t i = 0; i < nth - 1; ++i) { \
+        err_offset += token_len(sentence.programWords[i]); \
+        err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
+    } \
+    error._info["err_offset"] = err_offset
+
+
+// sum token len for all words preceding the first non-Word..
+// ..and add it to error offset
+#define SET_NON_WORD_ERR_OFFSET(error) \
+    auto err_offset = size_t(0); \
+    for (size_t i = 0; i < sentence.programWords.size(); ++i) { \
+        unless (holds_word(sentence.programWords[i])) break; \
+        err_offset += token_len(sentence.programWords[i]); \
+        err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
+    } \
+    error._info["err_offset"] = err_offset
 
 const std::string Accumulation::SEPARATOR_SUFFIX = "=";
 
@@ -68,7 +91,9 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
         }
     }
     unless (optr_found) {
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), StubExpression_()}, ERR(226));
+        auto error = ERR(226);
+        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
+        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -95,7 +120,9 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(224));
+        auto error = ERR(224);
+        SET_NON_WORD_ERR_OFFSET(error);
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

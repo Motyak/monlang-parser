@@ -62,12 +62,12 @@ MayFail<Expression_> buildExpression(const Term& term) {
             auto expr = StubExpression_();
             set_group_nesting(expr, groupNesting);
             auto error = ERR(163);
-            auto offset_count = size_t(0);
+            auto err_offset = size_t(0);
             for (size_t j = 0; j < i; ++j) {
-                offset_count += token_len(term_.words[j]);
-                offset_count += sequenceLen(Term::CONTINUATOR_SEQUENCE);
+                err_offset += token_len(term_.words[j]);
+                err_offset += sequenceLen(Term::CONTINUATOR_SEQUENCE);
             }
-            error._info["unfound_optr_offset"] = offset_count;
+            error._info["err_offset"] = err_offset;
             return Malformed<Expression_>(expr, error);
         }
     }

@@ -11,6 +11,7 @@
 #include <monlang-LV1/ast/PostfixParenthesesGroup.h>
 #include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
 #include <monlang-LV1/ast/Association.h>
+#include <monlang-LV1/ast/SquareBracketsTerm.h>
 
 #include <utils/assert-utils.h>
 
@@ -25,6 +26,17 @@
 #define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
     malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
+
+// sum token len for all words preceding the first non-Word..
+// ..and add it to error offset
+#define SET_NON_WORD_ERR_OFFSET(error) \
+    auto err_offset = size_t(0); \
+    for (size_t i = 0; i < sentence.programWords.size(); ++i) { \
+        unless (holds_word(sentence.programWords[i])) break; \
+        err_offset += token_len(sentence.programWords[i]); \
+        err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
+    } \
+    error._info["err_offset"] = err_offset
 
 static Atom AtomConstant(const std::string& val) {
     auto atom = Atom{val};
@@ -59,7 +71,9 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
 
     auto iterable_as_term = extractIterable(sentence);
     unless (iterable_as_term) {
-        return Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, ERR(322));
+        auto error = ERR(322);
+        SET_NON_WORD_ERR_OFFSET(error);
+        return Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, error);
     }
     auto iterable = buildExpression(*iterable_as_term);
     if (iterable.has_error()) {
@@ -69,7 +83,9 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
 
     auto pw = sentence.programWords.back();
     unless (holds_word(pw)) {
-        return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(324));
+        auto error = ERR(324);
+        SET_NON_WORD_ERR_OFFSET(error);
+        return Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, error);
     }
     auto word = get_word(pw);
     // TODO: if not peek block expr => new err
