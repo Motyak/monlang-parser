@@ -32,7 +32,7 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
 
     auto blockExpr = MayFail_<BlockExpression>{statements};
     blockExpr._tokenLen = cbg._tokenLen;
-    if (cbg.term) {
+    if (cbg.term || statements.empty()) {
         blockExpr._oneline = true;
     }
     return blockExpr;

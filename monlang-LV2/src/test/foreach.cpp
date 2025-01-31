@@ -381,3 +381,62 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3219][for
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a non-BlockExpression as block", "[test-3232][foreach][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `foreach`
+       |  -> ProgramWord #2: Atom: `list`
+       |  -> ProgramWord #3: ParenthesesGroup
+       |    -> Term
+       |      -> Word : Atom: `fds`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: ForeachStatement
+       |  -> iterable
+       |    -> Expression: Lvalue: `list`
+       |  ~> ERR-326
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3233][foreach][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `foreach`
+       |  -> ProgramWord #2: Atom: `list`
+       |  -> ProgramWord #3: CurlyBracketsGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: ForeachStatement
+       |  -> iterable
+       |    -> Expression: Lvalue: `list`
+       |  -> block (empty)
+       |  ~> ERR-327
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}

@@ -91,7 +91,9 @@
 322 Malformed ForeachStatement, contains a non-Word as part of iterable
 323 Malformed ForeachStatement, contains a Malformed Expression as iterable
 324 Malformed ForeachStatement, contains a non-Word as block
+326 Malformed ForeachStatement, contains a non-BlockExpression as block
 325 Malformed ForeachStatement, contains a Malformed BlockExpression as block
+327 Malformed ForeachStatement, contains a oneline BlockExpression as block
 
 331 Malformed WhileStatement, contains less than 2 words (no condition)
 332 Malformed WhileStatement, contains a non-SquareBracketsTerm as condition

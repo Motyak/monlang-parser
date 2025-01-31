@@ -322,13 +322,16 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     }
 
     output(any_malformed_stmt? "~> " : "-> ");
-    outputLine("block");
+    outputLine(foreachStatement->block.val.statements.empty()? "block (empty)" : "block");
     currIndent++;
     for (auto statement: foreachStatement->block.val.statements) {
         operator()(statement);
     }
     currIndent--;
 
+    if (currStatement.has_error() && !any_malformed_stmt) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+    }
 
     currIndent--;
 }
