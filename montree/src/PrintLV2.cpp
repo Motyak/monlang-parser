@@ -286,13 +286,15 @@ void PrintLV2::operator()(DieStatement*) {
 }
 
 void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
+    auto currStatement_ = currStatement; // local copy
+
     outputLine("ForeachStatement");
     currIndent++;
 
 
     if (is_stub(foreachStatement->iterable.val)
             && !foreachStatement->iterable.has_error()) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }
@@ -308,7 +310,7 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     }
 
     if (foreachStatement->block.val._stub) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }
@@ -329,8 +331,8 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     }
     currIndent--;
 
-    if (currStatement.has_error() && !any_malformed_stmt) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement));
+    if (currStatement_.has_error() && !any_malformed_stmt) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement_));
     }
 
     currIndent--;
@@ -429,7 +431,7 @@ void PrintLV2::operator()(MayFail_<ExpressionStatement>* expressionStatement) {
 }
 
 void PrintLV2::operator()(MayFail_<Operation>* operation) {
-    auto currExpression_ = currExpression; // backup because we operation contains expressions as well
+    auto currExpression_ = currExpression; // backup in case left operand is an operation as well (would overwrite)
     outputLine("Operation");
     currIndent++;
 
