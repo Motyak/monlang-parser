@@ -8,6 +8,9 @@ find monlang-LV1/ -name '*.cpp' -o -name '*.h' -o -name 'Makefile' -o -name '*.m
 # add monlang-LV2/ and montree/ files
 find . -name '*.cpp' -o -name '*.h' -o -name 'Makefile' -o -name '*.mk' -o -name '*.sh' | grep -v 'catch' | grep -v 'montree/utils.mk' | grep -v 'monlang-LV2/utils.mk' | grep -v 'monlang-LV2/tools/aggregate-libs.mri.sh' >> filelist.txt
 
+#cat filelist.txt | grep -vi 'test' > .filelist.txt
+#mv .filelist.txt filelist.txt
+
 var="$(cloc --list-file=filelist.txt --by-file)"
 sum_row="$(tail -n2 <<< "$var" | head -n2)"
 table="$(tail -n+2 <<< "$var")"
