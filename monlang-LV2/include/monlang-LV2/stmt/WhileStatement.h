@@ -14,10 +14,14 @@ struct MayFail_<WhileStatement> {
     MayFail<MayFail_<WhileBlock>> block;
     bool until_loop = false;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(MayFail<Expression_>, MayFail<MayFail_<WhileBlock>>, bool);
+    explicit MayFail_(const MayFail<Expression_>&, const MayFail<MayFail_<WhileBlock>>&, bool);
 
-    explicit MayFail_(WhileStatement);
+    explicit MayFail_(const WhileStatement&);
     explicit operator WhileStatement() const;
 };
 
@@ -27,10 +31,14 @@ struct MayFail_<DoWhileStatement> {
     MayFail<Expression_> condition;
     bool until_loop = false;
 
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+    size_t _tokenLen = 0;
+    size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(MayFail<MayFail_<WhileBlock>>, MayFail<Expression_>, bool);
+    explicit MayFail_(const MayFail<MayFail_<WhileBlock>>&, const MayFail<Expression_>&, bool);
 
-    explicit MayFail_(DoWhileStatement);
+    explicit MayFail_(const DoWhileStatement&);
     explicit operator DoWhileStatement() const;
 };
 

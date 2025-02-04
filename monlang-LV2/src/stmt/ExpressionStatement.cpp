@@ -3,11 +3,11 @@
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
-#define SET_TOKEN_FIELDS(assignment, sentence) \
-    assignment._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
-    assignment._tokenIndentSpaces = sentence._tokenIndentSpaces; \
-    assignment._tokenLen = sentence._tokenLen; \
-    assignment._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+#define SET_TOKEN_FIELDS(exprStmt, sentence) \
+    exprStmt._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    exprStmt._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    exprStmt._tokenLen = sentence._tokenLen; \
+    exprStmt._tokenTrailingNewlines = sentence._tokenTrailingNewlines
 
 #define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \

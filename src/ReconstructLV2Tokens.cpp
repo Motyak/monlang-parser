@@ -30,6 +30,7 @@
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/Association.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/SquareBracketsTerm.h>
 
 #include <utils/assert-utils.h>
 #include <utils/loop-utils.h>
@@ -456,9 +457,58 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>*) {
+void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
     // NOTE: will require lastCorrectToken
-    TODO();
+    auto curStmt_ = curStmt; // local copy
+
+    auto tokenId = newToken(curStmt_);
+    token.is_malformed = curStmt_.has_error();
+    token.name = "WhileStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += whileStmt->_tokenLeadingNewlines;
+    curPos += whileStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    if (whileStmt->until_loop) {
+        curPos += WhileStatement::UNTIL_KEYWORD._tokenLen;
+    }
+    else {
+        curPos += WhileStatement::WHILE_KEYWORD._tokenLen;
+    }
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += sequenceLen(SquareBracketsTerm::INITIATOR_SEQUENCE);
+    operator()(whileStmt->condition);
+    curPos += sequenceLen(SquareBracketsTerm::TERMINATOR_SEQUENCE);
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(mayfail_convert<Expression_>(whileStmt->block));
+    curPos = backupCurPos;
+    curPos += whileStmt->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    curPos += whileStmt->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        if (curStmt_.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt_.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>*) {

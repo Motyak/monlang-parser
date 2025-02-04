@@ -17,11 +17,11 @@
 
 #define unless(x) if(!(x))
 
-#define SET_TOKEN_FIELDS(letStmt, sentence) \
-    letStmt._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
-    letStmt._tokenIndentSpaces = sentence._tokenIndentSpaces; \
-    letStmt._tokenLen = sentence._tokenLen; \
-    letStmt._tokenTrailingNewlines = sentence._tokenTrailingNewlines
+#define SET_TOKEN_FIELDS(foreachStmt, sentence) \
+    foreachStmt._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
+    foreachStmt._tokenIndentSpaces = sentence._tokenIndentSpaces; \
+    foreachStmt._tokenLen = sentence._tokenLen; \
+    foreachStmt._tokenTrailingNewlines = sentence._tokenTrailingNewlines
 
 #define SET_MALFORMED_TOKEN_FIELDS(malformed, sentence) \
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
