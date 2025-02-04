@@ -361,6 +361,38 @@ TEST_CASE ("ERR contains a non-Word as block", "[test-3319][while][err]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("ERR contains a non-BlockExpression as block", "[test-3331][while][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `until`
+       |  -> ProgramWord #2: SquareBracketsTerm
+       |    -> Term
+       |      -> Word: Atom: `end`
+       |  -> ProgramWord #3: ParenthesesGroup
+       |    -> Term
+       |      -> Word: Atom: `true`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: WhileStatement
+       |  -> condition
+       |    -> Expression: Lvalue: `end`
+       |  ~> ERR-338
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3320][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
@@ -398,32 +430,22 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3320][whi
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains more than 3 words", "[test-3321][while][err]") {
+TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3332][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
        |  -> ProgramWord #2: SquareBracketsTerm
        |    -> Term
        |      -> Word: Atom: `end`
-       |  -> ProgramWord #3: CurlyBracketsGroup
-       |    -> ProgramSentence
-       |      -> ProgramWord: PostfixParenthesesGroup
-       |        -> Word: Atom: `doit`
-       |        -> ParenthesesGroup (empty)
-       |  -> ProgramWord #4: Atom: `;`
+       |  -> ProgramWord #3: CurlyBracketsGroup (empty)
     )EOF");
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: WhileStatement
        |  -> condition
        |    -> Expression: Lvalue: `end`
-       |  -> block
-       |    -> Statement: ExpressionStatement
-       |      -> Expression: FunctionCall
-       |        -> function
-       |          -> Expression: Lvalue: `doit`
-       |        -> arguments (none)
-       |  ~> ERR-337
+       |  -> block (empty)
+       |  ~> ERR-339
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

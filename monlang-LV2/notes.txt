@@ -1,0 +1,2 @@
+find statement keywords:
+cat src/**/*Statement*.cpp | perl -ne 'print "$1\n" if /^const\s.*KEYWORD.*=.*"(\w+)".*;$/'

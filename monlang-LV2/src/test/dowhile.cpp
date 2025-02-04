@@ -281,6 +281,33 @@ TEST_CASE ("Malformed DoStatement, contains a non-Word as block", "[test-3417][d
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("Malformed DoStatement, contains a non-BlockExpression as block", "[test-3431][dowhile][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Program
+       |  -> ProgramSentence
+       |    -> ProgramWord #1: Atom: `do`
+       |    -> ProgramWord #2: ParenthesesGroup
+       |      -> Term
+       |        -> Word: Atom: `true`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: DoWhileStatement
+       |  ~> ERR-349
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_prog = std::get<Program>(input_ast);
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("Malformed DoStatement, contains a Malformed BlockExpression as block", "[test-3418][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
@@ -313,28 +340,18 @@ TEST_CASE ("Malformed DoStatement, contains a Malformed BlockExpression as block
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoStatement, contains more than 2 words", "[test-3419][dowhile][err]") {
+TEST_CASE ("Malformed DoStatement, contains a oneline BlockExpression as block", "[test-3432][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence
        |    -> ProgramWord #1: Atom: `do`
-       |    -> ProgramWord #2: CurlyBracketsGroup
-       |      -> ProgramSentence
-       |        -> ProgramWord: PostfixParenthesesGroup
-       |          -> Word: Atom: `doit`
-       |          -> ParenthesesGroup (empty)
-       |    -> ProgramWord #3: Atom: `x`
+       |    -> ProgramWord #2: CurlyBracketsGroup (empty)
     )EOF");
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  -> block
-       |    -> Statement: ExpressionStatement
-       |      -> Expression: FunctionCall
-       |        -> function
-       |          -> Expression: Lvalue: `doit`
-       |        -> arguments (none)
-       |  ~> ERR-344
+       |  -> block (empty)
+       |  ~> ERR-340
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -460,49 +477,6 @@ TEST_CASE ("Malformed DoWhileStatement, contains a Malformed Expression as part 
 
     auto output = consumeStatement(input_prog);
     REQUIRE (output.error().fmt == "ERR-347");
-    REQUIRE (input_prog.sentences.empty());
-
-    auto output_str = montree::astToString(output);
-    REQUIRE (output_str == expect);
-}
-
-///////////////////////////////////////////////////////////
-
-TEST_CASE ("Malformed DoWhileStatement, contains more than 2 words", "[test-3423][dowhile][err]") {
-    auto input = tommy_str(R"EOF(
-       |-> Program
-       |  -> ProgramSentence #1
-       |    -> ProgramWord #1: Atom: `do`
-       |    -> ProgramWord #2: CurlyBracketsGroup
-       |      -> ProgramSentence
-       |        -> ProgramWord: PostfixParenthesesGroup
-       |          -> Word: Atom: `doit`
-       |          -> ParenthesesGroup (empty)
-       |  -> ProgramSentence #2
-       |    -> ProgramWord #1: Atom: `until`
-       |    -> ProgramWord #2: SquareBracketsTerm
-       |      -> Term
-       |        -> Word: Atom: `end`
-       |    -> ProgramWord #3: Atom: `x`
-    )EOF");
-
-    auto expect = tommy_str(R"EOF(
-       |~> Statement: DoWhileStatement
-       |  -> block
-       |    -> Statement: ExpressionStatement
-       |      -> Expression: FunctionCall
-       |        -> function
-       |          -> Expression: Lvalue: `doit`
-       |        -> arguments (none)
-       |  -> condition
-       |    -> Expression: Lvalue: `end`
-       |  ~> ERR-348
-    )EOF");
-
-    auto input_ast = montree::buildLV1Ast(input);
-    auto input_prog = std::get<Program>(input_ast);
-
-    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

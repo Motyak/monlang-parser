@@ -31,7 +31,7 @@ OBJS := $(SRC_FILENAMES:%=obj/%.o)
 
 ###########################################################
 
-all: main
+all: dist/montree.a
 
 main: $(OBJS)
 

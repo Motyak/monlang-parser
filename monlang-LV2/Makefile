@@ -55,7 +55,7 @@ LIB_ARTIFACT_DIRS := ${foreach lib,${wildcard lib/*/},$(lib:%/=%)/{.deps,obj,dis
 
 ###########################################################
 
-all: main
+all: dist/monlang-LV2.a
 
 main: $(OBJS)
 

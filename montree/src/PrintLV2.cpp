@@ -366,7 +366,7 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
         return;
     }
     output(whileStatement->block.has_error()? "~> " : "-> ");
-    outputLine("block");
+    outputLine(whileStatement->block.val.statements.empty()? "block (empty)" : "block");
     currIndent++;
     for (auto statement: whileStatement->block.val.statements) {
         operator()(statement);
@@ -392,7 +392,7 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
         return;
     }
     output(doWhileStatement->block.has_error()? "~> " : "-> ");
-    outputLine("block");
+    outputLine(doWhileStatement->block.val.statements.empty()? "block (empty)" : "block");
     currIndent++;
     for (auto statement: doWhileStatement->block.val.statements) {
         operator()(statement);

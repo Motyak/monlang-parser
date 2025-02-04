@@ -119,21 +119,26 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
-    auto block_as_word = get_word(block_as_pw);
-    auto block = buildBlockExpression(block_as_word);
+    auto word = get_word(block_as_pw);
+    unless (peekBlockExpression(word)) {
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(338));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
+        return malformed;
+    }
+    auto block = buildBlockExpression(word);
     if (block.has_error()) {
         auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(336));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
-
-
-    /* check if additional words */
-    if (sentence.programWords.size() > 3) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(337));
+    if (block.val._oneline) {
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(339));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
+
+    // NOTE: additional words are now checked afterward (if warning enabled)
+    // ;
 
 
     auto whileStmt = MayFail_<WhileStatement>{condition, block, until_loop};
@@ -144,33 +149,39 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
 MayFail<MayFail_<DoWhileStatement>> consumeDoWhileStatement(LV1::Program& prog) {
     auto currSentence = consumeSentence(prog);
 
-    /* while block */
+    /* do block */
     unless (currSentence.programWords.size() >= 2) {
-        auto malformed = Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), false}, ERR(341));
+        auto malformed = Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), bool()}, ERR(341));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
         return malformed;
     }
     auto block_as_pw = currSentence.programWords[1];
     unless (holds_word(block_as_pw)) {
-        auto malformed = Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), false}, ERR(342));
+        auto malformed = Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), bool()}, ERR(342));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
         return malformed;
     }
-    auto block_as_word = get_word(block_as_pw);
-    auto block = buildBlockExpression(block_as_word);
+    auto word = get_word(block_as_pw);
+    unless (peekBlockExpression(word)) {
+        auto malformed = Malformed(MayFail_<DoWhileStatement>{MayFail_<BlockExpression>(), StubExpression_(), bool()}, ERR(349));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
+        return malformed;
+    }
+    auto block = buildBlockExpression(word);
     if (block.has_error()) {
-        auto malformed = Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), false}, ERR(343));
+        auto malformed = Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), bool()}, ERR(343));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
+        return malformed;
+    }
+    if (block.val._oneline) {
+        auto malformed = Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), bool()}, ERR(340));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
         return malformed;
     }
 
+    // NOTE: additional words are now checked afterward (if warning enabled)
+    // ;
 
-    /* check if additional words */
-    if (currSentence.programWords.size() > 2) {
-        auto malformed = Malformed(MayFail_<DoWhileStatement>{block, StubExpression_(), false}, ERR(344));
-        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
-        return malformed;
-    }
 
     currSentence = consumeSentence(prog);
 
@@ -200,13 +211,9 @@ MayFail<MayFail_<DoWhileStatement>> consumeDoWhileStatement(LV1::Program& prog) 
         return malformed;
     }
 
+    // NOTE: additional words are now checked afterward (if warning enabled)
+    // ;
 
-    /* check if additional words */
-    if (currSentence.programWords.size() > 2) {
-        auto malformed = Malformed(MayFail_<DoWhileStatement>{block, condition, until_loop}, ERR(348));
-        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/currSentence);
-        return malformed;
-    }
 
     auto doWhileStmt = MayFail_<DoWhileStatement>{block, condition, until_loop};
     SET_TOKEN_FIELDS(doWhileStmt, /*from*/currSentence);
