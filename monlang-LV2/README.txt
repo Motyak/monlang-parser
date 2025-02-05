@@ -25,8 +25,10 @@
 32 ForeachStatement
 33 WhileStatement
 34 DoWhileStatement
+35 C_DoStatement
+36 C_WhileStatement
 
-35 DeferStatement
+37 DeferStatement
 
 59 ExpressionStatement
 
@@ -104,14 +106,19 @@
 336 Malformed WhileStatement, contains a Malformed BlockExpression as block
 339 Malformed WhileStatement, contains a oneline BlockExpression as block
 
-341 Malformed DoStatement, contains less than 2 words (no block)
-342 Malformed DoStatement, contains a non-Word as block
-349 Malformed DoStatement, contains a non-BlockExpression as block
-343 Malformed DoStatement, contains a Malformed BlockExpression as block
-340 Malformed DoStatement, contains a oneline BlockExpression as block
-345 Malformed DoWhileStatement, contains less than 2 words (no condition)
-346 Malformed DoWhileStatement, contains a non-SquareBracketsTerm as condition
-347 Malformed DoWhileStatement, contains a Malformed Expression as part of condition
+341 Malformed DoWhileStatement, contains a Malformed C_DoStatement
+342 Malformed DoWhileStatement, missing C_WhileStatement
+343 Malformed DoWhileStatement, contains a Malformed C_WhileStatement
+
+351 Malformed C_DoStatement, contains less than 2 words (no block)
+352 Malformed C_DoStatement, contains a non-Word as block
+353 Malformed C_DoStatement, contains a non-BlockExpression as block
+354 Malformed C_DoStatement, contains a Malformed BlockExpression as block
+355 Malformed C_DoStatement, contains a oneline BlockExpression as block
+
+361 Malformed C_WhileStatement, contains less than 2 words (no condition)
+362 Malformed C_WhileStatement, contains a non-SquareBracketsTerm as condition
+363 Malformed C_WhileStatement, contains a Malformed Expression as part of condition
 
 591 Malformed ExpressionStatement, contains a Malformed Expression
 

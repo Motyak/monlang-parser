@@ -386,39 +386,59 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     outputLine("DoWhileStatement");
     currIndent++;
 
-    if (doWhileStatement->block.val._stub) {
+
+    output(doWhileStatement->doStmt.has_error()? "~> " : "-> ");
+    outputLine("C_DoStatement");
+    currIndent++;
+    {
+        auto& doStmt = doWhileStatement->doStmt.val;
+        if (doStmt.block.val._stub) {
+            outputLine("~> ", SERIALIZE_ERR(doWhileStatement->doStmt));
+            currIndent--;
+            return;
+        }
+        for (auto statement: doStmt.block.val.statements) {
+            operator()(statement);
+        }
+
+        if (doStmt.block.has_error()) {
+            return;
+        }
+
+        if (doWhileStatement->doStmt.has_error()) {
+            outputLine("~> ", SERIALIZE_ERR(doWhileStatement->doStmt));
+        }
+    }
+    currIndent--;
+
+
+    if (doWhileStatement->doStmt.has_error()) {
+        currIndent--;
+        return;
+    }
+
+    if (doWhileStatement->whileStmt.val._stub) {
         outputLine("~> ", SERIALIZE_ERR(currStatement_));
         currIndent--;
         return;
     }
-    output(doWhileStatement->block.has_error()? "~> " : "-> ");
-    outputLine(doWhileStatement->block.val.statements.empty()? "block (empty)" : "block");
+
+
+    output(doWhileStatement->whileStmt.has_error()? "~> " : "-> ");
+    outputLine("C_WhileStatement");
     currIndent++;
-    for (auto statement: doWhileStatement->block.val.statements) {
-        operator()(statement);
+    {
+        auto& whileStmt = doWhileStatement->whileStmt.val;
+        if (is_stub(whileStmt.condition.val)
+                && !whileStmt.condition.has_error()) {
+            outputLine("~> ", SERIALIZE_ERR(doWhileStatement->whileStmt));
+            currIndent--;
+            return;
+        }
+        operator()(whileStmt.condition);
     }
     currIndent--;
 
-    if (doWhileStatement->block.has_error()) {
-        return;
-    }
-
-    if (is_stub(doWhileStatement->condition.val)
-            && !doWhileStatement->condition.has_error()) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement_));
-        currIndent--;
-        return;
-    }
-    output(doWhileStatement->condition.has_error()? "~> " : "-> ");
-    outputLine("condition");
-    currIndent++;
-    operator()(doWhileStatement->condition);
-    currIndent--;
-
-
-    if (currStatement_.has_error() && !doWhileStatement->condition.has_error()) {
-        outputLine("~> ", SERIALIZE_ERR(currStatement_));
-    }
 
     currIndent--;
 }

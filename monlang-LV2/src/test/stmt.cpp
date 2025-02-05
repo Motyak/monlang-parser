@@ -330,13 +330,13 @@ TEST_CASE ("do while statement", "[test-1223][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> condition
+       |  -> C_WhileStatement
        |    -> Expression: Operation
        |      -> Expression: Lvalue: `i`
        |      -> operator: `>`

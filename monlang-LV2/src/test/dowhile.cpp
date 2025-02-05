@@ -2,6 +2,8 @@
 #include <montree/montree-LV2.h>
 #include <catch2/catch_amalgamated.hpp>
 
+#include <monlang-LV2/stmt/WhileStatement.h>
+
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("lvalue condition", "[test-3411][dowhile]") {
@@ -23,13 +25,13 @@ TEST_CASE ("lvalue condition", "[test-3411][dowhile]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> condition
+       |  -> C_WhileStatement
        |    -> Expression: Lvalue: `end`
     )EOF");
 
@@ -66,13 +68,13 @@ TEST_CASE ("grouped expr condition", "[test-3412][dowhile]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> condition
+       |  -> C_WhileStatement
        |    -> Expression: Lvalue: `end`
     )EOF");
 
@@ -109,13 +111,13 @@ TEST_CASE ("block condition", "[test-3413][dowhile]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> condition
+       |  -> C_WhileStatement
        |    -> Expression: BlockExpression
        |      -> Statement: ExpressionStatement
        |        -> Expression: Lvalue: `end`
@@ -156,13 +158,13 @@ TEST_CASE ("function call condition", "[test-3414][dowhile]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> condition
+       |  -> C_WhileStatement
        |    -> Expression: FunctionCall
        |      -> function
        |        -> Expression: Lvalue: `end?`
@@ -203,13 +205,13 @@ TEST_CASE ("operation condition", "[test-3415][dowhile]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  -> condition
+       |  -> C_WhileStatement
        |    -> Expression: Operation
        |      -> Expression: Lvalue: `i`
        |      -> operator: `>`
@@ -230,42 +232,26 @@ TEST_CASE ("operation condition", "[test-3415][dowhile]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("Malformed DoStatement, contains less than 2 words (no block)", "[test-3416][dowhile][err]") {
-    auto input = tommy_str(R"EOF(
-       |-> Program
-       |  -> ProgramSentence
-       |    -> ProgramWord: Atom: `do`
-    )EOF");
-
-    auto expect = tommy_str(R"EOF(
-       |~> Statement: DoWhileStatement
-       |  ~> ERR-341
-    )EOF");
-
-    auto input_ast = montree::buildLV1Ast(input);
-    auto input_prog = std::get<Program>(input_ast);
-
-    auto output = consumeStatement(input_prog);
-    REQUIRE (input_prog.sentences.empty());
-
-    auto output_str = montree::astToString(output);
-    REQUIRE (output_str == expect);
-}
-
-///////////////////////////////////////////////////////////
-
-TEST_CASE ("Malformed DoStatement, contains a non-Word as block", "[test-3417][dowhile][err]") {
+TEST_CASE ("Malformed DoWhileStatement, missing C_WhileStatement", "[test-3431][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence
        |    -> ProgramWord #1: Atom: `do`
-       |    -> ProgramWord #2: SquareBracketsTerm
-       |      -> Term
-       |        -> Word: Atom: `true`
+       |    -> ProgramWord #2: CurlyBracketsGroup
+       |      -> ProgramSentence
+       |        -> ProgramWord: PostfixParenthesesGroup
+       |          -> Word: Atom: `doit`
+       |          -> ParenthesesGroup (empty)
     )EOF");
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
+       |  -> C_DoStatement
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: FunctionCall
+       |        -> function
+       |          -> Expression: Lvalue: `doit`
+       |        -> arguments (none)
        |  ~> ERR-342
     )EOF");
 
@@ -281,19 +267,46 @@ TEST_CASE ("Malformed DoStatement, contains a non-Word as block", "[test-3417][d
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoStatement, contains a non-BlockExpression as block", "[test-3431][dowhile][err]") {
+TEST_CASE ("Malformed C_DoStatement, contains less than 2 words (no block)", "[test-3416][dowhile][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Program
+       |  -> ProgramSentence
+       |    -> ProgramWord: Atom: `do`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: DoWhileStatement
+       |  ~> C_DoStatement
+       |    ~> ERR-351
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_prog = std::get<Program>(input_ast);
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (/*DoWhileStatement*/output.error().fmt == "ERR-341");
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed C_DoStatement, contains a non-Word as block", "[test-3417][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence
        |    -> ProgramWord #1: Atom: `do`
-       |    -> ProgramWord #2: ParenthesesGroup
+       |    -> ProgramWord #2: SquareBracketsTerm
        |      -> Term
        |        -> Word: Atom: `true`
     )EOF");
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  ~> ERR-349
+       |  ~> C_DoStatement
+       |    ~> ERR-352
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -308,7 +321,35 @@ TEST_CASE ("Malformed DoStatement, contains a non-BlockExpression as block", "[t
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoStatement, contains a Malformed BlockExpression as block", "[test-3418][dowhile][err]") {
+TEST_CASE ("Malformed C_DoStatement, contains a non-BlockExpression as block", "[test-3431][dowhile][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Program
+       |  -> ProgramSentence
+       |    -> ProgramWord #1: Atom: `do`
+       |    -> ProgramWord #2: ParenthesesGroup
+       |      -> Term
+       |        -> Word: Atom: `true`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: DoWhileStatement
+       |  ~> C_DoStatement
+       |    ~> ERR-353
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_prog = std::get<Program>(input_ast);
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed C_DoStatement, contains a Malformed BlockExpression as block", "[test-3418][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence
@@ -321,7 +362,7 @@ TEST_CASE ("Malformed DoStatement, contains a Malformed BlockExpression as block
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  ~> block
+       |  ~> C_DoStatement
        |    ~> Statement: ExpressionStatement
        |      ~> Expression
        |        ~> ERR-161
@@ -331,8 +372,8 @@ TEST_CASE ("Malformed DoStatement, contains a Malformed BlockExpression as block
     auto input_prog = std::get<Program>(input_ast);
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (/*C_DoStatement*/ "ERR-354" == std::get<MayFail_<DoWhileStatement>*>(output.val)->doStmt.error().fmt);
     REQUIRE (input_prog.sentences.empty());
-    REQUIRE (/*DoWhileStatement*/ "ERR-343" == output.error().fmt);
 
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
@@ -340,7 +381,7 @@ TEST_CASE ("Malformed DoStatement, contains a Malformed BlockExpression as block
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoStatement, contains a oneline BlockExpression as block", "[test-3432][dowhile][err]") {
+TEST_CASE ("Malformed C_DoStatement, contains a oneline BlockExpression as block", "[test-3432][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence
@@ -350,8 +391,8 @@ TEST_CASE ("Malformed DoStatement, contains a oneline BlockExpression as block",
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  -> block (empty)
-       |  ~> ERR-340
+       |  ~> C_DoStatement
+       |    ~> ERR-355
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -366,7 +407,7 @@ TEST_CASE ("Malformed DoStatement, contains a oneline BlockExpression as block",
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoWhileStatement, contains less than 2 words (no condition)", "[test-3420][dowhile][err]") {
+TEST_CASE ("Malformed C_WhileStatement, contains less than 2 words (no condition)", "[test-3420][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence #1
@@ -382,19 +423,21 @@ TEST_CASE ("Malformed DoWhileStatement, contains less than 2 words (no condition
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  ~> ERR-345
+       |  ~> C_WhileStatement
+       |    ~> ERR-361
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_prog = std::get<Program>(input_ast);
 
     auto output = consumeStatement(input_prog);
+    REQUIRE (/*DoWhileStatement*/output.error().fmt == "ERR-343");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -403,7 +446,7 @@ TEST_CASE ("Malformed DoWhileStatement, contains less than 2 words (no condition
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoWhileStatement, contains a non-SquareBracketsTerm as condition", "[test-3421][dowhile][err]") {
+TEST_CASE ("Malformed C_WhileStatement, contains a non-SquareBracketsTerm as condition", "[test-3421][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence #1
@@ -420,13 +463,14 @@ TEST_CASE ("Malformed DoWhileStatement, contains a non-SquareBracketsTerm as con
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  ~> ERR-346
+       |  ~> C_WhileStatement
+       |    ~> ERR-362
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -441,7 +485,7 @@ TEST_CASE ("Malformed DoWhileStatement, contains a non-SquareBracketsTerm as con
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed DoWhileStatement, contains a Malformed Expression as part of condition", "[test-3422][dowhile][err]") {
+TEST_CASE ("Malformed C_WhileStatement, contains a Malformed Expression as part of condition", "[test-3422][dowhile][err]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence #1
@@ -461,13 +505,13 @@ TEST_CASE ("Malformed DoWhileStatement, contains a Malformed Expression as part 
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
-       |  -> block
+       |  -> C_DoStatement
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Lvalue: `doit`
        |        -> arguments (none)
-       |  ~> condition
+       |  ~> C_WhileStatement
        |    ~> Expression
        |      ~> ERR-161
     )EOF");
@@ -476,7 +520,7 @@ TEST_CASE ("Malformed DoWhileStatement, contains a Malformed Expression as part 
     auto input_prog = std::get<Program>(input_ast);
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (output.error().fmt == "ERR-347");
+    REQUIRE (/*C_DoStatement*/ "ERR-363" == std::get<MayFail_<DoWhileStatement>*>(output.val)->whileStmt.error().fmt);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
