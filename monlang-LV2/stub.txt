@@ -1,0 +1,15 @@
+Comment construire / checker si une valeur est stubbée ?
+  -> si c'est un variant (e.g. Statement ou Expression)
+    -> on visit auto* et check si le pointeur est null.
+      -> dans le cas où on check un MayFail, on veut aussi
+         check que le MF n'a pas d'erreur (un stub n'a jamais d'erreur,
+         si le MF a une erreur, alors ça veut dire que c'est probablement
+         pas un stub)
+  -> sinon
+    -> on instaure un field _stub qu'on set à true
+       lorsque le constructeur 'stub' est appelée
+      -> `STUB(type)` appelle `type(_dummy_stub{})`
+
+Le membre _StubExpression_ du variant Expression_ a été crée
+dans le but de pouvoir tout de même attacher un groupNesting
+lorsqu'on retourne une Expression elle-même malformée.

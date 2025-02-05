@@ -89,20 +89,20 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
 
     /* while condition */
     unless (sentence.programWords.size() >= 2) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{StubExpression_(), MayFail_<BlockExpression>(), until_loop}, ERR(331));
+        auto malformed = Malformed(MayFail_<WhileStatement>{StubExpression_(), STUB(MayFail_<BlockExpression>), until_loop}, ERR(331));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto pw = sentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{StubExpression_(), MayFail_<BlockExpression>(), until_loop}, ERR(332));
+        auto malformed = Malformed(MayFail_<WhileStatement>{StubExpression_(), STUB(MayFail_<BlockExpression>), until_loop}, ERR(332));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto sbt = *std::get<SquareBracketsTerm*>(pw);
     auto condition = buildExpression(sbt.term);
     if (condition.has_error()) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(333));
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, ERR(333));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -110,19 +110,19 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
 
     /* while block */
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(334));
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, ERR(334));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto block_as_pw = sentence.programWords[2];
     unless (holds_word(block_as_pw)) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(335));
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, ERR(335));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto word = get_word(block_as_pw);
     unless (peekBlockExpression(word)) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, MayFail_<BlockExpression>(), until_loop}, ERR(338));
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, ERR(338));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -172,19 +172,19 @@ static MayFail<MayFail_<C_DoStatement>> consumeC_DoStatement(LV1::Program& prog)
     auto sentence = consumeSentence(prog);
 
     unless (sentence.programWords.size() >= 2) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{MayFail_<BlockExpression>()}, ERR(351));
+        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, ERR(351));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto block_as_pw = sentence.programWords[1];
     unless (holds_word(block_as_pw)) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{MayFail_<BlockExpression>()}, ERR(352));
+        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, ERR(352));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto word = get_word(block_as_pw);
     unless (peekBlockExpression(word)) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{MayFail_<BlockExpression>()}, ERR(353));
+        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, ERR(353));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }

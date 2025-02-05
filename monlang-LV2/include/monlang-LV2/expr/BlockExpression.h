@@ -8,6 +8,8 @@
 
 #include <monlang-LV1/ast/Word.h>
 
+#include <utils/stub-ctor.h>
+
 template <>
 struct MayFail_<BlockExpression> {
     std::vector<MayFail<Statement_>> statements;
@@ -16,7 +18,8 @@ struct MayFail_<BlockExpression> {
     bool _oneline = false;
     size_t _tokenLen = 0;
     size_t _groupNesting = 0;
-    MayFail_(); // initializes '_stub' to true
+    MayFail_() = default;
+    explicit MayFail_(_dummy_stub); // sets _stub to true
     explicit MayFail_(std::vector<MayFail<Statement_>>);
 
     explicit MayFail_(BlockExpression);

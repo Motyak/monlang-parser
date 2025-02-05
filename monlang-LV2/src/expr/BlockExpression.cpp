@@ -40,7 +40,7 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
 
 BlockExpression::BlockExpression(const std::vector<Statement>& statements) : statements(statements){}
 
-MayFail_<BlockExpression>::MayFail_() : statements(), _stub(true){}
+MayFail_<BlockExpression>::MayFail_(_dummy_stub) : _stub(true){}
 
 MayFail_<BlockExpression>::MayFail_(std::vector<MayFail<Statement_>> statements) : statements(statements){}
 

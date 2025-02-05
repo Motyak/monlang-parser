@@ -14,6 +14,7 @@
 #include <monlang-LV1/ast/SquareBracketsTerm.h>
 
 #include <utils/assert-utils.h>
+#include <utils/stub-ctor.h>
 
 #define unless(x) if(!(x))
 
@@ -75,7 +76,7 @@ static std::optional<Term> extractIterable(const ProgramSentence&);
 MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, ERR(321));
+        auto malformed = Malformed(MayFail_<ForeachStatement>{StubExpression_(), STUB(MayFail_<BlockExpression>)}, ERR(321));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -85,13 +86,13 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     unless (iterable_as_term) {
         auto error = ERR(322);
         SET_NON_WORD_ERR_OFFSET(error);
-        auto malformed = Malformed(MayFail_<ForeachStatement>{StubExpression_(), MayFail_<BlockExpression>()}, error);
+        auto malformed = Malformed(MayFail_<ForeachStatement>{StubExpression_(), STUB(MayFail_<BlockExpression>)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto iterable = buildExpression(*iterable_as_term);
     if (iterable.has_error()) {
-        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, ERR(323));
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, STUB(MayFail_<BlockExpression>)}, ERR(323));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -101,7 +102,7 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     unless (holds_word(pw)) {
         auto error = ERR(324);
         SET_NON_WORD_ERR_OFFSET(error);
-        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, error);
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, STUB(MayFail_<BlockExpression>)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -109,7 +110,7 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     unless (peekBlockExpression(word)) {
         auto error = ERR(326);
         SET_NTH_WORD_ERR_OFFSET(error, sentence.programWords.size());
-        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, MayFail_<BlockExpression>()}, error);
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, STUB(MayFail_<BlockExpression>)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
