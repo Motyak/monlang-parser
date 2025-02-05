@@ -323,8 +323,7 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
         break;
     }
 
-    output(any_malformed_stmt? "~> " : "-> ");
-    outputLine(foreachStatement->block.val.statements.empty()? "block (empty)" : "block");
+    outputLine(any_malformed_stmt? "~> block" : "-> block");
     currIndent++;
     for (auto statement: foreachStatement->block.val.statements) {
         operator()(statement);
@@ -365,8 +364,7 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
         currIndent--;
         return;
     }
-    output(whileStatement->block.has_error()? "~> " : "-> ");
-    outputLine(whileStatement->block.val.statements.empty()? "block (empty)" : "block");
+    outputLine(whileStatement->block.has_error()? "~> block" : "-> block");
     currIndent++;
     for (auto statement: whileStatement->block.val.statements) {
         operator()(statement);

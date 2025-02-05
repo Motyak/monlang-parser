@@ -444,7 +444,6 @@ TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3332][while
        |~> Statement: WhileStatement
        |  -> condition
        |    -> Expression: Lvalue: `end`
-       |  -> block (empty)
        |  ~> ERR-339
     )EOF");
 

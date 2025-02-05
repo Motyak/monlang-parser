@@ -426,7 +426,6 @@ TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3233][forea
        |~> Statement: ForeachStatement
        |  -> iterable
        |    -> Expression: Lvalue: `list`
-       |  -> block (empty)
        |  ~> ERR-327
     )EOF");
 
