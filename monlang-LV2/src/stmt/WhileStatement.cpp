@@ -2,6 +2,13 @@
 
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/SquareBracketsTerm.h>
+/* require knowing all words for token_len() */
+#include <monlang-LV1/ast/ParenthesesGroup.h>
+#include <monlang-LV1/ast/SquareBracketsGroup.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
+#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Association.h>
 
 #include <utils/assert-utils.h>
 #include <utils/stub-ctor.h>
@@ -23,17 +30,6 @@
 #define SET_NTH_WORD_ERR_OFFSET(error, nth) \
     auto err_offset = size_t(0); \
     for (size_t i = 0; i < nth - 1; ++i) { \
-        err_offset += token_len(sentence.programWords[i]); \
-        err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
-    } \
-    error._info["err_offset"] = err_offset
-
-// sum token len for all words preceding the first non-Word..
-// ..and add it to error offset
-#define SET_NON_WORD_ERR_OFFSET(error) \
-    auto err_offset = size_t(0); \
-    for (size_t i = 0; i < sentence.programWords.size(); ++i) { \
-        unless (holds_word(sentence.programWords[i])) break; \
         err_offset += token_len(sentence.programWords[i]); \
         err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
     } \
@@ -95,7 +91,9 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
     }
     auto pw = sentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{StubExpression_(), STUB(MayFail_<BlockExpression>), until_loop}, ERR(332));
+        auto error = ERR(332);
+        SET_NTH_WORD_ERR_OFFSET(error, 2);
+        auto malformed = Malformed(MayFail_<WhileStatement>{StubExpression_(), STUB(MayFail_<BlockExpression>), until_loop}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -116,13 +114,17 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
     }
     auto block_as_pw = sentence.programWords[2];
     unless (holds_word(block_as_pw)) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, ERR(335));
+        auto error = ERR(335);
+        SET_NTH_WORD_ERR_OFFSET(error, 3);
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto word = get_word(block_as_pw);
     unless (peekBlockExpression(word)) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, ERR(338));
+        auto error = ERR(338);
+        SET_NTH_WORD_ERR_OFFSET(error, 3);
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -133,7 +135,9 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
         return malformed;
     }
     if (block.val._oneline) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(339));
+        auto error = ERR(339);
+        SET_NTH_WORD_ERR_OFFSET(error, 3);
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -178,13 +182,17 @@ static MayFail<MayFail_<C_DoStatement>> consumeC_DoStatement(LV1::Program& prog)
     }
     auto block_as_pw = sentence.programWords[1];
     unless (holds_word(block_as_pw)) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, ERR(352));
+        auto error = ERR(352);
+        SET_NTH_WORD_ERR_OFFSET(error, 2);
+        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
     auto word = get_word(block_as_pw);
     unless (peekBlockExpression(word)) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, ERR(353));
+        auto error = ERR(353);
+        SET_NTH_WORD_ERR_OFFSET(error, 2);
+        auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -195,7 +203,9 @@ static MayFail<MayFail_<C_DoStatement>> consumeC_DoStatement(LV1::Program& prog)
         return malformed;
     }
     if (block.val._oneline) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{block}, ERR(355));
+        auto error = ERR(355);
+        SET_NTH_WORD_ERR_OFFSET(error, 2);
+        auto malformed = Malformed(MayFail_<C_DoStatement>{block}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -225,7 +235,9 @@ static MayFail<MayFail_<C_WhileStatement>> consumeC_WhileStatement(LV1::Program&
     }
     auto pw = sentence.programWords[1];
     unless (std::holds_alternative<SquareBracketsTerm*>(pw)) {
-        auto malformed = Malformed(MayFail_<C_WhileStatement>{StubExpression_(), until_loop}, ERR(362));
+        auto error = ERR(362);
+        SET_NTH_WORD_ERR_OFFSET(error, 2);
+        auto malformed = Malformed(MayFail_<C_WhileStatement>{StubExpression_(), until_loop}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }

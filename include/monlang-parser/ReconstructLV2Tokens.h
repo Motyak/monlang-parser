@@ -49,6 +49,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     TokenId lastCorrectToken = -1;
     size_t exprGroupNesting = 0;
 
+    TokenId newToken();
     TokenId newToken(const LV2::Ast_&);
     TokenPosition asTokenPosition(size_t index);
 };

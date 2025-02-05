@@ -511,9 +511,136 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>*) {
+void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
     // NOTE: will require lastCorrectToken
-    TODO();
+    auto curStmt_ = curStmt; // local copy
+
+    auto tokenId = newToken(curStmt_);
+    token.is_malformed = curStmt_.has_error();
+    token.name = "DoWhileStatement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+
+    /* C_DoStatement */
+    {
+        // NOTE: will require lastCorrectToken
+        auto& doStmt = doWhileStmt->doStmt.val;
+
+        auto tokenId = newToken();
+        token.is_malformed = doWhileStmt->doStmt.has_error();
+        token.name = "C_DoStatement";
+
+        if (token.is_malformed) {
+            token.err_desc = doWhileStmt->doStmt.error().fmt; // TODO: map this to the actual error description
+        }
+
+        curPos += doStmt._tokenLeadingNewlines;
+        curPos += doStmt._tokenIndentSpaces;
+
+        token.start = asTokenPosition(curPos);
+        auto backupCurPos = curPos;
+        auto backupLastCorrectToken = lastCorrectToken;
+        // lastCorrectToken = -1;
+        curPos += C_DoStatement::KEYWORD._tokenLen;
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        operator()(mayfail_convert<Expression_>(doStmt.block));
+        curPos = backupCurPos;
+        curPos += doStmt._tokenLen;
+        token.end = asTokenPosition(curPos - !!curPos);
+
+        curPos += doStmt._tokenTrailingNewlines;
+
+        if (token.is_malformed) {
+            if (lastCorrectToken == size_t(-1)) {
+                token.err_start = token.start;
+            }
+            else {
+                token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            }
+            if (doWhileStmt->doStmt.err->_info.contains("err_offset")) {
+                auto err_offset = std::any_cast<size_t>(doWhileStmt->doStmt.err->_info.at("err_offset"));
+                token.err_start = asTokenPosition(token.err_start + err_offset);
+            }
+            tokens.traceback.push_back(token);
+        }
+
+        lastCorrectToken = backupLastCorrectToken;
+    }
+    /* end of C_DoStatement */
+
+    /* C_WhileStatement */
+    if (!doWhileStmt->doStmt.has_error() && !doWhileStmt->whileStmt.val._stub) // NOTE: VERY SPECIAL CASE, COMPOUND STATEMENT
+    {
+        // NOTE: will require lastCorrectToken
+        auto& whileStmt = doWhileStmt->whileStmt.val;
+
+        auto tokenId = newToken();
+        token.is_malformed = doWhileStmt->whileStmt.has_error();
+        token.name = "C_WhileStatement";
+
+        if (token.is_malformed) {
+            token.err_desc = doWhileStmt->whileStmt.error().fmt; // TODO: map this to the actual error description
+        }
+
+        curPos += whileStmt._tokenLeadingNewlines;
+        curPos += whileStmt._tokenIndentSpaces;
+
+        token.start = asTokenPosition(curPos);
+        auto backupCurPos = curPos;
+        auto backupLastCorrectToken = lastCorrectToken;
+        // lastCorrectToken = -1;
+        if (whileStmt.until_loop) {
+            curPos += C_WhileStatement::UNTIL_KEYWORD._tokenLen;
+        }
+        else {
+            curPos += C_WhileStatement::WHILE_KEYWORD._tokenLen;
+        }
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        curPos += sequenceLen(SquareBracketsTerm::INITIATOR_SEQUENCE);
+        operator()(whileStmt.condition);
+        curPos += sequenceLen(SquareBracketsTerm::TERMINATOR_SEQUENCE);
+        curPos = backupCurPos;
+        curPos += whileStmt._tokenLen;
+        token.end = asTokenPosition(curPos - !!curPos);
+
+        curPos += whileStmt._tokenTrailingNewlines;
+
+        if (token.is_malformed) {
+            token.err_start = token.start;
+            if (doWhileStmt->whileStmt.err->_info.contains("err_offset")) {
+                auto err_offset = std::any_cast<size_t>(doWhileStmt->whileStmt.err->_info.at("err_offset"));
+                token.err_start = asTokenPosition(token.err_start + err_offset);
+            }
+            tokens.traceback.push_back(token);
+        }
+
+        lastCorrectToken = backupLastCorrectToken;
+    }
+    /* end of C_WhileStatement */
+
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+        }
+        if (curStmt_.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt_.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
@@ -737,6 +864,11 @@ void ReconstructLV2Tokens::operator()(_StubExpression_*) {
 
 ReconstructLV2Tokens::ReconstructLV2Tokens(LV2Tokens& tokens, const std::vector<size_t>& newlinesPos)
         : tokens(tokens), newlinesPos(newlinesPos){}
+
+TokenId ReconstructLV2Tokens::newToken() {
+    tokens._vec.push_back(Token{});
+    return tokens._vec.size() - 1;
+}
 
 TokenId ReconstructLV2Tokens::newToken(const LV2::Ast_& entity) {
     tokens._vec.push_back(Token{});
