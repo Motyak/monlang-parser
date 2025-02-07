@@ -323,6 +323,14 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
         break;
     }
 
+    if (foreachStatement->block.val.statements.size() > 1) {
+        for (int n : range(foreachStatement->block.val.statements.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
     outputLine(any_malformed_stmt? "~> block" : "-> block");
     currIndent++;
     for (auto statement: foreachStatement->block.val.statements) {
@@ -364,6 +372,15 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
         currIndent--;
         return;
     }
+
+    if (whileStatement->block.val.statements.size() > 1) {
+        for (int n : range(whileStatement->block.val.statements.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
     outputLine(whileStatement->block.has_error()? "~> block" : "-> block");
     currIndent++;
     for (auto statement: whileStatement->block.val.statements) {
@@ -395,6 +412,15 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
             currIndent--;
             return;
         }
+
+        if (doStmt.block.val.statements.size() > 1) {
+            for (int n : range(doStmt.block.val.statements.size(), 0)) {
+                numbering.push(n);
+            }
+        } else {
+            numbering.push(NO_NUMBERING);
+        }
+
         for (auto statement: doStmt.block.val.statements) {
             operator()(statement);
         }
