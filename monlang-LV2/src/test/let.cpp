@@ -87,7 +87,7 @@ TEST_CASE ("labelize special value", "[test-2331][let]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize lvalue", "[test-2312][let]") {
+TEST_CASE ("labelize symbol", "[test-2312][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -98,7 +98,7 @@ TEST_CASE ("labelize lvalue", "[test-2312][let]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
        |  -> identifier: `x`
-       |  -> Expression: Lvalue: `y`
+       |  -> Expression: Symbol: `y`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -135,7 +135,7 @@ TEST_CASE ("labelize lambda", "[test-2313][let]") {
        |    -> parameter #1: `x`
        |    -> body
        |      -> Statement: ExpressionStatement
-       |        -> Expression: Lvalue: `x`
+       |        -> Expression: Symbol: `x`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -231,9 +231,9 @@ TEST_CASE ("labelize function call", "[test-2316][let]") {
        |  -> identifier: `x`
        |  -> Expression: FunctionCall
        |    -> function
-       |      -> Expression: Lvalue: `func`
+       |      -> Expression: Symbol: `func`
        |    -> arguments
-       |      -> Expression: Lvalue: `arg`
+       |      -> Expression: Symbol: `arg`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

@@ -173,23 +173,23 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
 }
 
 Atom Accumulation::SEPARATOR() {
-    auto str = operator_ + Accumulation::SEPARATOR_SUFFIX;
+    auto str = operator_.value + Accumulation::SEPARATOR_SUFFIX;
     auto atom = Atom{str};
     atom._tokenLen = str.size();
     return atom;
 }
 
 Atom MayFail_<Accumulation>::SEPARATOR() {
-    auto str = operator_ + Accumulation::SEPARATOR_SUFFIX;
+    auto str = operator_.value + Accumulation::SEPARATOR_SUFFIX;
     auto atom = Atom{str};
     atom._tokenLen = str.size();
     return atom;
 }
 
-Accumulation::Accumulation(const Lvalue& variable, const identifier_t& operator_, const Expression& value)
+Accumulation::Accumulation(const Lvalue& variable, const Symbol& operator_, const Expression& value)
         : variable(variable), operator_(operator_), value(value){}
 
-MayFail_<Accumulation>::MayFail_(const Lvalue& variable, const identifier_t& operator_, const MayFail<Expression_>& value)
+MayFail_<Accumulation>::MayFail_(const Lvalue& variable, const Symbol& operator_, const MayFail<Expression_>& value)
         : variable(variable), operator_(operator_), value(value){}
 
 MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation) {

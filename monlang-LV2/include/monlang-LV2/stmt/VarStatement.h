@@ -10,7 +10,7 @@
 
 template <>
 struct MayFail_<VarStatement> {
-    identifier_t identifier;
+    Symbol identifier;
     MayFail<Expression_> value;
 
     size_t _tokenLeadingNewlines = 0;
@@ -18,7 +18,7 @@ struct MayFail_<VarStatement> {
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(identifier_t, MayFail<Expression_>);
+    explicit MayFail_(const Symbol&, const MayFail<Expression_>&);
 
     explicit MayFail_(const VarStatement&);
     explicit operator VarStatement() const;

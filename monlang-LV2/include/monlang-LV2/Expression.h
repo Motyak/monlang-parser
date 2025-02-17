@@ -23,7 +23,7 @@ using Expression_ = std::variant<
     MayFail_<BlockExpression>*,
     Literal*,
     SpecialSymbol*,
-    Lvalue*
+    Symbol*
 >;
 
 MayFail<Expression_> buildExpression(const Term&);

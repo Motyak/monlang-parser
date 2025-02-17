@@ -41,7 +41,8 @@ Lambda \
 BlockExpression \
 SpecialSymbol \
 Literal \
-Lvalue \
+Symbol \
+Lvalue # <- should remove by then
 
 OBJS := $(ENTITIES:%=obj/%.o) obj/precedence.o
 DEPS := $(ENTITIES:%=.deps/%.d) .deps/precedence.d

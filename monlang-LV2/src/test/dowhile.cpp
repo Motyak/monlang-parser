@@ -6,7 +6,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lvalue condition", "[test-3411][dowhile]") {
+TEST_CASE ("symbol condition", "[test-3411][dowhile]") {
     auto input = tommy_str(R"EOF(
        |-> Program
        |  -> ProgramSentence #1
@@ -29,10 +29,10 @@ TEST_CASE ("lvalue condition", "[test-3411][dowhile]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  -> C_WhileStatement
-       |    -> Expression: Lvalue: `end`
+       |    -> Expression: Symbol: `end`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -72,10 +72,10 @@ TEST_CASE ("grouped expr condition", "[test-3412][dowhile]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  -> C_WhileStatement
-       |    -> Expression: Lvalue: `end`
+       |    -> Expression: Symbol: `end`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -115,12 +115,12 @@ TEST_CASE ("block condition", "[test-3413][dowhile]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  -> C_WhileStatement
        |    -> Expression: BlockExpression
        |      -> Statement: ExpressionStatement
-       |        -> Expression: Lvalue: `end`
+       |        -> Expression: Symbol: `end`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -162,14 +162,14 @@ TEST_CASE ("function call condition", "[test-3414][dowhile]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  -> C_WhileStatement
        |    -> Expression: FunctionCall
        |      -> function
-       |        -> Expression: Lvalue: `end?`
+       |        -> Expression: Symbol: `end?`
        |      -> arguments
-       |        -> Expression: Lvalue: `stream`
+       |        -> Expression: Symbol: `stream`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -209,11 +209,11 @@ TEST_CASE ("operation condition", "[test-3415][dowhile]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  -> C_WhileStatement
        |    -> Expression: Operation
-       |      -> Expression: Lvalue: `i`
+       |      -> Expression: Symbol: `i`
        |      -> operator: `>`
        |      -> Expression: Literal: `0`
     )EOF");
@@ -250,7 +250,7 @@ TEST_CASE ("Malformed DoWhileStatement, missing C_WhileStatement", "[test-3431][
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  ~> ERR-342
     )EOF");
@@ -427,7 +427,7 @@ TEST_CASE ("Malformed C_WhileStatement, contains less than 2 words (no condition
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  ~> C_WhileStatement
        |    ~> ERR-361
@@ -467,7 +467,7 @@ TEST_CASE ("Malformed C_WhileStatement, contains a non-SquareBracketsTerm as con
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  ~> C_WhileStatement
        |    ~> ERR-362
@@ -509,7 +509,7 @@ TEST_CASE ("Malformed C_WhileStatement, contains a Malformed Expression as part 
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  ~> C_WhileStatement
        |    ~> Expression

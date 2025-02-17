@@ -82,14 +82,14 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 2) {
-        auto malformed = Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, ERR(241));
+        auto malformed = Malformed(MayFail_<VarStatement>{Symbol(), StubExpression_()}, ERR(241));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     unless (holds_word(sentence.programWords[1])) {
         auto error = ERR(246);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<VarStatement>{Symbol(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -97,7 +97,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
     unless (std::holds_alternative<Atom*>(word)) {
         auto error = ERR(242);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<VarStatement>{identifier_t(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<VarStatement>{Symbol(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -164,10 +164,10 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-VarStatement::VarStatement(const identifier_t& identifier, const Expression& value)
+VarStatement::VarStatement(const Symbol& identifier, const Expression& value)
         : identifier(identifier), value(value){}
 
-MayFail_<VarStatement>::MayFail_(identifier_t identifier, MayFail<Expression_> value)
+MayFail_<VarStatement>::MayFail_(const Symbol& identifier, const MayFail<Expression_>& value)
         : identifier(identifier), value(value){}
 
 MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {

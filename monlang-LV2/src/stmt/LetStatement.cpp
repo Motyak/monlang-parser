@@ -82,14 +82,14 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 2) {
-        auto malformed = Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, ERR(231));
+        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), StubExpression_()}, ERR(231));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     unless (holds_word(sentence.programWords[1])) {
         auto error = ERR(236);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -97,7 +97,7 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
     unless (std::holds_alternative<Atom*>(word)) {
         auto error = ERR(232);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<LetStatement>{identifier_t(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -164,10 +164,10 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-LetStatement::LetStatement(const identifier_t& identifier, const Expression& value)
+LetStatement::LetStatement(const Symbol& identifier, const Expression& value)
         : identifier(identifier), value(value){}
 
-MayFail_<LetStatement>::MayFail_(const identifier_t& identifier, const MayFail<Expression_>& value)
+MayFail_<LetStatement>::MayFail_(const Symbol& identifier, const MayFail<Expression_>& value)
         : identifier(identifier), value(value){}
 
 MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {

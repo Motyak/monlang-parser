@@ -6,9 +6,9 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
-#include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Literal.h>
-#include <monlang-LV2/expr/Lvalue.h>
+#include <monlang-LV2/expr/SpecialSymbol.h>
+#include <monlang-LV2/expr/Symbol.h>
 
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/Atom.h>
@@ -148,10 +148,10 @@ MayFail<Expression_> buildExpression(const Term& term) {
     //     return mayfail_convert<Expression_>(buildLvalue(word));
     // }
 
-    if (peekLvalue(word)) {
-        auto lvalue = buildLvalue(word);
-        lvalue._groupNesting = groupNesting;
-        return (Expression_)move_to_heap(lvalue);
+    if (peekSymbol(word)) {
+        auto symbol = buildSymbol(word);
+        symbol._groupNesting = groupNesting;
+        return (Expression_)move_to_heap(symbol);
     }
 
     // // if grouped expression => unwrap then go back to beginning
@@ -188,7 +188,7 @@ Expression unwrap_expr(Expression_ expression) {
     return std::visit(overload{
         [](Literal* expr) -> Expression {return expr;},
         [](SpecialSymbol* expr) -> Expression {return expr;},
-        [](Lvalue* expr) -> Expression {return expr;},
+        [](Symbol* expr) -> Expression {return expr;},
         [](_StubExpression_*) -> Expression {SHOULD_NOT_HAPPEN();},
         [](auto* mf_) -> Expression {return move_to_heap(unwrap(*mf_));},
     }, expression);
@@ -198,7 +198,7 @@ Expression_ wrap_expr(Expression expression) {
     return std::visit(overload{
         [](Literal* expr) -> Expression_ {return expr;},
         [](SpecialSymbol* expr) -> Expression_ {return expr;},
-        [](Lvalue* expr) -> Expression_ {return expr;},
+        [](Symbol* expr) -> Expression_ {return expr;},
         [](auto* mf_) -> Expression_ {return move_to_heap(wrap(*mf_));},
     }, expression);
 }

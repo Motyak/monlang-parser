@@ -23,6 +23,7 @@ bool peekLambda(const Word& word) {
 
     auto leftPart = *std::get<ParenthesesGroup*>(assoc.leftPart);
     for (auto term: leftPart.terms) {
+        //TODO: also need to not match: Literal, SpecialSymbol, etc.. (which are also Atoms)
         unless (term.words.size() == 1 && std::holds_alternative<Atom*>(term.words[0])) {
             return false;
         }
@@ -39,7 +40,7 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
     ASSERT (std::holds_alternative<CurlyBracketsGroup*>(assoc.rightPart));
 
     auto leftPart = *std::get<ParenthesesGroup*>(assoc.leftPart);
-    std::vector<identifier_t> parameters;
+    std::vector<Symbol> parameters;
     for (auto term: leftPart.terms) {
         ASSERT (term.words.size() == 1);
         ASSERT (std::holds_alternative<Atom*>(term.words[0]));
@@ -61,12 +62,13 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
     return lambda;
 }
 
-Lambda::Lambda(const std::vector<identifier_t>& parameters, const LambdaBlock& body)
+Lambda::Lambda(const std::vector<Symbol>& parameters, const LambdaBlock& body)
         : parameters(parameters), body(body){}
 
-MayFail_<Lambda>::MayFail_(std::vector<identifier_t> paramters, MayFail_<LambdaBlock> body) : parameters(paramters), body(body){}
+MayFail_<Lambda>::MayFail_(const std::vector<Symbol>& paramters, const MayFail_<LambdaBlock>& body)
+        : parameters(paramters), body(body){}
 
-MayFail_<Lambda>::MayFail_(Lambda lambda) {
+MayFail_<Lambda>::MayFail_(const Lambda& lambda) {
     std::vector<MayFail<Statement_>> bodyStatements;
     for (auto e: lambda.body.statements) {
         bodyStatements.push_back(wrap_stmt(e));

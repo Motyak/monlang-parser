@@ -190,7 +190,7 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     operator()(&accumulation->variable);
 
 
-    outputLine("-> operator: `", accumulation->operator_.c_str(), "`"); /*
+    outputLine("-> operator: `", accumulation->operator_.value.c_str(), "`"); /*
         always wellformed, otherwise wouldn't be peeked in the first place
     */
 
@@ -213,12 +213,12 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
 
 
     // we assume that empty identifier means stub
-    if (letStatement->identifier == "") {
+    if (letStatement->identifier.value == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
-    outputLine("-> identifier: `", letStatement->identifier.c_str(), "`");
+    outputLine("-> identifier: `", letStatement->identifier.value.c_str(), "`");
 
 
     if (is_stub(letStatement->value.val)
@@ -239,12 +239,12 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
 
 
     // we assume that empty identifier means stub
-    if (varStatement->identifier == "") {
+    if (varStatement->identifier.value == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
-    outputLine("-> identifier: `", varStatement->identifier.c_str(), "`");
+    outputLine("-> identifier: `", varStatement->identifier.value.c_str(), "`");
 
 
     if (is_stub(varStatement->value.val)
@@ -493,7 +493,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
     }
 
 
-    outputLine("-> operator: `", operation->operator_.c_str(), "`");
+    outputLine("-> operator: `", operation->operator_.value.c_str(), "`");
 
 
     if (is_stub(operation->rightOperand.val)
@@ -564,7 +564,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     } else {
         int i = 1;
         for (auto parameter: lambda->parameters) {
-            outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.c_str(), "`");
+            outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.value.c_str(), "`");
         }
     }
 
@@ -624,6 +624,10 @@ void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
 
 void PrintLV2::operator()(Literal* literal) {
     outputLine("Literal: `", literal->str.c_str(), "`");
+}
+
+void PrintLV2::operator()(Symbol* symbol) {
+    outputLine("Symbol: `", symbol->value.c_str(), "`");
 }
 
 void PrintLV2::operator()(Lvalue* lvalue) {

@@ -11,7 +11,7 @@
 template <>
 struct MayFail_<Accumulation> {
     Lvalue variable;
-    identifier_t operator_;
+    Symbol operator_;
     MayFail<Expression_> value;
 
     Atom SEPARATOR(); // operator_ + SUFFIX
@@ -22,7 +22,7 @@ struct MayFail_<Accumulation> {
     size_t _tokenTrailingNewlines = 0;
 
     MayFail_() = default;
-    explicit MayFail_(const Lvalue&, const identifier_t&, const MayFail<Expression_>&);
+    explicit MayFail_(const Lvalue&, const Symbol&, const MayFail<Expression_>&);
 
     explicit MayFail_(const Accumulation&);
     explicit operator Accumulation() const;

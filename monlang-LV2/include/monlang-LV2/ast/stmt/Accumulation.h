@@ -2,15 +2,14 @@
 #define AST_ACCUMULATION_H
 
 #include <monlang-LV2/ast/expr/Lvalue.h>
+#include <monlang-LV2/ast/expr/Symbol.h>
 #include <monlang-LV2/ast/Expression.h>
-
-using identifier_t = std::string;
 
 struct Accumulation {
     static const std::string SEPARATOR_SUFFIX;
 
     Lvalue variable;
-    identifier_t operator_;
+    Symbol operator_;
     Expression value;
 
     Atom SEPARATOR(); // operator_ + SUFFIX
@@ -20,7 +19,7 @@ struct Accumulation {
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
     Accumulation() = default;
-    Accumulation(const Lvalue&, const identifier_t&, const Expression&);
+    Accumulation(const Lvalue&, const Symbol&, const Expression&);
 };
 
 #endif // AST_ACCUMULATION_H

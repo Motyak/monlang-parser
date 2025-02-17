@@ -12,7 +12,7 @@ TEST_CASE ("expression statement", "[test-1211][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ExpressionStatement
-       |  -> Expression: Lvalue: `somevar`
+       |  -> Expression: Symbol: `somevar`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -242,12 +242,12 @@ TEST_CASE ("foreach statement", "[test-1221][stmt]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
        |  -> iterable
-       |    -> Expression: Lvalue: `things`
+       |    -> Expression: Symbol: `things`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `print`
+       |          -> Expression: Symbol: `print`
        |        -> arguments
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
@@ -285,14 +285,14 @@ TEST_CASE ("while statement", "[test-1222][stmt]") {
        |-> Statement: WhileStatement
        |  -> condition
        |    -> Expression: Operation
-       |      -> Expression: Lvalue: `i`
+       |      -> Expression: Symbol: `i`
        |      -> operator: `>`
        |      -> Expression: Literal: `0`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
     )EOF");
 
@@ -334,11 +334,11 @@ TEST_CASE ("do while statement", "[test-1223][stmt]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `doit`
+       |          -> Expression: Symbol: `doit`
        |        -> arguments (none)
        |  -> C_WhileStatement
        |    -> Expression: Operation
-       |      -> Expression: Lvalue: `i`
+       |      -> Expression: Symbol: `i`
        |      -> operator: `>`
        |      -> Expression: Literal: `0`
     )EOF");

@@ -87,7 +87,7 @@ TEST_CASE ("assign special symbol", "[test-2131][assign]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign lvalue to lvalue", "[test-2112][assign]") {
+TEST_CASE ("assign symbol to symbol", "[test-2112][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -98,7 +98,7 @@ TEST_CASE ("assign lvalue to lvalue", "[test-2112][assign]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
        |  -> Lvalue: `somevar`
-       |  -> Expression: Lvalue: `othervar`
+       |  -> Expression: Symbol: `othervar`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -135,7 +135,7 @@ TEST_CASE ("assign lambda", "[test-2113][assign]") {
        |    -> parameter #1: `x`
        |    -> body
        |      -> Statement: ExpressionStatement
-       |        -> Expression: Lvalue: `x`
+       |        -> Expression: Symbol: `x`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -231,9 +231,9 @@ TEST_CASE ("assign function call", "[test-2116][assign]") {
        |  -> Lvalue: `somevar`
        |  -> Expression: FunctionCall
        |    -> function
-       |      -> Expression: Lvalue: `func`
+       |      -> Expression: Symbol: `func`
        |    -> arguments
-       |      -> Expression: Lvalue: `arg`
+       |      -> Expression: Symbol: `arg`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -278,7 +278,7 @@ TEST_CASE ("ERR contains a non-Word as variable", "[test-2117][assign][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Lvalue word as variable", "[test-2118][assign][err]") {
+TEST_CASE ("ERR contains a non-Symbol word as variable", "[test-2118][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: ParenthesesGroup (empty)

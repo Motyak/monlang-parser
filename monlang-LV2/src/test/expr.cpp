@@ -4,13 +4,13 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lvalue from atom", "[test-1611][expr]") {
+TEST_CASE ("symbol from atom", "[test-1611][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: Atom: `somevar`
     )EOF");
 
-    auto expect = "-> Expression: Lvalue: `somevar`";
+    auto expect = "-> Expression: Symbol: `somevar`";
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
@@ -48,7 +48,7 @@ TEST_CASE ("grouped expression => ungroup", "[test-1612][expr]") {
        |      -> Word: Atom: `somevar`
     )EOF");
 
-    auto expect = "-> Expression: Lvalue: `somevar`";
+    auto expect = "-> Expression: Symbol: `somevar`";
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
@@ -120,7 +120,7 @@ TEST_CASE ("lambda from pg-cbg association", "[test-1615][expr]") {
        |  -> parameter #1: `x`
        |  -> body
        |    -> Statement: ExpressionStatement
-       |      -> Expression: Lvalue: `x`
+       |      -> Expression: Symbol: `x`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -143,13 +143,13 @@ TEST_CASE ("function call from postfix parentheses group", "[test-1616][expr]") 
        |        -> Word: Atom: `arg`
     )EOF");
 
-    /* TODO: Lvalue will be able to contain indent, later on */
+    /* TODO: Symbol will be able to contain indent, later on */
     auto expect = tommy_str(R"EOF(
        |-> Expression: FunctionCall
        |  -> function
-       |    -> Expression: Lvalue: `func`
+       |    -> Expression: Symbol: `func`
        |  -> arguments
-       |    -> Expression: Lvalue: `arg`
+       |    -> Expression: Symbol: `arg`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -321,7 +321,7 @@ TEST_CASE ("Malformed Operation, contains a Malformed Expression as RIGHT operan
 
     auto expect = tommy_str(R"EOF(
        |~> Expression: Operation
-       |  -> Expression: Lvalue: `a`
+       |  -> Expression: Symbol: `a`
        |  -> operator: `+`
        |  ~> Expression
        |    ~> ERR-161
@@ -381,7 +381,7 @@ TEST_CASE ("Malformed FunctionCall, contains a Malformed Expression as ARGUMENT"
     auto expect = tommy_str(R"EOF(
        |~> Expression: FunctionCall
        |  -> function
-       |    -> Expression: Lvalue: `func`
+       |    -> Expression: Symbol: `func`
        |  ~> arguments
        |    ~> Expression
        |      ~> ERR-161

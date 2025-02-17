@@ -31,13 +31,13 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
     return operation;
 }
 
-Operation::Operation(const Expression& leftOperand, const identifier_t& operator_, const Expression& rightOperand)
+Operation::Operation(const Expression& leftOperand, const Symbol& operator_, const Expression& rightOperand)
         : leftOperand(leftOperand), operator_(operator_), rightOperand(rightOperand){}
 
-MayFail_<Operation>::MayFail_(MayFail<Expression_> leftOperand, identifier_t operator_, MayFail<Expression_> rightOperand)
+MayFail_<Operation>::MayFail_(const MayFail<Expression_>& leftOperand, const Symbol& operator_, const MayFail<Expression_>& rightOperand)
         : leftOperand(leftOperand), operator_(operator_), rightOperand(rightOperand){}
 
-MayFail_<Operation>::MayFail_(Operation operation) {
+MayFail_<Operation>::MayFail_(const Operation& operation) {
     this->leftOperand = wrap_expr(operation.leftOperand);
     this->operator_ = operation.operator_;
     this->rightOperand = wrap_expr(operation.rightOperand);

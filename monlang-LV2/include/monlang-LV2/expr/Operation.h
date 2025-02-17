@@ -7,20 +7,19 @@
 
 #include <monlang-LV1/ast/Term.h>
 
-using identifier_t = std::string;
-
 template <>
 struct MayFail_<Operation> {
     MayFail<Expression_> leftOperand;
-    identifier_t operator_; // should we define a specific 'binary operator' type ?
+    Symbol operator_; // should we define a specific 'binary operator' type ?
+                      //   -> maybe a _operator field set to true if found in precedence table ?
     MayFail<Expression_> rightOperand;
 
     size_t _tokenLen = 0;
     size_t _groupNesting = 0;
     MayFail_() = default;
-    explicit MayFail_(MayFail<Expression_>, identifier_t, MayFail<Expression_>);
+    explicit MayFail_(const MayFail<Expression_>&, const Symbol&, const MayFail<Expression_>&);
 
-    explicit MayFail_(Operation);
+    explicit MayFail_(const Operation&);
     explicit operator Operation() const;
 };
 

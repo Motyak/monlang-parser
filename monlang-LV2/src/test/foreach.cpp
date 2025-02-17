@@ -7,7 +7,7 @@
 // TODO: add as first test case the list literal once implemented '[1, 2, 3]'
 
 // TODO: change this to use a grouped literal once we define the list literal '[1, 2, 3]'
-TEST_CASE ("iterable grouped expr (lvalue here)", "[test-3211][foreach]") {
+TEST_CASE ("iterable grouped expr (symbol here)", "[test-3211][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `foreach`
@@ -26,12 +26,12 @@ TEST_CASE ("iterable grouped expr (lvalue here)", "[test-3211][foreach]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: ForeachStatement
        |  -> iterable
-       |    -> Expression: Lvalue: `things`
+       |    -> Expression: Symbol: `things`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `print`
+       |          -> Expression: Symbol: `print`
        |        -> arguments
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
@@ -71,7 +71,7 @@ TEST_CASE ("iterable special value", "[test-3231][foreach]") {
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `print`
+       |          -> Expression: Symbol: `print`
        |        -> arguments
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
@@ -110,13 +110,13 @@ TEST_CASE ("iterable function call", "[test-3212][foreach]") {
        |  -> iterable
        |    -> Expression: FunctionCall
        |      -> function
-       |        -> Expression: Lvalue: `List`
+       |        -> Expression: Symbol: `List`
        |      -> arguments (none)
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `print`
+       |          -> Expression: Symbol: `print`
        |        -> arguments
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
@@ -154,14 +154,14 @@ TEST_CASE ("iterable operation", "[test-3213][foreach]") {
        |-> Statement: ForeachStatement
        |  -> iterable
        |    -> Expression: Operation
-       |      -> Expression: Lvalue: `list_a`
+       |      -> Expression: Symbol: `list_a`
        |      -> operator: `+`
-       |      -> Expression: Lvalue: `list_b`
+       |      -> Expression: Symbol: `list_b`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `print`
+       |          -> Expression: Symbol: `print`
        |        -> arguments
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
@@ -200,12 +200,12 @@ TEST_CASE ("iterable block expression", "[test-3214][foreach]") {
        |  -> iterable
        |    -> Expression: BlockExpression
        |      -> Statement: ExpressionStatement
-       |        -> Expression: Lvalue: `list_a`
+       |        -> Expression: Symbol: `list_a`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
        |        -> function
-       |          -> Expression: Lvalue: `print`
+       |          -> Expression: Symbol: `print`
        |        -> arguments
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
@@ -332,7 +332,7 @@ TEST_CASE ("ERR contains a non-Word as block", "[test-3218][foreach][err]") {
     auto expect = tommy_str(R"EOF(
        |~> Statement: ForeachStatement
        |  -> iterable
-       |    -> Expression: Lvalue: `list`
+       |    -> Expression: Symbol: `list`
        |  ~> ERR-324
     )EOF");
 
@@ -363,7 +363,7 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3219][for
     auto expect = tommy_str(R"EOF(
        |~> Statement: ForeachStatement
        |  -> iterable
-       |    -> Expression: Lvalue: `list`
+       |    -> Expression: Symbol: `list`
        |  ~> block
        |    ~> Statement: ExpressionStatement
        |      ~> Expression
@@ -397,7 +397,7 @@ TEST_CASE ("ERR contains a non-BlockExpression as block", "[test-3232][foreach][
     auto expect = tommy_str(R"EOF(
        |~> Statement: ForeachStatement
        |  -> iterable
-       |    -> Expression: Lvalue: `list`
+       |    -> Expression: Symbol: `list`
        |  ~> ERR-326
     )EOF");
 
@@ -425,7 +425,7 @@ TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3233][forea
     auto expect = tommy_str(R"EOF(
        |~> Statement: ForeachStatement
        |  -> iterable
-       |    -> Expression: Lvalue: `list`
+       |    -> Expression: Symbol: `list`
        |  ~> ERR-327
     )EOF");
 

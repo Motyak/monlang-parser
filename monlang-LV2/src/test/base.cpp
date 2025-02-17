@@ -29,7 +29,7 @@ TEST_CASE ("one statement program", "[test-1112][base]") {
     auto expect = tommy_str(R"EOF(
        |-> Program
        |  -> Statement: ExpressionStatement
-       |    -> Expression: Lvalue: `fds`
+       |    -> Expression: Symbol: `fds`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

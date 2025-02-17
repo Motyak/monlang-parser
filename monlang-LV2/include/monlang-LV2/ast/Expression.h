@@ -9,25 +9,28 @@ struct Operation;
 struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
-struct SpecialSymbol;
 struct Literal;
-struct Lvalue;
+struct SpecialSymbol;
+struct Symbol;
+struct Lvalue; // <- should disappear by then
 
 using Expression = std::variant<
+    /* Term expressions */
+
     Operation*,
 
-    /// LANGUAGE DEFINED EXPRESSIONS //////////////////////
+    /* Word expressions */
 
     FunctionCall*,
     Lambda*,
     BlockExpression*,
+
+    /* Atom expressions */
+
     Literal*,
     SpecialSymbol*,
-
-    ///////////////////////////////////////////////////////
-
-    // fall-through expression
-    Lvalue*
+    // fall-through
+    Symbol*
 >;
 
 #endif // AST_EXPRESSION_H
