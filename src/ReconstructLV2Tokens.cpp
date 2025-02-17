@@ -250,7 +250,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     // lastCorrectToken = -1;
     curPos += LetStatement::KEYWORD._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += letStmt->identifier.size();
+    curPos += letStmt->identifier.value.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(letStmt->value);
     curPos = backupCurPos;
@@ -291,7 +291,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     // lastCorrectToken = -1;
     curPos += LetStatement::KEYWORD._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += varStmt->identifier.size();
+    curPos += varStmt->identifier.value.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(varStmt->value);
     curPos = backupCurPos;
@@ -688,7 +688,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
     // lastCorrectToken = -1;
     operator()(operation->leftOperand);
     curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
-    curPos += operation->operator_.size();
+    curPos += operation->operator_.value.size();
     curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
     operator()(operation->rightOperand);
     curPos = backupCurPos;
@@ -759,7 +759,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
-        curPos += param.size();
+        curPos += param.value.size();
         ENDLOOP
     }
     curPos += sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
@@ -841,10 +841,22 @@ void ReconstructLV2Tokens::operator()(SpecialSymbol* specialSymbol) {
     token.end = asTokenPosition(curPos - !!curPos);
 }
 
-void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
-    /* NOTE: Lvalue cannot be malformed */
+void ReconstructLV2Tokens::operator()(Symbol* symbol) {
+    /* NOTE: Symbol cannot be malformed */
     // ASSERT (!curExpr.has_error()); // doesn't necessarily mean parent is an Expression
 
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = false;
+    token.name = "Symbol";
+
+    curPos += group_nesting(*symbol);
+
+    token.start = asTokenPosition(curPos);
+    curPos += symbol->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+}
+
+void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
     auto tokenId = newToken(curExpr);
     token.is_malformed = false;
     token.name = "Lvalue";

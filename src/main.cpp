@@ -128,7 +128,7 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         auto print_to_file = PrintLV1(file);
         MayFail<MayFail_<LV1::Program>> ast =
                 parsingRes.status == LV1_ERR? asMalformedLV1(parsingRes)
-                : MayFail(MayFail_<Program>(parsingRes._correctLV1.value()));
+                : MayFail<MayFail_<Program>>(parsingRes._correctLV1.value());
         print_to_file(ast);
     }
 
@@ -139,7 +139,7 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         auto print_to_file = PrintLV2(file);
         MayFail<MayFail_<LV2::Program>> ast =
                 parsingRes.status == LV2_ERR? asMalformedLV2(parsingRes)
-                : MayFail(MayFail_<LV2::Program>(asCorrectLV2(parsingRes)));
+                : MayFail<MayFail_<LV2::Program>>(asCorrectLV2(parsingRes));
         print_to_file(ast);
     }
 

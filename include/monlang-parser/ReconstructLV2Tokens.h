@@ -35,6 +35,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(MayFail_<BlockExpression>*);
     void operator()(Literal*);
     void operator()(SpecialSymbol*);
+    void operator()(Symbol*);
     void operator()(Lvalue*);
 
     void operator()(_StubExpression_*); // shouldn't happen
