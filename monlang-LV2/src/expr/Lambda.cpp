@@ -1,5 +1,9 @@
 #include <monlang-LV2/expr/Lambda.h>
 
+#include <monlang-LV2/expr/Symbol.h>
+#include <monlang-LV2/expr/SpecialSymbol.h>
+#include <monlang-LV2/expr/Literal.h>
+
 #include <monlang-LV1/ast/Association.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
@@ -23,8 +27,31 @@ bool peekLambda(const Word& word) {
 
     auto leftPart = *std::get<ParenthesesGroup*>(assoc.leftPart);
     for (auto term: leftPart.terms) {
-        //TODO: also need to not match: Literal, SpecialSymbol, etc.. (which are also Atoms)
-        unless (term.words.size() == 1 && std::holds_alternative<Atom*>(term.words[0])) {
+        ASSERT (!term.words.empty());
+
+        unless (term.words.size() <= 2) {
+            return false;
+        }
+
+        if (term.words.size() == 2) {
+            auto leading_word = term.words[0];
+            unless (std::holds_alternative<Atom*>(leading_word)) {
+                return false;
+            }
+
+            unless (std::get<Atom*>(leading_word)->value == "OUT") {
+                return false;
+            }
+        }
+
+        Word last_word = term.words.back();
+        unless (peekSymbol(last_word)) {
+            return false;
+        }
+        unless (!peekSpecialSymbol(last_word)) {
+            return false;
+        }
+        unless (!peekLiteral(last_word)) {
             return false;
         }
     }
@@ -42,9 +69,10 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
     auto leftPart = *std::get<ParenthesesGroup*>(assoc.leftPart);
     std::vector<Symbol> parameters;
     for (auto term: leftPart.terms) {
-        ASSERT (term.words.size() == 1);
-        ASSERT (std::holds_alternative<Atom*>(term.words[0]));
-        parameters.push_back(std::get<Atom*>(term.words[0])->value);
+        ASSERT (term.words.size() > 0);
+        Word last_word = term.words.back();
+        ASSERT (std::holds_alternative<Atom*>(last_word));
+        parameters.push_back(std::get<Atom*>(last_word)->value);
     }
 
     auto rightPart = *std::get<CurlyBracketsGroup*>(assoc.rightPart);

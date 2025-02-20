@@ -133,6 +133,37 @@ TEST_CASE ("lambda from pg-cbg association", "[test-1615][expr]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("lambda with an OUT parameter", "[test-1641][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Association
+       |    -> Word: ParenthesesGroup
+       |      -> Term
+       |        -> Word #1: Atom: `OUT`
+       |        -> Word #2: Atom: `x`
+       |    -> Word: CurlyBracketsGroup
+       |      -> ProgramSentence
+       |        -> ProgramWord: Atom: `x`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Lambda
+       |  -> parameter #1: `x`
+       |  -> body
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: Symbol: `x`
+    )EOF");
+
+   auto input_ast = montree::buildLV1Ast(input);
+   auto input_term = std::get<Term>(input_ast);
+   auto output = buildExpression(input_term);
+   auto output_str = montree::astToString(output);
+
+   REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("function call from postfix parentheses group", "[test-1616][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
