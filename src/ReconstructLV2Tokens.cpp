@@ -144,6 +144,33 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
     std::visit(*this, expr.val);
 }
 
+void ReconstructLV2Tokens::operator()(const MayFail<Lvalue_>& lvalue) {
+    if (lvalue.val._stub) {
+        auto tokenId = newToken((Expression_)lvalue.val);
+        token.is_malformed = lvalue.has_error();
+        token.name = "Lvalue";
+
+        if (token.is_malformed) {
+            token.err_desc = lvalue.error().fmt; // TODO: map this to the actual error description
+        }
+
+        /* no group nesting because impossible in an Lvalue */
+
+        token.start = asTokenPosition(curPos);
+        token.end = asTokenPosition(curPos - !!curPos);
+
+        if (token.is_malformed) {
+            token.err_start = token.start;
+            tokens.traceback.push_back(token);
+        }
+
+        return;
+    }
+
+    curExpr = mayfail_cast<Expression_>(lvalue); // needed by expr handlers
+    std::visit(*this, lvalue.val.variant);
+}
+
 ///////////////////////////////////////////////////////////////
 // STATEMENTS
 ///////////////////////////////////////////////////////////////
@@ -166,7 +193,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(mayfail_cast<Expression_>(assign->variable));
+    operator()(assign->variable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += Assignment::SEPARATOR._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
@@ -207,7 +234,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(mayfail_cast<Expression_>(acc->variable));
+    operator()(acc->variable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += acc->SEPARATOR()._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);

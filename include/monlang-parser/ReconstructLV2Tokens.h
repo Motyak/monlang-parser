@@ -4,6 +4,7 @@
 #include <monlang-parser/Tokens.h>
 
 #include <monlang-LV2/visitors/visitor.h>
+#include <monlang-LV2/Lvalue.h>
 
 class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
   public:
@@ -13,6 +14,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(const MayFail<MayFail_<LV2::Program>>&) override;
     void operator()(const MayFail<Statement_>&) override;
     void operator()(const MayFail<Expression_>&) override;
+    void operator()(const MayFail<Lvalue_>&);
 
     /* statements */
     void operator()(MayFail_<Assignment>*);
