@@ -15,6 +15,8 @@ bool peekSymbol(const Word& word) {
     // ..word doesn't match any other Atom expression (Literal, SpecialSymbol, etc..)
     auto expr = buildExpression((Term)word);
     return std::holds_alternative<Symbol*>(expr.val);
+
+    // TODO: we could safely delete Expression_ pointer before returning
 }
 
 Symbol buildSymbol(const Word& word) {

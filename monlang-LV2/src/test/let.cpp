@@ -302,7 +302,7 @@ TEST_CASE ("ERR contains a non-Word as identifier", "[test-2331][let][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Atom word as identifier", "[test-2318][let][err]") {
+TEST_CASE ("ERR contains a non-Symbol as identifier", "[test-2318][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
