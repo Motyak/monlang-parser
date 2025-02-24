@@ -44,14 +44,8 @@ bool peekLambda(const Word& word) {
             }
         }
 
-        Word last_word = term.words.back();
+        auto last_word = term.words.back();
         unless (peekSymbol(last_word)) {
-            return false;
-        }
-        unless (!peekSpecialSymbol(last_word)) {
-            return false;
-        }
-        unless (!peekLiteral(last_word)) {
             return false;
         }
     }

@@ -6,8 +6,7 @@
 
 struct Operation {
     Expression leftOperand;
-    Symbol operator_; // should we define a specific 'binary operator' type ?
-                      //   -> maybe a _operator field set to true if found in precedence table ?
+    Symbol operator_;
     Expression rightOperand;
 
     size_t _tokenLen = 0;

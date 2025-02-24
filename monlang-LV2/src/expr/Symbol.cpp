@@ -1,12 +1,20 @@
 #include <monlang-LV2/expr/Symbol.h>
 
 /* impl only */
+#include <monlang-LV2/Expression.h>
 #include <monlang-LV1/ast/Atom.h>
 
 #include <utils/assert-utils.h>
 
 bool peekSymbol(const Word& word) {
-    return std::holds_alternative<Atom*>(word);
+    if (!std::holds_alternative<Atom*>(word)) {
+        return false;
+    }
+    // unfortunately the most flexible way is to call buildExpression
+    // ..and check variant, otherwise would need to check that..
+    // ..word doesn't match any other Atom expression (Literal, SpecialSymbol, etc..)
+    auto expr = buildExpression((Term)word);
+    return std::holds_alternative<Symbol*>(expr.val);
 }
 
 Symbol buildSymbol(const Word& word) {

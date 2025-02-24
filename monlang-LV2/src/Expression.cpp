@@ -148,7 +148,8 @@ MayFail<Expression_> buildExpression(const Term& term) {
     //     return mayfail_convert<Expression_>(buildLvalue(word));
     // }
 
-    if (peekSymbol(word)) {
+    // Atom expression fall-through
+    if (std::holds_alternative<Atom*>(word)) {
         auto symbol = buildSymbol(word);
         symbol._groupNesting = groupNesting;
         symbol._lvalue = true; // TODO: tmp, need more sophisticated approach

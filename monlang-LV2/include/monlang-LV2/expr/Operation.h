@@ -10,8 +10,7 @@
 template <>
 struct MayFail_<Operation> {
     MayFail<Expression_> leftOperand;
-    Symbol operator_; // should we define a specific 'binary operator' type ?
-                      //   -> maybe a _operator field set to true if found in precedence table ?
+    Symbol operator_;
     MayFail<Expression_> rightOperand;
 
     size_t _tokenLen = 0;
