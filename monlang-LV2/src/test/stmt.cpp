@@ -93,7 +93,7 @@ TEST_CASE ("let statement", "[test-1214][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `age`
+       |  -> Symbol: `age`
        |  -> Expression: Literal: `27`
     )EOF");
 
@@ -120,7 +120,7 @@ TEST_CASE ("var statement", "[test-1215][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: VarStatement
-       |  -> identifier: `count`
+       |  -> Symbol: `count`
        |  -> Expression: Literal: `0`
     )EOF");
 

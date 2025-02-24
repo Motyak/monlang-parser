@@ -14,7 +14,7 @@ TEST_CASE ("labelize literal", "[test-2311][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  -> Expression: Literal: `91`
     )EOF");
 
@@ -43,7 +43,7 @@ TEST_CASE ("labelize grouped expr", "[test-2351][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  -> Expression: Literal: `91`
     )EOF");
 
@@ -70,7 +70,7 @@ TEST_CASE ("labelize special value", "[test-2331][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  -> Expression: SpecialSymbol: `$1`
     )EOF");
 
@@ -97,7 +97,7 @@ TEST_CASE ("labelize symbol", "[test-2312][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  -> Expression: Symbol: `y`
     )EOF");
 
@@ -130,7 +130,7 @@ TEST_CASE ("labelize lambda", "[test-2313][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `func`
+       |  -> Symbol: `func`
        |  -> Expression: Lambda
        |    -> parameter #1: `x`
        |    -> body
@@ -163,7 +163,7 @@ TEST_CASE ("labelize operation", "[test-2314][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `sum`
+       |  -> Symbol: `sum`
        |  -> Expression: Operation
        |    -> Expression: Literal: `1`
        |    -> operator: `+`
@@ -195,7 +195,7 @@ TEST_CASE ("labelize block expression", "[test-2315][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  -> Expression: BlockExpression
        |    -> Statement: ExpressionStatement
        |      -> Expression: Literal: `91`
@@ -228,7 +228,7 @@ TEST_CASE ("labelize function call", "[test-2316][let]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  -> Expression: FunctionCall
        |    -> function
        |      -> Expression: Symbol: `func`
@@ -336,7 +336,7 @@ TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2319][let][err]")
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  ~> ERR-233
     )EOF");
 
@@ -365,7 +365,7 @@ TEST_CASE ("ERR contains a non-Word as part of the value", "[test-2320][let][err
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  ~> ERR-234
     )EOF");
 
@@ -393,7 +393,7 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2321][let][err
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
-       |  -> identifier: `x`
+       |  -> Symbol: `x`
        |  ~> Expression
        |    ~> ERR-161
     )EOF");

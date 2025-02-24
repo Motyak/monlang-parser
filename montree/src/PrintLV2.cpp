@@ -231,7 +231,8 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
         currIndent--;
         return;
     }
-    outputLine("-> identifier: `", letStatement->identifier.value.c_str(), "`");
+    output("-> ");
+    operator()(&letStatement->identifier);
 
 
     if (is_stub(letStatement->value.val)
@@ -257,7 +258,8 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
         currIndent--;
         return;
     }
-    outputLine("-> identifier: `", varStatement->identifier.value.c_str(), "`");
+    output("-> ");
+    operator()(&varStatement->identifier);
 
 
     if (is_stub(varStatement->value.val)
