@@ -33,4 +33,6 @@ using Expression = std::variant<
     Symbol*
 >;
 
+bool is_lvalue(Expression);
+
 #endif // AST_EXPRESSION_H

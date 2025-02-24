@@ -427,10 +427,6 @@ void PrintLV1::operator()(MayFail_<Association>* assoc) {
     numbering = savedStack;
 }
 
-void PrintLV1::operator()(auto) {
-    outputLine("<ENTITY NOT IMPLEMENTED YET>");
-}
-
 ///////////////////////////////////////////////////////////////
 
 PrintLV1::PrintLV1(std::ostream& os, int TAB_SIZE) : TAB_SIZE(TAB_SIZE), out(os){}

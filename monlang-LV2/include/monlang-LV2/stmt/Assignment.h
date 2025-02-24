@@ -10,7 +10,7 @@
 
 template <>
 struct MayFail_<Assignment> {
-    Lvalue variable;
+    MayFail<Lvalue_> variable;
     MayFail<Expression_> value;
 
     size_t _tokenLeadingNewlines = 0;
@@ -18,7 +18,7 @@ struct MayFail_<Assignment> {
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
     MayFail_() = default;
-    explicit MayFail_(const Lvalue&, const MayFail<Expression_>&);
+    explicit MayFail_(const MayFail<Lvalue_>&, const MayFail<Expression_>&);
 
     explicit MayFail_(const Assignment&);
     explicit operator Assignment() const;

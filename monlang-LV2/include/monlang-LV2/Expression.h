@@ -33,4 +33,6 @@ Expression_ StubExpression_();
 Expression unwrap_expr(Expression_);
 Expression_ wrap_expr(Expression);
 
+bool is_lvalue(Expression_);
+
 #endif // EXPRESSION_H

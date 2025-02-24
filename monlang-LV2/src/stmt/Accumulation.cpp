@@ -3,8 +3,6 @@
 
 /* impl only */
 
-#include <monlang-LV2/expr/Lvalue.h>
-
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
 /* require knowing all words for token_len() */
@@ -79,7 +77,6 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
     ASSERT (sentence.programWords.size() >= 2);
 
-
     ASSERT (std::holds_alternative<Atom*>(sentence.programWords[1]));
     auto atom = *std::get<Atom*>(sentence.programWords[1]);
     auto optr = atom.value.substr(0, atom.value.size() - 1);
@@ -93,31 +90,38 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
     unless (optr_found) {
         auto error = ERR(226);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), std::string(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), std::string(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
     unless (holds_word(sentence.programWords[0])) {
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, StubExpression_()}, ERR(221));
+        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), optr, StubExpression_()}, ERR(221));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto word = get_word(sentence.programWords[0]);
-    // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
-    unless (peekLvalue(word)) {
-        auto malformed = Malformed(MayFail_<Accumulation>{Lvalue(), optr, StubExpression_()}, ERR(222));
-        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
-        return malformed;
-    }
-    auto variable = buildLvalue(word);
 
+    auto word = get_word(sentence.programWords[0]);
+    auto expr = buildExpression((Term)word);
+    if (!is_lvalue(expr.val)) {
+        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), optr, StubExpression_()}, ERR(222));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
+
+    auto variable = mayfail_cast<Lvalue_>(expr);
+    if (variable.has_error()) {
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(227));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
 
     unless (sentence.programWords.size() >= 3) {
         auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(223));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
+
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
         auto error = ERR(224);
@@ -126,6 +130,7 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
+
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
         auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, value}, ERR(225));
@@ -189,11 +194,12 @@ Atom MayFail_<Accumulation>::SEPARATOR() {
 Accumulation::Accumulation(const Lvalue& variable, const Symbol& operator_, const Expression& value)
         : variable(variable), operator_(operator_), value(value){}
 
-MayFail_<Accumulation>::MayFail_(const Lvalue& variable, const Symbol& operator_, const MayFail<Expression_>& value)
+MayFail_<Accumulation>::MayFail_(const MayFail<Lvalue_>& variable, const Symbol& operator_, const MayFail<Expression_>& value)
         : variable(variable), operator_(operator_), value(value){}
 
-MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation) {
-    this->variable = accumulation.variable;
+MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation)
+        : variable(wrap_lvalue(accumulation.variable))
+{
     this->operator_ = accumulation.operator_;
     this->value = wrap_expr(accumulation.value);
 
@@ -204,7 +210,7 @@ MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation) {
 }
 
 MayFail_<Accumulation>::operator Accumulation() const {
-    auto variable = this->variable;
+    auto variable = unwrap_lvalue(this->variable.value());
     auto operator_ = this->operator_;
     auto value = unwrap_expr(this->value.value());
     auto accumulation = Accumulation{variable, operator_, value};

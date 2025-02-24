@@ -151,6 +151,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     if (peekSymbol(word)) {
         auto symbol = buildSymbol(word);
         symbol._groupNesting = groupNesting;
+        symbol._lvalue = true; // TODO: tmp, need more sophisticated approach
         return (Expression_)move_to_heap(symbol);
     }
 
@@ -201,4 +202,22 @@ Expression_ wrap_expr(Expression expression) {
         [](Symbol* expr) -> Expression_ {return expr;},
         [](auto* mf_) -> Expression_ {return move_to_heap(wrap(*mf_));},
     }, expression);
+}
+
+bool is_lvalue(Expression expr) {
+    return std::visit(overload{
+        [](Symbol* symbol){return symbol->_lvalue;},
+        // [](Subscript* subscript){return subscript->_lvalue;},
+        // [](FieldAccess* fieldAccess){return fieldAccess->_lvalue;},
+        [](auto*){return false;},
+    }, expr);
+}
+
+bool is_lvalue(Expression_ expr_) {
+    return std::visit(overload{
+        [](Symbol* symbol){return symbol->_lvalue;},
+        // [](MayFail_<Subscript>* subscript){return subscript->_lvalue;},
+        // [](MayFail_<FieldAccess>* fieldAccess){return fieldAccess->_lvalue;},
+        [](auto*){return false;},
+    }, expr_);
 }

@@ -11,7 +11,7 @@
 #include <monlang-LV2/ast/expr/FunctionCall.h>
 #include <monlang-LV2/ast/expr/Lambda.h>
 #include <monlang-LV2/ast/expr/Literal.h>
-#include <monlang-LV2/ast/expr/Lvalue.h>
+#include <monlang-LV2/ast/Lvalue.h>
 #include <monlang-LV2/ast/expr/Operation.h>
 #include <monlang-LV2/ast/expr/SpecialSymbol.h>
 
@@ -80,7 +80,7 @@ TEST_CASE ("special symbol", "[test-9713][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lvalue", "[test-9714][expr]") {
+TEST_CASE ("symbol", "[test-9714][expr]") {
     auto input = tommy_str(R"EOF(
         somevar
     )EOF");
@@ -90,8 +90,8 @@ TEST_CASE ("lvalue", "[test-9714][expr]") {
     auto expr = unwrap_expr(buildExpression(term).value());
     REQUIRE (token_len(expr) == 7);
 
-    auto lvalue = *std::get<Lvalue*>(expr);
-    REQUIRE (token_len(lvalue) == 7);
+    auto symbol = *std::get<Symbol*>(expr);
+    REQUIRE (token_len(symbol) == 7);
 }
 
 ///////////////////////////////////////////////////////////
@@ -449,7 +449,7 @@ TEST_CASE ("assignment", "[test-9731][stmt]") {
 
     auto assignment = *std::get<Assignment*>(stmt);
     REQUIRE (token_len(assignment) == 17);
-    REQUIRE (token_len(assignment.variable) == 7); // somevar
+    REQUIRE (token_len((Expression)assignment.variable) == 7); // somevar
     REQUIRE (token_len(assignment.value) == 5); // value
 }
 
@@ -469,6 +469,6 @@ TEST_CASE ("accumulation", "[test-9732][stmt]") {
 
     auto accumulation = *std::get<Accumulation*>(stmt);
     REQUIRE (token_len(accumulation) == 17);
-    REQUIRE (token_len(accumulation.variable) == 7); // somevar
+    REQUIRE (token_len((Expression)accumulation.variable) == 7); // somevar
     REQUIRE (token_len(accumulation.value) == 5); // value
 }

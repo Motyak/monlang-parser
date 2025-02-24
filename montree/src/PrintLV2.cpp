@@ -20,7 +20,6 @@
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Literal.h>
-#include <monlang-LV2/expr/Lvalue.h>
 
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>
@@ -148,19 +147,35 @@ void PrintLV2::operator()(const MayFail<Expression_>& expression) {
     std::visit(*this, expression_);
 }
 
+void PrintLV2::operator()(const MayFail<Lvalue_>& lvalue) {
+    this->currExpression = mayfail_cast<Expression_>(lvalue); // needed by expr handlers
+    auto lvalue_ = lvalue.val;
+
+    output(lvalue.has_error()? "~> " : "-> ");
+
+    if (lvalue_._stub) {
+        outputLine("Lvalue");
+        currIndent++;
+        outputLine("~> ", SERIALIZE_ERR(lvalue));
+        currIndent--;
+        return;
+    }
+
+    output("Lvalue: ");
+    std::visit(*this, lvalue_.variant);
+}
+
 void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
     outputLine("Assignment");
     currIndent++;
 
 
-    // we assume that empty identifier means stub
-    if (assignment->variable.identifier == "") {
+    if (assignment->variable.val._stub) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
-    output("-> ");
-    operator()(&assignment->variable);
+    operator()(assignment->variable);
 
 
     if (is_stub(assignment->value.val)
@@ -180,14 +195,12 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     currIndent++;
 
 
-    // we assume that empty identifier means stub
-    if (accumulation->variable.identifier == "") {
+    if (accumulation->variable.val._stub) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
-    output("-> ");
-    operator()(&accumulation->variable);
+    operator()(accumulation->variable);
 
 
     outputLine("-> operator: `", accumulation->operator_.value.c_str(), "`"); /*
@@ -630,16 +643,8 @@ void PrintLV2::operator()(Symbol* symbol) {
     outputLine("Symbol: `", symbol->value.c_str(), "`");
 }
 
-void PrintLV2::operator()(Lvalue* lvalue) {
-    outputLine("Lvalue: `", lvalue->identifier.c_str(), "`");
-}
-
 void PrintLV2::operator()(_StubExpression_*) {
     SHOULD_NOT_HAPPEN();
-}
-
-void PrintLV2::operator()(auto) {
-    outputLine("<ENTITY NOT IMPLEMENTED YET>");
 }
 
 ///////////////////////////////////////////////////////////

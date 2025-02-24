@@ -2,8 +2,6 @@
 
 /* impl only */
 
-#include <monlang-LV2/expr/Lvalue.h>
-
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
 /* require knowing all words for token_len() */
@@ -75,18 +73,24 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
 
 
     unless (holds_word(sentence.programWords[0])) {
-        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), StubExpression_()}, ERR(211));
+        auto malformed = Malformed(MayFail_<Assignment>{STUB(Lvalue_), StubExpression_()}, ERR(211));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto word = get_word(sentence.programWords[0]);
-    // NOTE: for the moment `peekLvalue()` only check if word is Atom. In the future will be more descriptive.
-    unless (peekLvalue(word)) {
-        auto malformed = Malformed(MayFail_<Assignment>{Lvalue(), StubExpression_()}, ERR(212));
+    auto expr = buildExpression((Term)word);
+    if (!is_lvalue(expr.val)) {
+        auto malformed = Malformed(MayFail_<Assignment>{STUB(Lvalue_), StubExpression_()}, ERR(212));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto variable = buildLvalue(word);
+
+    auto variable = mayfail_cast<Lvalue_>(expr);
+    if (variable.has_error()) {
+        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(216));
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
 
 
     unless (sentence.programWords.size() >= 3) {
@@ -150,11 +154,12 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
 
 Assignment::Assignment(const Lvalue& variable, const Expression& value) : variable(variable), value(value){}
 
-MayFail_<Assignment>::MayFail_(const Lvalue& variable, const MayFail<Expression_>& value)
+MayFail_<Assignment>::MayFail_(const MayFail<Lvalue_>& variable, const MayFail<Expression_>& value)
         : variable(variable), value(value){}
 
-MayFail_<Assignment>::MayFail_(const Assignment& assignment) {
-    this->variable = assignment.variable;
+MayFail_<Assignment>::MayFail_(const Assignment& assignment)
+        : variable(wrap_lvalue(assignment.variable))
+{
     this->value = wrap_expr(assignment.value);
 
     this->_tokenLeadingNewlines = assignment._tokenLeadingNewlines;
@@ -164,7 +169,7 @@ MayFail_<Assignment>::MayFail_(const Assignment& assignment) {
 }
 
 MayFail_<Assignment>::operator Assignment() const {
-    auto variable = this->variable;
+    auto variable = unwrap_lvalue(this->variable.value());
     auto value = unwrap_expr(this->value.value());
     auto assignment = Assignment{variable, value};
 

@@ -14,7 +14,7 @@ TEST_CASE ("assign literal", "[test-2111][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Literal: `91`
     )EOF");
 
@@ -43,7 +43,7 @@ TEST_CASE ("assign grouped expr", "[test-2151][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Literal: `91`
     )EOF");
 
@@ -70,7 +70,7 @@ TEST_CASE ("assign special symbol", "[test-2131][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: SpecialSymbol: `$1`
     )EOF");
 
@@ -97,7 +97,7 @@ TEST_CASE ("assign symbol to symbol", "[test-2112][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Symbol: `othervar`
     )EOF");
 
@@ -130,7 +130,7 @@ TEST_CASE ("assign lambda", "[test-2113][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Lambda
        |    -> parameter #1: `x`
        |    -> body
@@ -163,7 +163,7 @@ TEST_CASE ("assign operation", "[test-2114][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Operation
        |    -> Expression: Literal: `1`
        |    -> operator: `+`
@@ -195,7 +195,7 @@ TEST_CASE ("assign block expression", "[test-2115][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: BlockExpression
        |    -> Statement: ExpressionStatement
        |      -> Expression: Literal: `91`
@@ -228,7 +228,7 @@ TEST_CASE ("assign function call", "[test-2116][assign]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: FunctionCall
        |    -> function
        |      -> Expression: Symbol: `func`
@@ -278,7 +278,7 @@ TEST_CASE ("ERR contains a non-Word as variable", "[test-2117][assign][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Symbol word as variable", "[test-2118][assign][err]") {
+TEST_CASE ("ERR contains a non-Lvalue expression as variable", "[test-2118][assign][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: ParenthesesGroup (empty)
@@ -312,7 +312,7 @@ TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2119][assign][err
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  ~> ERR-213
     )EOF");
 
@@ -341,7 +341,7 @@ TEST_CASE ("ERR contains a non-Word as part of the value", "[test-2120][assign][
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  ~> ERR-214
     )EOF");
 
@@ -369,7 +369,7 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2121][assign][
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  ~> Expression
        |    ~> ERR-161
     )EOF");

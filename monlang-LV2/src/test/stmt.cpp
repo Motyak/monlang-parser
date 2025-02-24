@@ -38,7 +38,7 @@ TEST_CASE ("assignment", "[test-1212][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
-       |  -> Lvalue: `somevar`
+       |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Literal: `0`
     )EOF");
 
@@ -65,7 +65,7 @@ TEST_CASE ("accumulation", "[test-1213][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: Accumulation
-       |  -> Lvalue: `count`
+       |  -> Lvalue: Symbol: `count`
        |  -> operator: `+`
        |  -> Expression: Literal: `1`
     )EOF");

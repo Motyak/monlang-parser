@@ -3,8 +3,8 @@
 
 #include <stack>
 
-/* interface only */
 #include <monlang-LV2/visitors/visitor.h>
+#include <monlang-LV2/Lvalue.h>
 
 class PrintLV2 : public LV2::AstVisitor_<void> {
   public:
@@ -13,6 +13,7 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(const MayFail<MayFail_<LV2::Program>>&) override;
     void operator()(const MayFail<Statement_>&) override;
     void operator()(const MayFail<Expression_>&) override;
+    void operator()(const MayFail<Lvalue_>&);
 
     /* statements */
     void operator()(MayFail_<Assignment>*);
@@ -35,11 +36,9 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(MayFail_<BlockExpression>*);
     void operator()(SpecialSymbol*);
     void operator()(Literal*);
-    void operator()(Lvalue*);
     void operator()(Symbol*);
 
     void operator()(_StubExpression_*); // shouldn't happen
-    void operator()(auto); // fall-through
 
   private:
     void output(const char* strs...);

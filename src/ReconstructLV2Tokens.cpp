@@ -24,7 +24,7 @@
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Literal.h>
-#include <monlang-LV2/expr/Lvalue.h>
+#include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
@@ -166,7 +166,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(/*const*/&assign->variable);
+    operator()(mayfail_cast<Expression_>(assign->variable));
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += Assignment::SEPARATOR._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
@@ -207,7 +207,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(/*const*/&acc->variable);
+    operator()(mayfail_cast<Expression_>(acc->variable));
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += acc->SEPARATOR()._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
@@ -853,18 +853,6 @@ void ReconstructLV2Tokens::operator()(Symbol* symbol) {
 
     token.start = asTokenPosition(curPos);
     curPos += symbol->_tokenLen;
-    token.end = asTokenPosition(curPos - !!curPos);
-}
-
-void ReconstructLV2Tokens::operator()(Lvalue* lvalue) {
-    auto tokenId = newToken(curExpr);
-    token.is_malformed = false;
-    token.name = "Lvalue";
-
-    curPos += group_nesting(*lvalue);
-
-    token.start = asTokenPosition(curPos);
-    curPos += lvalue->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
 }
 

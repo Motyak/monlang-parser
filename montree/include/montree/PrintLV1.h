@@ -24,8 +24,6 @@ class PrintLV1 : public /*LV1*/AstVisitor_<void> {
     void operator()(MayFail_<PostfixParenthesesGroup>*);
     void operator()(MayFail_<Association>*);
 
-    void operator()(auto); // fall-through
-
   private:
     static constexpr int NO_NUMBERING = -1;
     const int TAB_SIZE;

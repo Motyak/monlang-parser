@@ -19,7 +19,8 @@ Program \
 Statement \
 $(STMT_ENTITIES:%=stmt/%) \
 Expression \
-$(EXPR_ENTITIES:%=expr/%)
+$(EXPR_ENTITIES:%=expr/%) \
+Lvalue \
 
 STMT_ENTITIES := \
 Assignment \
@@ -42,7 +43,6 @@ BlockExpression \
 SpecialSymbol \
 Literal \
 Symbol \
-Lvalue # <- should remove by then
 
 OBJS := $(ENTITIES:%=obj/%.o) obj/precedence.o
 DEPS := $(ENTITIES:%=.deps/%.d) .deps/precedence.d
