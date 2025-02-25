@@ -116,6 +116,7 @@ ParenthesesGroup ParenthesesGroup_(Term term) {
     auto pg = ParenthesesGroup{{term}};
     pg._tokenLen = term._tokenLen; // !!! we deliberately don't count..
                                    // ..the implicit parentheses around the term
+    pg._implicit = true; // !!! important as well
     return pg;
 }
 

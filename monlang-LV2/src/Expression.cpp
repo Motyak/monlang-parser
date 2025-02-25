@@ -167,7 +167,9 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto group = *std::get<ParenthesesGroup*>(word);
         // if grouped expression => unwrap then go back to beginning
         if (group.terms.size() == 1) {
-            groupNesting += 1;
+            if (!group._implicit) {
+                groupNesting += 1;
+            }
             auto saveTokenLen = term_._tokenLen;
             term_ = group.terms[0];
             term_._tokenLen = saveTokenLen;
