@@ -224,3 +224,10 @@ bool is_lvalue(Expression_ expr_) {
         [](auto*){return false;},
     }, expr_);
 }
+
+void delete_(Expression_ expr) {
+    std::visit(
+        [](auto* ptr){delete ptr;},
+        expr
+    );
+}

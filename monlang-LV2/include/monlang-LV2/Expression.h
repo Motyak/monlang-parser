@@ -35,4 +35,6 @@ Expression_ wrap_expr(Expression);
 
 bool is_lvalue(Expression_);
 
+void delete_(Expression_);
+
 #endif // EXPRESSION_H

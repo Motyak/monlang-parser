@@ -20,8 +20,10 @@ bool peekLambda(const Word& word) {
     }
 
     auto assoc = *std::get<Association*>(word);
-    unless (std::holds_alternative<ParenthesesGroup*>(assoc.leftPart) \
-            && std::holds_alternative<CurlyBracketsGroup*>(assoc.rightPart)) {
+    unless (std::holds_alternative<ParenthesesGroup*>(assoc.leftPart)) {
+        return false;
+    }
+    unless (std::holds_alternative<CurlyBracketsGroup*>(assoc.rightPart)) {
         return false;
     }
 
