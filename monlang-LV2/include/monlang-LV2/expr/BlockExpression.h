@@ -18,9 +18,10 @@ struct MayFail_<BlockExpression> {
     bool _oneline = false;
     size_t _tokenLen = 0;
     size_t _groupNesting = 0;
+    bool _dollars = false;
     MayFail_() = default;
     explicit MayFail_(_dummy_stub); // sets _stub to true
-    explicit MayFail_(std::vector<MayFail<Statement_>>);
+    explicit MayFail_(const std::vector<MayFail<Statement_>>&);
 
     explicit MayFail_(BlockExpression);
     explicit operator BlockExpression() const;

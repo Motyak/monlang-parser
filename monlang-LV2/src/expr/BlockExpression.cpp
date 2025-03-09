@@ -23,6 +23,7 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
         statements.push_back(statement);
         if (statement.has_error()) {
             auto malformed = Malformed(MayFail_<BlockExpression>{statements}, ERR(641));
+            malformed.val._dollars = cbg._dollars;
             if (cbg.term) {
                 malformed.val._oneline = true;
             }
@@ -32,6 +33,7 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
 
     auto blockExpr = MayFail_<BlockExpression>{statements};
     blockExpr._tokenLen = cbg._tokenLen;
+    blockExpr._dollars = cbg._dollars;
     if (cbg.term || statements.empty()) {
         blockExpr._oneline = true;
     }
@@ -42,7 +44,7 @@ BlockExpression::BlockExpression(const std::vector<Statement>& statements) : sta
 
 MayFail_<BlockExpression>::MayFail_(_dummy_stub) : _stub(true){}
 
-MayFail_<BlockExpression>::MayFail_(std::vector<MayFail<Statement_>> statements) : statements(statements){}
+MayFail_<BlockExpression>::MayFail_(const std::vector<MayFail<Statement_>>& statements) : statements(statements){}
 
 MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {
     auto statements = std::vector<MayFail<Statement_>>();
@@ -51,6 +53,7 @@ MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {
     }
     this->statements = statements;
     this->_tokenLen = blockExpr._tokenLen;
+    this->_dollars = blockExpr._dollars;
 }
 
 MayFail_<BlockExpression>::operator BlockExpression() const {
@@ -60,5 +63,6 @@ MayFail_<BlockExpression>::operator BlockExpression() const {
     }
     auto blockExpr = BlockExpression{statements};
     blockExpr._tokenLen = this->_tokenLen;
+    blockExpr._dollars = this->_dollars;
     return blockExpr;
 }
