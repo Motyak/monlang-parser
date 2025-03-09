@@ -3,6 +3,7 @@
 #include <catch2/catch_amalgamated.hpp>
 
 #include <monlang-LV2/stmt/WhileStatement.h>
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
 
 ///////////////////////////////////////////////////////////
 
@@ -373,6 +374,33 @@ TEST_CASE ("Malformed C_DoStatement, contains a Malformed BlockExpression as blo
 
     auto output = consumeStatement(input_prog);
     REQUIRE (/*C_DoStatement*/ "ERR-354" == std::get<MayFail_<DoWhileStatement>*>(output.val)->doStmt.error().fmt);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed C_DoStatement, contains a dollars BlockExpression as block", "[test-3433][dowhile][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Program
+       |  -> ProgramSentence
+       |    -> ProgramWord #1: Atom: `do`
+       |    -> ProgramWord #2: CurlyBracketsGroup (empty)
+    )EOF");
+    auto input_ast = montree::buildLV1Ast(input);
+    // in montree LV1 we don't differentiate dollars cbg from standard cbg, so...
+    std::get<CurlyBracketsGroup*>(std::get<Program>(input_ast).sentences.at(0).programWords.at(1))->_dollars = true;
+    auto input_prog = std::get<Program>(input_ast);
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: DoWhileStatement
+       |  ~> C_DoStatement
+       |    ~> ERR-356
+    )EOF");
+
+    auto output = consumeStatement(input_prog);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

@@ -2,6 +2,8 @@
 #include <montree/montree-LV2.h>
 #include <catch2/catch_amalgamated.hpp>
 
+#include <monlang-LV1/ast/CurlyBracketsGroup.h>
+
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("symbol condition", "[test-3311][while]") {
@@ -430,7 +432,38 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3320][whi
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3332][while][err]") {
+TEST_CASE ("ERR contains a dollars BlockExpression as block", "[test-3332][while][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `until`
+       |  -> ProgramWord #2: SquareBracketsTerm
+       |    -> Term
+       |      -> Word: Atom: `end`
+       |  -> ProgramWord #3: CurlyBracketsGroup (empty)
+    )EOF");
+    auto input_ast = montree::buildLV1Ast(input);
+    // in montree LV1 we don't differentiate dollars cbg from standard cbg, so...
+    std::get<CurlyBracketsGroup*>(std::get<ProgramSentence>(input_ast).programWords.at(2))->_dollars = true;
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: WhileStatement
+       |  -> condition
+       |    -> Expression: Symbol: `end`
+       |  ~> ERR-337
+    )EOF");
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3333][while][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `until`
