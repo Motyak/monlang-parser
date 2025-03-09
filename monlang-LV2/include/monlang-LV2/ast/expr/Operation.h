@@ -10,7 +10,6 @@ struct Operation {
     Expression rightOperand;
 
     size_t _tokenLen = 0;
-    size_t _groupNesting = 0;
     Operation() = default;
     Operation(const Expression&, const Symbol&, const Expression&);
 };

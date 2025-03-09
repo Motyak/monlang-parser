@@ -9,7 +9,6 @@ struct BlockExpression {
     std::vector<Statement> statements;
 
     size_t _tokenLen = 0;
-    size_t _groupNesting = 0;
     bool _dollars = false;
     BlockExpression() = default;
     BlockExpression(const std::vector<Statement>&);

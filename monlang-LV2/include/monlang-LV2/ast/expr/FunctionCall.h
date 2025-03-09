@@ -10,7 +10,6 @@ struct FunctionCall {
     std::vector<Expression> arguments;
 
     size_t _tokenLen = 0;
-    size_t _groupNesting = 0;
     FunctionCall() = default;
     FunctionCall(const Expression&, const std::vector<Expression>&);
 };
