@@ -15,6 +15,7 @@ class PrintLV1 : public /*LV1*/AstVisitor_<void> {
     void operator()(const MayFail<MayFail_<Term>>&) override;
     void operator()(const MayFail<Word_>&) override;
 
+    void operator()(MayFail_<Quotation>*);
     void operator()(MayFail_<SquareBracketsTerm>*);
     void operator()(MayFail_<SquareBracketsGroup>*);
     void operator()(MayFail_<ParenthesesGroup>*);

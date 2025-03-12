@@ -5,6 +5,7 @@
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/ProgramSentence.h>
 /* require knowing all words for token_len() */
+#include <monlang-LV1/ast/Quotation.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/SquareBracketsGroup.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>

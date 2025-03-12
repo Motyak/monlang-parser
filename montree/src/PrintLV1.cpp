@@ -8,6 +8,7 @@
 
 /* impl only */
 #include <monlang-LV1/Atom.h>
+#include <monlang-LV1/Quotation.h>
 #include <monlang-LV1/SquareBracketsTerm.h>
 #include <monlang-LV1/SquareBracketsGroup.h>
 #include <monlang-LV1/ParenthesesGroup.h>
@@ -208,6 +209,29 @@ void PrintLV1::operator()(const MayFail<Word_>& word) {
 }
 
 ///////////////////////////////////////////////////////////////
+
+void PrintLV1::operator()(MayFail_<Quotation>* quot) {
+    auto quotedLines = split(quot->quoted, "\n");
+    ASSERT (quotedLines.size() > 0);
+    output("Quotation: `", quotedLines[0].c_str(), "`");
+    if (quotedLines.size() > 1) {
+        output(" (", INT2CSTR(quotedLines.size() - 1), " more ");
+        output(quotedLines.size() > 2? "lines" : "line", ")");
+        currIndent++;
+        for (auto it = quotedLines.begin() + 1; it != quotedLines.end(); ++it) {
+            outputLine();
+            output("-> `", it->c_str(), "`");
+        }
+        currIndent--;
+    }
+    outputLine();
+
+    if (curWord.has_error()) {
+        currIndent++;
+        outputLine("~> ", SERIALIZE_ERR(curWord));
+        currIndent--;
+    }
+}
 
 void PrintLV1::operator()(MayFail_<SquareBracketsTerm>* sbt) {
     auto curWord_ = curWord; // backup because it gets overriden by `handleTerm`..

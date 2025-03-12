@@ -7,6 +7,7 @@
 
 /* impl only */
 #include <monlang-LV1/Atom.h>
+#include <monlang-LV1/Quotation.h>
 #include <monlang-LV1/SquareBracketsTerm.h>
 #include <monlang-LV1/SquareBracketsGroup.h>
 #include <monlang-LV1/ParenthesesGroup.h>
@@ -167,6 +168,26 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
 
     token.start = asTokenPosition(curPos);
     curPos += atom->_tokenLen;
+    token.end = asTokenPosition(curPos - !!curPos);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+}
+
+void ReconstructLV1Tokens::operator()(MayFail_<Quotation>* quot) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "Quotation";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    curPos += quot->_tokenLen;
     token.end = asTokenPosition(curPos - !!curPos);
 
     if (token.is_malformed) {

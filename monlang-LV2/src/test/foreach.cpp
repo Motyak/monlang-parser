@@ -417,30 +417,30 @@ TEST_CASE ("ERR contains a non-BlockExpression as block", "[test-3232][foreach][
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("ERR contains a dollars BlockExpression as block", "[test-3233][foreach][err]") {
-   auto input = tommy_str(R"EOF(
-      |-> ProgramSentence
-      |  -> ProgramWord #1: Atom: `foreach`
-      |  -> ProgramWord #2: Atom: `list`
-      |  -> ProgramWord #3: CurlyBracketsGroup (empty)
-   )EOF");
-   auto input_ast = montree::buildLV1Ast(input);
-   // in montree LV1 we don't differentiate dollars cbg from standard cbg, so...
-   std::get<CurlyBracketsGroup*>(std::get<ProgramSentence>(input_ast).programWords.at(2))->_dollars = true;
-   auto input_sentence = std::get<ProgramSentence>(input_ast);
-   auto input_prog = LV1::Program{{input_sentence}};
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `foreach`
+       |  -> ProgramWord #2: Atom: `list`
+       |  -> ProgramWord #3: CurlyBracketsGroup (empty)
+    )EOF");
+    auto input_ast = montree::buildLV1Ast(input);
+    // in montree LV1 we don't differentiate dollars cbg from standard cbg, so...
+    std::get<CurlyBracketsGroup*>(std::get<ProgramSentence>(input_ast).programWords.at(2))->_dollars = true;
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
 
-   auto expect = tommy_str(R"EOF(
-      |~> Statement: ForeachStatement
-      |  -> iterable
-      |    -> Expression: Symbol: `list`
-      |  ~> ERR-328
-   )EOF");
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: ForeachStatement
+       |  -> iterable
+       |    -> Expression: Symbol: `list`
+       |  ~> ERR-328
+    )EOF");
 
-   auto output = consumeStatement(input_prog);
-   REQUIRE (input_prog.sentences.empty());
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
 
-   auto output_str = montree::astToString(output);
-   REQUIRE (output_str == expect);
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
 }
 
 ///////////////////////////////////////////////////////////
