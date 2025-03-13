@@ -6,6 +6,12 @@ Pour lancer les tests LV1 depuis monlang/ en utilisant la nouvelle version de mo
 
 ---
 
+Pour ajouter une nouvelle entité LV2:
+prendre exemple sur..
+https://github.com/Motyak/monlang-parser/commit/2305f3a5b2765ab206087f8e2f3871877ade159d
+
+---
+
 Pour rajouter une Rvalue dans LV2:
 - Ecrire test dans expr.cpp
 - Ajouter .h dans include/, .cpp dans src/ (si nécessaire)
