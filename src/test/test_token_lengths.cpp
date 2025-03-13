@@ -10,7 +10,7 @@
 #include <monlang-LV2/ast/expr/BlockExpression.h>
 #include <monlang-LV2/ast/expr/FunctionCall.h>
 #include <monlang-LV2/ast/expr/Lambda.h>
-#include <monlang-LV2/ast/expr/Literal.h>
+#include <monlang-LV2/ast/expr/Numeral.h>
 #include <monlang-LV2/ast/Lvalue.h>
 #include <monlang-LV2/ast/expr/Operation.h>
 #include <monlang-LV2/ast/expr/SpecialSymbol.h>
@@ -32,7 +32,7 @@
 // expr
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("literal", "[test-9711][expr]") {
+TEST_CASE ("numeral", "[test-9711][expr]") {
     auto input = tommy_str(R"EOF(
         1
     )EOF");
@@ -42,13 +42,13 @@ TEST_CASE ("literal", "[test-9711][expr]") {
     auto expr = unwrap_expr(buildExpression(term).value());
     REQUIRE (token_len(expr) == 1);
 
-    auto literal = *std::get<Literal*>(expr);
-    REQUIRE (token_len(literal) == 1);
+    auto numeral = *std::get<Numeral*>(expr);
+    REQUIRE (token_len(numeral) == 1);
 }
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("literal with additional parentheses", "[test-9712][expr]") {
+TEST_CASE ("numeral with additional parentheses", "[test-9712][expr]") {
     auto input = tommy_str(R"EOF(
         ((1))
     )EOF");
@@ -58,8 +58,8 @@ TEST_CASE ("literal with additional parentheses", "[test-9712][expr]") {
     auto expr = unwrap_expr(buildExpression(term).value());
     REQUIRE (token_len(expr) == 5);
 
-    auto literal = *std::get<Literal*>(expr);
-    REQUIRE (token_len(literal) == 5);
+    auto numeral = *std::get<Numeral*>(expr);
+    REQUIRE (token_len(numeral) == 5);
 }
 
 ///////////////////////////////////////////////////////////

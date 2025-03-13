@@ -216,7 +216,7 @@ TEST_CASE ("operation condition", "[test-3415][dowhile]") {
        |    -> Expression: Operation
        |      -> Expression: Symbol: `i`
        |      -> operator: `>`
-       |      -> Expression: Literal: `0`
+       |      -> Expression: Numeral: `0`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

@@ -39,7 +39,7 @@
 62 FunctionCall
 63 Lambda
 64 BlockExpression
-65 Literal
+65 Numeral
 66 SpecialSymbol
 
 99 Lvalue

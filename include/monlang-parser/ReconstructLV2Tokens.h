@@ -35,7 +35,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(MayFail_<FunctionCall>*);
     void operator()(MayFail_<Lambda>*);
     void operator()(MayFail_<BlockExpression>*);
-    void operator()(Literal*);
+    void operator()(Numeral*);
     void operator()(SpecialSymbol*);
     void operator()(Symbol*);
 

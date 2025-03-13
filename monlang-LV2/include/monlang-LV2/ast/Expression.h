@@ -9,10 +9,9 @@ struct Operation;
 struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
-struct Literal;
+struct Numeral;
 struct SpecialSymbol;
 struct Symbol;
-struct Lvalue; // <- should disappear by then
 
 using Expression = std::variant<
     /* Term expressions */
@@ -27,7 +26,7 @@ using Expression = std::variant<
 
     /* Atom expressions */
 
-    Literal*,
+    Numeral*,
     SpecialSymbol*,
     // fall-through
     Symbol*

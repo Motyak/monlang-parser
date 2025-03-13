@@ -19,7 +19,7 @@ bool peekSymbol(const Word& word) {
     }
     // unfortunately the most flexible way is to call buildExpression
     // ..and check variant, otherwise would need to check that..
-    // ..word doesn't match any other Atom expression (Literal, SpecialSymbol, etc..)
+    // ..word doesn't match any other Atom expression (Numeral, SpecialSymbol, etc..)
     auto expr_ = buildExpression((Term)word);
     auto res = std::holds_alternative<Symbol*>(expr_.val);
 

@@ -1,4 +1,4 @@
-#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Numeral.h>
 
 /* impl only */
 #include <monlang-LV1/ast/Atom.h>
@@ -7,7 +7,7 @@
 
 #define unless(x) if(!(x))
 
-bool peekLiteral(const Word& word) {
+bool peekNumeral(const Word& word) {
     unless (std::holds_alternative<Atom*>(word)) {
         return false;
     }
@@ -22,13 +22,13 @@ bool peekLiteral(const Word& word) {
     return true;
 }
 
-Literal buildLiteral(const Word& word) {
+Numeral buildNumeral(const Word& word) {
     ASSERT (std::holds_alternative<Atom*>(word));
     auto atom = *std::get<Atom*>(word);
 
-    auto literal = Literal{atom.value};
-    literal._tokenLen = atom._tokenLen;
-    return literal;
+    auto numeral = Numeral{atom.value};
+    numeral._tokenLen = atom._tokenLen;
+    return numeral;
 }
 
-Literal::Literal(const std::string& str) : str(str){}
+Numeral::Numeral(const std::string& str) : str(str){}

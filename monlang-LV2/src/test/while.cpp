@@ -198,7 +198,7 @@ TEST_CASE ("operation condition", "[test-3315][while]") {
        |    -> Expression: Operation
        |      -> Expression: Symbol: `i`
        |      -> operator: `>`
-       |      -> Expression: Literal: `0`
+       |      -> Expression: Numeral: `0`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall

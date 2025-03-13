@@ -41,7 +41,7 @@ FunctionCall \
 Lambda \
 BlockExpression \
 SpecialSymbol \
-Literal \
+Numeral \
 Symbol \
 
 OBJS := $(ENTITIES:%=obj/%.o) obj/precedence.o

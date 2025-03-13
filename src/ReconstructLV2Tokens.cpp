@@ -23,7 +23,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
-#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV1/ast/Atom.h>
@@ -849,18 +849,18 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV2Tokens::operator()(Literal* literal) {
-    /* NOTE: Literal cannot be malformed */
+void ReconstructLV2Tokens::operator()(Numeral* numeral) {
+    /* NOTE: Numeral cannot be malformed */
     ASSERT (!curExpr.has_error());
 
     auto tokenId = newToken(curExpr);
     token.is_malformed = false;
-    token.name = "Literal";
+    token.name = "Numeral";
 
-    curPos += group_nesting(*literal);
+    curPos += group_nesting(*numeral);
 
     token.start = asTokenPosition(curPos);
-    curPos += literal->_tokenLen;
+    curPos += numeral->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
 }
 

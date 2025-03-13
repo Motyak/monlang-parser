@@ -35,7 +35,7 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(MayFail_<Lambda>*);
     void operator()(MayFail_<BlockExpression>*);
     void operator()(SpecialSymbol*);
-    void operator()(Literal*);
+    void operator()(Numeral*);
     void operator()(Symbol*);
 
     void operator()(_StubExpression_*); // shouldn't happen

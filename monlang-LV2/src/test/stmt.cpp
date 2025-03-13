@@ -39,7 +39,7 @@ TEST_CASE ("assignment", "[test-1212][stmt]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
        |  -> Lvalue: Symbol: `somevar`
-       |  -> Expression: Literal: `0`
+       |  -> Expression: Numeral: `0`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -67,7 +67,7 @@ TEST_CASE ("accumulation", "[test-1213][stmt]") {
        |-> Statement: Accumulation
        |  -> Lvalue: Symbol: `count`
        |  -> operator: `+`
-       |  -> Expression: Literal: `1`
+       |  -> Expression: Numeral: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -94,7 +94,7 @@ TEST_CASE ("let statement", "[test-1214][stmt]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
        |  -> Symbol: `age`
-       |  -> Expression: Literal: `27`
+       |  -> Expression: Numeral: `27`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -121,7 +121,7 @@ TEST_CASE ("var statement", "[test-1215][stmt]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: VarStatement
        |  -> Symbol: `count`
-       |  -> Expression: Literal: `0`
+       |  -> Expression: Numeral: `0`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -146,7 +146,7 @@ TEST_CASE ("return statement", "[test-1216][stmt]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: ReturnStatement
-       |  -> Expression: Literal: `0`
+       |  -> Expression: Numeral: `0`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -287,7 +287,7 @@ TEST_CASE ("while statement", "[test-1222][stmt]") {
        |    -> Expression: Operation
        |      -> Expression: Symbol: `i`
        |      -> operator: `>`
-       |      -> Expression: Literal: `0`
+       |      -> Expression: Numeral: `0`
        |  -> block
        |    -> Statement: ExpressionStatement
        |      -> Expression: FunctionCall
@@ -340,7 +340,7 @@ TEST_CASE ("do while statement", "[test-1223][stmt]") {
        |    -> Expression: Operation
        |      -> Expression: Symbol: `i`
        |      -> operator: `>`
-       |      -> Expression: Literal: `0`
+       |      -> Expression: Numeral: `0`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

@@ -61,13 +61,13 @@ TEST_CASE ("grouped expression => ungroup", "[test-1612][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("literal from atom", "[test-1613][expr]") {
+TEST_CASE ("numeral from atom", "[test-1613][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: Atom: `91`
     )EOF");
 
-    auto expect = "-> Expression: Literal: `91`";
+    auto expect = "-> Expression: Numeral: `91`";
 
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
@@ -90,7 +90,7 @@ TEST_CASE ("block from curly brackets group", "[test-1614][expr]") {
     auto expect = tommy_str(R"EOF(
        |-> Expression: BlockExpression
        |  -> Statement: ExpressionStatement
-       |    -> Expression: Literal: `91`
+       |    -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -203,9 +203,9 @@ TEST_CASE ("operation from term of atoms", "[test-1617][expr]") {
 
     auto expect = tommy_str(R"EOF(
        |-> Expression: Operation
-       |  -> Expression: Literal: `1`
+       |  -> Expression: Numeral: `1`
        |  -> operator: `+`
-       |  -> Expression: Literal: `1`
+       |  -> Expression: Numeral: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

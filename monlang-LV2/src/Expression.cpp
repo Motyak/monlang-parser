@@ -6,7 +6,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
-#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Symbol.h>
 
@@ -136,13 +136,13 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
-    //     return mayfail_convert<Expression_>(buildLiteral(word));
+    //     return mayfail_convert<Expression_>(buildNumeral(word));
     // }
 
-    if (peekLiteral(word)) {
-        auto literal = buildLiteral(word);
-        literal._groupNesting = groupNesting;
-        return (Expression_)move_to_heap(literal);
+    if (peekNumeral(word)) {
+        auto numeral = buildNumeral(word);
+        numeral._groupNesting = groupNesting;
+        return (Expression_)move_to_heap(numeral);
     }
 
     // if (word =~ "Atom"_) {
@@ -191,7 +191,7 @@ Expression_ StubExpression_() {
 
 Expression unwrap_expr(Expression_ expression) {
     return std::visit(overload{
-        [](Literal* expr) -> Expression {return expr;},
+        [](Numeral* expr) -> Expression {return expr;},
         [](SpecialSymbol* expr) -> Expression {return expr;},
         [](Symbol* expr) -> Expression {return expr;},
         [](_StubExpression_*) -> Expression {SHOULD_NOT_HAPPEN();},
@@ -201,7 +201,7 @@ Expression unwrap_expr(Expression_ expression) {
 
 Expression_ wrap_expr(Expression expression) {
     return std::visit(overload{
-        [](Literal* expr) -> Expression_ {return expr;},
+        [](Numeral* expr) -> Expression_ {return expr;},
         [](SpecialSymbol* expr) -> Expression_ {return expr;},
         [](Symbol* expr) -> Expression_ {return expr;},
         [](auto* mf_) -> Expression_ {return move_to_heap(wrap(*mf_));},

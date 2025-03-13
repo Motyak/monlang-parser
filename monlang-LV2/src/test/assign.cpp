@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("assign literal", "[test-2111][assign]") {
+TEST_CASE ("assign numeral", "[test-2111][assign]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `somevar`
@@ -15,7 +15,7 @@ TEST_CASE ("assign literal", "[test-2111][assign]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
        |  -> Lvalue: Symbol: `somevar`
-       |  -> Expression: Literal: `91`
+       |  -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -44,7 +44,7 @@ TEST_CASE ("assign grouped expr", "[test-2151][assign]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: Assignment
        |  -> Lvalue: Symbol: `somevar`
-       |  -> Expression: Literal: `91`
+       |  -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -165,9 +165,9 @@ TEST_CASE ("assign operation", "[test-2114][assign]") {
        |-> Statement: Assignment
        |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: Operation
-       |    -> Expression: Literal: `1`
+       |    -> Expression: Numeral: `1`
        |    -> operator: `+`
-       |    -> Expression: Literal: `1`
+       |    -> Expression: Numeral: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -198,7 +198,7 @@ TEST_CASE ("assign block expression", "[test-2115][assign]") {
        |  -> Lvalue: Symbol: `somevar`
        |  -> Expression: BlockExpression
        |    -> Statement: ExpressionStatement
-       |      -> Expression: Literal: `91`
+       |      -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

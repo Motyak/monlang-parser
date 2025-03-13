@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("labelize literal", "[test-2311][let]") {
+TEST_CASE ("labelize numeral", "[test-2311][let]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
@@ -15,7 +15,7 @@ TEST_CASE ("labelize literal", "[test-2311][let]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
        |  -> Symbol: `x`
-       |  -> Expression: Literal: `91`
+       |  -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -44,7 +44,7 @@ TEST_CASE ("labelize grouped expr", "[test-2351][let]") {
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
        |  -> Symbol: `x`
-       |  -> Expression: Literal: `91`
+       |  -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -165,9 +165,9 @@ TEST_CASE ("labelize operation", "[test-2314][let]") {
        |-> Statement: LetStatement
        |  -> Symbol: `sum`
        |  -> Expression: Operation
-       |    -> Expression: Literal: `1`
+       |    -> Expression: Numeral: `1`
        |    -> operator: `+`
-       |    -> Expression: Literal: `1`
+       |    -> Expression: Numeral: `1`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -198,7 +198,7 @@ TEST_CASE ("labelize block expression", "[test-2315][let]") {
        |  -> Symbol: `x`
        |  -> Expression: BlockExpression
        |    -> Statement: ExpressionStatement
-       |      -> Expression: Literal: `91`
+       |      -> Expression: Numeral: `91`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

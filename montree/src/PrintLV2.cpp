@@ -19,7 +19,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
-#include <monlang-LV2/expr/Literal.h>
+#include <monlang-LV2/expr/Numeral.h>
 
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>
@@ -637,8 +637,8 @@ void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
     outputLine("SpecialSymbol: `", specialSymbol->str.c_str(), "`");
 }
 
-void PrintLV2::operator()(Literal* literal) {
-    outputLine("Literal: `", literal->str.c_str(), "`");
+void PrintLV2::operator()(Numeral* numeral) {
+    outputLine("Numeral: `", numeral->str.c_str(), "`");
 }
 
 void PrintLV2::operator()(Symbol* symbol) {
