@@ -475,7 +475,6 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
         else {
             token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
-
         }
         if (curStmt_.err->_info.contains("err_offset")) {
             auto err_offset = std::any_cast<size_t>(curStmt_.err->_info.at("err_offset"));
@@ -531,7 +530,6 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
         else {
             token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
-
         }
         if (curStmt_.err->_info.contains("err_offset")) {
             auto err_offset = std::any_cast<size_t>(curStmt_.err->_info.at("err_offset"));
@@ -595,7 +593,6 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
             else {
                 token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
                 token.err_start = token.err_start < token.start? token.start : token.err_start;
-
             }
             if (doWhileStmt->doStmt.err->_info.contains("err_offset")) {
                 auto err_offset = std::any_cast<size_t>(doWhileStmt->doStmt.err->_info.at("err_offset"));
@@ -667,7 +664,6 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         else {
             token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
-
         }
         if (curStmt_.err->_info.contains("err_offset")) {
             auto err_offset = std::any_cast<size_t>(curStmt_.err->_info.at("err_offset"));
