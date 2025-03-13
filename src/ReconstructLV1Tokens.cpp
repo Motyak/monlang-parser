@@ -196,7 +196,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<Quotation>* quot) {
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
 
     if (token.is_malformed) {
-        token.err_start = token.start;
+        token.err_start = token.end; // !!! SPECIAL CASE (end instead of start)
         tokens.traceback.push_back(token);
     }
 }
