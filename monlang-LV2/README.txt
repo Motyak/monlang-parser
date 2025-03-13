@@ -41,6 +41,7 @@
 64 BlockExpression
 65 Numeral
 66 SpecialSymbol
+67 StrLiteral
 
 99 Lvalue
 

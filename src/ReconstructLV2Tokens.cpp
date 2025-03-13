@@ -24,6 +24,7 @@
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Numeral.h>
+#include <monlang-LV2/expr/StrLiteral.h>
 #include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV1/ast/Atom.h>
@@ -861,6 +862,21 @@ void ReconstructLV2Tokens::operator()(Numeral* numeral) {
 
     token.start = asTokenPosition(curPos);
     curPos += numeral->_tokenLen;
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+}
+
+void ReconstructLV2Tokens::operator()(StrLiteral* strLiteral) {
+    /* NOTE: StrLiteral cannot be malformed */
+    ASSERT (!curExpr.has_error());
+
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = false;
+    token.name = "StrLiteral";
+
+    curPos += group_nesting(*strLiteral);
+
+    token.start = asTokenPosition(curPos);
+    curPos += strLiteral->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
 }
 

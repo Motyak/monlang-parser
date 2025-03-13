@@ -22,6 +22,7 @@ using Expression_ = std::variant<
     MayFail_<Lambda>*,
     MayFail_<BlockExpression>*,
     Numeral*,
+    StrLiteral*,
     SpecialSymbol*,
     Symbol*
 >;

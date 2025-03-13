@@ -292,6 +292,19 @@ Atom LV1AstBuilder::buildAtom() {
     return Atom{atom_val};
 }
 
+Quotation LV1AstBuilder::buildQuotation() {
+    ENTERING_BUILD_ROUTINE();
+
+    auto line = consumeLine(tis); // -> ... Quotation: `<quoted>`
+    auto quoted = split(line.value, "`").at(1);
+
+    if (peekLine(tis).type == INCR) {
+        SHOULD_NOT_HAPPEN();
+    }
+
+    return Quotation{quoted};
+}
+
 Term LV1AstBuilder::buildTerm() {
     ENTERING_BUILD_ROUTINE();
 
@@ -320,6 +333,7 @@ Word LV1AstBuilder::buildWord() {
 
     const auto CANDIDATES = std::vector<std::string>{
         "Atom",
+        "Quotation",
         "ParenthesesGroup",
         "CurlyBracketsGroup",
         "Association",
@@ -344,6 +358,10 @@ Word LV1AstBuilder::buildWord() {
 
     if (first_candidate_found == "Atom") {
         return move_to_heap(buildAtom());
+    }
+
+    else if (first_candidate_found == "Quotation") {
+        return move_to_heap(buildQuotation());
     }
 
     else if (first_candidate_found == "ParenthesesGroup") {

@@ -20,6 +20,7 @@
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Numeral.h>
+#include <monlang-LV2/expr/StrLiteral.h>
 
 #include <utils/nb-utils.h>
 #include <utils/str-utils.h>
@@ -639,6 +640,22 @@ void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
 
 void PrintLV2::operator()(Numeral* numeral) {
     outputLine("Numeral: `", numeral->str.c_str(), "`");
+}
+
+void PrintLV2::operator()(StrLiteral* strLiteral) {
+    auto strLiteralLines = split(strLiteral->str, "\n");
+    ASSERT (strLiteralLines.size() > 0);
+    output("StrLiteral: `", strLiteralLines[0].c_str(), "`");
+    if (strLiteralLines.size() > 1) {
+        output(" (", INT2CSTR(strLiteralLines.size() - 1), " more ");
+        output(strLiteralLines.size() > 2? "lines" : "line", ")");
+        currIndent++;
+        for (auto it = strLiteralLines.begin() + 1; it != strLiteralLines.end(); ++it) {
+            outputLine();
+            output("-> `", it->c_str(), "`");
+        }
+        currIndent--;
+    }
 }
 
 void PrintLV2::operator()(Symbol* symbol) {

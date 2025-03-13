@@ -79,6 +79,24 @@ TEST_CASE ("numeral from atom", "[test-1613][expr]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("str literal from quotation", "[test-1651][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Quotation: `hello`
+    )EOF");
+
+    auto expect = "-> Expression: StrLiteral: `hello`";
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("block from curly brackets group", "[test-1614][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term

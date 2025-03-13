@@ -10,6 +10,7 @@ struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
 struct Numeral;
+struct StrLiteral;
 struct SpecialSymbol;
 struct Symbol;
 
@@ -27,6 +28,7 @@ using Expression = std::variant<
     /* Atom expressions */
 
     Numeral*,
+    StrLiteral*,
     SpecialSymbol*,
     // fall-through
     Symbol*

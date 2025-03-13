@@ -10,6 +10,7 @@
 #include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/Quotation.h>
 
 #include <any>
 
@@ -33,6 +34,7 @@ class LV1AstBuilder {
     SquareBracketsGroup buildSquareBracketsGroup();
     CurlyBracketsGroup buildCurlyBracketsGroup();
     Atom buildAtom();
+    Quotation buildQuotation();
 
   private:
     static constexpr std::string LINE_PREFIX = "-> ";
