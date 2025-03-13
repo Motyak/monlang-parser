@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 inline std::string replace_all(const std::string& str, const std::string& from, const std::string& to)
 {
@@ -34,6 +35,18 @@ inline std::vector<std::string> split(const std::string& str, const std::string&
     res.push_back(str.substr(start_pos));
 
     return res;
+}
+
+template <typename T>
+inline std::string join(const std::vector<std::string>& vec, const T& delimiter) {
+    std::stringstream ss;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        if (i != 0) {
+            ss << delimiter;
+        }
+        ss << vec[i];
+    }
+    return ss.str();
 }
 
 #define INT2CSTR(num) (std::to_string(num).c_str())
