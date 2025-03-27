@@ -28,6 +28,7 @@ until [ eof ]
 fds(sdf)
 (x):{x}
 {x}
+[1, 2]
 91
 $cur
 

@@ -11,6 +11,7 @@
 #include <monlang-LV2/ast/expr/FunctionCall.h>
 #include <monlang-LV2/ast/expr/Lambda.h>
 #include <monlang-LV2/ast/expr/Numeral.h>
+#include <monlang-LV2/ast/expr/ListLiteral.h>
 #include <monlang-LV2/ast/expr/StrLiteral.h>
 #include <monlang-LV2/ast/Lvalue.h>
 #include <monlang-LV2/ast/expr/Operation.h>
