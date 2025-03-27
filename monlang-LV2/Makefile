@@ -40,6 +40,7 @@ Operation \
 FunctionCall \
 Lambda \
 BlockExpression \
+ListLiteral \
 SpecialSymbol \
 Numeral \
 StrLiteral \

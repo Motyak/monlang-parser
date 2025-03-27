@@ -21,8 +21,9 @@ using Expression_ = std::variant<
     MayFail_<FunctionCall>*,
     MayFail_<Lambda>*,
     MayFail_<BlockExpression>*,
-    Numeral*,
+    MayFail_<ListLiteral>*,
     StrLiteral*,
+    Numeral*,
     SpecialSymbol*,
     Symbol*
 >;

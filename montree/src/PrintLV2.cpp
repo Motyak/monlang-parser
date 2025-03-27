@@ -18,6 +18,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/expr/StrLiteral.h>
@@ -631,6 +632,31 @@ void PrintLV2::operator()(MayFail_<BlockExpression>* block) {
     for (auto statement: block->statements) {
         operator()(statement);
     }
+    currIndent--;
+}
+
+void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
+    output("ListLiteral");
+    if (listLiteral->arguments.size() == 0 && !currExpression.has_error()) {
+        outputLine(" (empty)");
+        return;
+    }
+    outputLine();
+
+    currIndent++;
+
+    if (listLiteral->arguments.size() > 1) {
+        for (int n : range(listLiteral->arguments.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
+    for (auto arg: listLiteral->arguments) {
+        operator()(arg);
+    }
+
     currIndent--;
 }
 

@@ -42,6 +42,7 @@
 65 Numeral
 66 SpecialSymbol
 67 StrLiteral
+68 ListLiteral
 
 99 Lvalue
 
@@ -141,3 +142,5 @@
 631 Malformed Lambda, contains a Malformed Statement within body
 
 641 Malformed BlockExpression, contains a Malformed Statement
+
+681 Malformed ListLiteral, contains a malformed Expression

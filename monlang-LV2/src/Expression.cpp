@@ -6,8 +6,9 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
-#include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/expr/StrLiteral.h>
+#include <monlang-LV2/expr/ListLiteral.h>
+#include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Symbol.h>
 
@@ -127,6 +128,26 @@ MayFail<Expression_> buildExpression(const Term& term) {
         return mayfail_convert<Expression_>(blockExpr);
     }
 
+    // if (word =~ "Quotation"_) {
+    //     return mayfail_convert<Expression_>(buildStrLiteral(word));
+    // }
+
+    if (peekStrLiteral(word)) {
+        auto strLiteral = buildStrLiteral(word);
+        strLiteral._groupNesting = groupNesting;
+        return (Expression_)move_to_heap(strLiteral);
+    }
+
+    // if (word =~ "SquareBracketsGroup"_) {
+    //     ...
+    // }
+
+    if (peekListLiteral(word)) {
+        auto listLiteral = buildListLiteral(word);
+        listLiteral.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(listLiteral);
+    }
+
     // if (word =~ "Atom<$.*>"_) {
     //     return mayfail_convert<Expression_>(buildSpecialSymbol(word));
     // }
@@ -145,16 +166,6 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto numeral = buildNumeral(word);
         numeral._groupNesting = groupNesting;
         return (Expression_)move_to_heap(numeral);
-    }
-
-    // if (word =~ "Quotation"_) {
-    //     return mayfail_convert<Expression_>(buildStrLiteral(word));
-    // }
-
-    if (peekStrLiteral(word)) {
-        auto strLiteral = buildStrLiteral(word);
-        strLiteral._groupNesting = groupNesting;
-        return (Expression_)move_to_heap(strLiteral);
     }
 
     // if (word =~ "Atom"_) {

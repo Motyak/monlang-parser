@@ -234,6 +234,49 @@ TEST_CASE ("operation from term of atoms", "[test-1617][expr]") {
     REQUIRE (output_str == expect);
 }
 
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("empty list literal", "[test-1652][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: ListLiteral (empty)
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("list literal", "[test-1653][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup
+       |    -> Term #1
+       |      -> Word: Atom: `a`
+       |    -> Term #2
+       |      -> Word: Atom: `b`
+    )EOF");
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: ListLiteral
+       |  -> Expression: Symbol: `a`
+       |  -> Expression: Symbol: `b`
+    )EOF");
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
 //==============================================================
 // ERR
 //==============================================================
@@ -498,6 +541,32 @@ TEST_CASE ("Malformed BlockExpression, contains a Malformed Statement", "[test-1
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
     REQUIRE (/*BlockExpression*/ "ERR-641" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed ListLiteral, contains a Malformed Expression", "[test-1654][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup
+       |    -> Term
+       |      -> Word #1: Atom: `a`
+       |      -> Word #2: Atom: `b`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: ListLiteral
+       |  ~> Expression
+       |    ~> ERR-161
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*ListLiteral*/ "ERR-681" == output.error().fmt);
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);
