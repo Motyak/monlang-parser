@@ -474,7 +474,11 @@ PostfixParenthesesGroup LV1AstBuilder::buildPostfixParenthesesGroup() {
         SHOULD_NOT_HAPPEN(); // empty ppg
     }
 
-    Word leftPart = buildWord();
+    auto word = buildWord();
+    auto leftPart = std::visit(overload{
+        [](Association*) -> AssociationLeftPart {SHOULD_NOT_HAPPEN();},
+        [](auto* word) -> AssociationLeftPart {return word;}
+    }, word);
 
     peekedLine = peekLine(tis);
     if (peekedLine.type == INCR) {

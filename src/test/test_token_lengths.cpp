@@ -402,7 +402,7 @@ TEST_CASE ("malformed sentence also contains leading newlines + indent spaces", 
 
     auto iss = std::istringstream(input);
 
-    auto malformed_cbg = consumeCurlyBracketsGroupStrictly(iss);
+    auto malformed_cbg = consumeCurlyBracketsGroup(iss);
     auto malformed_sentence = malformed_cbg.val.sentences.at(0);
     REQUIRE (token_leading_newlines(malformed_sentence.val) == 1);
     REQUIRE (token_indent_spaces(malformed_sentence.val) == 4);

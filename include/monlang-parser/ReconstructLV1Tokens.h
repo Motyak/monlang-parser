@@ -17,13 +17,14 @@ class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
     void operator()(const MayFail<Word_>&) override;
 
     void operator()(Atom*);
-    void operator()(MayFail_<Quotation>*);
+    void operator()(Quotation*);
     void operator()(MayFail_<SquareBracketsTerm>*);
     void operator()(MayFail_<SquareBracketsGroup>*);
     void operator()(MayFail_<ParenthesesGroup>*);
     void operator()(MayFail_<CurlyBracketsGroup>*);
     void operator()(MayFail_<PostfixSquareBracketsGroup>*);
     void operator()(MayFail_<PostfixParenthesesGroup>*);
+    void operator()(MayFail_<Path>*);
     void operator()(MayFail_<Association>*);
 
   private:

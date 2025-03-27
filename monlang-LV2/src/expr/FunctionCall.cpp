@@ -4,6 +4,7 @@
 #include <monlang-LV1/ast/PostfixParenthesesGroup.h>
 
 #include <utils/assert-utils.h>
+#include <utils/variant-utils.h>
 
 #define unless(x) if(!(x))
 
@@ -14,7 +15,7 @@ bool peekFunctionCall(const Word& word) {
 MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
     ASSERT (std::holds_alternative<PostfixParenthesesGroup*>(word));
     auto ppg = *std::get<PostfixParenthesesGroup*>(word);
-    auto function = buildExpression((Term)ppg.leftPart);
+    auto function = buildExpression((Term)variant_cast(ppg.leftPart));
     if (function.has_error()) {
         return Malformed(MayFail_<FunctionCall>{function, {}}, ERR(621));
     }

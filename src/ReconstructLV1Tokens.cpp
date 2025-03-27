@@ -14,6 +14,7 @@
 #include <monlang-LV1/CurlyBracketsGroup.h>
 #include <monlang-LV1/PostfixSquareBracketsGroup.h>
 #include <monlang-LV1/PostfixParenthesesGroup.h>
+#include <monlang-LV1/Path.h>
 #include <monlang-LV1/Association.h>
 
 #include <utils/assert-utils.h>
@@ -181,7 +182,7 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
     }
 }
 
-void ReconstructLV1Tokens::operator()(MayFail_<Quotation>* quot) {
+void ReconstructLV1Tokens::operator()(Quotation* quot) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken(entity);
     token.is_malformed = curWord.has_error();
@@ -385,7 +386,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(MayFail(wrap_w(psbg->leftPart)));
+    operator()(MayFail(wrap_w(variant_cast(psbg->leftPart))));
     operator()(mayfail_convert<Word_>(psbg->rightPart));
     curPos = backupCurPos;
     curPos += psbg->_tokenLen;
@@ -413,10 +414,39 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(MayFail(wrap_w(ppg->leftPart)));
+    operator()(MayFail(wrap_w(variant_cast(ppg->leftPart))));
     operator()(mayfail_convert<Word_>(ppg->rightPart));
     curPos = backupCurPos;
     curPos += ppg->_tokenLen;
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
+    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
+    auto tokenId = newToken(entity);
+    token.is_malformed = curWord.has_error();
+    token.name = "Path";
+
+    if (token.is_malformed) {
+        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(MayFail(wrap_w(variant_cast(path->leftPart))));
+    curPos += sequenceLen(Path::SEPARATOR_SEQUENCE);
+    operator()(mayfail_convert<Word_>(path->rightPart));
+    curPos = backupCurPos;
+    curPos += path->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
 
     if (token.is_malformed) {
