@@ -7,28 +7,7 @@
 #include <monlang-LV2/Expression.h>
 #include <monlang-LV2/Statement.h>
 
-#include <monlang-LV2/ast/expr/BlockExpression.h>
-#include <monlang-LV2/ast/expr/FunctionCall.h>
-#include <monlang-LV2/ast/expr/Lambda.h>
-#include <monlang-LV2/ast/expr/Numeral.h>
-#include <monlang-LV2/ast/expr/ListLiteral.h>
-#include <monlang-LV2/ast/expr/StrLiteral.h>
-#include <monlang-LV2/ast/Lvalue.h>
-#include <monlang-LV2/ast/expr/Operation.h>
-#include <monlang-LV2/ast/expr/SpecialSymbol.h>
-
-#include <monlang-LV2/ast/stmt/Assignment.h>
-#include <monlang-LV2/ast/stmt/Accumulation.h>
-#include <monlang-LV2/ast/stmt/LetStatement.h>
-#include <monlang-LV2/ast/stmt/VarStatement.h>
-#include <monlang-LV2/ast/stmt/Guard.h>
-#include <monlang-LV2/ast/stmt/ReturnStatement.h>
-#include <monlang-LV2/ast/stmt/BreakStatement.h>
-#include <monlang-LV2/ast/stmt/ContinueStatement.h>
-#include <monlang-LV2/ast/stmt/DieStatement.h>
-#include <monlang-LV2/ast/stmt/ForeachStatement.h>
-#include <monlang-LV2/ast/stmt/WhileStatement.h>
-#include <monlang-LV2/ast/stmt/ExpressionStatement.h>
+#include <monlang-LV2/ast/token_len.h>
 
 ///////////////////////////////////////////////////////////
 // expr

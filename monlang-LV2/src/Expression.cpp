@@ -12,16 +12,8 @@
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Symbol.h>
 
-#include <monlang-LV1/ast/ParenthesesGroup.h>
-#include <monlang-LV1/ast/Atom.h>
 /* require knowing all words for token_len() */
-#include <monlang-LV1/ast/Path.h>
-#include <monlang-LV1/ast/Quotation.h>
-#include <monlang-LV1/ast/SquareBracketsGroup.h>
-#include <monlang-LV1/ast/CurlyBracketsGroup.h>
-#include <monlang-LV1/ast/PostfixParenthesesGroup.h>
-#include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
-#include <monlang-LV1/ast/Association.h>
+#include <monlang-LV1/ast/token_len.h>
 
 #include <utils/assert-utils.h>
 #include <utils/mem-utils.h>
