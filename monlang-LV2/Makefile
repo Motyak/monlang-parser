@@ -10,8 +10,6 @@ DEPFLAGS = -MMD -MP -MF .deps/$*.d
 DEPFLAGS_TEST = -MMD -MP -MF .deps/test/$*.d
 ARFLAGS = D -M < <(tools/aggregate-libs.mri.sh $@ $^); :
 
-BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
-
 ###########################################################
 
 ENTITIES = \
@@ -94,14 +92,12 @@ dist/monlang-LV2.a: $(OBJS)
 ## aggregate all main code dependencies (.o, .a) into one static lib ##
 .SECONDEXPANSION:
 lib/libs.a: $$(libs)
-# when BUILD_LIBS_ONCE is unset => we always enter this recipe
 	$(if $(call shouldrebuild, $@, $^), \
 		$(AR) $(ARFLAGS) $@ $^)
 
 ## aggregate all test code dependencies (.o, .a) into one static lib ##
 .SECONDEXPANSION:
 lib/test-libs.a: $$(test_libs)
-# when BUILD_LIBS_ONCE is unset => we always enter this recipe
 	$(if $(call shouldrebuild, $@, $^), \
 		$(AR) $(ARFLAGS) $@ $^)
 
@@ -118,7 +114,7 @@ lib/catch2/obj/catch_amalgamated.o:
 ## build our own lib used for testing (montree) ##
 test_libs += lib/montree/dist/montree.a
 test_lib_include_dirs += lib/montree/include
-$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/montree)), \
+$(if $(call askmake, lib/montree), \
 	.PHONY: lib/montree/dist/montree.a)
 lib/montree/dist/montree.a:
 	$(MAKE) -C lib/montree dist/montree.a

@@ -10,8 +10,6 @@ DEPFLAGS = -MMD -MP -MF .deps/$*.d
 DEPFLAGS_TEST = -MMD -MP -MF .deps/test/$*.d
 ARFLAGS = D -M < <(tools/aggregate-libs.mri.sh $@ $^); :
 
-BUILD_LIBS_ONCE ?= x # disable by passing `BUILD_LIBS_ONCE=`
-
 ###########################################################
 
 OBJS := obj/parse.o \
@@ -69,14 +67,12 @@ bin/main.elf: src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a
 ## aggregate all main code dependencies (.o, .a) into one static lib ##
 .SECONDEXPANSION:
 lib/libs.a: $$(libs)
-# when BUILD_LIBS_ONCE is unset => we always enter this recipe
 	$(if $(call shouldrebuild, $@, $^), \
 		$(AR) $(ARFLAGS) $@ $^)
 
 ## aggregate all test code dependencies (.o, .a) into one static lib ##
 .SECONDEXPANSION:
 lib/test-libs.a: $$(test_libs)
-# when BUILD_LIBS_ONCE is unset => we always enter this recipe
 	$(if $(call shouldrebuild, $@, $^), \
 		$(AR) $(ARFLAGS) $@ $^)
 
@@ -86,7 +82,7 @@ libs += lib/monlang-LV1/dist/monlang-LV1.a
 
 ## build lib monlang-LV2 ##
 libs += lib/monlang-LV2/dist/monlang-LV2.a
-$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, lib/monlang-LV2)), \
+$(if $(call askmake, lib/monlang-LV2), \
 	.PHONY: lib/monlang-LV2/dist/monlang-LV2.a)
 lib/monlang-LV2/dist/monlang-LV2.a:
 	$(MAKE) -C lib/monlang-LV2 dist/monlang-LV2.a
@@ -98,7 +94,7 @@ lib/catch2/obj/catch_amalgamated.o:
 	$(MAKE) -C lib/catch2
 
 ## build lib montree used in main.elf only ##
-$(if $(and $(call not,$(BUILD_LIBS_ONCE)),$(call askmake, montree)), \
+$(if $(call askmake, montree), \
 	.PHONY: montree/dist/montree.a)
 montree/dist/montree.a:
 	$(MAKE) -C montree dist/montree.a
