@@ -12,6 +12,17 @@
 
 #define unless(x) if(!(x))
 
+// sum token len for all arguments preceding the nth argument..
+// ..and add it to error offset
+#define SET_NTH_ARG_ERR_OFFSET(error, nth) \
+    auto err_offset = size_t(0); \
+    err_offset += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE); \
+    for (size_t i = 0; i < nth - 1; ++i) { \
+        err_offset += token_len(sbg.terms[i]); \
+        err_offset += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE); \
+    } \
+    error._info["err_offset"] = err_offset
+
 bool peekMapLiteral(const Word& word) {
 
     if (std::holds_alternative<Atom*>(word) && std::get<Atom*>(word)->value == "[:]") {
@@ -55,7 +66,9 @@ MayFail<MayFail_<MapLiteral>> buildMapLiteral(const Word& word) {
             ASSERT (std::holds_alternative<Association*>(word));
         }
         else unless (std::holds_alternative<Association*>(word)) {
-            return Malformed(MayFail_<MapLiteral>{arguments}, ERR(691));
+            auto error = ERR(691);
+            SET_NTH_ARG_ERR_OFFSET(error, __nth_it);
+            return Malformed(MayFail_<MapLiteral>{arguments}, error);
         }
 
         auto assoc = *std::get<Association*>(word);

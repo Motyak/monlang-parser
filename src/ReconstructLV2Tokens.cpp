@@ -22,6 +22,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Numeral.h>
@@ -842,6 +843,55 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
+    auto curExpr_ = curExpr; // local copy
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = curExpr.has_error();
+    token.name = "MapLiteral";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += group_nesting(*mapLiteral);
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
+    LOOP for (auto [key, val]: mapLiteral->arguments) {
+        if (!__first_it) {
+            curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
+        }
+        operator()(key);
+        curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
+        operator()(val);
+        ENDLOOP
+    }
+    curPos += sequenceLen(SquareBracketsGroup::TERMINATOR_SEQUENCE);
+    curPos = backupCurPos;
+    curPos += mapLiteral->_tokenLen;
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = token.err_start < token.start? token.start : token.err_start;
+        }
+        if (curExpr_.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curExpr_.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 
