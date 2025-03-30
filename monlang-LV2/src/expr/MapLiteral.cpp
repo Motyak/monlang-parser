@@ -2,6 +2,8 @@
 
 /* impl only */
 
+#include <monlang-LV2/expr/Lambda.h>
+
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/SquareBracketsGroup.h>
 #include <monlang-LV1/ast/Association.h>
@@ -45,6 +47,10 @@ bool peekMapLiteral(const Word& word) {
     }
 
     auto term_word = term.words.at(0);
+    if (peekLambda(term_word)) {
+        return false;
+    }
+
     return std::holds_alternative<Association*>(term_word);
 }
 

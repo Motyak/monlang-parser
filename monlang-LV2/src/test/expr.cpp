@@ -671,10 +671,7 @@ TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (key part)",
        |  -> Word: SquareBracketsGroup
        |    -> Term
        |      -> Word: Association
-       |        -> Word: ParenthesesGroup
-       |          -> Term
-       |            -> Word #1: Atom: `a`
-       |            -> Word #2: Atom: `b`
+       |        -> Word: ParenthesesGroup (empty)
        |        -> Word: Atom: `1`
     )EOF");
 
@@ -683,7 +680,7 @@ TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (key part)",
        |  ~> argument #1
        |    ~> key
        |      ~> Expression
-       |        ~> ERR-161
+       |        ~> ERR-169
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -704,10 +701,7 @@ TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (value part)
        |    -> Term
        |      -> Word: Association
        |        -> Word: Atom: `a`
-       |        -> Word: ParenthesesGroup
-       |          -> Term
-       |            -> Word #1: Atom: `1`
-       |            -> Word #2: Atom: `2`
+       |        -> Word: ParenthesesGroup (empty)
     )EOF");
 
     auto expect = tommy_str(R"EOF(
@@ -717,7 +711,7 @@ TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (value part)
        |      -> Expression: Symbol: `a`
        |    ~> value
        |      ~> Expression
-       |        ~> ERR-161
+       |        ~> ERR-169
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
