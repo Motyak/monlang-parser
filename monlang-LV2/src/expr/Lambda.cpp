@@ -1,8 +1,6 @@
 #include <monlang-LV2/expr/Lambda.h>
 
 #include <monlang-LV2/expr/Symbol.h>
-#include <monlang-LV2/expr/SpecialSymbol.h>
-#include <monlang-LV2/expr/Numeral.h>
 
 #include <monlang-LV1/ast/Association.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
