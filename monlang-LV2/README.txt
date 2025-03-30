@@ -43,6 +43,7 @@
 66 SpecialSymbol
 67 StrLiteral
 68 ListLiteral
+69 MapLiteral
 
 99 Lvalue
 
@@ -144,3 +145,7 @@
 641 Malformed BlockExpression, contains a Malformed Statement
 
 681 Malformed ListLiteral, contains a malformed Expression
+
+691 Malformed MapLiteral, contains a List argument
+692 Malformed MapLiteral, contains a malformed Map argument (key part)
+693 Malformed MapLiteral, contains a malformed Map argument (value part)

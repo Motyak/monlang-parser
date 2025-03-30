@@ -18,6 +18,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Numeral.h>
@@ -28,6 +29,7 @@
 #include <utils/defer-util.h>
 #include <utils/variant-utils.h>
 #include <utils/assert-utils.h>
+#include <utils/loop-utils.h>
 
 #include <cstdarg>
 
@@ -632,6 +634,64 @@ void PrintLV2::operator()(MayFail_<BlockExpression>* block) {
     for (auto statement: block->statements) {
         operator()(statement);
     }
+    currIndent--;
+}
+
+void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
+    auto currExpression_ = currExpression; // save map literal MayFail
+
+    output("MapLiteral");
+    if (mapLiteral->arguments.size() == 0 && !currExpression_.has_error()) {
+        outputLine(" (empty)");
+        return;
+    }
+    outputLine();
+
+    currIndent++;
+
+    // get rid of the Word numbering foreach argument
+    for (auto _: mapLiteral->arguments) {
+        numbering.push(NO_NUMBERING);
+        numbering.push(NO_NUMBERING);
+    }
+
+    size_t nth_argument = 0;
+    LOOP for (auto [key, val]: mapLiteral->arguments) {
+        nth_argument = __nth_it;
+        output(
+            (key.has_error() || val.has_error())? "~> " : "-> "
+        );
+        outputLine("argument #", INT2CSTR(nth_argument));
+        currIndent++;
+
+        output(key.has_error()? "~> " : "-> ");
+        outputLine("key");
+        currIndent++;
+        operator()(key);
+        currIndent--;
+
+        if (!key.has_error()) {
+            output(val.has_error()? "~> " : "-> ");
+            outputLine("value");
+            currIndent++;
+            operator()(val);
+            currIndent--;
+        }
+
+        currIndent--;
+
+        ENDLOOP
+    }
+
+    // ugly but works
+    if (currExpression_.has_error() && currExpression_.error().code == 691) {
+        ASSERT (nth_argument >= 1);
+        outputLine("~> argument #", INT2CSTR(++nth_argument));
+        currIndent++;
+        outputLine("~> ", currExpression_.error().fmt.c_str());
+        currIndent--;
+    }
+
     currIndent--;
 }
 

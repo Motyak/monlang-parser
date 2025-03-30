@@ -9,6 +9,7 @@ struct Operation;
 struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
+struct MapLiteral;
 struct ListLiteral;
 struct StrLiteral;
 struct Numeral;
@@ -25,7 +26,11 @@ using Expression = std::variant<
     FunctionCall*,
     Lambda*,
     BlockExpression*,
+
+    /* SBG expressions */
+    MapLiteral*,
     ListLiteral*,
+
     StrLiteral*,
 
     /* Atom expressions */

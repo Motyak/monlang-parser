@@ -7,6 +7,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/StrLiteral.h>
+#include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
@@ -88,7 +89,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     auto word = (Word)term_;
 
     // if (word =~ "PostfixParenthesesGroup"_) {
-    //     return mayfail_convert<Expression_>(buildFunctionCall(word));
+    //    ...
     // }
 
     if (peekFunctionCall(word)) {
@@ -97,13 +98,6 @@ MayFail<Expression_> buildExpression(const Term& term) {
         return mayfail_convert<Expression_>(functionCall);
     }
 
-    // if (word =~ "Association<"
-    //                  "ParenthesesGroup<Term<Atom>*>,"
-    //                  "CurlyBracketsGroup"
-    //              ">"_) {
-    //     return mayfail_convert<Expression_>(buildLambda(word));
-    // }
-
     if (peekLambda(word)) {
         auto lambda = buildLambda(word);
         lambda.val._groupNesting = groupNesting;
@@ -111,7 +105,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     // if (word =~ "CurlyBracketsGroup"_) {
-    //     return mayfail_convert<Expression_>(buildBlockExpression(word));
+    //     ...
     // }
 
     if (peekBlockExpression(word)) {
@@ -121,7 +115,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     // if (word =~ "Quotation"_) {
-    //     return mayfail_convert<Expression_>(buildStrLiteral(word));
+    //     ...
     // }
 
     if (peekStrLiteral(word)) {
@@ -130,18 +124,25 @@ MayFail<Expression_> buildExpression(const Term& term) {
         return (Expression_)move_to_heap(strLiteral);
     }
 
+    if (peekMapLiteral(word)) {
+        auto mapLiteral = buildMapLiteral(word);
+        mapLiteral.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(mapLiteral);
+    }
+
     // if (word =~ "SquareBracketsGroup"_) {
     //     ...
     // }
 
-    if (peekListLiteral(word)) {
+    // SBG expression fall-through
+    if (std::holds_alternative<SquareBracketsGroup*>(word)) {
         auto listLiteral = buildListLiteral(word);
         listLiteral.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(listLiteral);
     }
 
     // if (word =~ "Atom<$.*>"_) {
-    //     return mayfail_convert<Expression_>(buildSpecialSymbol(word));
+    //     ...
     // }
 
     if (peekSpecialSymbol(word)) {
@@ -151,7 +152,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     // if (word =~ "Atom<[0-9]+>"_) {
-    //     return mayfail_convert<Expression_>(buildNumeral(word));
+    //     ...
     // }
 
     if (peekNumeral(word)) {
@@ -161,7 +162,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
 
     // if (word =~ "Atom"_) {
-    //     return mayfail_convert<Expression_>(buildLvalue(word));
+    //     ...
     // }
 
     // Atom expression fall-through
@@ -172,11 +173,8 @@ MayFail<Expression_> buildExpression(const Term& term) {
         return (Expression_)move_to_heap(symbol);
     }
 
-    // // if grouped expression => unwrap then go back to beginning
-    // if (word =~ "ParenthesesGroup<Term<Word+>>"_) {
-    //     auto group = *std::get<ParenthesesGroup*>(word);
-    //     term_ = group.terms.at(0);
-    //     goto BEGIN; // prevent unnecessary recursive call
+    // if (word =~ "ParenthesesGroup<Term<Word+>+>"_) {
+    //     ...
     // }
 
     if (std::holds_alternative<ParenthesesGroup*>(word)) {

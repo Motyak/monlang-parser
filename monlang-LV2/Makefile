@@ -39,6 +39,7 @@ FunctionCall \
 Lambda \
 BlockExpression \
 ListLiteral \
+MapLiteral \
 SpecialSymbol \
 Numeral \
 StrLiteral \

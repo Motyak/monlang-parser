@@ -11,18 +11,17 @@ template <>
 struct MayFail_<ListLiteral> {
     std::vector<MayFail<Expression_>> arguments;
 
-    // bool _stub = false;
     size_t _tokenLen = 0;
     size_t _groupNesting = 0;
     MayFail_() = default;
-    // explicit MayFail_(_dummy_stub); // sets _stub to true
     explicit MayFail_(const std::vector<MayFail<Expression_>>&);
 
     explicit MayFail_(ListLiteral);
     explicit operator ListLiteral() const;
 };
 
-bool peekListLiteral(const Word&);
+// peekListLiteral would be..
+// .. !peekMapLiteral(word) && std::holds_alternative<SquareBracketsGroup*>(word)
 
 MayFail<MayFail_<ListLiteral>> buildListLiteral(const Word&);
 

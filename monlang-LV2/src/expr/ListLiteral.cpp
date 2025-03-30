@@ -6,10 +6,6 @@
 
 #include <utils/assert-utils.h>
 
-bool peekListLiteral(const Word& word) {
-    return std::holds_alternative<SquareBracketsGroup*>(word);
-}
-
 MayFail<MayFail_<ListLiteral>> buildListLiteral(const Word& word) {
     ASSERT (std::holds_alternative<SquareBracketsGroup*>(word));
     auto sbg = *std::get<SquareBracketsGroup*>(word);
@@ -29,11 +25,11 @@ MayFail<MayFail_<ListLiteral>> buildListLiteral(const Word& word) {
     return listLiteral;
 }
 
-ListLiteral::ListLiteral(const std::vector<Expression>& arguments) : arguments(arguments){}
+ListLiteral::ListLiteral(const std::vector<Expression>& arguments)
+        : arguments(arguments){}
 
-// MayFail_<ListLiteral>::MayFail_(_dummy_stub) : _stub(true){}
-
-MayFail_<ListLiteral>::MayFail_(const std::vector<MayFail<Expression_>>& arguments) : arguments(arguments){}
+MayFail_<ListLiteral>::MayFail_(const std::vector<MayFail<Expression_>>& arguments)
+        : arguments(arguments){}
 
 MayFail_<ListLiteral>::MayFail_(ListLiteral listLiteral) {
     auto arguments = std::vector<MayFail<Expression_>>();

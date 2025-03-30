@@ -277,6 +277,64 @@ TEST_CASE ("list literal", "[test-1653][expr]") {
     REQUIRE (output_str == expect);
 }
 
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("empty map literal", "[test-1654][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Atom: `[:]`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: MapLiteral (empty)
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("map literal", "[test-1655][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup
+       |    -> Term #1
+       |      -> Word: Association
+       |        -> Word: Atom: `a`
+       |        -> Word: Atom: `1`
+       |    -> Term #2
+       |      -> Word: Association
+       |        -> Word: Atom: `b`
+       |        -> Word: Atom: `2
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: MapLiteral
+       |  -> argument #1
+       |    -> key
+       |      -> Expression: Symbol: `a`
+       |    -> value
+       |      -> Expression: Numeral: `1`
+       |  -> argument #2
+       |    -> key
+       |      -> Expression: Symbol: `b`
+       |    -> value
+       |      -> Expression: Numeral: `2`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
 //==============================================================
 // ERR
 //==============================================================
@@ -548,7 +606,7 @@ TEST_CASE ("Malformed BlockExpression, contains a Malformed Statement", "[test-1
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed ListLiteral, contains a Malformed Expression", "[test-1654][expr][err]") {
+TEST_CASE ("Malformed ListLiteral, contains a Malformed Expression", "[test-1671][expr][err]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: SquareBracketsGroup
@@ -567,6 +625,105 @@ TEST_CASE ("Malformed ListLiteral, contains a Malformed Expression", "[test-1654
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
     REQUIRE (/*ListLiteral*/ "ERR-681" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed MapLiteral, contains a List argument", "[test-1672][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup
+       |    -> Term #1
+       |      -> Word: Association
+       |        -> Word: Atom: `a`
+       |        -> Word: Atom: `1`
+       |    -> Term #2:
+       |      -> Word: Atom: `b`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: MapLiteral
+       |  -> argument #1
+       |    -> key
+       |      -> Expression: Symbol: `a`
+       |    -> value
+       |      -> Expression: Numeral: `1`
+       |  ~> argument #2
+       |    ~> ERR-691
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (key part)", "[test-1673][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup
+       |    -> Term
+       |      -> Word: Association
+       |        -> Word: ParenthesesGroup
+       |          -> Term
+       |            -> Word #1: Atom: `a`
+       |            -> Word #2: Atom: `b`
+       |        -> Word: Atom: `1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: MapLiteral
+       |  ~> argument #1
+       |    ~> key
+       |      ~> Expression
+       |        ~> ERR-161
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*MapLiteral*/ "ERR-692" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (value part)", "[test-1674][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: SquareBracketsGroup
+       |    -> Term
+       |      -> Word: Association
+       |        -> Word: Atom: `a`
+       |        -> Word: ParenthesesGroup
+       |          -> Term
+       |            -> Word #1: Atom: `1`
+       |            -> Word #2: Atom: `2`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: MapLiteral
+       |  ~> argument #1
+       |    -> key
+       |      -> Expression: Symbol: `a`
+       |    ~> value
+       |      ~> Expression
+       |        ~> ERR-161
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*MapLiteral*/ "ERR-693" == output.error().fmt);
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);
