@@ -335,6 +335,30 @@ TEST_CASE ("map literal", "[test-1655][expr]") {
     REQUIRE (output_str == expect);
 }
 
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("field access", "[test-1656][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Path
+       |    -> Word: Atom: `a`
+       |    -> Atom: `b`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: FieldAccess
+       |  -> Expression: Symbol: `a`
+       |  -> Symbol: `b`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
 //==============================================================
 // ERR
 //==============================================================
@@ -718,6 +742,55 @@ TEST_CASE ("Malformed MapLiteral, contains a malformed Map argument (value part)
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
     REQUIRE (/*MapLiteral*/ "ERR-693" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed FieldAccess, contains a malformed object", "[test-1675][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Path
+       |    -> Word: ParenthesesGroup (empty)
+       |    -> Atom: `x`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: FieldAccess
+       |  ~> Expression
+       |    ~> ERR-169
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*FieldAccess*/ "ERR-711" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed FieldAccess, contains a non-Symbol as field", "[test-1676][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Path
+       |    -> Word: Atom: `a`
+       |    -> Atom: `1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: FieldAccess
+       |  -> Expression: Symbol: `a`
+       |  ~> ERR-712
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);

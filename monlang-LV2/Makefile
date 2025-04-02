@@ -38,6 +38,7 @@ Operation \
 FunctionCall \
 Lambda \
 BlockExpression \
+FieldAccess \
 ListLiteral \
 MapLiteral \
 SpecialSymbol \

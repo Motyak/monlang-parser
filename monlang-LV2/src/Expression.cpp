@@ -7,6 +7,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/StrLiteral.h>
+#include <monlang-LV2/expr/FieldAccess.h>
 #include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/Numeral.h>
@@ -112,6 +113,16 @@ MayFail<Expression_> buildExpression(const Term& term) {
         auto blockExpr = buildBlockExpression(word);
         blockExpr.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(blockExpr);
+    }
+
+    // if (word =~ "Path"_) {
+    //     ...
+    // }
+
+    if (peekFieldAccess(word)) {
+        auto fieldAccess = buildFieldAccess(word);
+        fieldAccess.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(fieldAccess);
     }
 
     // if (word =~ "Quotation"_) {

@@ -37,7 +37,7 @@ MayFail<MayFail_<FunctionCall>> buildFunctionCall(const Word& word) {
 FunctionCall::FunctionCall(const Expression& function, const std::vector<Expression>& arguments)
         : function(function), arguments(arguments){}
 
-MayFail_<FunctionCall>::MayFail_(MayFail<Expression_> function, std::vector<MayFail<Expression_>> arguments)
+MayFail_<FunctionCall>::MayFail_(const MayFail<Expression_>& function, const std::vector<MayFail<Expression_>>& arguments)
         : function(function), arguments(arguments){}
 
 MayFail_<FunctionCall>::MayFail_(FunctionCall functionCall) {

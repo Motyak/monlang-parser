@@ -18,6 +18,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/FieldAccess.h>
 #include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
@@ -634,6 +635,31 @@ void PrintLV2::operator()(MayFail_<BlockExpression>* block) {
     for (auto statement: block->statements) {
         operator()(statement);
     }
+    currIndent--;
+}
+
+void PrintLV2::operator()(MayFail_<FieldAccess>* fieldAccess) {
+    auto currExpression_ = currExpression;
+    outputLine("FieldAccess");
+    currIndent++;
+
+    operator()(fieldAccess->object);
+    if (fieldAccess->object.has_error()) {
+        currIndent--;
+        return;
+    }
+
+    // empty symbol indicates stub value
+    if (fieldAccess->field.value == ""
+            && currExpression_.has_error()) {
+        outputLine("~> ", SERIALIZE_ERR(currExpression_));
+        currIndent--;
+        return;
+    }
+
+    output("-> ");
+    operator()(&fieldAccess->field);
+
     currIndent--;
 }
 

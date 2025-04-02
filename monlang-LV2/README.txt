@@ -44,6 +44,7 @@
 67 StrLiteral
 68 ListLiteral
 69 MapLiteral
+71 FieldAccess
 
 99 Lvalue
 
@@ -147,5 +148,8 @@
 681 Malformed ListLiteral, contains a malformed Expression
 
 691 Malformed MapLiteral, contains a List argument
-692 Malformed MapLiteral, contains a malformed Map argument (key part)
-693 Malformed MapLiteral, contains a malformed Map argument (value part)
+692 Malformed MapLiteral, contains a malformed Expression as argument key
+693 Malformed MapLiteral, contains a malformed Expression as argument value
+
+711 Malformed FieldAccess, contains a malformed Expression as object
+712 Malformed FieldAccess, contains a non-Symbol as field

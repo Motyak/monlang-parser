@@ -339,6 +339,7 @@ Word LV1AstBuilder::buildWord() {
         "CurlyBracketsGroup",
         "Association",
         "PostfixParenthesesGroup",
+        "Path",
     };
 
     auto line = peekLine(tis); // -> Word...
@@ -383,6 +384,10 @@ Word LV1AstBuilder::buildWord() {
 
     else if (first_candidate_found == "PostfixParenthesesGroup") {
         return move_to_heap(buildPostfixParenthesesGroup());
+    }
+
+    else if (first_candidate_found == "Path") {
+        return move_to_heap(buildPath());
     }
 
     else {
@@ -524,6 +529,40 @@ PostfixParenthesesGroup LV1AstBuilder::buildPostfixParenthesesGroup() {
     }
 
     return PostfixParenthesesGroup{leftPart, rightPart};
+}
+
+Path LV1AstBuilder::buildPath() {
+    ENTERING_BUILD_ROUTINE();
+
+    consumeLine(tis); // -> ... Path
+
+    auto peekedLine = peekLine(tis);
+    if (peekedLine.type != INCR) {
+        SHOULD_NOT_HAPPEN(); // empty path
+    }
+
+    auto word = buildWord();
+    auto leftPart = std::visit(overload{
+        [](Association*) -> AssociationLeftPart {SHOULD_NOT_HAPPEN();},
+        [](auto* word) -> AssociationLeftPart {return word;}
+    }, word);
+
+    peekedLine = peekLine(tis);
+    if (peekedLine.type == INCR) {
+        SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
+    }
+    if (peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN(); // missing path right part
+    }
+
+    Atom rightPart = buildAtom();
+
+    peekedLine = peekLine(tis);
+    unless (peekedLine.type == DECR || peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN();
+    }
+
+    return Path{leftPart, rightPart};
 }
 
 SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {

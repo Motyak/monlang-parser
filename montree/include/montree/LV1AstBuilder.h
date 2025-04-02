@@ -6,6 +6,7 @@
 #include <monlang-LV1/ast/Term.h>
 #include <monlang-LV1/ast/SquareBracketsTerm.h>
 #include <monlang-LV1/ast/Association.h>
+#include <monlang-LV1/ast/Path.h>
 #include <monlang-LV1/ast/PostfixParenthesesGroup.h>
 #include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
@@ -28,6 +29,7 @@ class LV1AstBuilder {
 
     SquareBracketsTerm buildSquareBracketsTerm();
     Association buildAssociation();
+    Path buildPath();
     PostfixParenthesesGroup buildPostfixParenthesesGroup();
     PostfixSquareBracketsGroup buildPostfixSquareBracketsGroup();
     ParenthesesGroup buildParenthesesGroup();
