@@ -22,6 +22,7 @@
 #include <monlang-LV2/expr/FunctionCall.h>
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
+#include <monlang-LV2/expr/FieldAccess.h>
 #include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
@@ -30,6 +31,7 @@
 #include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV1/ast/Atom.h>
+#include <monlang-LV1/ast/Path.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/SquareBracketsGroup.h>
 #include <monlang-LV1/ast/Association.h>
@@ -768,6 +770,47 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
 
     if (token.is_malformed) {
         token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
+    auto curExpr_ = curExpr;
+    auto tokenId = newToken(curExpr_);
+    token.is_malformed = curExpr_.has_error();
+    token.name = "FieldAccess";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr_.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += group_nesting(*fieldAccess);
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    operator()(fieldAccess->object);
+    curPos += sequenceLen(Path::SEPARATOR_SEQUENCE);
+    operator()(&fieldAccess->field);
+    curPos = backupCurPos;
+    curPos += fieldAccess->_tokenLen;
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+    if (token.is_malformed) {
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = token.err_start < token.start? token.start : token.err_start;
+        }
+        if (curExpr_.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curExpr_.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 

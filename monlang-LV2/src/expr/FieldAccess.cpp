@@ -3,11 +3,22 @@
 /* impl only */
 #include <monlang-LV1/ast/Path.h>
 
+/* require knowing all words for token_len() */
+#include <monlang-LV2/ast/token_len.h>
+
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 #include <utils/mem-utils.h>
 
 #define unless(x) if(!(x))
+
+// sum object (path left part) token len and Path separator seq
+// .., and add it to error offset
+#define SET_FIELD_ERR_OFFSET(error) \
+    auto err_offset = size_t(0); \
+    err_offset += token_len(unwrap_expr(object.value())); \
+    err_offset += sequenceLen(Path::SEPARATOR_SEQUENCE); \
+    error._info["err_offset"] = err_offset
 
 bool peekFieldAccess(const Word& word) {
     return std::holds_alternative<Path*>(word);
@@ -25,7 +36,9 @@ MayFail<MayFail_<FieldAccess>> buildFieldAccess(const Word& word) {
     auto expr = buildExpression((Term)atom_ptr);
     delete atom_ptr;
     unless (std::holds_alternative<Symbol*>(expr.val)) {
-        return Malformed(MayFail_<FieldAccess>{object, Symbol{}}, ERR(712));
+        auto error = ERR(712);
+        SET_FIELD_ERR_OFFSET(error);
+        return Malformed(MayFail_<FieldAccess>{object, Symbol{}}, error);
     }
     auto field = *std::get<Symbol*>(expr.val);
 

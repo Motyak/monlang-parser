@@ -28,6 +28,7 @@ until [ eof ]
 fds(sdf)
 (x):{x}
 {x}
+fds.sdf
 [a:1, b:(1 + 1)]
 [1, 2]
 91
