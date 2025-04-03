@@ -761,12 +761,15 @@ void PrintLV2::operator()(StrLiteral* strLiteral) {
     if (strLiteralLines.size() > 1) {
         output(" (", INT2CSTR(strLiteralLines.size() - 1), " more ");
         output(strLiteralLines.size() > 2? "lines" : "line", ")");
+        outputLine();
         currIndent++;
         for (auto it = strLiteralLines.begin() + 1; it != strLiteralLines.end(); ++it) {
-            outputLine();
-            output("-> `", it->c_str(), "`");
+            outputLine("-> `", it->c_str(), "`");
         }
         currIndent--;
+    }
+    else {
+        outputLine();
     }
 }
 

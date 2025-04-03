@@ -57,8 +57,14 @@ bool peekAccumulation(const ProgramSentence& sentence) {
         return false;
     }
 
-    auto atom = *std::get<Atom*>(pw);
-    return atom.value.ends_with(Accumulation::SEPARATOR_SUFFIX);
+    auto atom_val = std::get<Atom*>(pw)->value;
+    for (auto [operators, _]: PRECEDENCE_TABLE) {
+        unless (!vec_contains(operators, atom_val)) {
+            return false;
+        }
+    }
+
+    return atom_val.ends_with(Accumulation::SEPARATOR_SUFFIX);
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);
