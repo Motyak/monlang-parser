@@ -96,11 +96,11 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    Symbol identifier = std::get<Symbol*>(expr.val)->value;
+    Symbol name = std::get<Symbol*>(expr.val)->value;
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<LetStatement>{identifier, StubExpression_()}, ERR(233));
+        auto malformed = Malformed(MayFail_<LetStatement>{name, StubExpression_()}, ERR(233));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -108,18 +108,18 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
     unless (value_as_term) {
         auto error = ERR(234);
         SET_NON_WORD_ERR_OFFSET(error);
-        auto malformed = Malformed(MayFail_<LetStatement>{identifier, StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<LetStatement>{name, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<LetStatement>{identifier, value}, ERR(235));
+        auto malformed = Malformed(MayFail_<LetStatement>{name, value}, ERR(235));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
-    auto letStmt = MayFail_<LetStatement>{identifier, value};
+    auto letStmt = MayFail_<LetStatement>{name, value};
     SET_TOKEN_FIELDS(letStmt, /*from*/ sentence);
     return letStmt;
 }
@@ -158,14 +158,14 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-LetStatement::LetStatement(const Symbol& identifier, const Expression& value)
-        : identifier(identifier), value(value){}
+LetStatement::LetStatement(const Symbol& name, const Expression& value)
+        : name(name), value(value){}
 
-MayFail_<LetStatement>::MayFail_(const Symbol& identifier, const MayFail<Expression_>& value)
-        : identifier(identifier), value(value){}
+MayFail_<LetStatement>::MayFail_(const Symbol& name, const MayFail<Expression_>& value)
+        : name(name), value(value){}
 
 MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
-    this->identifier = letStmt.identifier;
+    this->name = letStmt.name;
     this->value = wrap_expr(letStmt.value);
 
     this->_tokenLeadingNewlines = letStmt._tokenLeadingNewlines;
@@ -175,9 +175,9 @@ MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
 }
 
 MayFail_<LetStatement>::operator LetStatement() const {
-    auto identifier = this->identifier;
+    auto name = this->name;
     auto value = unwrap_expr(this->value.value());
-    auto letStmt = LetStatement{identifier, value};
+    auto letStmt = LetStatement{name, value};
 
     letStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
     letStmt._tokenIndentSpaces = this->_tokenIndentSpaces;

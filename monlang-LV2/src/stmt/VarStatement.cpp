@@ -96,11 +96,11 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    Symbol identifier = std::get<Symbol*>(expr.val)->value;
+    Symbol name = std::get<Symbol*>(expr.val)->value;
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, ERR(243));
+        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, ERR(243));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -108,18 +108,18 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
     unless (value_as_term) {
         auto error = ERR(244);
         SET_NON_WORD_ERR_OFFSET(error);
-        auto malformed = Malformed(MayFail_<VarStatement>{identifier, StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<VarStatement>{identifier, value}, ERR(245));
+        auto malformed = Malformed(MayFail_<VarStatement>{name, value}, ERR(245));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
-    auto varStmt = MayFail_<VarStatement>{identifier, value};
+    auto varStmt = MayFail_<VarStatement>{name, value};
     SET_TOKEN_FIELDS(varStmt, /*from*/ sentence);
     return varStmt;
 }
@@ -158,14 +158,14 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-VarStatement::VarStatement(const Symbol& identifier, const Expression& value)
-        : identifier(identifier), value(value){}
+VarStatement::VarStatement(const Symbol& name, const Expression& value)
+        : name(name), value(value){}
 
-MayFail_<VarStatement>::MayFail_(const Symbol& identifier, const MayFail<Expression_>& value)
-        : identifier(identifier), value(value){}
+MayFail_<VarStatement>::MayFail_(const Symbol& name, const MayFail<Expression_>& value)
+        : name(name), value(value){}
 
 MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {
-    this->identifier = varStmt.identifier;
+    this->name = varStmt.name;
     this->value = wrap_expr(varStmt.value);
 
     this->_tokenLeadingNewlines = varStmt._tokenLeadingNewlines;
@@ -175,9 +175,9 @@ MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {
 }
 
 MayFail_<VarStatement>::operator VarStatement() const {
-    auto identifier = this->identifier;
+    auto name = this->name;
     auto value = unwrap_expr(this->value.value());
-    auto varStmt = VarStatement{identifier, value};
+    auto varStmt = VarStatement{name, value};
 
     varStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
     varStmt._tokenIndentSpaces = this->_tokenIndentSpaces;

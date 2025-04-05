@@ -251,7 +251,7 @@ TEST_CASE ("labelize function call", "[test-2316][let]") {
 // ERR
 //==============================================================
 
-TEST_CASE ("ERR contains less than 2 words (no identifier)", "[test-2317][let][err]") {
+TEST_CASE ("ERR contains less than 2 words (no name)", "[test-2317][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `let`
@@ -275,7 +275,7 @@ TEST_CASE ("ERR contains less than 2 words (no identifier)", "[test-2317][let][e
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Word as identifier", "[test-2331][let][err]") {
+TEST_CASE ("ERR contains a non-Word as name", "[test-2331][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord: Atom: `let`
@@ -302,7 +302,7 @@ TEST_CASE ("ERR contains a non-Word as identifier", "[test-2331][let][err]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("ERR contains a non-Symbol as identifier", "[test-2318][let][err]") {
+TEST_CASE ("ERR contains a non-Symbol as name", "[test-2318][let][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`

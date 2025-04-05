@@ -283,7 +283,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     // lastCorrectToken = -1;
     curPos += LetStatement::KEYWORD._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += letStmt->identifier.value.size();
+    curPos += letStmt->name.value.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(letStmt->value);
     curPos = backupCurPos;
@@ -324,7 +324,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     // lastCorrectToken = -1;
     curPos += LetStatement::KEYWORD._tokenLen;
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += varStmt->identifier.value.size();
+    curPos += varStmt->name.value.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(varStmt->value);
     curPos = backupCurPos;

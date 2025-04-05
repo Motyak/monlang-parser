@@ -11,7 +11,7 @@
     buildExpression && unless hold_alternative<Symbol> err
     rather than..
     unless peekSymbol err
-    (e.g.: see consumeLetStatement identifier)
+    (e.g.: see consumeLetStatement name)
 */
 bool peekSymbol(const Word& word) {
     if (!std::holds_alternative<Atom*>(word)) {

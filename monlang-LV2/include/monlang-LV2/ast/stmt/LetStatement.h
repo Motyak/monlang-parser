@@ -7,7 +7,7 @@
 struct LetStatement {
     static const Atom KEYWORD;
 
-    Symbol identifier;
+    Symbol name;
     Expression value;
 
     size_t _tokenLeadingNewlines = 0;

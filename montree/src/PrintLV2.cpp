@@ -230,14 +230,14 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     currIndent++;
 
 
-    // we assume that empty identifier means stub
-    if (letStatement->identifier.value == "") {
+    // we assume that empty name means stub
+    if (letStatement->name.value == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     output("-> ");
-    operator()(&letStatement->identifier);
+    operator()(&letStatement->name);
 
 
     if (is_stub(letStatement->value.val)
@@ -257,14 +257,14 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
     currIndent++;
 
 
-    // we assume that empty identifier means stub
-    if (varStatement->identifier.value == "") {
+    // we assume that empty name means stub
+    if (varStatement->name.value == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     output("-> ");
-    operator()(&varStatement->identifier);
+    operator()(&varStatement->name);
 
 
     if (is_stub(varStatement->value.val)

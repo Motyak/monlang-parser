@@ -26,7 +26,7 @@ using Statement = std::variant<
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 
-    /* declarations (introduce new symbol/identifier) */
+    /* declarations (introduce new symbol in environment) */
     LetStatement*, // let a b
     VarStatement*, // var a b
 

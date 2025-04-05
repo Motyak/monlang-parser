@@ -13,7 +13,7 @@ using Statement_ = std::variant<
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 
-    /* declarations (introduce new symbol/identifier) */
+    /* declarations (introduce new symbol in environment) */
     MayFail_<LetStatement>*, // let a b
     MayFail_<VarStatement>*, // var a b
 
