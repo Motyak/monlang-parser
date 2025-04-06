@@ -45,6 +45,7 @@
 68 ListLiteral
 69 MapLiteral
 71 FieldAccess
+72 Subscript
 
 99 Lvalue
 
@@ -153,3 +154,6 @@
 
 711 Malformed FieldAccess, contains a malformed Expression as object
 712 Malformed FieldAccess, contains a non-Symbol as field
+
+721 Malformed Subscript, contains a malformed Expression as array
+722 Malformed Subscript, contains a malformed Expression as key

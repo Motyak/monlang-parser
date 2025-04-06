@@ -36,6 +36,7 @@ ExpressionStatement \
 EXPR_ENTITIES := \
 Operation \
 FunctionCall \
+Subscript \
 Lambda \
 BlockExpression \
 FieldAccess \

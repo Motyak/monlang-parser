@@ -37,6 +37,24 @@ inline std::vector<std::string> split(const std::string& str, const std::string&
     return res;
 }
 
+inline std::vector<std::string> split_in_two(const std::string& str, const std::string& delim) {
+    std::vector<std::string> res;
+
+    size_t start_pos = 0;
+    size_t end_pos = 0;
+    while ((end_pos = str.find(delim, start_pos)) != std::string::npos)
+    {
+        res.push_back(str.substr(start_pos, end_pos - start_pos));
+
+        // setting next start_pos as current end_pos past delim
+        start_pos = end_pos + delim.size();
+        break; //
+    }
+    res.push_back(str.substr(start_pos));
+
+    return res;
+}
+
 template <typename T>
 inline std::string join(const std::vector<std::string>& vec, const T& delimiter) {
     std::stringstream ss;
