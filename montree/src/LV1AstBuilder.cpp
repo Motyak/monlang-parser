@@ -232,6 +232,7 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
         "CurlyBracketsGroup",
         "ParenthesesGroup",
         "SquareBracketsTerm",
+        "SquareBracketsGroup",
     };
 
     auto line = peekLine(tis); // -> ProgramWord...
@@ -272,6 +273,10 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     else if (first_candidate_found == "SquareBracketsTerm") {
         return move_to_heap(buildSquareBracketsTerm());
+    }
+
+    else if (first_candidate_found == "SquareBracketsGroup") {
+        return move_to_heap(buildSquareBracketsGroup());
     }
 
     else {
@@ -339,6 +344,7 @@ Word LV1AstBuilder::buildWord() {
         "CurlyBracketsGroup",
         "Association",
         "PostfixParenthesesGroup",
+        "PostfixSquareBracketsGroup",
         "Path",
     };
 
@@ -384,6 +390,10 @@ Word LV1AstBuilder::buildWord() {
 
     else if (first_candidate_found == "PostfixParenthesesGroup") {
         return move_to_heap(buildPostfixParenthesesGroup());
+    }
+
+    else if (first_candidate_found == "PostfixSquareBracketsGroup") {
+        return move_to_heap(buildPostfixSquareBracketsGroup());
     }
 
     else if (first_candidate_found == "Path") {
@@ -584,7 +594,37 @@ SquareBracketsTerm LV1AstBuilder::buildSquareBracketsTerm() {
 }
 
 PostfixSquareBracketsGroup LV1AstBuilder::buildPostfixSquareBracketsGroup() {
-    TODO();
+    ENTERING_BUILD_ROUTINE();
+
+    consumeLine(tis); // -> ... PostfixSquareBracketsGroup
+
+    auto peekedLine = peekLine(tis);
+    if (peekedLine.type != INCR) {
+        SHOULD_NOT_HAPPEN(); // empty ppg
+    }
+
+    auto word = buildWord();
+    auto leftPart = std::visit(overload{
+        [](Association*) -> AssociationLeftPart {SHOULD_NOT_HAPPEN();},
+        [](auto* word) -> AssociationLeftPart {return word;}
+    }, word);
+
+    peekedLine = peekLine(tis);
+    if (peekedLine.type == INCR) {
+        SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildWord()
+    }
+    if (peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN(); // missing ppg right part
+    }
+
+    SquareBracketsGroup rightPart = buildSquareBracketsGroup();
+
+    peekedLine = peekLine(tis);
+    unless (peekedLine.type == DECR || peekedLine.type == END) {
+        SHOULD_NOT_HAPPEN();
+    }
+
+    return PostfixSquareBracketsGroup{leftPart, rightPart};
 }
 
 #ifdef TREE_INPUT_STREAM_MAIN

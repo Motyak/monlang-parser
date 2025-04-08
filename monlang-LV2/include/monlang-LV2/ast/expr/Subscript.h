@@ -6,12 +6,17 @@
 #include <variant>
 
 struct Subscript {
+    using IndexExpression = std::variant<
+        Numeral*,
+        SpecialSymbol*,
+        Symbol*
+    >;
     struct Index {
-        Expression expr;
+        IndexExpression nth;
     };
     struct Range {
-        Expression from;
-        Expression to;
+        IndexExpression from;
+        IndexExpression to;
         bool exclusive = false;
     };
     struct Key {
@@ -19,12 +24,20 @@ struct Subscript {
     };
     using Argument = std::variant<Index, Range, Key>;
 
+    enum Suffix {
+        NONE = 0,
+        EXCLAMATION_MARK = 33,
+        QUESTION_MARK = 63,
+    };
+
     Expression array;
     Argument argument;
+    Suffix suffix = Suffix::NONE;
 
+    bool _lvalue = false;
     size_t _tokenLen = 0;
     Subscript() = default;
-    Subscript(const Expression&, const Argument&);
+    Subscript(const Expression&, const Argument&, Suffix);
 };
 
 #endif // AST_SUBSCRIPT_H

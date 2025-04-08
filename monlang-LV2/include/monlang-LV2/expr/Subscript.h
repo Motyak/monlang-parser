@@ -18,13 +18,17 @@ struct MayFail_<Subscript> {
     };
     using Argument = std::variant<_StubArgument_, Index, Range, Key>;
 
-    MayFail<Expression_> array;
-    Argument argument;
+    using Suffix = Subscript::Suffix;
 
+    MayFail<Expression_> array;
+    Argument argument = _StubArgument_{};
+    Suffix suffix = Suffix::NONE;
+
+    bool _lvalue = false;
     size_t _tokenLen = 0;
     size_t _groupNesting = 0;
     MayFail_() = default;
-    explicit MayFail_(const MayFail<Expression_>&, const Argument&);
+    explicit MayFail_(const MayFail<Expression_>&, const Argument&, Suffix);
 
     explicit MayFail_(Subscript);
     explicit operator Subscript() const;

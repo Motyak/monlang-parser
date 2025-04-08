@@ -13,6 +13,7 @@
 #include <monlang-LV2/expr/Numeral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
 #include <monlang-LV2/expr/Symbol.h>
+#include <monlang-LV2/expr/Subscript.h>
 
 /* require knowing all words for token_len() */
 #include <monlang-LV1/ast/token_len.h>
@@ -121,8 +122,20 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     if (peekFieldAccess(word)) {
         auto fieldAccess = buildFieldAccess(word);
+        fieldAccess.val._lvalue = true; // TODO: tmp, need more sophisticated approach
         fieldAccess.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(fieldAccess);
+    }
+
+    // if (word =~ "PostfixSquareBracketsGroup"_) {
+    //     ...
+    // }
+
+    if (peekSubscript(word)) {
+        auto subscript = buildSubscript(word);
+        subscript.val._lvalue = true; // TODO: tmp, need more sophisticated approach
+        subscript.val._groupNesting = groupNesting;
+        return mayfail_convert<Expression_>(subscript);
     }
 
     // if (word =~ "Quotation"_) {
@@ -237,8 +250,8 @@ Expression_ wrap_expr(Expression expression) {
 bool is_lvalue(Expression expr) {
     return std::visit(overload{
         [](Symbol* symbol){return symbol->_lvalue;},
-        // [](Subscript* subscript){return subscript->_lvalue;},
-        // [](FieldAccess* fieldAccess){return fieldAccess->_lvalue;},
+        [](Subscript* subscript){return subscript->_lvalue;},
+        [](FieldAccess* fieldAccess){return fieldAccess->_lvalue;},
         [](auto*){return false;},
     }, expr);
 }
@@ -246,8 +259,8 @@ bool is_lvalue(Expression expr) {
 bool is_lvalue(Expression_ expr_) {
     return std::visit(overload{
         [](Symbol* symbol){return symbol->_lvalue;},
-        // [](MayFail_<Subscript>* subscript){return subscript->_lvalue;},
-        // [](MayFail_<FieldAccess>* fieldAccess){return fieldAccess->_lvalue;},
+        [](MayFail_<Subscript>* subscript){return subscript->_lvalue;},
+        [](MayFail_<FieldAccess>* fieldAccess){return fieldAccess->_lvalue;},
         [](auto*){return false;},
     }, expr_);
 }

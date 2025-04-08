@@ -59,6 +59,7 @@ MayFail_<FieldAccess>::MayFail_(FieldAccess fieldAccess) {
 
     this->object = object;
     this->field = field;
+    this->_lvalue = fieldAccess._lvalue;
     this->_tokenLen = fieldAccess._tokenLen;
 }
 
@@ -66,6 +67,7 @@ MayFail_<FieldAccess>::operator FieldAccess() const {
     auto object = unwrap_expr(this->object.value());
     auto field = this->field;
     auto fieldAccess = FieldAccess{object, field};
+    fieldAccess._lvalue = this->_lvalue;
     fieldAccess._tokenLen = this->_tokenLen;
     return fieldAccess;
 }

@@ -19,6 +19,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/FieldAccess.h>
+#include <monlang-LV2/expr/Subscript.h>
 #include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
@@ -659,6 +660,48 @@ void PrintLV2::operator()(MayFail_<FieldAccess>* fieldAccess) {
 
     output("-> ");
     operator()(&fieldAccess->field);
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(MayFail_<Subscript>* subscript) {
+    auto currExpression_ = currExpression;
+    outputLine("Subscript");
+    currIndent++;
+
+    operator()(subscript->array);
+    if (subscript->array.has_error()) {
+        currIndent--;
+        return;
+    }
+
+    std::visit(overload{
+        [](MayFail_<Subscript>::_StubArgument_){
+            ; // nothing to print
+        },
+
+        [this](MayFail_<Subscript>::Index index){
+            outputLine("-> index");
+            currIndent++;
+            operator()((Expression_)variant_cast(index.nth));
+            currIndent--;
+        },
+
+        [this](MayFail_<Subscript>::Range range){
+            outputLine(range.exclusive? "-> (exclusive) range" : "-> range");
+            currIndent++;
+            operator()((Expression_)variant_cast(range.from));
+            operator()((Expression_)variant_cast(range.to));
+            currIndent--;
+        },
+
+        [this](MayFail_<Subscript>::Key key){
+            outputLine(key.expr.has_error()? "~> key" : "-> key");
+            currIndent++;
+            operator()(key.expr);
+            currIndent--;
+        },
+    }, subscript->argument);
 
     currIndent--;
 }

@@ -359,6 +359,117 @@ TEST_CASE ("field access", "[test-1656][expr]") {
     REQUIRE (output_str == expect);
 }
 
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("subscript with index", "[test-1657][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> ProgramWord: PostfixSquareBracketsGroup
+       |    -> Word: Atom: `a`
+       |    -> SquareBracketsGroup
+       |      -> Term
+       |        -> Atom: `#1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Subscript
+       |  -> Expression: Symbol: `a`
+       |  -> index
+       |    -> Expression: Numeral: `1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("subscript with range", "[test-1658][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> ProgramWord: PostfixSquareBracketsGroup
+       |    -> Word: Atom: `a`
+       |    -> SquareBracketsGroup
+       |      -> Term
+       |        -> Atom: `#1..10`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Subscript
+       |  -> Expression: Symbol: `a`
+       |  -> range
+       |    -> Expression: Numeral: `1`
+       |    -> Expression: Numeral: `10`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("subscript with exclusive range", "[test-1659][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> ProgramWord: PostfixSquareBracketsGroup
+       |    -> Word: Atom: `a`
+       |    -> SquareBracketsGroup
+       |      -> Term
+       |        -> Atom: `#1..<10`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Subscript
+       |  -> Expression: Symbol: `a`
+       |  -> (exclusive) range
+       |    -> Expression: Numeral: `1`
+       |    -> Expression: Numeral: `10`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("subscript with key", "[test-1661][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> ProgramWord: PostfixSquareBracketsGroup
+       |    -> Word: Atom: `a`
+       |    -> SquareBracketsGroup
+       |      -> Term
+       |        -> Quotation: `key`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Subscript
+       |  -> Expression: Symbol: `a`
+       |  -> key
+       |    -> Expression: StrLiteral: `key`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+
 //==============================================================
 // ERR
 //==============================================================
@@ -791,6 +902,62 @@ TEST_CASE ("Malformed FieldAccess, contains a non-Symbol as field", "[test-1676]
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed Subscript, contains a malformed Expression as array", "[test-1677][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> ProgramWord: PostfixSquareBracketsGroup
+       |    -> Word: ParenthesesGroup (empty)
+       |    -> SquareBracketsGroup
+       |      -> Term
+       |        -> Quotation: `key`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: Subscript
+       |  ~> Expression
+       |    ~> ERR-169
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*Subscript*/ "ERR-721" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed Subscript, contains a malformed Expression as key", "[test-1677][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> ProgramWord: PostfixSquareBracketsGroup
+       |    -> Word: Atom: `arr`
+       |    -> SquareBracketsGroup
+       |      -> Term
+       |        -> ParenthesesGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: Subscript
+       |  -> Expression: Symbol: `arr`
+       |  ~> key
+       |    ~> Expression
+       |      ~> ERR-169
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*Subscript*/ "ERR-722" == output.error().fmt);
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);

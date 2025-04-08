@@ -10,7 +10,7 @@ struct FunctionCall;
 struct Lambda;
 struct BlockExpression;
 struct FieldAccess;
-// struct Subscript;
+struct Subscript;
 struct MapLiteral;
 struct ListLiteral;
 struct StrLiteral;
@@ -29,7 +29,7 @@ using Expression = std::variant<
     Lambda*,
     BlockExpression*,
     FieldAccess*,
-    // Subscript*,
+    Subscript*,
 
     /* SBG expressions */
     MapLiteral*,

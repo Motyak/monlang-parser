@@ -10,6 +10,7 @@ struct FieldAccess {
     Expression object;
     Symbol field;
 
+    bool _lvalue = false;
     size_t _tokenLen = 0;
     FieldAccess() = default;
     FieldAccess(const Expression&, const Symbol&);

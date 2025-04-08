@@ -23,6 +23,7 @@
 #include <monlang-LV2/expr/Lambda.h>
 #include <monlang-LV2/expr/BlockExpression.h>
 #include <monlang-LV2/expr/FieldAccess.h>
+#include <monlang-LV2/expr/Subscript.h>
 #include <monlang-LV2/expr/MapLiteral.h>
 #include <monlang-LV2/expr/ListLiteral.h>
 #include <monlang-LV2/expr/SpecialSymbol.h>
@@ -717,12 +718,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*operation);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*operation);
     operator()(operation->leftOperand);
     curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
     curPos += operation->operator_.value.size();
@@ -749,12 +749,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*functionCall);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*functionCall);
     operator()(functionCall->function);
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
     LOOP for (auto expr: functionCall->arguments) {
@@ -786,12 +785,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
         token.err_desc = curExpr_.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*fieldAccess);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*fieldAccess);
     operator()(fieldAccess->object);
     curPos += sequenceLen(Path::SEPARATOR_SEQUENCE);
     operator()(&fieldAccess->field);
@@ -817,6 +815,39 @@ void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
+void ReconstructLV2Tokens::operator()(MayFail_<Subscript>* subscript) {
+    auto curExpr_ = curExpr;
+    auto tokenId = newToken(curExpr_);
+    token.is_malformed = curExpr_.has_error();
+    token.name = "Subscript";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr_.error().fmt; // TODO: map this to the actual error description
+    }
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += group_nesting(*subscript);
+    operator()(subscript->array);
+    curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
+    std::visit(overload{
+        [this](MayFail_<Subscript>::Key key) {operator()(key.expr);},
+        [](auto){;}
+    }, subscript->argument);
+    curPos = backupCurPos;
+    curPos += subscript->_tokenLen;
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
 void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     auto tokenId = newToken(curExpr);
     token.is_malformed = curExpr.has_error();
@@ -826,12 +857,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*lambda);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*lambda);
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
     LOOP for (auto param: lambda->parameters) {
         if (!__first_it) {
@@ -864,12 +894,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*blockExpr);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*blockExpr);
     if (blockExpr->_dollars) {
         curPos += 1; // $
     }
@@ -902,12 +931,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*mapLiteral);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*mapLiteral);
     curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
     LOOP for (auto [key, val]: mapLiteral->arguments) {
         if (!__first_it) {
@@ -950,12 +978,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
         token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
     }
 
-    curPos += group_nesting(*listLiteral);
-
     token.start = asTokenPosition(curPos);
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
+    curPos += group_nesting(*listLiteral);
     curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
     LOOP for (auto arg: listLiteral->arguments) {
         if (!__first_it) {
@@ -985,8 +1012,6 @@ void ReconstructLV2Tokens::operator()(Numeral* numeral) {
     token.is_malformed = false;
     token.name = "Numeral";
 
-    curPos += group_nesting(*numeral);
-
     token.start = asTokenPosition(curPos);
     curPos += numeral->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
@@ -999,8 +1024,6 @@ void ReconstructLV2Tokens::operator()(StrLiteral* strLiteral) {
     auto tokenId = newToken(curExpr);
     token.is_malformed = false;
     token.name = "StrLiteral";
-
-    curPos += group_nesting(*strLiteral);
 
     token.start = asTokenPosition(curPos);
     curPos += strLiteral->_tokenLen;
@@ -1015,8 +1038,6 @@ void ReconstructLV2Tokens::operator()(SpecialSymbol* specialSymbol) {
     token.is_malformed = false;
     token.name = "SpecialSymbol";
 
-    curPos += group_nesting(*specialSymbol);
-
     token.start = asTokenPosition(curPos);
     curPos += specialSymbol->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
@@ -1030,15 +1051,13 @@ void ReconstructLV2Tokens::operator()(Symbol* symbol) {
     token.is_malformed = false;
     token.name = "Symbol";
 
-    curPos += group_nesting(*symbol);
-
     token.start = asTokenPosition(curPos);
     curPos += symbol->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
 }
 
 void ReconstructLV2Tokens::operator()(_StubExpression_*) {
-    SHOULD_NOT_HAPPEN();
+    SHOULD_NOT_HAPPEN(); // already handled in operator()(MayFail<Expression_>)
 }
 
 ///////////////////////////////////////////////////////////////
