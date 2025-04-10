@@ -3,8 +3,8 @@
 
 #include <monlang-LV2/ast/Expression.h>
 #include <monlang-LV2/ast/expr/Symbol.h>
-// #include <monlang-LV2/ast/expr/Subscript.h>
-// #include <monlang-LV2/ast/expr/FieldAccess.h>
+#include <monlang-LV2/ast/expr/Subscript.h>
+#include <monlang-LV2/ast/expr/FieldAccess.h>
 
 #include <utils/stub-ctor.h>
 
@@ -12,9 +12,9 @@
 
 struct Lvalue {
     using Variant = std::variant<
-        Symbol*
-        // Subscript*,
-        // FieldAccess*
+        Symbol*,
+        Subscript*,
+        FieldAccess*
     >;
     Variant variant;
 
@@ -22,8 +22,8 @@ struct Lvalue {
 
     /* any cast below will fail if _lvalue field isn't true */
     Lvalue(Symbol*);
-    // Lvalue(Subscript*);
-    // Lvalue(FieldAccess*);
+    Lvalue(Subscript*);
+    Lvalue(FieldAccess*);
     Lvalue(Expression); // we need this
 
     operator Expression() const; // we need this

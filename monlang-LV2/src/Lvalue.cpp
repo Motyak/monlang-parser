@@ -1,22 +1,20 @@
 #include <monlang-LV2/Lvalue.h>
 
-/* impl only */
-#include <monlang-LV1/ast/Atom.h>
-
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
+#include <utils/mem-utils.h>
 
 Lvalue unwrap_lvalue(Lvalue_ lvalue) {
     return std::visit(overload{
         [](Symbol* symbol) -> Lvalue {return symbol;},
-        [](auto* mf_) -> Lvalue {return unwrap(mf_);},
+        [](auto* mf_) -> Lvalue {return move_to_heap(unwrap(*mf_));},
     }, lvalue.variant);
 }
 
 Lvalue_ wrap_lvalue(Lvalue lvalue) {
     return std::visit(overload{
         [](Symbol* symbol) -> Lvalue_ {return symbol;},
-        [](auto* other) -> Lvalue_ {return wrap(other);},
+        [](auto* other) -> Lvalue_ {return move_to_heap(wrap(*other));},
     }, lvalue.variant);
 }
 
@@ -25,11 +23,21 @@ Lvalue::Lvalue(Symbol* symbol) {
     this->variant = symbol;
 }
 
+Lvalue::Lvalue(Subscript* subscript) {
+    ASSERT (subscript->_lvalue);
+    this->variant = subscript;
+}
+
+Lvalue::Lvalue(FieldAccess* fieldAccess) {
+    ASSERT (fieldAccess->_lvalue);
+    this->variant = fieldAccess;
+}
+
 Lvalue::Lvalue(Expression expr) {
     std::visit(overload{
         [this](Symbol* symbol){*this = Lvalue(symbol);},
-        // [this](Subscript* subscript){*this = Lvalue(subscript);},
-        // [this](FieldAccess* fieldAccess){*this = Lvalue(fieldAccess);},
+        [this](Subscript* subscript){*this = Lvalue(subscript);},
+        [this](FieldAccess* fieldAccess){*this = Lvalue(fieldAccess);},
         [this](auto*){SHOULD_NOT_HAPPEN();},
     }, expr);
 }
@@ -47,11 +55,21 @@ Lvalue_::Lvalue_(Symbol* symbol) {
     this->variant = symbol;
 }
 
+Lvalue_::Lvalue_(MayFail_<Subscript>* subscript) {
+    ASSERT (subscript->_lvalue);
+    this->variant = subscript;
+}
+
+Lvalue_::Lvalue_(MayFail_<FieldAccess>* fieldAccess) {
+    ASSERT (fieldAccess->_lvalue);
+    this->variant = fieldAccess;
+}
+
 Lvalue_::Lvalue_(Expression_ expr) {
     std::visit(overload{
         [this](Symbol* symbol){*this = Lvalue_(symbol);},
-        // [this](MayFail_<Subscript>* subscript){*this = Lvalue_(subscript);},
-        // [this](MayFail_<FieldAccess>* fieldAccess){*this = Lvalue_(fieldAccess);},
+        [this](MayFail_<Subscript>* subscript){*this = Lvalue_(subscript);},
+        [this](MayFail_<FieldAccess>* fieldAccess){*this = Lvalue_(fieldAccess);},
         [this](auto*){SHOULD_NOT_HAPPEN();},
     }, expr);
 }

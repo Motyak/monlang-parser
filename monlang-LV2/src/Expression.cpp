@@ -122,7 +122,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     if (peekFieldAccess(word)) {
         auto fieldAccess = buildFieldAccess(word);
-        fieldAccess.val._lvalue = true; // TODO: tmp, need more sophisticated approach
+        fieldAccess.val._lvalue = !groupNesting && is_lvalue(fieldAccess.val.object.val);
         fieldAccess.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(fieldAccess);
     }
@@ -133,7 +133,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     if (peekSubscript(word)) {
         auto subscript = buildSubscript(word);
-        subscript.val._lvalue = true; // TODO: tmp, need more sophisticated approach
+        subscript.val._lvalue = !groupNesting && is_lvalue(subscript.val.array.val);
         subscript.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(subscript);
     }
@@ -193,7 +193,7 @@ MayFail<Expression_> buildExpression(const Term& term) {
     if (std::holds_alternative<Atom*>(word)) {
         auto symbol = buildSymbol(word);
         symbol._groupNesting = groupNesting;
-        symbol._lvalue = true; // TODO: tmp, need more sophisticated approach
+        symbol._lvalue = !groupNesting;
         return (Expression_)move_to_heap(symbol);
     }
 

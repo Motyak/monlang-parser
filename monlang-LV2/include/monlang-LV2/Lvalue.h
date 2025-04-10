@@ -5,16 +5,16 @@
 
 #include <monlang-LV2/Expression.h>
 #include <monlang-LV2/expr/Symbol.h>
-// #include <monlang-LV2/expr/Subscript.h>
-// #include <monlang-LV2/expr/FieldAccess.h>
+#include <monlang-LV2/expr/Subscript.h>
+#include <monlang-LV2/expr/FieldAccess.h>
 
 #include <monlang-LV1/ast/Word.h>
 
 struct Lvalue_ {
     using Variant = std::variant<
-        Symbol*
-        // MayFail_<Subscript>*,
-        // MayFail_<FieldAccess>*
+        Symbol*,
+        MayFail_<Subscript>*,
+        MayFail_<FieldAccess>*
     >;
     Variant variant;
 
@@ -22,8 +22,8 @@ struct Lvalue_ {
 
     /* any cast below will fail if _lvalue field isn't true */
     Lvalue_(Symbol*);
-    // Lvalue_(MayFail_<Subscript>*);
-    // Lvalue_(MayFail_<FieldAccess>*);
+    Lvalue_(MayFail_<Subscript>*);
+    Lvalue_(MayFail_<FieldAccess>*);
     Lvalue_(Expression_); // we need this
 
     operator Expression_() const; // we need this
