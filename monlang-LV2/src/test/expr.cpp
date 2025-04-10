@@ -267,8 +267,8 @@ TEST_CASE ("list literal", "[test-1653][expr]") {
     )EOF");
     auto expect = tommy_str(R"EOF(
        |-> Expression: ListLiteral
-       |  -> Expression: Symbol: `a`
-       |  -> Expression: Symbol: `b`
+       |  -> Expression #1: Symbol: `a`
+       |  -> Expression #2: Symbol: `b`
     )EOF");
     auto input_ast = montree::buildLV1Ast(input);
     auto input_term = std::get<Term>(input_ast);

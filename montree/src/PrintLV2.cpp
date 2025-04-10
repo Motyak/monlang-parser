@@ -113,44 +113,55 @@ void PrintLV2::operator()(const MayFail<Statement_>& statement) {
     auto statement_ = statement.val;
     output(statement.has_error()? "~> " : "-> ");
 
+    if (numbering.empty()) {
+        output("Statement");
+    } else {
+        if (int n = numbering.top(); n == NO_NUMBERING) {
+            output("Statement");
+        } else {
+            output("Statement #", INT2CSTR(n));
+        }
+        numbering.pop();
+    }
+
     if (is_stub(statement_)) {
-        outputLine("Statement");
+        outputLine();
         currIndent++;
         outputLine("~> ", SERIALIZE_ERR(statement));
         currIndent--;
         return;
     }
 
-    if (numbering.empty()) {
-        output("Statement: ");
-    } else {
-        if (int n = numbering.top(); n == NO_NUMBERING) {
-            output("Statement: ");
-        } else {
-            output("Statement #", INT2CSTR(n), ": ");
-        }
-        numbering.pop();
-    }
-
+    output(": ");
     std::visit(*this, statement_);
 }
 
 void PrintLV2::operator()(const MayFail<Expression_>& expression) {
     this->currExpression = expression; // needed by expr handlers
-    auto expression_ = expression.val;
 
     output(expression.has_error()? "~> " : "-> ");
 
-    if (is_stub(expression_)) {
-        outputLine("Expression");
+    if (numbering.empty()) {
+        output("Expression");
+    } else {
+        if (int n = numbering.top(); n == NO_NUMBERING) {
+            output("Expression");
+        } else {
+            output("Expression #", INT2CSTR(n));
+        }
+        numbering.pop();
+    }
+
+    if (is_stub(expression.val)) {
+        outputLine();
         currIndent++;
         outputLine("~> ", SERIALIZE_ERR(expression));
         currIndent--;
         return;
     }
 
-    output("Expression: ");
-    std::visit(*this, expression_);
+    output(": ");
+    std::visit(*this, expression.val);
 }
 
 void PrintLV2::operator()(const MayFail<Lvalue_>& lvalue) {
@@ -190,6 +201,7 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
         currIndent--;
         return;
     }
+    numbering.push(NO_NUMBERING);
     operator()(assignment->value);
 
 
@@ -220,6 +232,7 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
         currIndent--;
         return;
     }
+    numbering.push(NO_NUMBERING);
     operator()(accumulation->value);
 
 
@@ -247,6 +260,7 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
         currIndent--;
         return;
     }
+    numbering.push(NO_NUMBERING);
     operator()(letStatement->value);
 
 
@@ -274,6 +288,7 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
         currIndent--;
         return;
     }
+    numbering.push(NO_NUMBERING);
     operator()(varStatement->value);
 
 
@@ -289,6 +304,7 @@ void PrintLV2::operator()(MayFail_<ReturnStatement>* returnStatement) {
             currIndent--;
             return;
         }
+        numbering.push(NO_NUMBERING);
         operator()(*returnStatement->value);
         currIndent--;
     }
@@ -323,6 +339,7 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     output(foreachStatement->iterable.has_error()? "~> " : "-> ");
     outputLine("iterable");
     currIndent++;
+    numbering.push(NO_NUMBERING);
     operator()(foreachStatement->iterable);
     currIndent--;
 
@@ -381,6 +398,7 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
     output(whileStatement->condition.has_error()? "~> " : "-> ");
     outputLine("condition");
     currIndent++;
+    numbering.push(NO_NUMBERING);
     operator()(whileStatement->condition);
     currIndent--;
 
@@ -480,6 +498,7 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
             currIndent--;
             return;
         }
+        numbering.push(NO_NUMBERING);
         operator()(whileStmt.condition);
     }
     currIndent--;
@@ -491,6 +510,7 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
 void PrintLV2::operator()(MayFail_<ExpressionStatement>* expressionStatement) {
     outputLine("ExpressionStatement");
     currIndent++;
+    numbering.push(NO_NUMBERING);
     operator()(expressionStatement->expression);
     currIndent--;
 }
@@ -507,6 +527,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
         currIndent--;
         return;
     }
+    numbering.push(NO_NUMBERING);
     operator()(operation->leftOperand);
 
     if (operation->leftOperand.has_error()) {
@@ -523,6 +544,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
         currIndent--;
         return;
     }
+    numbering.push(NO_NUMBERING);
     operator()(operation->rightOperand);
 
 
@@ -543,6 +565,7 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     output(functionCall->function.has_error()? "~> " : "-> ");
     outputLine("function");
     currIndent++;
+    numbering.push(NO_NUMBERING);
     operator()(functionCall->function);
     currIndent--;
 
@@ -567,7 +590,15 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     output(any_malformed_arg? "~> " : "-> ");
     outputLine("arguments");
     currIndent++;
+    if (functionCall->arguments.size() > 1) {
+        for (int n : range(functionCall->arguments.size(), 0)) {
+            numbering.push(n);
+        }
+    } else /*if 1 arg*/ {
+        numbering.push(NO_NUMBERING);
+    }
     for (auto arg: functionCall->arguments) {
+        // numbering.push(NO_NUMBERING);
         operator()(arg);
     }
     currIndent--;
@@ -644,6 +675,7 @@ void PrintLV2::operator()(MayFail_<FieldAccess>* fieldAccess) {
     outputLine("FieldAccess");
     currIndent++;
 
+    numbering.push(NO_NUMBERING);
     operator()(fieldAccess->object);
     if (fieldAccess->object.has_error()) {
         currIndent--;
@@ -669,6 +701,7 @@ void PrintLV2::operator()(MayFail_<Subscript>* subscript) {
     outputLine("Subscript");
     currIndent++;
 
+    numbering.push(NO_NUMBERING);
     operator()(subscript->array);
     if (subscript->array.has_error()) {
         currIndent--;
@@ -683,6 +716,7 @@ void PrintLV2::operator()(MayFail_<Subscript>* subscript) {
         [this](MayFail_<Subscript>::Index index){
             outputLine("-> index");
             currIndent++;
+            numbering.push(NO_NUMBERING);
             operator()((Expression_)variant_cast(index.nth));
             currIndent--;
         },
@@ -690,7 +724,9 @@ void PrintLV2::operator()(MayFail_<Subscript>* subscript) {
         [this](MayFail_<Subscript>::Range range){
             outputLine(range.exclusive? "-> (exclusive) range" : "-> range");
             currIndent++;
+            numbering.push(NO_NUMBERING);
             operator()((Expression_)variant_cast(range.from));
+            numbering.push(NO_NUMBERING);
             operator()((Expression_)variant_cast(range.to));
             currIndent--;
         },
@@ -698,6 +734,7 @@ void PrintLV2::operator()(MayFail_<Subscript>* subscript) {
         [this](MayFail_<Subscript>::Key key){
             outputLine(key.expr.has_error()? "~> key" : "-> key");
             currIndent++;
+            numbering.push(NO_NUMBERING);
             operator()(key.expr);
             currIndent--;
         },
@@ -718,12 +755,6 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
 
     currIndent++;
 
-    // get rid of the Word numbering foreach argument
-    for (auto _: mapLiteral->arguments) {
-        numbering.push(NO_NUMBERING);
-        numbering.push(NO_NUMBERING);
-    }
-
     size_t nth_argument = 0;
     LOOP for (auto [key, val]: mapLiteral->arguments) {
         nth_argument = __nth_it;
@@ -736,6 +767,7 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
         output(key.has_error()? "~> " : "-> ");
         outputLine("key");
         currIndent++;
+        numbering.push(NO_NUMBERING);
         operator()(key);
         currIndent--;
 
@@ -743,6 +775,7 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
             output(val.has_error()? "~> " : "-> ");
             outputLine("value");
             currIndent++;
+            numbering.push(NO_NUMBERING);
             operator()(val);
             currIndent--;
         }
