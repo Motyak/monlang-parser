@@ -17,6 +17,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(const MayFail<Lvalue_>&);
 
     /* statements */
+    void operator()(_StubStatement_*);
     void operator()(MayFail_<Assignment>*);
     void operator()(MayFail_<Accumulation>*);
     void operator()(MayFail_<LetStatement>*);
@@ -31,6 +32,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(MayFail_<ExpressionStatement>*);
 
     /* expressions */
+    void operator()(_StubExpression_*);
     void operator()(MayFail_<Operation>*);
     void operator()(MayFail_<FunctionCall>*);
     void operator()(MayFail_<Lambda>*);
@@ -43,8 +45,6 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(StrLiteral*);
     void operator()(SpecialSymbol*);
     void operator()(Symbol*);
-
-    void operator()(_StubExpression_*); // shouldn't happen
 
   private:
     LV2Tokens& tokens;

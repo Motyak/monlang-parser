@@ -6,7 +6,19 @@
 #include <monlang-LV2/common.h>
 #include <monlang-LV1/ast/Program.h>
 
+struct _StubStatement_ {
+    size_t _tokenLeadingNewlines = 0;
+    size_t _tokenIndentSpaces = 0;
+};
+
 using Statement_ = std::variant<
+
+    _StubStatement_*, // to be used when..
+    // ..the statement itself is malformed
+    // ..(cannot be associated with any type of statement)
+
+    ///////////////////////////////////////////////////////
+
     /* assignments */
     MayFail_<Assignment>*, // a := b
     MayFail_<Accumulation>*, // +=, -=, *=, ^=, /=, %=, &=, |=

@@ -43,6 +43,7 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(StrLiteral*);
     void operator()(Symbol*);
 
+    void operator()(_StubStatement_*); // shouldn't happen
     void operator()(_StubExpression_*); // shouldn't happen
 
   private:

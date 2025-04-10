@@ -45,22 +45,6 @@
 
 #define token tokens._vec.at(tokenId)
 
-// should only be used to check for Statement_()
-static bool is_stub(const Statement_& stmt) {
-    return std::visit(
-        [](auto* ptr){return ptr == nullptr;},
-        stmt
-    );
-}
-
-// should only be used to check for StubExpression_()
-static bool is_stub(const Expression_& expr) {
-    return std::visit(overload{
-        [](_StubExpression_*){return true;},
-        [](auto*){return false;},
-    }, expr);
-}
-
 void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
     /* reset state */
     tokens = {};
@@ -96,57 +80,11 @@ void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& pro
 }
 
 void ReconstructLV2Tokens::operator()(const MayFail<Statement_>& stmt) {
-    if (is_stub(stmt.val)) {
-        auto tokenId = newToken(stmt);
-        token.is_malformed = stmt.has_error();
-        token.name = "Statement";
-
-        if (token.is_malformed) {
-            token.err_desc = stmt.error().fmt; // TODO: map this to the actual error description
-        }
-
-        token.start = asTokenPosition(curPos);
-        token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
-
-        if (token.is_malformed) {
-            token.err_start = token.start;
-            tokens.traceback.push_back(token);
-        }
-
-        return;
-    }
-
     curStmt = stmt; // needed by stmt handlers
     std::visit(*this, stmt.val);
 }
 
 void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
-    if (is_stub(expr.val)) {
-        auto tokenId = newToken(expr);
-        token.is_malformed = expr.has_error();
-        token.name = "Expression";
-
-        if (token.is_malformed) {
-            token.err_desc = expr.error().fmt; // TODO: map this to the actual error description
-        }
-
-        curPos += group_nesting(expr.val);
-
-        token.start = asTokenPosition(curPos);
-        token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
-
-        if (token.is_malformed) {
-            token.err_start = token.start;
-            if (expr.err->_info.contains("err_offset")) {
-                auto err_offset = std::any_cast<size_t>(expr.err->_info.at("err_offset"));
-                token.err_start = asTokenPosition(token.err_start + err_offset);
-            }
-            tokens.traceback.push_back(token);
-        }
-
-        return;
-    }
-
     curExpr = expr; // needed by expr handlers
     std::visit(*this, expr.val);
 }
@@ -181,6 +119,27 @@ void ReconstructLV2Tokens::operator()(const MayFail<Lvalue_>& lvalue) {
 ///////////////////////////////////////////////////////////////
 // STATEMENTS
 ///////////////////////////////////////////////////////////////
+
+void ReconstructLV2Tokens::operator()(_StubStatement_* stub) {
+    auto tokenId = newToken(curStmt);
+    token.is_malformed = curStmt.has_error();
+    token.name = "Statement";
+
+    if (token.is_malformed) {
+        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += stub->_tokenLeadingNewlines;
+    curPos += stub->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        tokens.traceback.push_back(token);
+    }
+}
 
 void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     auto curStmt_ = curStmt; // local copy
@@ -709,6 +668,30 @@ void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
 // EXPRESSIONS
 ///////////////////////////////////////////////////////////////
 
+void ReconstructLV2Tokens::operator()(_StubExpression_*) {
+    auto tokenId = newToken(curExpr);
+    token.is_malformed = curExpr.has_error();
+    token.name = "Expression";
+
+    if (token.is_malformed) {
+        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+    }
+
+    curPos += group_nesting(curExpr.val);
+
+    token.start = asTokenPosition(curPos);
+    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        if (curExpr.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curExpr.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
+        tokens.traceback.push_back(token);
+    }
+}
+
 void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
     auto tokenId = newToken(curExpr);
     token.is_malformed = curExpr.has_error();
@@ -1054,10 +1037,6 @@ void ReconstructLV2Tokens::operator()(Symbol* symbol) {
     token.start = asTokenPosition(curPos);
     curPos += symbol->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
-}
-
-void ReconstructLV2Tokens::operator()(_StubExpression_*) {
-    SHOULD_NOT_HAPPEN(); // already handled in operator()(MayFail<Expression_>)
 }
 
 ///////////////////////////////////////////////////////////////

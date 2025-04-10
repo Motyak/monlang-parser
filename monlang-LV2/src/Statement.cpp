@@ -122,8 +122,11 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     for (auto pw: peekedSentence.programWords) {
         unless (holds_word(pw)) {
-            consumeSentence(prog);
-            return Malformed(Statement_(), ERR(121));
+            auto sentence = consumeSentence(prog);
+            auto stub = _StubStatement_{};
+            stub._tokenLeadingNewlines = sentence._tokenLeadingNewlines;
+            stub._tokenIndentSpaces = sentence._tokenIndentSpaces;
+            return Malformed((Statement_)move_to_heap(stub), ERR(121));
         }
     }
 
@@ -146,6 +149,7 @@ Statement unwrap_stmt(Statement_ statement) {
         [](BreakStatement* stmt) -> Statement {return stmt;},
         [](ContinueStatement* stmt) -> Statement {return stmt;},
         [](DieStatement* stmt) -> Statement {return stmt;},
+        [](_StubStatement_*) -> Statement {SHOULD_NOT_HAPPEN();},
         [](auto* mf_) -> Statement {return move_to_heap(unwrap(*mf_));},
     }, statement);
 }

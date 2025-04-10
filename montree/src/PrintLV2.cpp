@@ -65,20 +65,14 @@ void (PrintLV2::output)(const char* strs...) {
     startOfNewLine = false;
 }
 
-// should only be used to check for Statement_()
+// should only be used to check for _StubStatement_{}
 static bool is_stub(const Statement_& stmt) {
-    return std::visit(
-        [](auto* ptr){return ptr == nullptr;},
-        stmt
-    );
+    return std::holds_alternative<_StubStatement_*>(stmt);
 }
 
 // should only be used to check for StubExpression_()
 static bool is_stub(const Expression_& expr) {
-    return std::visit(overload{
-        [](_StubExpression_*){return true;},
-        [](auto*){return false;},
-    }, expr);
+    return std::holds_alternative<_StubExpression_*>(expr);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -853,8 +847,12 @@ void PrintLV2::operator()(Symbol* symbol) {
     outputLine("Symbol: `", symbol->value.c_str(), "`");
 }
 
+void PrintLV2::operator()(_StubStatement_*) {
+    SHOULD_NOT_HAPPEN(); // already handled in operator()(MayFail<Statement_>)
+}
+
 void PrintLV2::operator()(_StubExpression_*) {
-    SHOULD_NOT_HAPPEN();
+    SHOULD_NOT_HAPPEN(); // already handled in operator()(MayFail<Expression_>)
 }
 
 ///////////////////////////////////////////////////////////
