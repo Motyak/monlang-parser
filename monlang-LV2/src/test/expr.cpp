@@ -194,7 +194,6 @@ TEST_CASE ("function call from postfix parentheses group", "[test-1616][expr]") 
        |        -> Word: Atom: `arg`
     )EOF");
 
-    /* TODO: Symbol will be able to contain indent, later on */
     auto expect = tommy_str(R"EOF(
        |-> Expression: FunctionCall
        |  -> function

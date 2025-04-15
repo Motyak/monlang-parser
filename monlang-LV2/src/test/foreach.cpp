@@ -6,9 +6,55 @@
 
 ///////////////////////////////////////////////////////////
 
-// TODO: add as first test case the list literal once implemented '[1, 2, 3]'
+TEST_CASE ("iterable list literal", "[test-3210][foreach]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `foreach`
+       |  -> ProgramWord #2: SquareBracketsGroup
+       |    -> Term #1
+       |      -> Word: Atom: `1`
+       |    -> Term #2
+       |      -> Word: Atom: `2`
+       |    -> Term #3
+       |      -> Word: Atom: `3`
+       |  -> ProgramWord #3: CurlyBracketsGroup
+       |    -> ProgramSentence
+       |      -> ProgramWord: PostfixParenthesesGroup
+       |        -> Word: Atom: `print`
+       |        -> ParenthesesGroup
+       |          -> Term
+       |            -> Word: Atom: `$1`
+    )EOF");
 
-// TODO: change this to use a grouped literal once we define the list literal '[1, 2, 3]'
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: ForeachStatement
+       |  -> iterable
+       |    -> Expression: ListLiteral
+       |      -> Expression #1: Numeral: `1`
+       |      -> Expression #2: Numeral: `2`
+       |      -> Expression #3: Numeral: `3`
+       |  -> block
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: FunctionCall
+       |        -> function
+       |          -> Expression: Symbol: `print`
+       |        -> argument #1
+       |          -> Expression: SpecialSymbol: `$1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("iterable grouped expr (symbol here)", "[test-3211][foreach]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
