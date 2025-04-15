@@ -57,6 +57,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     size_t exprGroupNesting = 0;
 
     TokenId newToken();
+    // for tokens that are not part of ast => use newToken() overload instead
     TokenId newToken(const LV2::Ast_&);
     TokenPosition asTokenPosition(size_t index);
 };

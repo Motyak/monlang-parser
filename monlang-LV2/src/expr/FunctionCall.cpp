@@ -57,6 +57,8 @@ namespace {
 class FixPassByRef {
   private:
     MayFail<MayFail_<FunctionCall>::Argument>& arg;
+    bool currExprIsMalformed = bool();
+    bool nonSymbolLeftmostPassedByRef = false;
 
   public:
     FixPassByRef(MayFail<MayFail_<FunctionCall>::Argument>& arg) : arg(arg) {}
@@ -84,7 +86,9 @@ void FixPassByRef::operator()() {
     /* prevent double call */
     ASSERT (!this->arg.has_error());
     ASSERT (!this->arg.val.passByRef);
+    ASSERT (!this->nonSymbolLeftmostPassedByRef);
 
+    currExprIsMalformed = this->arg.val.expr.has_error();
     std::visit(*this, this->arg.val.expr.val);
 
     if (this->arg.val.expr.has_error()) {
@@ -96,28 +100,37 @@ void FixPassByRef::operator()() {
             + token_len(this->arg.val.expr.val);
 
     unless (this->arg.val.passByRef) return;
-    if (!is_lvalue(this->arg.val.expr.value())) {
-        // TODO: maybe need to pass some info in err._info ?
+    if (this->nonSymbolLeftmostPassedByRef
+            || !is_lvalue(this->arg.val.expr.value())) {
         this->arg.err = ERR(732);
     }
 }
 
 void FixPassByRef::operator()(MayFail_<FunctionCall>* functionCall) {
+    auto currExprIsMalformed_ = currExprIsMalformed; // backup
+    currExprIsMalformed = functionCall->function.has_error();
     std::visit(*this, functionCall->function.val);
+    unless (!currExprIsMalformed_) return;
     if (this->arg.val.passByRef) {
         functionCall->_tokenLen -= 1; // &
     }
 }
 
 void FixPassByRef::operator()(MayFail_<FieldAccess>* fieldAccess) {
+    auto currExprIsMalformed_ = currExprIsMalformed; // backup
+    currExprIsMalformed = fieldAccess->object.has_error();
     std::visit(*this, fieldAccess->object.val);
+    unless (!currExprIsMalformed_) return;
     if (this->arg.val.passByRef) {
         fieldAccess->_tokenLen -= 1; // &
     }
 }
 
 void FixPassByRef::operator()(MayFail_<Subscript>* subscript) {
+    auto currExprIsMalformed_ = currExprIsMalformed; // backup
+    currExprIsMalformed = subscript->array.has_error();
     std::visit(*this, subscript->array.val);
+    unless (!currExprIsMalformed_) return;
     if (this->arg.val.passByRef) {
         subscript->_tokenLen -= 1; // &
     }
@@ -137,6 +150,12 @@ void FixPassByRef::operator()(Symbol* symbol) {
     symbol->value = symbol->value.substr(1); // remove leading '&'
     symbol->_tokenLen -= 1; // &
     this->arg.val.passByRef = true;
+
+    auto* atom_ptr = new Atom{symbol->value};
+    if (!peekSymbol(atom_ptr)) {
+        this->nonSymbolLeftmostPassedByRef = true;
+    }
+    delete atom_ptr;
 }
 } // end of anonymous namespace
 

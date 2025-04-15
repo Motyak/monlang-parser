@@ -576,7 +576,11 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
     int i = 0;
     for (auto arg: functionCall->arguments) {
         output(arg.has_error()? "~> argument #" : "-> argument #");
-        outputLine(INT2CSTR(++i));
+        output(INT2CSTR(++i));
+        if (arg.val.passByRef) {
+            output(" (passed by reference)");
+        }
+        outputLine();
         currIndent++;
         numbering.push(NO_NUMBERING);
         operator()(arg.val.expr);

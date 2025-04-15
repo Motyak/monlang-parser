@@ -702,7 +702,7 @@ TEST_CASE ("Malformed FunctionCallArgument, contains a non-lvalue passed by refe
        |~> Expression: FunctionCall
        |  -> function
        |    -> Expression: Symbol: `func`
-       |  ~> argument #1
+       |  ~> argument #1 (passed by reference)
        |    -> Expression: FunctionCall
        |      -> function
        |        -> Expression: Symbol: `a`

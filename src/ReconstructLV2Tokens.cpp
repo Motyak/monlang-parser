@@ -739,11 +739,43 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
     curPos += group_nesting(*functionCall);
     operator()(functionCall->function);
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
-    LOOP for (auto expr: functionCall->arguments) {
+    LOOP for (auto arg: functionCall->arguments) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
-        operator()(expr);
+        /* FunctionCallArgument */
+        {
+            auto tokenId = newToken();
+            token.is_malformed = arg.has_error();
+            token.name = "FunctionCallArgument";
+
+            if (token.is_malformed) {
+                token.err_desc = arg.error().fmt; // TODO: map this to the actual error description
+            }
+
+            token.start = asTokenPosition(curPos);
+            auto backupCurPos = curPos;
+            auto backupLastCorrectToken = lastCorrectToken;
+            // lastCorrectToken = -1;
+            curPos += arg.val.passByRef;
+            operator()(arg.val.expr);
+            curPos = backupCurPos;
+            curPos += arg.val._tokenLen;
+            token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+
+            if (token.is_malformed) {
+                if (lastCorrectToken == size_t(-1)) {
+                    token.err_start = token.start;
+                }
+                else {
+                    token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+                    token.err_start = token.err_start < token.start? token.start : token.err_start;
+                }
+                tokens.traceback.push_back(token);
+            }
+
+            lastCorrectToken = backupLastCorrectToken;
+        }
         ENDLOOP
     }
     curPos = backupCurPos;
