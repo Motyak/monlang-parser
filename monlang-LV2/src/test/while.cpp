@@ -153,7 +153,7 @@ TEST_CASE ("function call condition", "[test-3314][while]") {
        |    -> Expression: FunctionCall
        |      -> function
        |        -> Expression: Symbol: `end?`
-       |      -> arguments
+       |      -> argument #1
        |        -> Expression: Symbol: `stream`
        |  -> block
        |    -> Statement: ExpressionStatement

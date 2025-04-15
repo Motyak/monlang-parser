@@ -248,7 +248,7 @@ TEST_CASE ("foreach statement", "[test-1221][stmt]") {
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Symbol: `print`
-       |        -> arguments
+       |        -> argument #1
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 

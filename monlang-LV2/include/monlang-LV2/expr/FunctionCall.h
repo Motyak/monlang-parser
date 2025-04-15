@@ -10,13 +10,22 @@
 
 template <>
 struct MayFail_<FunctionCall> {
+    struct Argument {
+        MayFail<Expression_> expr;
+        bool passByRef = false;
+
+        size_t _tokenLen = 0;
+        Argument() = default;
+        Argument(const MayFail<Expression_>&, bool);
+    };
+
     MayFail<Expression_> function;
-    std::vector<MayFail<Expression_>> arguments;
+    std::vector<MayFail<Argument>> arguments;
 
     size_t _tokenLen = 0;
     size_t _groupNesting = 0;
     MayFail_() = default;
-    explicit MayFail_(const MayFail<Expression_>&, const std::vector<MayFail<Expression_>>&);
+    explicit MayFail_(const MayFail<Expression_>&, const std::vector<MayFail<Argument>>&);
 
     explicit MayFail_(FunctionCall);
     explicit operator FunctionCall() const;

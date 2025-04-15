@@ -232,7 +232,7 @@ TEST_CASE ("labelize function call", "[test-2316][let]") {
        |  -> Expression: FunctionCall
        |    -> function
        |      -> Expression: Symbol: `func`
-       |    -> arguments
+       |    -> argument #1
        |      -> Expression: Symbol: `arg`
     )EOF");
 

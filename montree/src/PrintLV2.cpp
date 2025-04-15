@@ -573,31 +573,18 @@ void PrintLV2::operator()(MayFail_<FunctionCall>* functionCall) {
         return;
     }
 
-    auto any_malformed_arg = false;
+    int i = 0;
     for (auto arg: functionCall->arguments) {
-        if (arg.has_error()) {
-            any_malformed_arg = true;
-            break;
-        }
-    }
-
-    output(any_malformed_arg? "~> " : "-> ");
-    outputLine("arguments");
-    currIndent++;
-    if (functionCall->arguments.size() > 1) {
-        for (int n : range(functionCall->arguments.size(), 0)) {
-            numbering.push(n);
-        }
-    } else /*if 1 arg*/ {
+        output(arg.has_error()? "~> argument #" : "-> argument #");
+        outputLine(INT2CSTR(++i));
+        currIndent++;
         numbering.push(NO_NUMBERING);
+        operator()(arg.val.expr);
+        if (arg.has_error() && !arg.val.expr.has_error()) {
+            outputLine("~> ", SERIALIZE_ERR(arg));
+        }
+        currIndent--;
     }
-    for (auto arg: functionCall->arguments) {
-        // numbering.push(NO_NUMBERING);
-        operator()(arg);
-    }
-    currIndent--;
-
-
     currIndent--;
 }
 

@@ -34,7 +34,7 @@ TEST_CASE ("iterable grouped expr (symbol here)", "[test-3211][foreach]") {
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Symbol: `print`
-       |        -> arguments
+       |        -> argument #1
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 
@@ -74,7 +74,7 @@ TEST_CASE ("iterable special value", "[test-3231][foreach]") {
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Symbol: `print`
-       |        -> arguments
+       |        -> argument #1
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 
@@ -119,7 +119,7 @@ TEST_CASE ("iterable function call", "[test-3212][foreach]") {
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Symbol: `print`
-       |        -> arguments
+       |        -> argument #1
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 
@@ -164,7 +164,7 @@ TEST_CASE ("iterable operation", "[test-3213][foreach]") {
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Symbol: `print`
-       |        -> arguments
+       |        -> argument #1
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 
@@ -208,7 +208,7 @@ TEST_CASE ("iterable block expression", "[test-3214][foreach]") {
        |      -> Expression: FunctionCall
        |        -> function
        |          -> Expression: Symbol: `print`
-       |        -> arguments
+       |        -> argument #1
        |          -> Expression: SpecialSymbol: `$1`
     )EOF");
 

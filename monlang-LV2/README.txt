@@ -46,6 +46,7 @@
 69 MapLiteral
 71 FieldAccess
 72 Subscript
+73 FunctionCallArgument
 
 99 Lvalue
 
@@ -138,7 +139,10 @@
 612 Malformed Operation, contains a Malformed Expression as right operand
 
 621 Malformed FunctionCall, contains a Malformed Expression as function
-622 Malformed FunctionCall, contains a Malformed Expression as argument
+622 Malformed FunctionCall, contains a Malformed FunctionCallArgument
+
+731 Malformed FunctionCallArgument, contains a Malformed Expression
+732 Malformed FunctionCallArgument, contains a non-lvalue passed by reference
 
 631 Malformed Lambda, contains a Malformed Statement within body
 

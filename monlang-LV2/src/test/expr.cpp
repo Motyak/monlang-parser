@@ -2,6 +2,8 @@
 #include <montree/montree-LV2.h>
 #include <catch2/catch_amalgamated.hpp>
 
+#include <monlang-LV2/expr/FunctionCall.h>
+
 ///////////////////////////////////////////////////////////
 
 TEST_CASE ("symbol from atom", "[test-1611][expr]") {
@@ -197,7 +199,7 @@ TEST_CASE ("function call from postfix parentheses group", "[test-1616][expr]") 
        |-> Expression: FunctionCall
        |  -> function
        |    -> Expression: Symbol: `func`
-       |  -> arguments
+       |  -> argument #1
        |    -> Expression: Symbol: `arg`
     )EOF");
 
@@ -652,7 +654,7 @@ TEST_CASE ("Malformed FunctionCall, contains a Malformed Expression as FUNCTION"
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("Malformed FunctionCall, contains a Malformed Expression as ARGUMENT", "[test-1625][expr][err]") {
+TEST_CASE ("Malformed FunctionCallArgument, contains a Malformed Expression", "[test-1625][expr][err]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: PostfixParenthesesGroup
@@ -667,7 +669,7 @@ TEST_CASE ("Malformed FunctionCall, contains a Malformed Expression as ARGUMENT"
        |~> Expression: FunctionCall
        |  -> function
        |    -> Expression: Symbol: `func`
-       |  ~> arguments
+       |  ~> argument #1
        |    ~> Expression
        |      ~> ERR-161
     )EOF");
@@ -676,6 +678,41 @@ TEST_CASE ("Malformed FunctionCall, contains a Malformed Expression as ARGUMENT"
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
     REQUIRE (/*FunctionCall*/ "ERR-622" == output.error().fmt);
+    REQUIRE (/*FunctionCallArgument*/ "ERR-731" == std::get<MayFail_<FunctionCall>*>(output.val)->arguments.at(0).error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed FunctionCallArgument, contains a non-lvalue passed by reference", "[test-1670][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: PostfixParenthesesGroup
+       |    -> Word: Atom: `func`
+       |    -> ParenthesesGroup
+       |      -> Term
+       |        -> PostfixParenthesesGroup
+       |          -> Word: Atom: `&a`
+       |          -> ParenthesesGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: FunctionCall
+       |  -> function
+       |    -> Expression: Symbol: `func`
+       |  ~> argument #1
+       |    -> Expression: FunctionCall
+       |      -> function
+       |        -> Expression: Symbol: `a`
+       |      -> arguments (none)
+       |    ~> ERR-732
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);

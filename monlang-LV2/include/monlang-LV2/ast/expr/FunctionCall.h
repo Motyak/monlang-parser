@@ -6,12 +6,21 @@
 #include <vector>
 
 struct FunctionCall {
+    struct Argument {
+        Expression expr;
+        bool passByRef = false;
+
+        size_t _tokenLen = 0;
+        Argument() = default;
+        Argument(const Expression&, bool);
+    };
+
     Expression function;
-    std::vector<Expression> arguments;
+    std::vector<Argument> arguments;
 
     size_t _tokenLen = 0;
     FunctionCall() = default;
-    FunctionCall(const Expression&, const std::vector<Expression>&);
+    FunctionCall(const Expression&, const std::vector<Argument>&);
 };
 
 #endif // AST_FUNCTION_CALL_H

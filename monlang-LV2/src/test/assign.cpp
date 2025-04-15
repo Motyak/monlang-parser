@@ -232,7 +232,7 @@ TEST_CASE ("assign function call", "[test-2116][assign]") {
        |  -> Expression: FunctionCall
        |    -> function
        |      -> Expression: Symbol: `func`
-       |    -> arguments
+       |    -> argument #1
        |      -> Expression: Symbol: `arg`
     )EOF");
 

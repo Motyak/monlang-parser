@@ -169,7 +169,7 @@ TEST_CASE ("function call condition", "[test-3414][dowhile]") {
        |    -> Expression: FunctionCall
        |      -> function
        |        -> Expression: Symbol: `end?`
-       |      -> arguments
+       |      -> argument #1
        |        -> Expression: Symbol: `stream`
     )EOF");
 
