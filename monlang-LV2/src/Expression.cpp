@@ -70,11 +70,16 @@ MayFail<Expression_> buildExpression(const Term& term) {
             return Malformed<Expression_>(expr, error);
         }
     }
-
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
-    fixPrecedence(term_);
+    fixPrecedence(/*OUT*/term_);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
+
+    /* non-recursive and must apply AFTER fixPrecedence */
+    fixDecimalNumeral(/*OUT*/term_.words.at(0));
+    if (term_.words.size() == 3) {
+        fixDecimalNumeral(/*OUT*/term_.words.at(2)); // operation rhs
+    }
 
     // if (term_ =~ "Word Word Word"_) {
     //     ..

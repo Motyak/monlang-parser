@@ -9,4 +9,6 @@ bool peekNumeral(const Word&);
 
 Numeral buildNumeral(const Word&);
 
+void fixDecimalNumeral(Word&);
+
 #endif // NUMERAL_H

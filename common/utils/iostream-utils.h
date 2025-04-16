@@ -1,3 +1,6 @@
+#ifndef IOSTREAM_UTILS_H
+#define IOSTREAM_UTILS_H
+
 #include <iostream>
 
 inline std::string slurp_stdin(bool repeatable=true) {
@@ -13,3 +16,5 @@ inline std::string slurp_stdin(bool repeatable=true) {
 
     return res;
 }
+
+#endif // IOSTREAM_UTILS_H

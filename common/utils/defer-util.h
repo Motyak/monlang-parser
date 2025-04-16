@@ -1,6 +1,7 @@
 // stackoverflow dot com /questions/32432450/what-is-standard-defer-finalizer-implementation-in-c
 
 #ifndef DEFER_UTIL_H
+#define DEFER_UTIL_H
 
 template <class F>
 struct __Deferrer {

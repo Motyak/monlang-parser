@@ -1,3 +1,6 @@
+#ifndef FS_UTILS_H
+#define FS_UTILS_H
+
 #include <filesystem>
 
 inline bool dir_exists(const std::string& path) {
@@ -13,3 +16,5 @@ int main() {
     }
 }
 #endif
+
+#endif // FS_UTILS_H
