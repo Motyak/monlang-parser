@@ -14,37 +14,52 @@
 
 namespace {
 
-class mystring; // string that can be cast to false when empty..
-                // ..,with .peekchar() to peek a character..
-                // ..and .getchar() to extract a character
+/*
+    string that can be cast to false when empty..
+    ..,with .peekchar() to peek a character..
+    ..and .getchar() to extract a character
+*/
+class mystring : public std::string {
+  public:
+    mystring() : std::string(){}
+    mystring(std::string& str) : std::string(str){}
+    mystring(const std::string& str) : std::string(str){}
+    operator bool() const;
+    char peekchar() const;
+    char getchar();
+};
 
 // consume string while pattern matches, return extracted characters
-using consume_fn_t = std::function< mystring (mystring&) >;
+using consume_fn_t = const std::function< mystring (mystring&) >;
 
 /* all functions for consuming numerals */
 
 extern consume_fn_t digit_group_sep; // '
+extern consume_fn_t fraction_bar; // /
+extern consume_fn_t exponent_caret; // ^
+extern consume_fn_t decimal_sep; // .
 
-extern consume_fn_t int_sign; // + -
-extern consume_fn_t int_digits; // 0..9 and separators (but guaranteed to have at least one digit)
+extern consume_fn_t int_sign; // + and -
+extern consume_fn_t int_digits; // 0..9 and digit group separators (but at least one digit)
 extern consume_fn_t int_numeral; // <int_sign> <int_digits>
 extern consume_fn_t opt_int_digits; // 0..9 and digit group separators
 
+/* TODO: unused */
 extern consume_fn_t dec_numeral; // <int_numeral> <DECIMAL_SEPARATOR> (<opt_int_digits> | (<PERIODIC_PART_START> <int_digits> <PERIODIC_PART_END>))
 extern consume_fn_t frac_numeral; // <int_numeral> <FRACTION_BAR> <int_digits>
 extern consume_fn_t pow_numeral; // <int_numeral> <EXPONENT_CARET> <int_digits>
 
 extern consume_fn_t hex_prefix; // 0x
 extern consume_fn_t hex_digits; // 0..9, A..F
-extern consume_fn_t hex_numeral; // <hex_prefix> <hex_digits>
+/* TODO: unused */ extern consume_fn_t hex_numeral; // <hex_prefix> <hex_digits>
 
 extern consume_fn_t oct_prefix; // 0o
 extern consume_fn_t oct_digits; // 0..7
-extern consume_fn_t oct_numeral; // <oct_prefix> <oct_digits>
+/* TODO: unused */ extern consume_fn_t oct_numeral; // <oct_prefix> <oct_digits>
 
 extern consume_fn_t bin_prefix; // 0b
 extern consume_fn_t bin_digits; // 0 1
-extern consume_fn_t bin_numeral; // <bin_prefix> <bin_digits>
+/* TODO: unused */ extern consume_fn_t bin_numeral; // <bin_prefix> <bin_digits>
 
 } // end of anonymous namespace
 
@@ -52,18 +67,43 @@ bool peekNumeral(const Word& word) {
     unless (std::holds_alternative<Atom*>(word)) {
         return false;
     }
+    mystring atom_value = std::get<Atom*>(word)->value;
+    ASSERT (atom_value.size() > 0);
 
-    auto atom = *std::get<Atom*>(word);
-    for (auto c: atom.value) {
-        unless ('0' <= c && c <= '9') {
-            return false;
-        }
+    if (hex_prefix(atom_value)) {
+        return hex_digits(atom_value) && !atom_value;
+    }
+    if (oct_prefix(atom_value)) {
+        return oct_digits(atom_value) && !atom_value;
+    }
+    if (bin_prefix(atom_value)) {
+        return bin_digits(atom_value) && !atom_value;
     }
 
-    return true;
+    unless (int_numeral(atom_value)) return false;
+
+    if (!atom_value) {
+        return true;
+    }
+
+    if (fraction_bar(atom_value)) {
+        return int_digits(atom_value) && !atom_value;
+    }
+    if (exponent_caret(atom_value)) {
+        return int_digits(atom_value) && !atom_value;
+    }
+    if (decimal_sep(atom_value)) {
+        return true; // guaranteed because the only way to get a dot in an Atom..
+                     // ..is through fixDecimalNumeral(), which already performs the checks
+    }
+
+    return false;
 }
 
 Numeral buildNumeral(const Word& word) {
+    // TODO: update struct Numeral to add .fmt (with text representation)..
+    // .., along with "numeric" representations (fraction as two str, or int as one str)
+
     ASSERT (std::holds_alternative<Atom*>(word));
     auto atom = *std::get<Atom*>(word);
 
@@ -98,39 +138,13 @@ Numeral::Numeral(const std::string& str) : str(str){}
 // IMPL for file-scope declarations
 ///////////////////////////////////////////////////////////
 
-namespace {
-class mystring : public std::string {
-  public:
-    mystring() : std::string(){}
-    mystring(std::string& str) : std::string(str){}
-    mystring(const std::string& str) : std::string(str){}
-
-    operator bool() const {
-        return !this->empty();
-    }
-
-    char peekchar() {
-        unless (!this->empty()) return -1;
-        auto ret = this->at(0);
-        return ret;
-    }
-
-    char getchar() {
-        ASSERT (!this->empty());
-        auto ret = this->at(0);
-        this->erase(0, 1);
-        return ret;
-    }
-};
-} // end of anonymous namespace
-
 void FixDecimalNumeral::operator()() {
     std::visit(*this, this->word);
 }
 
 void FixDecimalNumeral::operator()(PostfixParenthesesGroup* ppg) {
-    unless (!this->periodic_dec_part) return; // we already traversed a PPG
-    this->periodic_dec_part = ""; // to support the above check ^^^ // TODO: c'est pas bon !!!!!
+    unless (!this->periodic_dec_part.has_value()) return; // we already traversed a PPG
+    this->periodic_dec_part = ""; // to support the above check ^^^
     unless (std::holds_alternative<Path*>(ppg->leftPart)) return;
 
     unless (ppg->rightPart.terms.size() == 1) return;
@@ -151,7 +165,7 @@ void FixDecimalNumeral::operator()(Path* path) {
     ASSERT (path_right_part.size() > 0);
     auto fixed_dec_part = opt_int_digits(path_right_part); /*
         we allow empty fixed dec part (digit group separators only) as in 0.'(3)..
-        ..but only when there is a periodical dec part
+        ..but only when there is a periodic dec part
     */
    unless (!path_right_part) return;
    unless (fixed_dec_part) return;
@@ -178,17 +192,20 @@ void FixDecimalNumeral::operator()(auto*) {
 
 namespace {
 
-consume_fn_t digit_group_sep = [](mystring& str) -> mystring {
-    auto res = mystring();
-    unless (str) return res;
+consume_fn_t constant(const std::string& const_) {
+    return [const_](mystring& str){
+        auto res = mystring();
 
-    auto c = str.peekchar();
-    if (c == '\'') {
-        res += str.getchar();
-    }
+        if (str.starts_with(const_)) {
+            res += str.substr(0, const_.size());
+            str.erase(0, const_.size());
+        }
 
-    return res;
-};
+        return res;    
+    };
+}
+
+consume_fn_t digit_group_sep = constant("'");
 
 consume_fn_t int_sign = [](mystring& str) -> mystring {
     auto res = mystring();
@@ -248,5 +265,86 @@ consume_fn_t int_numeral = [](mystring& str) -> mystring {
 
     return res;
 };
+
+consume_fn_t hex_prefix = constant("0x");
+consume_fn_t hex_digits = [](mystring& str) -> mystring {
+    auto res = mystring();
+
+    bool at_least_one_digit = false;
+    while (str) {
+        if (auto sep = digit_group_sep(str)) {
+            res += sep;
+            continue;
+        }
+        auto c = str.peekchar();
+        unless (('0' <= c && c <= '9') || ('A' <= c && c <= 'F')) break;
+        at_least_one_digit = true;
+        res += str.getchar();
+    }
+    unless (at_least_one_digit) return mystring();
+
+    return res;
+};
+
+consume_fn_t oct_prefix = constant("0o");
+consume_fn_t oct_digits = [](mystring& str) -> mystring {
+    auto res = mystring();
+
+    bool at_least_one_digit = false;
+    while (str) {
+        if (auto sep = digit_group_sep(str)) {
+            res += sep;
+            continue;
+        }
+        auto c = str.peekchar();
+        unless ('0' <= c && c <= '7') break;
+        at_least_one_digit = true;
+        res += str.getchar();
+    }
+    unless (at_least_one_digit) return mystring();
+
+    return res;
+};
+
+consume_fn_t bin_prefix = constant("0b");
+consume_fn_t bin_digits = [](mystring& str) -> mystring {
+    auto res = mystring();
+
+    bool at_least_one_digit = false;
+    while (str) {
+        if (auto sep = digit_group_sep(str)) {
+            res += sep;
+            continue;
+        }
+        auto c = str.peekchar();
+        unless (c == '0' || c == '1') break;
+        at_least_one_digit = true;
+        res += str.getchar();
+    }
+    unless (at_least_one_digit) return mystring();
+
+    return res;
+};
+
+consume_fn_t fraction_bar = constant("/");
+consume_fn_t exponent_caret = constant("^");
+consume_fn_t decimal_sep = constant(".");
+
+mystring::operator bool() const {
+    return !this->empty();
+}
+
+char mystring::peekchar() const {
+    unless (!this->empty()) return -1;
+    auto ret = this->at(0);
+    return ret;
+}
+
+char mystring::getchar() {
+    ASSERT (!this->empty());
+    auto ret = this->at(0);
+    this->erase(0, 1);
+    return ret;
+}
 
 } // end of anonymous namespace
