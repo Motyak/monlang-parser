@@ -812,7 +812,7 @@ void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
 }
 
 void PrintLV2::operator()(Numeral* numeral) {
-    outputLine("Numeral: `", numeral->str.c_str(), "`");
+    outputLine("Numeral: `", numeral->fmt.c_str(), "`");
 }
 
 void PrintLV2::operator()(StrLiteral* strLiteral) {

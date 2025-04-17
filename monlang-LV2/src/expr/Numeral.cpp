@@ -132,7 +132,7 @@ void fixDecimalNumeral(Word& word) {
     doit();
 }
 
-Numeral::Numeral(const std::string& str) : str(str){}
+Numeral::Numeral(const std::string& fmt) : fmt(fmt){}
 
 ///////////////////////////////////////////////////////////
 // IMPL for file-scope declarations

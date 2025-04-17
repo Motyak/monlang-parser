@@ -14,6 +14,8 @@
 #include "while.cpp" // while statement with all types of expression
 #include "dowhile.cpp" // do while statement with all types of expression
 
+#include "num.cpp" // numeral expressions
+
 // #include "int.cpp" // nested expr and nested stmt
 
 // #include "excerpts.cpp" // complete programs
