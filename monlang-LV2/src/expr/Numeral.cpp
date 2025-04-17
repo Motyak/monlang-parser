@@ -22,10 +22,29 @@ class mystring; // string that can be cast to false when empty..
 using consume_fn_t = std::function< mystring (mystring&) >;
 
 /* all functions for consuming numerals */
-extern consume_fn_t digit_group_sep; // '?
-extern consume_fn_t int_sign; // [+-]?
-extern consume_fn_t int_digits; // [0-9]*
-extern consume_fn_t int_numeral; // ([+-]?[0-9]+) | \z
+
+extern consume_fn_t digit_group_sep; // '
+
+extern consume_fn_t int_sign; // + -
+extern consume_fn_t int_digits; // 0..9 and separators (but guaranteed to have at least one digit)
+extern consume_fn_t int_numeral; // <int_sign> <int_digits>
+extern consume_fn_t opt_int_digits; // 0..9 and digit group separators
+
+extern consume_fn_t dec_numeral; // <int_numeral> <DECIMAL_SEPARATOR> (<opt_int_digits> | (<PERIODIC_PART_START> <int_digits> <PERIODIC_PART_END>))
+extern consume_fn_t frac_numeral; // <int_numeral> <FRACTION_BAR> <int_digits>
+extern consume_fn_t pow_numeral; // <int_numeral> <EXPONENT_CARET> <int_digits>
+
+extern consume_fn_t hex_prefix; // 0x
+extern consume_fn_t hex_digits; // 0..9, A..F
+extern consume_fn_t hex_numeral; // <hex_prefix> <hex_digits>
+
+extern consume_fn_t oct_prefix; // 0o
+extern consume_fn_t oct_digits; // 0..7
+extern consume_fn_t oct_numeral; // <oct_prefix> <oct_digits>
+
+extern consume_fn_t bin_prefix; // 0b
+extern consume_fn_t bin_digits; // 0 1
+extern consume_fn_t bin_numeral; // <bin_prefix> <bin_digits>
 
 } // end of anonymous namespace
 
@@ -130,9 +149,12 @@ void FixDecimalNumeral::operator()(PostfixParenthesesGroup* ppg) {
 void FixDecimalNumeral::operator()(Path* path) {
     mystring path_right_part = path->rightPart.value;
     ASSERT (path_right_part.size() > 0);
-    auto fixed_dec_part = int_digits(path_right_part);
-    unless (!path_right_part) return; // we allow empty fixed dec part (digit group separators only)..
-                                      // ..as in 0.'(3)
+    auto fixed_dec_part = opt_int_digits(path_right_part); /*
+        we allow empty fixed dec part (digit group separators only) as in 0.'(3)..
+        ..but only when there is a periodical dec part
+    */
+   unless (!path_right_part) return;
+   unless (fixed_dec_part) return;
 
     unless (std::holds_alternative<Atom*>(path->leftPart)) return;
     mystring path_left_part = std::get<Atom*>(path->leftPart)->value;
@@ -141,7 +163,8 @@ void FixDecimalNumeral::operator()(Path* path) {
     unless (!path_left_part) return;
     unless (int_part) return;
 
-    unless (fixed_dec_part || this->periodic_dec_part) return;
+    auto fixed_dec_part_ = fixed_dec_part;
+    unless (int_digits(fixed_dec_part_) || this->periodic_dec_part) return;
     auto dec_numeral = int_part + "." + fixed_dec_part;
     if (this->periodic_dec_part) {
         dec_numeral += "(" + this->periodic_dec_part.value() + ")";
@@ -179,7 +202,7 @@ consume_fn_t int_sign = [](mystring& str) -> mystring {
     return res;
 };
 
-consume_fn_t int_digits = [](mystring& str) -> mystring {
+consume_fn_t opt_int_digits = [](mystring& str) -> mystring {
     auto res = mystring();
 
     while (str) {
@@ -191,6 +214,25 @@ consume_fn_t int_digits = [](mystring& str) -> mystring {
         unless ('0' <= c && c <= '9') break;
         res += str.getchar();
     }
+
+    return res;
+};
+
+consume_fn_t int_digits = [](mystring& str) -> mystring {
+    auto res = mystring();
+
+    bool at_least_one_digit = false;
+    while (str) {
+        if (auto sep = digit_group_sep(str)) {
+            res += sep;
+            continue;
+        }
+        auto c = str.peekchar();
+        unless ('0' <= c && c <= '9') break;
+        at_least_one_digit = true;
+        res += str.getchar();
+    }
+    unless (at_least_one_digit) return mystring();
 
     return res;
 };

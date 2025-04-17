@@ -72,13 +72,13 @@ MayFail<Expression_> buildExpression(const Term& term) {
     }
     // ASSERT (term_ =~ "Word (OPERATOR Word)*"_);
 
-    fixPrecedence(/*OUT*/term_);
+    fixPrecedence(term_);
     ASSERT (term_.words.size() == 1 || term_.words.size() == 3);
 
     /* non-recursive and must apply AFTER fixPrecedence */
-    fixDecimalNumeral(/*OUT*/term_.words.at(0));
+    fixDecimalNumeral(term_.words.at(0));
     if (term_.words.size() == 3) {
-        fixDecimalNumeral(/*OUT*/term_.words.at(2)); // operation rhs
+        fixDecimalNumeral(term_.words.at(2)); // operation rhs
     }
 
     // if (term_ =~ "Word Word Word"_) {

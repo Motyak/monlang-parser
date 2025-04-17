@@ -6,7 +6,7 @@ function VERBOSE {
 	$@
 }
 
-VERBOSE make -C monlang-LV2 bin/test/all.elf
+VERBOSE make bin/test/test_token_lengths.elf
 
 need_rebuild=
 for dep in src/test/playground.cpp lib/libs.a lib/test-libs.a montree/dist/montree.a; do
