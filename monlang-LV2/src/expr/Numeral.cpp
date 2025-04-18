@@ -183,7 +183,9 @@ void FixDecimalNumeral::operator()(Path* path) {
     if (this->periodic_dec_part) {
         dec_numeral += "(" + this->periodic_dec_part.value() + ")";
     }
-    this->word = new Atom{dec_numeral};
+    auto atom = new Atom{dec_numeral};
+    atom->_tokenLen = dec_numeral.size();
+    this->word = atom;
 }
 
 void FixDecimalNumeral::operator()(auto*) {
