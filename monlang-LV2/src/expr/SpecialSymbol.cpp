@@ -29,4 +29,4 @@ SpecialSymbol buildSpecialSymbol(const Word& word) {
     return specialSymbol;
 }
 
-SpecialSymbol::SpecialSymbol(const std::string& str) : str(str){}
+SpecialSymbol::SpecialSymbol(const std::string& value) : value(value){}

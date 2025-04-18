@@ -808,7 +808,7 @@ void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
 }
 
 void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
-    outputLine("SpecialSymbol: `", specialSymbol->str.c_str(), "`");
+    outputLine("SpecialSymbol: `", specialSymbol->value.c_str(), "`");
 }
 
 void PrintLV2::operator()(Numeral* numeral) {
