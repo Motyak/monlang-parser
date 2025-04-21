@@ -17,6 +17,7 @@ class PrintLV1 : public /*LV1*/AstVisitor_<void> {
 
     void operator()(MayFail_<SquareBracketsTerm>*);
     void operator()(MayFail_<SquareBracketsGroup>*);
+    void operator()(MayFail_<MultilineSquareBracketsGroup>*);
     void operator()(MayFail_<ParenthesesGroup>*);
     void operator()(MayFail_<CurlyBracketsGroup>*);
     void operator()(Quotation*);

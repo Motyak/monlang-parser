@@ -38,10 +38,8 @@ using Expression = std::variant<
     StrLiteral*,
 
     /* Atom expressions */
-
     Numeral*,
     SpecialSymbol*,
-    // fall-through
     Symbol*
 >;
 

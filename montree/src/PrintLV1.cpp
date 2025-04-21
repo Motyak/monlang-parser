@@ -11,6 +11,7 @@
 #include <monlang-LV1/Quotation.h>
 #include <monlang-LV1/SquareBracketsTerm.h>
 #include <monlang-LV1/SquareBracketsGroup.h>
+#include <monlang-LV1/MultilineSquareBracketsGroup.h>
 #include <monlang-LV1/ParenthesesGroup.h>
 #include <monlang-LV1/CurlyBracketsGroup.h>
 #include <monlang-LV1/PostfixSquareBracketsGroup.h>
@@ -262,6 +263,38 @@ void PrintLV1::operator()(MayFail_<SquareBracketsGroup>* sbg) {
             operator()(term);
         }
         if (nb_of_malformed_terms == 0 && curWord_.has_error()) {
+            outputLine("~> ", SERIALIZE_ERR(curWord_));
+        }
+    }
+
+    currIndent--;
+}
+
+void PrintLV1::operator()(MayFail_<MultilineSquareBracketsGroup>* msbg) {
+    auto curWord_ = curWord;
+    outputLine("MultilineSquareBracketsGroup");
+    currIndent++;
+
+    if (msbg->sentences.size() > 1) {
+        for (int n : range(msbg->sentences.size(), 0)) {
+            numbering.push(n);
+        }
+    } else {
+        numbering.push(NO_NUMBERING);
+    }
+
+    if (msbg->sentences.size() == 0) {
+        ASSERT(curWord_.has_error());
+        outputLine("~> ", SERIALIZE_ERR(curWord_));
+    } else {
+        int nb_of_malformed_sentences = 0;
+        for (auto sentence : msbg->sentences) {
+            if (sentence.has_error()) {
+                nb_of_malformed_sentences++;
+            }
+            operator()(sentence);
+        }
+        if (nb_of_malformed_sentences == 0 && curWord_.has_error()) {
             outputLine("~> ", SERIALIZE_ERR(curWord_));
         }
     }

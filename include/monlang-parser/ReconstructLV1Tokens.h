@@ -20,6 +20,7 @@ class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
     void operator()(Quotation*);
     void operator()(MayFail_<SquareBracketsTerm>*);
     void operator()(MayFail_<SquareBracketsGroup>*);
+    void operator()(MayFail_<MultilineSquareBracketsGroup>*);
     void operator()(MayFail_<ParenthesesGroup>*);
     void operator()(MayFail_<CurlyBracketsGroup>*);
     void operator()(MayFail_<PostfixSquareBracketsGroup>*);
