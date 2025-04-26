@@ -22,7 +22,7 @@ TEST_DEPS := $(TEST_FILENAMES:%=.deps/test/%.d)
 TEST_OBJS = $(TEST_FILENAMES:%=obj/test/%.o)
 TEST_BINS := $(TEST_FILENAMES:%=bin/test/%.elf)
 
-LIB_ARTIFACT_DIRS := ${foreach lib,${wildcard lib/*/},$(lib:%/=%)/{.deps,obj,dist,bin}} # for cleaning
+LIB_ARTIFACT_DIRS := ${foreach lib,${wildcard lib/*/},$(lib:%/=%)/{.deps,obj,dist,bin}}# for cleaning
 
 ###########################################################
 
@@ -43,20 +43,20 @@ mrproper:
 $(OBJS) obj/main.o: obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
+obj/main.o: CXXFLAGS += -Wno-unused-label -I montree/include
+
 $(TEST_OBJS): obj/test/%.o: src/test/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)
 
 $(TEST_BINS): bin/test/%.elf: obj/test/%.o $(OBJS) lib/libs.a lib/test-libs.a
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-dist/monlang-parser.a: ARFLAGS = rcsvD
 dist/monlang-parser.a: $(OBJS) lib/libs.a # montree/dist/montree.a probably?
 #                                             -> the module using monlang-parser shall also use montree
 	$(AR) $(ARFLAGS) $@ $^
 
-bin/main.elf: ADDITIONAL_CXXFLAGS = -Wno-unused-label -I montree/include -MMD -MP -MF .deps/main.d
-bin/main.elf: src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a
-	$(CXX) -o $@ src/main.cpp $(OBJS) lib/libs.a montree/dist/montree.a $(CXXFLAGS) $(ADDITIONAL_CXXFLAGS)
+bin/main.elf: obj/main.o $(OBJS) lib/libs.a montree/dist/montree.a
+	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 -include $(DEPS) $(TEST_DEPS) .deps/main.d
 
