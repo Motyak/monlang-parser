@@ -2,6 +2,7 @@
 #define ASSIGNMENT_H
 
 #include <monlang-LV2/ast/stmt/Assignment.h>
+#include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV2/common.h>
 #include <monlang-LV2/Expression.h>

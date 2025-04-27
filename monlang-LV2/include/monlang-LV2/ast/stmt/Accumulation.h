@@ -1,7 +1,7 @@
 #ifndef AST_ACCUMULATION_H
 #define AST_ACCUMULATION_H
 
-#include <monlang-LV2/Lvalue.h>
+#include <monlang-LV2/ast/Lvalue.h>
 #include <monlang-LV2/ast/expr/Symbol.h>
 #include <monlang-LV2/ast/Expression.h>
 
