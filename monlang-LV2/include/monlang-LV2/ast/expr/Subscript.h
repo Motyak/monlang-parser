@@ -4,6 +4,7 @@
 #include <monlang-LV2/ast/Expression.h>
 
 #include <variant>
+#include <cstddef>
 
 struct Subscript {
     using IndexExpression = std::variant<

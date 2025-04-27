@@ -3,6 +3,8 @@
 
 #include <monlang-LV2/ast/Expression.h>
 
+#include <cstddef>
+
 struct ExpressionStatement {
     Expression expression;
 

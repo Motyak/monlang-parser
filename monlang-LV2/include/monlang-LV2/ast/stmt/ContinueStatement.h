@@ -1,10 +1,11 @@
 #ifndef AST_CONTINUE_STATEMENT_H
 #define AST_CONTINUE_STATEMENT_H
 
-#include <monlang-LV1/ast/Atom.h>
+#include <string>
+#include <cstddef>
 
 struct ContinueStatement {
-    static const Atom KEYWORD;
+    static const std::string KEYWORD;
 
     size_t _tokenLeadingNewlines = 0;
     size_t _tokenIndentSpaces = 0;

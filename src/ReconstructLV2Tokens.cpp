@@ -161,7 +161,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     // lastCorrectToken = -1;
     operator()(assign->variable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += Assignment::SEPARATOR._tokenLen;
+    curPos += Assignment::SEPARATOR.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(assign->value);
     curPos = backupCurPos;
@@ -202,7 +202,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     // lastCorrectToken = -1;
     operator()(acc->variable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += acc->SEPARATOR()._tokenLen;
+    curPos += acc->SEPARATOR().size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(acc->value);
     curPos = backupCurPos;
@@ -241,7 +241,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    curPos += LetStatement::KEYWORD._tokenLen;
+    curPos += LetStatement::KEYWORD.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += letStmt->name.value.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
@@ -282,7 +282,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    curPos += LetStatement::KEYWORD._tokenLen;
+    curPos += LetStatement::KEYWORD.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += varStmt->name.value.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
@@ -323,7 +323,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>* returnStmt) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    curPos += ReturnStatement::KEYWORD._tokenLen;
+    curPos += ReturnStatement::KEYWORD.size();
     if (returnStmt->value) {
         curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
         operator()(*returnStmt->value);
@@ -422,7 +422,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    curPos += ForeachStatement::KEYWORD._tokenLen;
+    curPos += ForeachStatement::KEYWORD.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(foreachStmt->iterable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
@@ -471,10 +471,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
     if (whileStmt->until_loop) {
-        curPos += WhileStatement::UNTIL_KEYWORD._tokenLen;
+        curPos += WhileStatement::UNTIL_KEYWORD.size();
     }
     else {
-        curPos += WhileStatement::WHILE_KEYWORD._tokenLen;
+        curPos += WhileStatement::WHILE_KEYWORD.size();
     }
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     curPos += sequenceLen(SquareBracketsTerm::INITIATOR_SEQUENCE);
@@ -542,7 +542,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         auto backupCurPos = curPos;
         auto backupLastCorrectToken = lastCorrectToken;
         // lastCorrectToken = -1;
-        curPos += C_DoStatement::KEYWORD._tokenLen;
+        curPos += C_DoStatement::KEYWORD.size();
         curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
         operator()(mayfail_convert<Expression_>(doStmt.block));
         curPos = backupCurPos;
@@ -592,10 +592,10 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         auto backupLastCorrectToken = lastCorrectToken;
         // lastCorrectToken = -1;
         if (whileStmt.until_loop) {
-            curPos += C_WhileStatement::UNTIL_KEYWORD._tokenLen;
+            curPos += C_WhileStatement::UNTIL_KEYWORD.size();
         }
         else {
-            curPos += C_WhileStatement::WHILE_KEYWORD._tokenLen;
+            curPos += C_WhileStatement::WHILE_KEYWORD.size();
         }
         curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
         curPos += sequenceLen(SquareBracketsTerm::INITIATOR_SEQUENCE);

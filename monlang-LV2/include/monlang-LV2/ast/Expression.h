@@ -1,8 +1,6 @@
 #ifndef AST_EXPRESSION_H
 #define AST_EXPRESSION_H
 
-#include <monlang-LV1/ast/Term.h>
-
 #include <variant>
 
 struct Operation;

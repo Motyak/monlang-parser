@@ -4,9 +4,11 @@
 #include <monlang-LV2/ast/Expression.h>
 
 #include <optional>
+#include <string>
+#include <cstddef>
 
 struct ReturnStatement {
-    static const Atom KEYWORD;
+    static const std::string KEYWORD;
 
     std::optional<Expression> value;
 

@@ -4,8 +4,11 @@
 #include <monlang-LV2/ast/expr/Symbol.h>
 #include <monlang-LV2/ast/Expression.h>
 
+#include <string>
+#include <cstddef>
+
 struct LetStatement {
-    static const Atom KEYWORD;
+    static const std::string KEYWORD;
 
     Symbol name;
     Expression value;

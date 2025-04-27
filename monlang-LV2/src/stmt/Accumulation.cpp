@@ -177,18 +177,12 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-Atom Accumulation::SEPARATOR() {
-    auto str = operator_.value + Accumulation::SEPARATOR_SUFFIX;
-    auto atom = Atom{str};
-    atom._tokenLen = str.size();
-    return atom;
+std::string Accumulation::SEPARATOR() {
+    return operator_.value + Accumulation::SEPARATOR_SUFFIX;
 }
 
-Atom MayFail_<Accumulation>::SEPARATOR() {
-    auto str = operator_.value + Accumulation::SEPARATOR_SUFFIX;
-    auto atom = Atom{str};
-    atom._tokenLen = str.size();
-    return atom;
+std::string MayFail_<Accumulation>::SEPARATOR() {
+    return operator_.value + Accumulation::SEPARATOR_SUFFIX;
 }
 
 Accumulation::Accumulation(const Lvalue& variable, const Symbol& operator_, const Expression& value)

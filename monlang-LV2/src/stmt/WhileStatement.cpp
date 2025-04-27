@@ -30,18 +30,12 @@
     } \
     error._info["err_offset"] = err_offset
 
-static Atom AtomConstant(const std::string& val) {
-    auto atom = Atom{val};
-    atom._tokenLen = val.size();
-    return atom;
-}
+const std::string WhileStatement::WHILE_KEYWORD = "while";
+const std::string WhileStatement::UNTIL_KEYWORD = "until";
 
-const Atom WhileStatement::WHILE_KEYWORD = AtomConstant("while");
-const Atom WhileStatement::UNTIL_KEYWORD = AtomConstant("until");
-
-const Atom C_DoStatement::KEYWORD = AtomConstant("do");
-const Atom C_WhileStatement::WHILE_KEYWORD = WhileStatement::WHILE_KEYWORD;
-const Atom C_WhileStatement::UNTIL_KEYWORD = WhileStatement::UNTIL_KEYWORD;
+const std::string C_DoStatement::KEYWORD = "do";
+const std::string C_WhileStatement::WHILE_KEYWORD = WhileStatement::WHILE_KEYWORD;
+const std::string C_WhileStatement::UNTIL_KEYWORD = WhileStatement::UNTIL_KEYWORD;
 
 bool peekWhileStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
@@ -51,8 +45,8 @@ bool peekWhileStatement(const ProgramSentence& sentence) {
         return false;
     }
     auto atom = *std::get<Atom*>(sentence.programWords[0]);
-    return atom.value == WhileStatement::WHILE_KEYWORD.value
-        || atom.value == WhileStatement::UNTIL_KEYWORD.value;
+    return atom.value == WhileStatement::WHILE_KEYWORD
+        || atom.value == WhileStatement::UNTIL_KEYWORD;
 }
 
 bool peekDoWhileStatement(const ProgramSentence& sentence) {
@@ -63,7 +57,7 @@ bool peekDoWhileStatement(const ProgramSentence& sentence) {
         return false;
     }
     auto atom = *std::get<Atom*>(sentence.programWords[0]);
-    return atom.value == C_DoStatement::KEYWORD.value;
+    return atom.value == C_DoStatement::KEYWORD;
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);
@@ -75,7 +69,7 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
     /* while/until keyword */
     ASSERT (std::holds_alternative<Atom*>(sentence.programWords[0]));
     auto atom = *std::get<Atom*>(sentence.programWords[0]);
-    auto until_loop = atom.value == WhileStatement::UNTIL_KEYWORD.value;
+    auto until_loop = atom.value == WhileStatement::UNTIL_KEYWORD;
 
 
     /* while condition */
@@ -237,7 +231,7 @@ static MayFail<MayFail_<C_WhileStatement>> consumeC_WhileStatement(LV1::Program&
     /* while/until keyword */
     ASSERT (std::holds_alternative<Atom*>(sentence.programWords[0]));
     auto atom = *std::get<Atom*>(sentence.programWords[0]);
-    auto until_loop = atom.value == C_WhileStatement::UNTIL_KEYWORD.value;
+    auto until_loop = atom.value == C_WhileStatement::UNTIL_KEYWORD;
 
 
     /* while condition */

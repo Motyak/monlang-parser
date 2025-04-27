@@ -4,8 +4,11 @@
 #include <monlang-LV2/Lvalue.h>
 #include <monlang-LV2/ast/Expression.h>
 
+#include <string>
+#include <cstddef>
+
 struct Assignment {
-    static const Atom SEPARATOR;
+    static const std::string SEPARATOR;
 
     Lvalue variable;
     Expression value;

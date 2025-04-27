@@ -4,10 +4,13 @@
 #include <monlang-LV2/ast/Expression.h>
 #include <monlang-LV2/ast/expr/BlockExpression.h>
 
+#include <string>
+#include <cstddef>
+
 using ForeachBlock = BlockExpression;
 
 struct ForeachStatement {
-    static const Atom KEYWORD;
+    static const std::string KEYWORD;
 
     Expression iterable;
     ForeachBlock block;

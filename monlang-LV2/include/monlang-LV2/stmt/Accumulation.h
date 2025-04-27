@@ -8,13 +8,16 @@
 
 #include <monlang-LV1/ast/Program.h>
 
+#include <string>
+#include <cstddef>
+
 template <>
 struct MayFail_<Accumulation> {
     MayFail<Lvalue_> variable;
     Symbol operator_;
     MayFail<Expression_> value;
 
-    Atom SEPARATOR(); // operator_ + SUFFIX
+    std::string SEPARATOR(); // operator_ + SUFFIX
 
     size_t _tokenLeadingNewlines = 0;
     size_t _tokenIndentSpaces = 0;

@@ -32,13 +32,7 @@
     } \
     error._info["err_offset"] = err_offset
 
-static Atom AtomConstant(const std::string& val) {
-    auto atom = Atom{val};
-    atom._tokenLen = val.size();
-    return atom;
-}
-
-const Atom ReturnStatement::KEYWORD = AtomConstant("return");
+const std::string ReturnStatement::KEYWORD = "return";
 
 bool peekReturnStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
@@ -51,7 +45,7 @@ bool peekReturnStatement(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == ReturnStatement::KEYWORD.value;
+    return atom.value == ReturnStatement::KEYWORD;
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);

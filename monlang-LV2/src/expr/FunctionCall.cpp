@@ -5,6 +5,7 @@
 /* required by FixPassByRef */
 #include <monlang-LV2/expr/FieldAccess.h>
 #include <monlang-LV2/expr/Subscript.h>
+#include <monlang-LV1/ast/Atom.h>
 /* require knowing all words for token_len() */
 #include <monlang-LV2/token_len.h>
 

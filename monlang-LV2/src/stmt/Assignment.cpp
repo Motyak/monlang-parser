@@ -32,13 +32,7 @@
     } \
     error._info["err_offset"] = err_offset
 
-static Atom AtomConstant(const std::string& val) {
-    auto atom = Atom{val};
-    atom._tokenLen = val.size();
-    return atom;
-}
-
-const Atom Assignment::SEPARATOR = AtomConstant(":=");
+const std::string Assignment::SEPARATOR = ":=";
 
 bool peekAssignment(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 2) {
@@ -51,7 +45,7 @@ bool peekAssignment(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == Assignment::SEPARATOR.value;
+    return atom.value == Assignment::SEPARATOR;
 
 }
 

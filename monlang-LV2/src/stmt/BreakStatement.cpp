@@ -8,13 +8,7 @@
 
 #define unless(x) if(!(x))
 
-static Atom AtomConstant(const std::string& val) {
-    auto atom = Atom{val};
-    atom._tokenLen = val.size();
-    return atom;
-}
-
-const Atom BreakStatement::KEYWORD = AtomConstant("break");
+const std::string BreakStatement::KEYWORD = "break";
 
 bool peekBreakStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
@@ -27,7 +21,7 @@ bool peekBreakStatement(const ProgramSentence& sentence) {
     }
 
     auto atom = *std::get<Atom*>(pw);
-    return atom.value == BreakStatement::KEYWORD.value;
+    return atom.value == BreakStatement::KEYWORD;
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);

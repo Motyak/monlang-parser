@@ -4,11 +4,14 @@
 #include <monlang-LV2/ast/Expression.h>
 #include <monlang-LV2/ast/expr/BlockExpression.h>
 
+#include <string>
+#include <cstddef>
+
 using WhileBlock = BlockExpression;
 
 struct WhileStatement {
-    static const Atom WHILE_KEYWORD;
-    static const Atom UNTIL_KEYWORD;
+    static const std::string WHILE_KEYWORD;
+    static const std::string UNTIL_KEYWORD;
 
     Expression condition;
     WhileBlock block;
@@ -27,7 +30,7 @@ struct C_DoStatement;
 struct C_WhileStatement;
 
 struct C_DoStatement {
-    static const Atom KEYWORD;
+    static const std::string KEYWORD;
 
     WhileBlock block;
 
@@ -40,8 +43,8 @@ struct C_DoStatement {
 };
 
 struct C_WhileStatement {
-    static const Atom WHILE_KEYWORD;
-    static const Atom UNTIL_KEYWORD;
+    static const std::string WHILE_KEYWORD;
+    static const std::string UNTIL_KEYWORD;
 
     Expression condition;
     bool until_loop = false;

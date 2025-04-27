@@ -43,13 +43,7 @@
     } \
     error._info["err_offset"] = err_offset
 
-static Atom AtomConstant(const std::string& val) {
-    auto atom = Atom{val};
-    atom._tokenLen = val.size();
-    return atom;
-}
-
-const Atom ForeachStatement::KEYWORD = AtomConstant("foreach");
+const std::string ForeachStatement::KEYWORD = "foreach";
 
 bool peekForeachStatement(const ProgramSentence& sentence) {
     unless (sentence.programWords.size() >= 1) {
@@ -59,7 +53,7 @@ bool peekForeachStatement(const ProgramSentence& sentence) {
         return false;
     }
     auto atom = *std::get<Atom*>(sentence.programWords[0]);
-    return atom.value == ForeachStatement::KEYWORD.value;
+    return atom.value == ForeachStatement::KEYWORD;
 }
 
 static ProgramSentence consumeSentence(LV1::Program&);

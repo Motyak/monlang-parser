@@ -5,6 +5,9 @@
 #include <monlang-LV2/ast/expr/Symbol.h>
 #include <monlang-LV2/ast/Expression.h>
 
+#include <string>
+#include <cstddef>
+
 struct Accumulation {
     static const std::string SEPARATOR_SUFFIX;
 
@@ -12,7 +15,7 @@ struct Accumulation {
     Symbol operator_;
     Expression value;
 
-    Atom SEPARATOR(); // operator_ + SUFFIX
+    std::string SEPARATOR(); // operator_ + SUFFIX
 
     size_t _tokenLeadingNewlines = 0;
     size_t _tokenIndentSpaces = 0;
