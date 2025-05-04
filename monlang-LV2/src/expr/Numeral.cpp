@@ -7,6 +7,7 @@
 #include <monlang-LV1/ast/Path.h>
 
 #include <utils/assert-utils.h>
+#include <utils/str-utils.h>
 
 #include <functional>
 
@@ -101,13 +102,78 @@ bool peekNumeral(const Word& word) {
 }
 
 Numeral buildNumeral(const Word& word) {
-    // TODO: update struct Numeral to add .fmt (with text representation)..
-    // .., along with "numeric" representations (fraction as two str, or int as one str)
-
     ASSERT (std::holds_alternative<Atom*>(word));
     auto atom = *std::get<Atom*>(word);
+    auto fmt = atom.value;
+    auto fmt_without_sep = replace_all(fmt, "'", "");
 
-    auto numeral = Numeral{atom.value};
+    if (fmt.starts_with("0x")) {
+        auto type = "hex";
+        auto int1 = fmt_without_sep.substr(2);
+        auto numeral = Numeral{fmt, type, int1, "", "", ""};
+        numeral._tokenLen = atom._tokenLen;
+        return numeral;
+    }
+
+    if (fmt.starts_with("0o")) {
+        auto type = "oct";
+        auto int1 = fmt_without_sep.substr(2);
+        auto numeral = Numeral{fmt, type, int1, "", "", ""};
+        numeral._tokenLen = atom._tokenLen;
+        return numeral;
+    }
+
+    if (fmt.starts_with("0b")) {
+        auto type = "bin";
+        auto int1 = fmt_without_sep.substr(2);
+        auto numeral = Numeral{fmt, type, int1, "", "", ""};
+        numeral._tokenLen = atom._tokenLen;
+        return numeral;
+    }
+
+    if (fmt.contains("/")) {
+        auto type = "frac";
+        auto int1 = split(fmt_without_sep, "/").at(0);
+        auto int2 = split(fmt_without_sep, "/").at(1);
+        auto numeral = Numeral{fmt, type, int1, int2, "", ""};
+        numeral._tokenLen = atom._tokenLen;
+        return numeral;
+    }
+
+    if (fmt.contains("^")) {
+        auto type = "pow";
+        auto int1 = split(fmt_without_sep, "^").at(0);
+        auto int2 = split(fmt_without_sep, "^").at(1);
+        auto numeral = Numeral{fmt, type, int1, int2, "", ""};
+        numeral._tokenLen = atom._tokenLen;
+        return numeral;
+    }
+
+    if (fmt.contains(".")) {
+        auto int1 = split(fmt_without_sep, ".").at(0);
+        auto decimalPart = split(fmt_without_sep, ".").at(1);
+        // if it contains a periodic part..
+        if (decimalPart.ends_with(")")) {
+            decimalPart.pop_back();
+            auto fixed = split(decimalPart, "(").at(0);
+            auto periodic = split(decimalPart, "(").at(1);
+            auto type = fixed.empty()? "per_only" : "fix_and_per";
+            auto numeral = Numeral{fmt, type, int1, "", fixed, periodic};
+            numeral._tokenLen = atom._tokenLen;
+            return numeral;
+        }
+        else {
+            auto type = "fix_only";
+            auto fixed = decimalPart;
+            auto numeral = Numeral{fmt, type, int1, "", fixed, ""};
+            numeral._tokenLen = atom._tokenLen;
+            return numeral;
+        }
+    }
+
+    auto type = "int";
+    auto int1 = fmt_without_sep;
+    auto numeral = Numeral{fmt, type, int1, "", "", ""};
     numeral._tokenLen = atom._tokenLen;
     return numeral;
 }
@@ -132,7 +198,14 @@ void fixDecimalNumeral(Word& word) {
     doit();
 }
 
-Numeral::Numeral(const std::string& fmt) : fmt(fmt){}
+Numeral::Numeral(
+    const std::string& fmt,
+    const std::string& type,
+    const std::string& int1,
+    const std::string& int2,
+    const std::string& fixed,
+    const std::string& periodic
+) : fmt(fmt), type(type), int1(int1), int2(int2), fixed(fixed), periodic(periodic){}
 
 ///////////////////////////////////////////////////////////
 // IMPL for file-scope declarations
@@ -203,7 +276,7 @@ consume_fn_t constant(const std::string& const_) {
             str.erase(0, const_.size());
         }
 
-        return res;    
+        return res;
     };
 }
 
