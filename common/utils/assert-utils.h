@@ -4,20 +4,26 @@
 #include <iostream>
 
 #define ASSERT(condition) \
-    if (!(condition)) { \
-        std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
-                << " line " << __LINE__ << std::endl; \
-        std::terminate(); \
-    }
+    do { \
+        if (!(condition)) { \
+            std::cerr << "Assertion `" #condition "` failed in " << __FILE__ \
+                    << " line " << __LINE__ << std::endl; \
+            std::terminate(); \
+        } \
+    } while (false)
 
 #define SHOULD_NOT_HAPPEN() \
-    std::cerr << "`Should not happen` raised in " << __FILE__ \
-            << " line " << __LINE__ << std::endl; \
-    std::terminate()
+    do { \
+        std::cerr << "`Should not happen` raised in " << __FILE__ \
+                << " line " << __LINE__ << std::endl; \
+        std::terminate(); \
+    } while (false)
 
 #define TODO() \
-    std::cerr << "Missing implementation in " << __FILE__ \
-            << " line " << __LINE__ << std::endl; \
-    std::terminate()
+    do { \
+        std::cerr << "Missing implementation in " << __FILE__ \
+                << " line " << __LINE__ << std::endl; \
+        std::terminate(); \
+    } while (false)
 
 #endif // ASSERT_UTILS_H

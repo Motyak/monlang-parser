@@ -12,7 +12,7 @@ struct FunctionCall {
 
         size_t _tokenLen = 0;
         Argument() = default;
-        Argument(const Expression&, bool);
+        Argument(const Expression&, bool = false);
     };
 
     Expression function;

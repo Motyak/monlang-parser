@@ -55,6 +55,12 @@ inline std::vector<std::string> split_in_two(const std::string& str, const std::
     return res;
 }
 
+// to combine with result of split_in_two
+template <typename T>
+inline std::optional<T> second(const std::vector<T>& vec) {
+    return vec.size() == 2? std::make_optional(vec.at(1)) : std::nullopt;
+}
+
 template <typename T>
 inline std::string join(const std::vector<std::string>& vec, const T& delimiter) {
     std::stringstream ss;
