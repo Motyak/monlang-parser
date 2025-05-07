@@ -10,7 +10,7 @@
 
 template <>
 struct MayFail_<LetStatement> {
-    Symbol name;
+    Symbol label;
     MayFail<Expression_> value;
 
     size_t _tokenLeadingNewlines = 0;

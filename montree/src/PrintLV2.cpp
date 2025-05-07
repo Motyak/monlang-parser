@@ -215,7 +215,7 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     operator()(accumulation->variable);
 
 
-    outputLine("-> operator: `", accumulation->operator_.value.c_str(), "`"); /*
+    outputLine("-> operator: `", accumulation->operator_.name.c_str(), "`"); /*
         always wellformed, otherwise wouldn't be peeked in the first place
     */
 
@@ -239,13 +239,13 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
 
 
     // we assume that empty name means stub
-    if (letStatement->name.value == "") {
+    if (letStatement->label.name == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     output("-> ");
-    operator()(&letStatement->name);
+    operator()(&letStatement->label);
 
 
     if (is_stub(letStatement->value.val)
@@ -267,13 +267,13 @@ void PrintLV2::operator()(MayFail_<VarStatement>* varStatement) {
 
 
     // we assume that empty name means stub
-    if (varStatement->name.value == "") {
+    if (varStatement->variable.name == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     output("-> ");
-    operator()(&varStatement->name);
+    operator()(&varStatement->variable);
 
 
     if (is_stub(varStatement->value.val)
@@ -529,7 +529,7 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
     }
 
 
-    outputLine("-> operator: `", operation->operator_.value.c_str(), "`");
+    outputLine("-> operator: `", operation->operator_.name.c_str(), "`");
 
 
     if (is_stub(operation->rightOperand.val)
@@ -601,7 +601,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     } else {
         int i = 1;
         for (auto parameter: lambda->parameters) {
-            outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.value.c_str(), "`");
+            outputLine("-> parameter #", INT2CSTR(i++), ": `", parameter.name.c_str(), "`");
         }
     }
 
@@ -668,7 +668,7 @@ void PrintLV2::operator()(MayFail_<FieldAccess>* fieldAccess) {
     }
 
     // empty symbol indicates stub value
-    if (fieldAccess->field.value == ""
+    if (fieldAccess->field.name == ""
             && currExpression_.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currExpression_));
         currIndent--;
@@ -808,7 +808,7 @@ void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
 }
 
 void PrintLV2::operator()(SpecialSymbol* specialSymbol) {
-    outputLine("SpecialSymbol: `", specialSymbol->value.c_str(), "`");
+    outputLine("SpecialSymbol: `", specialSymbol->name.c_str(), "`");
 }
 
 void PrintLV2::operator()(Numeral* numeral) {
@@ -835,7 +835,7 @@ void PrintLV2::operator()(StrLiteral* strLiteral) {
 }
 
 void PrintLV2::operator()(Symbol* symbol) {
-    outputLine("Symbol: `", symbol->value.c_str(), "`");
+    outputLine("Symbol: `", symbol->name.c_str(), "`");
 }
 
 void PrintLV2::operator()(_StubStatement_*) {

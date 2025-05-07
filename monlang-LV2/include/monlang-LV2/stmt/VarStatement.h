@@ -10,7 +10,7 @@
 
 template <>
 struct MayFail_<VarStatement> {
-    Symbol name;
+    Symbol variable;
     MayFail<Expression_> value;
 
     size_t _tokenLeadingNewlines = 0;

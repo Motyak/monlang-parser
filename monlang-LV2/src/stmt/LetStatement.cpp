@@ -90,7 +90,7 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    Symbol name = std::get<Symbol*>(expr.val)->value;
+    Symbol name = std::get<Symbol*>(expr.val)->name;
 
 
     unless (sentence.programWords.size() >= 3) {
@@ -152,14 +152,14 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-LetStatement::LetStatement(const Symbol& name, const Expression& value)
-        : name(name), value(value){}
+LetStatement::LetStatement(const Symbol& label, const Expression& value)
+        : label(label), value(value){}
 
-MayFail_<LetStatement>::MayFail_(const Symbol& name, const MayFail<Expression_>& value)
-        : name(name), value(value){}
+MayFail_<LetStatement>::MayFail_(const Symbol& label, const MayFail<Expression_>& value)
+        : label(label), value(value){}
 
 MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
-    this->name = letStmt.name;
+    this->label = letStmt.label;
     this->value = wrap_expr(letStmt.value);
 
     this->_tokenLeadingNewlines = letStmt._tokenLeadingNewlines;
@@ -169,9 +169,9 @@ MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
 }
 
 MayFail_<LetStatement>::operator LetStatement() const {
-    auto name = this->name;
+    auto label = this->label;
     auto value = unwrap_expr(this->value.value());
-    auto letStmt = LetStatement{name, value};
+    auto letStmt = LetStatement{label, value};
 
     letStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
     letStmt._tokenIndentSpaces = this->_tokenIndentSpaces;

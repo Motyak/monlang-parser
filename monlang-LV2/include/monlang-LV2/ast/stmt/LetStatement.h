@@ -10,7 +10,7 @@
 struct LetStatement {
     static const std::string KEYWORD;
 
-    Symbol name;
+    Symbol label;
     Expression value;
 
     size_t _tokenLeadingNewlines = 0;

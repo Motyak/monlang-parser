@@ -36,7 +36,7 @@ clean:
 mrproper:
 	$(RM) obj .deps bin/*.elf bin/out bin/test dist lib/libs.a lib/test-libs.a $(LIB_ARTIFACT_DIRS)
 
-.PHONY: all main dist clean mrproper
+.PHONY: all main clean mrproper
 
 ###########################################################
 

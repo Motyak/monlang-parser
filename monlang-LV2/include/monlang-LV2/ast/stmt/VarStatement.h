@@ -10,7 +10,7 @@
 struct VarStatement {
     static const std::string KEYWORD;
 
-    Symbol name;
+    Symbol variable;
     Expression value;
 
     size_t _tokenLeadingNewlines = 0;

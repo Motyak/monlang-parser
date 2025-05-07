@@ -38,4 +38,4 @@ Symbol buildSymbol(const Word& word) {
     return symbol;
 }
 
-Symbol::Symbol(const std::string& value) : value(value){}
+Symbol::Symbol(const std::string& name) : name(name){}

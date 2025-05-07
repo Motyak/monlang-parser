@@ -90,7 +90,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    Symbol name = std::get<Symbol*>(expr.val)->value;
+    Symbol name = std::get<Symbol*>(expr.val)->name;
 
 
     unless (sentence.programWords.size() >= 3) {
@@ -152,14 +152,14 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
-VarStatement::VarStatement(const Symbol& name, const Expression& value)
-        : name(name), value(value){}
+VarStatement::VarStatement(const Symbol& variable, const Expression& value)
+        : variable(variable), value(value){}
 
-MayFail_<VarStatement>::MayFail_(const Symbol& name, const MayFail<Expression_>& value)
-        : name(name), value(value){}
+MayFail_<VarStatement>::MayFail_(const Symbol& variable, const MayFail<Expression_>& value)
+        : variable(variable), value(value){}
 
 MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {
-    this->name = varStmt.name;
+    this->variable = varStmt.variable;
     this->value = wrap_expr(varStmt.value);
 
     this->_tokenLeadingNewlines = varStmt._tokenLeadingNewlines;
@@ -169,9 +169,9 @@ MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {
 }
 
 MayFail_<VarStatement>::operator VarStatement() const {
-    auto name = this->name;
+    auto variable = this->variable;
     auto value = unwrap_expr(this->value.value());
-    auto varStmt = VarStatement{name, value};
+    auto varStmt = VarStatement{variable, value};
 
     varStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
     varStmt._tokenIndentSpaces = this->_tokenIndentSpaces;

@@ -178,11 +178,11 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
 }
 
 std::string Accumulation::SEPARATOR() {
-    return operator_.value + Accumulation::SEPARATOR_SUFFIX;
+    return operator_.name + Accumulation::SEPARATOR_SUFFIX;
 }
 
 std::string MayFail_<Accumulation>::SEPARATOR() {
-    return operator_.value + Accumulation::SEPARATOR_SUFFIX;
+    return operator_.name + Accumulation::SEPARATOR_SUFFIX;
 }
 
 Accumulation::Accumulation(const Lvalue& variable, const Symbol& operator_, const Expression& value)

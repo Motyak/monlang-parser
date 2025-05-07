@@ -144,15 +144,15 @@ void FixPassByRef::operator()(auto*) {
 }
 
 void FixPassByRef::operator()(Symbol* symbol) {
-    unless (symbol->value.size() >= 2) return;
-    unless (symbol->value.at(0) == '&') return;
-    unless (symbol->value.at(1) != '&') return;
+    unless (symbol->name.size() >= 2) return;
+    unless (symbol->name.at(0) == '&') return;
+    unless (symbol->name.at(1) != '&') return;
 
-    symbol->value = symbol->value.substr(1); // remove leading '&'
+    symbol->name = symbol->name.substr(1); // remove leading '&'
     symbol->_tokenLen -= 1; // &
     this->arg.val.passByRef = true;
 
-    auto* atom_ptr = new Atom{symbol->value};
+    auto* atom_ptr = new Atom{symbol->name};
     if (!peekSymbol(atom_ptr)) {
         this->nonSymbolLeftmostPassedByRef = true;
     }
