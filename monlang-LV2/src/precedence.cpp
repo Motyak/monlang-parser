@@ -346,11 +346,13 @@ int main()
 const std::vector<std::pair<Operators,Associativity>>
 PRECEDENCE_TABLE = {
     /* ordered from highest precedence to lowest */
-    {{"^"}, RIGHT_ASSOCIATIVE},
+    {{"**"}, RIGHT_ASSOCIATIVE},
     {{"*", "/", "%"}, LEFT_ASSOCIATIVE},
     {{"+", "-"}, LEFT_ASSOCIATIVE},
     {{"<", "<=", ">", ">="}, LEFT_ASSOCIATIVE},
     {{"==", "<>"}, LEFT_ASSOCIATIVE},
+    {{"&&"}, LEFT_ASSOCIATIVE},
+    {{"||"}, LEFT_ASSOCIATIVE},
 };
 
 namespace {
