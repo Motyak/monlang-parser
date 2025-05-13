@@ -25,6 +25,11 @@ bool peekLambda(const Word& word) {
         return false;
     }
 
+    auto rightPart = *std::get<CurlyBracketsGroup*>(assoc.rightPart);
+    unless (!rightPart._dollars) {
+        return false;
+    }
+
     auto leftPart = *std::get<ParenthesesGroup*>(assoc.leftPart);
     for (auto term: leftPart.terms) {
         ASSERT (!term.words.empty());
