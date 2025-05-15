@@ -8,7 +8,7 @@
 
 class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
   public:
-    ReconstructLV2Tokens(LV2Tokens&, const std::vector<size_t>& newlinesPos={});
+    ReconstructLV2Tokens(Tokens&, const std::vector<size_t>& newlinesPos={});
 
     // entrypoint
     void operator()(const MayFail<MayFail_<LV2::Program>>&) override;
@@ -47,7 +47,7 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     void operator()(Symbol*);
 
   private:
-    LV2Tokens& tokens;
+    Tokens& tokens;
     const std::vector<size_t> newlinesPos; // sorted asc
 
     size_t curPos = 0;
@@ -57,8 +57,6 @@ class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
     size_t exprGroupNesting = 0;
 
     TokenId newToken();
-    // for tokens that are not part of ast => use newToken() overload instead
-    TokenId newToken(const LV2::Ast_&);
     TokenPosition asTokenPosition(size_t index);
 };
 

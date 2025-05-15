@@ -42,9 +42,8 @@ ParsingResult parse(const Source& text) {
         auto res = ParsingResult{LV2_ERR, progLV2};
         res._source = text;
         res._correctLV1 = backupCorrectLV1;
-        res._tokensLV2 = LV2Tokens(); // init std::optional
         auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2.value(), newlinesPos);
+        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2, newlinesPos);
         fill_tokensLV1(progLV1);
         fill_tokensLV2(progLV2);
         return res;
@@ -53,9 +52,8 @@ ParsingResult parse(const Source& text) {
     auto res = ParsingResult{LV2_OK, (LV2::Program)progLV2};
     res._source = text;
     res._correctLV1 = backupCorrectLV1;
-    res._tokensLV2 = LV2Tokens(); // init std::optional
     auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-    auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2.value(), newlinesPos);
+    auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2, newlinesPos);
     fill_tokensLV1(progLV1);
     fill_tokensLV2(progLV2);
     return res;

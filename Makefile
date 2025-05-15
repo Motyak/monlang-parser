@@ -13,8 +13,8 @@ ARFLAGS = D -M < <(tools/aggregate-libs.mri.sh $@ $^); :
 ###########################################################
 
 OBJS := obj/parse.o \
-obj/ReconstructLV1Tokens.o obj/LV1EntityMap.o \
-obj/ReconstructLV2Tokens.o obj/LV2EntityMap.o
+obj/ReconstructLV1Tokens.o \
+obj/ReconstructLV2Tokens.o
 DEPS := $(OBJS:obj/%.o=.deps/%.d)
 
 TEST_FILENAMES := $(foreach file,$(wildcard src/test/*.cpp),$(file:src/test/%.cpp=%))

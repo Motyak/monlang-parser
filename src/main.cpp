@@ -208,7 +208,7 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
 
     else if (parsingRes.status == LV2_ERR) {
         TokenPosition err_start;
-        LOOP for (auto token: parsingRes._tokensLV2.value().traceback) {
+        LOOP for (auto token: parsingRes._tokensLV2.traceback) {
             if (__first_it) {
                 /* will initialize err_start with token.err_start */
                 err_start = token.err_start;

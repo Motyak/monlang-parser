@@ -36,10 +36,10 @@ struct ParsingResult {
     ParsingResult(const Status&, const Variant&);
     operator Variant() const;
 
-    Source _source; // for reporting eventual traceback
     std::optional<LV1::Program> _correctLV1 = std::nullopt;
-    LV1Tokens _tokensLV1; // TODO: will become std::optional
-    std::optional<LV2Tokens> _tokensLV2 = std::nullopt;
+    Tokens _tokensLV1;
+    Tokens _tokensLV2;
+    Source _source; // for reporting eventual traceback
 };
 
 Malformed<Malformed_<LV1::Program>>

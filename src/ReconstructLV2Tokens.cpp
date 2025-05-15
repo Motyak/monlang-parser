@@ -43,7 +43,7 @@
 #include <utils/loop-utils.h>
 #include <utils/variant-utils.h>
 
-#define token tokens._vec.at(tokenId)
+#define token tokens[tokenId]
 
 void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
     /* reset state */
@@ -51,7 +51,7 @@ void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& pro
     curPos = 0;
     // lastCorrectToken = -1;
 
-    auto tokenId = newToken(prog);
+    auto tokenId = newToken();
     token.is_malformed = prog.has_error();
     token.name = "Program";
 
@@ -62,9 +62,9 @@ void ReconstructLV2Tokens::operator()(const MayFail<MayFail_<LV2::Program>>& pro
     token.start = asTokenPosition(curPos);
     auto backupLastCorrectToken = lastCorrectToken;
     for (auto stmt: prog.val.statements) {
-        auto stmtTokenId = tokens._vec.size();
+        auto stmtTokenId = tokens.size();
         operator()(stmt);
-        if (!tokens._vec.at(stmtTokenId).is_malformed) {
+        if (!tokens[stmtTokenId].is_malformed) {
             lastCorrectToken = stmtTokenId;
         }
     }
@@ -91,7 +91,7 @@ void ReconstructLV2Tokens::operator()(const MayFail<Expression_>& expr) {
 
 void ReconstructLV2Tokens::operator()(const MayFail<Lvalue_>& lvalue) {
     if (lvalue.val._stub) {
-        auto tokenId = newToken((Expression_)lvalue.val);
+        auto tokenId = newToken();
         token.is_malformed = lvalue.has_error();
         token.name = "Lvalue";
 
@@ -121,7 +121,7 @@ void ReconstructLV2Tokens::operator()(const MayFail<Lvalue_>& lvalue) {
 ///////////////////////////////////////////////////////////////
 
 void ReconstructLV2Tokens::operator()(_StubStatement_* stub) {
-    auto tokenId = newToken(curStmt);
+    auto tokenId = newToken();
     token.is_malformed = curStmt.has_error();
     token.name = "Statement";
 
@@ -144,7 +144,7 @@ void ReconstructLV2Tokens::operator()(_StubStatement_* stub) {
 void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "Assignment";
 
@@ -185,7 +185,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
 void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "Accumulation";
 
@@ -226,7 +226,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
 void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "LetStatement";
 
@@ -267,7 +267,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
 void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "VarStatement";
 
@@ -308,7 +308,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
 void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>* returnStmt) {
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "ReturnStatement";
 
@@ -350,7 +350,7 @@ void ReconstructLV2Tokens::operator()(BreakStatement* breakStmt) {
     /* NOTE: BreakStatement cannot be malformed */
     ASSERT (!curStmt.has_error());
 
-    auto tokenId = newToken(curStmt);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "BreakStatement";
 
@@ -369,7 +369,7 @@ void ReconstructLV2Tokens::operator()(ContinueStatement* continueStmt) {
     /* NOTE: ContinueStatement cannot be malformed */
     ASSERT (!curStmt.has_error());
 
-    auto tokenId = newToken(curStmt);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "ContinueStatement";
 
@@ -388,7 +388,7 @@ void ReconstructLV2Tokens::operator()(DieStatement* dieStmt) {
     /* NOTE: DieStatement cannot be malformed */
     ASSERT (!curStmt.has_error());
 
-    auto tokenId = newToken(curStmt);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "DieStatement";
 
@@ -407,7 +407,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
     // NOTE: will require lastCorrectToken
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "ForeachStatement";
 
@@ -438,7 +438,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curStmt_.err->_info.contains("err_offset")) {
@@ -455,7 +455,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
     // NOTE: will require lastCorrectToken
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "WhileStatement";
 
@@ -493,7 +493,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curStmt_.err->_info.contains("err_offset")) {
@@ -510,7 +510,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
     // NOTE: will require lastCorrectToken
     auto curStmt_ = curStmt; // local copy
 
-    auto tokenId = newToken(curStmt_);
+    auto tokenId = newToken();
     token.is_malformed = curStmt_.has_error();
     token.name = "DoWhileStatement";
 
@@ -556,7 +556,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
                 token.err_start = token.start;
             }
             else {
-                token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+                token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
                 token.err_start = token.err_start < token.start? token.start : token.err_start;
             }
             if (doWhileStmt->doStmt.err->_info.contains("err_offset")) {
@@ -627,7 +627,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curStmt_.err->_info.contains("err_offset")) {
@@ -641,7 +641,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
-    auto tokenId = newToken(curStmt);
+    auto tokenId = newToken();
     token.is_malformed = curStmt.has_error();
     token.name = "ExpressionStatement";
 
@@ -669,7 +669,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
 ///////////////////////////////////////////////////////////////
 
 void ReconstructLV2Tokens::operator()(_StubExpression_*) {
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "Expression";
 
@@ -693,7 +693,7 @@ void ReconstructLV2Tokens::operator()(_StubExpression_*) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "Operation";
 
@@ -724,7 +724,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "FunctionCall";
 
@@ -768,7 +768,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
                     token.err_start = token.start;
                 }
                 else {
-                    token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+                    token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
                     token.err_start = token.err_start < token.start? token.start : token.err_start;
                 }
                 tokens.traceback.push_back(token);
@@ -792,7 +792,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
 
 void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
     auto curExpr_ = curExpr;
-    auto tokenId = newToken(curExpr_);
+    auto tokenId = newToken();
     token.is_malformed = curExpr_.has_error();
     token.name = "FieldAccess";
 
@@ -817,7 +817,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curExpr_.err->_info.contains("err_offset")) {
@@ -832,7 +832,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
 
 void ReconstructLV2Tokens::operator()(MayFail_<Subscript>* subscript) {
     auto curExpr_ = curExpr;
-    auto tokenId = newToken(curExpr_);
+    auto tokenId = newToken();
     token.is_malformed = curExpr_.has_error();
     token.name = "Subscript";
 
@@ -864,7 +864,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Subscript>* subscript) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "Lambda";
 
@@ -901,7 +901,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "BlockExpression";
 
@@ -938,7 +938,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
 
 void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
     auto curExpr_ = curExpr; // local copy
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "MapLiteral";
 
@@ -971,7 +971,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curExpr_.err->_info.contains("err_offset")) {
@@ -985,7 +985,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = curExpr.has_error();
     token.name = "ListLiteral";
 
@@ -1023,7 +1023,7 @@ void ReconstructLV2Tokens::operator()(Numeral* numeral) {
     /* NOTE: Numeral cannot be malformed */
     ASSERT (!curExpr.has_error());
 
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "Numeral";
 
@@ -1036,7 +1036,7 @@ void ReconstructLV2Tokens::operator()(StrLiteral* strLiteral) {
     /* NOTE: StrLiteral cannot be malformed */
     ASSERT (!curExpr.has_error());
 
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "StrLiteral";
 
@@ -1049,7 +1049,7 @@ void ReconstructLV2Tokens::operator()(SpecialSymbol* specialSymbol) {
     /* NOTE: SpecialSymbol cannot be malformed */
     ASSERT (!curExpr.has_error());
 
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "SpecialSymbol";
 
@@ -1062,7 +1062,7 @@ void ReconstructLV2Tokens::operator()(Symbol* symbol) {
     /* NOTE: Symbol cannot be malformed */
     // ASSERT (!curExpr.has_error()); // doesn't necessarily mean parent is an Expression
 
-    auto tokenId = newToken(curExpr);
+    auto tokenId = newToken();
     token.is_malformed = false;
     token.name = "Symbol";
 
@@ -1073,17 +1073,12 @@ void ReconstructLV2Tokens::operator()(Symbol* symbol) {
 
 ///////////////////////////////////////////////////////////////
 
-ReconstructLV2Tokens::ReconstructLV2Tokens(LV2Tokens& tokens, const std::vector<size_t>& newlinesPos)
+ReconstructLV2Tokens::ReconstructLV2Tokens(Tokens& tokens, const std::vector<size_t>& newlinesPos)
         : tokens(tokens), newlinesPos(newlinesPos){}
 
 TokenId ReconstructLV2Tokens::newToken() {
     tokens._vec.push_back(Token{});
-    return tokens._vec.size() - 1;
-}
-
-TokenId ReconstructLV2Tokens::newToken(const LV2::Ast_& entity) {
-    tokens._vec.push_back(Token{});
-    return tokens._map[entity] = tokens._vec.size() - 1;
+    return tokens.size() - 1;
 }
 
 TokenPosition ReconstructLV2Tokens::asTokenPosition(size_t index) {

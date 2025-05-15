@@ -7,7 +7,7 @@
 
 class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
   public:
-    ReconstructLV1Tokens(LV1Tokens&, const std::vector<size_t>& newlinesPos={});
+    ReconstructLV1Tokens(Tokens&, const std::vector<size_t>& newlinesPos = {});
 
     // entrypoint
     void operator()(const MayFail<MayFail_<Program>>&) override;
@@ -29,7 +29,7 @@ class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
     void operator()(MayFail_<Association>*);
 
   private:
-    LV1Tokens& tokens;
+    Tokens& tokens;
     const std::vector<size_t> newlinesPos; // sorted asc
 
     size_t curPos = 0;
@@ -37,7 +37,7 @@ class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
     MayFail<ProgramWord_> curWord;
     TokenId lastCorrectToken = -1;
 
-    TokenId newToken(const LV1::Ast_&);
+    TokenId newToken();
     TokenPosition asTokenPosition(size_t index);
 };
 

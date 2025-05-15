@@ -21,7 +21,7 @@
 #include <utils/assert-utils.h>
 #include <utils/loop-utils.h>
 
-#define token tokens._vec.at(tokenId)
+#define token tokens[tokenId]
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     /* reset state */
@@ -29,7 +29,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     curPos = 0;
     // lastCorrectToken = -1;
 
-    auto tokenId = newToken(prog);
+    auto tokenId = newToken();
     token.is_malformed = prog.has_error();
     token.name = "Program";
 
@@ -40,9 +40,9 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     token.start = asTokenPosition(curPos);
     auto backupLastCorrectToken = lastCorrectToken;
     for (auto sentence: prog.val.sentences) {
-        auto sentenceTokenId = tokens._vec.size();
+        auto sentenceTokenId = tokens.size();
         operator()(sentence);
-        if (!tokens._vec.at(sentenceTokenId).is_malformed) {
+        if (!tokens[sentenceTokenId].is_malformed) {
             lastCorrectToken = sentenceTokenId;
         }
     }
@@ -58,7 +58,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& sentence) {
-    auto tokenId = newToken(sentence);
+    auto tokenId = newToken();
     token.is_malformed = sentence.has_error();
     token.name = "ProgramSentence";
 
@@ -77,9 +77,9 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
         if (!__first_it) {
             curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
         }
-        auto pwTokenId = tokens._vec.size();
+        auto pwTokenId = tokens.size();
         operator()(pw);
-        if (!tokens._vec.at(pwTokenId).is_malformed) {
+        if (!tokens[pwTokenId].is_malformed) {
             lastCorrectToken = pwTokenId;
         }
         ENDLOOP
@@ -95,7 +95,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& 
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         tokens.traceback.push_back(token);
@@ -111,7 +111,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<ProgramWord_>& pw) {
 }
 
 void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
-    auto tokenId = newToken(term);
+    auto tokenId = newToken();
     token.is_malformed = term.has_error();
     token.name = "Term";
 
@@ -127,9 +127,9 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
         if (!__first_it) {
             curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
         }
-        auto wordTokenId = tokens._vec.size();
+        auto wordTokenId = tokens.size();
         operator()(word);
-        if (!tokens._vec.at(wordTokenId).is_malformed) {
+        if (!tokens[wordTokenId].is_malformed) {
             lastCorrectToken = wordTokenId;
         }
         ENDLOOP
@@ -143,7 +143,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             // using this logic, err_start can then be before token.start
             // e.g.: `[a, <EOF>` (because the last correct token would then be `a`)
             // Therefore, in this case, we will set err_start to token.start
@@ -165,7 +165,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<Word_>& word) {
 
 void ReconstructLV1Tokens::operator()(Atom* atom) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "Atom";
 
@@ -185,7 +185,7 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
 
 void ReconstructLV1Tokens::operator()(Quotation* quot) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "Quotation";
 
@@ -205,7 +205,7 @@ void ReconstructLV1Tokens::operator()(Quotation* quot) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "SquareBracketsTerm";
 
@@ -228,7 +228,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         tokens.traceback.push_back(token);
@@ -239,7 +239,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "SquareBracketsGroup";
 
@@ -256,9 +256,9 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
         if (!__first_it) {
             curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
         }
-        auto termTokenId = tokens._vec.size();
+        auto termTokenId = tokens.size();
         operator()(term);
-        if (!tokens._vec.at(termTokenId).is_malformed) {
+        if (!tokens[termTokenId].is_malformed) {
             lastCorrectToken = termTokenId;
         }
         ENDLOOP
@@ -272,7 +272,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         tokens.traceback.push_back(token);
@@ -283,7 +283,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* msbg) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "MultilineSquareBracketsGroup";
 
@@ -297,9 +297,9 @@ void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* ms
     // lastCorrectToken = -1;
     curPos += sequenceLen(MultilineSquareBracketsGroup::INITIATOR_SEQUENCE);
     for (auto sentence: msbg->sentences) {
-        auto sentenceTokenId = tokens._vec.size();
+        auto sentenceTokenId = tokens.size();
         operator()(sentence);
-        if (!tokens._vec.at(sentenceTokenId).is_malformed) {
+        if (!tokens[sentenceTokenId].is_malformed) {
             lastCorrectToken = sentenceTokenId;
         }
     }
@@ -312,7 +312,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* ms
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         tokens.traceback.push_back(token);
@@ -323,7 +323,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* ms
 
 void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "ParenthesesGroup";
 
@@ -340,9 +340,9 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
-        auto termTokenId = tokens._vec.size();
+        auto termTokenId = tokens.size();
         operator()(term);
-        if (!tokens._vec.at(termTokenId).is_malformed) {
+        if (!tokens[termTokenId].is_malformed) {
             lastCorrectToken = termTokenId;
         }
         ENDLOOP
@@ -356,7 +356,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         tokens.traceback.push_back(token);
@@ -367,7 +367,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "CurlyBracketsGroup";
 
@@ -388,9 +388,9 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
         /* multiline cbg */
         curPos += 1; // newline
         for (auto sentence: cbg->sentences) {
-            auto sentenceTokenId = tokens._vec.size();
+            auto sentenceTokenId = tokens.size();
             operator()(sentence);
-            if (!tokens._vec.at(sentenceTokenId).is_malformed) {
+            if (!tokens[sentenceTokenId].is_malformed) {
                 lastCorrectToken = sentenceTokenId;
             }
         }
@@ -404,7 +404,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens._vec.at(lastCorrectToken).end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         tokens.traceback.push_back(token);
@@ -415,7 +415,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "PostfixSquareBracketsGroup";
 
@@ -443,7 +443,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg
 
 void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "PostfixParenthesesGroup";
 
@@ -471,7 +471,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "Path";
 
@@ -500,7 +500,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
 
 void ReconstructLV1Tokens::operator()(MayFail_<Association>* assoc) {
     auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
-    auto tokenId = newToken(entity);
+    auto tokenId = newToken();
     token.is_malformed = curWord.has_error();
     token.name = "Association";
 
@@ -530,12 +530,12 @@ void ReconstructLV1Tokens::operator()(MayFail_<Association>* assoc) {
 
 ///////////////////////////////////////////////////////////////
 
-ReconstructLV1Tokens::ReconstructLV1Tokens(LV1Tokens& tokens, const std::vector<size_t>& newlinesPos)
+ReconstructLV1Tokens::ReconstructLV1Tokens(Tokens& tokens, const std::vector<size_t>& newlinesPos)
         : tokens(tokens), newlinesPos(newlinesPos){}
 
-TokenId ReconstructLV1Tokens::newToken(const LV1::Ast_& entity) {
+TokenId ReconstructLV1Tokens::newToken() {
     tokens._vec.push_back(Token{});
-    return tokens._map[entity] = tokens._vec.size() - 1;
+    return tokens.size() - 1;
 }
 
 TokenPosition ReconstructLV1Tokens::asTokenPosition(size_t index) {
