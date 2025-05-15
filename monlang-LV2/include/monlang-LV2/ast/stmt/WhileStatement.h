@@ -21,6 +21,7 @@ struct WhileStatement {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     WhileStatement() = default;
     WhileStatement(const Expression&, const WhileBlock&, bool);
 };
@@ -38,6 +39,7 @@ struct C_DoStatement {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     C_DoStatement() = default;
     C_DoStatement(const WhileBlock&);
 };
@@ -53,6 +55,7 @@ struct C_WhileStatement {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     C_WhileStatement() = default;
     C_WhileStatement(const Expression&, bool);
 };

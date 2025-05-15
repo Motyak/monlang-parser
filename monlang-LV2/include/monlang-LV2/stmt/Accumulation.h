@@ -24,6 +24,7 @@ struct MayFail_<Accumulation> {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
 
     MayFail_() = default;
     explicit MayFail_(const MayFail<Lvalue_>&, const Symbol&, const MayFail<Expression_>&);

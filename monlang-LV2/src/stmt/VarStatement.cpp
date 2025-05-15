@@ -166,6 +166,7 @@ MayFail_<VarStatement>::MayFail_(const VarStatement& varStmt) {
     this->_tokenIndentSpaces = varStmt._tokenIndentSpaces;
     this->_tokenLen = varStmt._tokenLen;
     this->_tokenTrailingNewlines = varStmt._tokenTrailingNewlines;
+    this->_tokenId = varStmt._tokenId;
 }
 
 MayFail_<VarStatement>::operator VarStatement() const {
@@ -177,6 +178,7 @@ MayFail_<VarStatement>::operator VarStatement() const {
     varStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     varStmt._tokenLen = this->_tokenLen;
     varStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    varStmt._tokenId = this->_tokenId;
 
     return varStmt;
 }

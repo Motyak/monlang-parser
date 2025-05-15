@@ -114,6 +114,7 @@ MayFail_<MapLiteral>::MayFail_(MapLiteral mapLiteral) {
     }
     this->arguments = arguments;
     this->_tokenLen = mapLiteral._tokenLen;
+    this->_tokenId = mapLiteral._tokenId;
 }
 
 MayFail_<MapLiteral>::operator MapLiteral() const {
@@ -123,5 +124,6 @@ MayFail_<MapLiteral>::operator MapLiteral() const {
     }
     auto mapLiteral = MapLiteral{arguments};
     mapLiteral._tokenLen = this->_tokenLen;
+    mapLiteral._tokenId = this->_tokenId;
     return mapLiteral;
 }

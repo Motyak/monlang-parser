@@ -154,6 +154,7 @@ MayFail_<Assignment>::MayFail_(const Assignment& assignment)
     this->_tokenIndentSpaces = assignment._tokenIndentSpaces;
     this->_tokenLen = assignment._tokenLen;
     this->_tokenTrailingNewlines = assignment._tokenTrailingNewlines;
+    this->_tokenId = assignment._tokenId;
 }
 
 MayFail_<Assignment>::operator Assignment() const {
@@ -165,6 +166,7 @@ MayFail_<Assignment>::operator Assignment() const {
     assignment._tokenIndentSpaces = this->_tokenIndentSpaces;
     assignment._tokenLen = this->_tokenLen;
     assignment._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    assignment._tokenId = this->_tokenId;
 
     return assignment;
 }

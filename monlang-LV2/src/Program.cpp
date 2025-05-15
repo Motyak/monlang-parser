@@ -19,7 +19,9 @@ MayFail<MayFail_<LV2::Program>> consumeProgram(LV1::Program& prog) {
     return MayFail_<LV2::Program>{statements};
 }
 
-MayFail_<LV2::Program>::MayFail_(std::vector<MayFail<Statement_>> statements) : statements(statements){}
+LV2::Program::Program(const std::vector<Statement>& statements) : statements(statements){}
+
+MayFail_<LV2::Program>::MayFail_(const std::vector<MayFail<Statement_>>& statements) : statements(statements){}
 
 MayFail_<LV2::Program>::MayFail_(LV2::Program prog) {
     std::vector<MayFail<Statement_>> res;
@@ -27,12 +29,15 @@ MayFail_<LV2::Program>::MayFail_(LV2::Program prog) {
         res.push_back(wrap_stmt(e));
     }
     this->statements = res;
+    this->_tokenId = prog._tokenId;
 }
 
 MayFail_<LV2::Program>::operator LV2::Program() const {
-    std::vector<Statement> res;
-    for (auto e: statements) {
-        res.push_back(unwrap_stmt(e.value()));
+    std::vector<Statement> statements;
+    for (auto e: this->statements) {
+        statements.push_back(unwrap_stmt(e.value()));
     }
-    return LV2::Program{res};
+    auto prog = LV2::Program{statements};
+    prog._tokenId = this->_tokenId;
+    return prog;
 }

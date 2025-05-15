@@ -15,6 +15,7 @@ struct MayFail_<FieldAccess> {
 
     bool _lvalue = false;
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     size_t _groupNesting = 0;
     MayFail_() = default;
     explicit MayFail_(const MayFail<Expression_>&, const Symbol&);

@@ -10,6 +10,7 @@ struct MapLiteral {
     std::vector<Argument> arguments;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     MapLiteral() = default;
     MapLiteral(const std::vector<Argument>&);
 };

@@ -295,6 +295,7 @@ MayFail_<WhileStatement>::MayFail_(const WhileStatement& whileStmt) {
     this->_tokenIndentSpaces = whileStmt._tokenIndentSpaces;
     this->_tokenLen = whileStmt._tokenLen;
     this->_tokenTrailingNewlines = whileStmt._tokenTrailingNewlines;
+    this->_tokenId = whileStmt._tokenId;
 }
 
 MayFail_<WhileStatement>::operator WhileStatement() const {
@@ -307,6 +308,7 @@ MayFail_<WhileStatement>::operator WhileStatement() const {
     whileStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     whileStmt._tokenLen = this->_tokenLen;
     whileStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    whileStmt._tokenId = this->_tokenId;
 
     return whileStmt;
 }
@@ -327,6 +329,7 @@ MayFail_<C_DoStatement>::MayFail_(const C_DoStatement& c_doStmt) {
     this->_tokenIndentSpaces = c_doStmt._tokenIndentSpaces;
     this->_tokenLen = c_doStmt._tokenLen;
     this->_tokenTrailingNewlines = c_doStmt._tokenTrailingNewlines;
+    this->_tokenId = c_doStmt._tokenId;
 }
 
 MayFail_<C_DoStatement>::operator C_DoStatement() const {
@@ -337,6 +340,7 @@ MayFail_<C_DoStatement>::operator C_DoStatement() const {
     c_doStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     c_doStmt._tokenLen = this->_tokenLen;
     c_doStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    c_doStmt._tokenId = this->_tokenId;
 
     return c_doStmt;
 }
@@ -360,6 +364,7 @@ MayFail_<C_WhileStatement>::MayFail_(const C_WhileStatement& c_whileStmt) {
     this->_tokenIndentSpaces = c_whileStmt._tokenIndentSpaces;
     this->_tokenLen = c_whileStmt._tokenLen;
     this->_tokenTrailingNewlines = c_whileStmt._tokenTrailingNewlines;
+    this->_tokenId = c_whileStmt._tokenId;
 }
 
 MayFail_<C_WhileStatement>::operator C_WhileStatement() const {
@@ -371,6 +376,7 @@ MayFail_<C_WhileStatement>::operator C_WhileStatement() const {
     c_whileStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     c_whileStmt._tokenLen = this->_tokenLen;
     c_whileStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    c_whileStmt._tokenId = this->_tokenId;
 
     return c_whileStmt;
 }

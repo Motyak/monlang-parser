@@ -20,6 +20,7 @@ struct MayFail_<ForeachStatement> {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     MayFail_() = default;
     explicit MayFail_(const MayFail<Expression_>&, const MayFail<MayFail_<ForeachBlock>>&);
 

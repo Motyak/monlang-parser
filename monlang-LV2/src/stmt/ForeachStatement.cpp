@@ -179,6 +179,7 @@ MayFail_<ForeachStatement>::MayFail_(const ForeachStatement& foreachStmt) {
     this->_tokenIndentSpaces = foreachStmt._tokenIndentSpaces;
     this->_tokenLen = foreachStmt._tokenLen;
     this->_tokenTrailingNewlines = foreachStmt._tokenTrailingNewlines;
+    this->_tokenId = foreachStmt._tokenId;
 }
 
 MayFail_<ForeachStatement>::operator ForeachStatement() const {
@@ -190,6 +191,7 @@ MayFail_<ForeachStatement>::operator ForeachStatement() const {
     foreachStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     foreachStmt._tokenLen = this->_tokenLen;
     foreachStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    foreachStmt._tokenId = this->_tokenId;
 
     return foreachStmt;
 }

@@ -184,6 +184,7 @@ MayFail_<FunctionCall>::MayFail_(FunctionCall functionCall) {
     this->function = function;
     this->arguments = arguments;
     this->_tokenLen = functionCall._tokenLen;
+    this->_tokenId = functionCall._tokenId;
 }
 
 MayFail_<FunctionCall>::operator FunctionCall() const {
@@ -195,5 +196,6 @@ MayFail_<FunctionCall>::operator FunctionCall() const {
     }
     auto functionCall = FunctionCall{function, arguments};
     functionCall._tokenLen = this->_tokenLen;
+    functionCall._tokenId = this->_tokenId;
     return functionCall;
 }

@@ -20,6 +20,7 @@ struct MayFail_<WhileStatement> {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     MayFail_() = default;
     explicit MayFail_(const MayFail<Expression_>&, const MayFail<MayFail_<WhileBlock>>&, bool);
 
@@ -39,6 +40,7 @@ struct MayFail_<C_DoStatement> {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     MayFail_() = default;
     explicit MayFail_(const MayFail<MayFail_<WhileBlock>>&);
 
@@ -56,6 +58,7 @@ struct MayFail_<C_WhileStatement> {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     MayFail_() = default;
     explicit MayFail_(_dummy_stub); // sets _stub to true
     explicit MayFail_(const MayFail<Expression_>&, bool);

@@ -12,6 +12,7 @@ struct FieldAccess {
 
     bool _lvalue = false;
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     FieldAccess() = default;
     FieldAccess(const Expression&, const Symbol&);
 };

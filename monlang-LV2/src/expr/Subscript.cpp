@@ -118,6 +118,7 @@ MayFail_<Subscript>::MayFail_(Subscript subscript) {
     this->suffix = suffix;
     this->_lvalue = subscript._lvalue;
     this->_tokenLen = subscript._tokenLen;
+    this->_tokenId = subscript._tokenId;
 }
 
 MayFail_<Subscript>::operator Subscript() const {
@@ -133,5 +134,6 @@ MayFail_<Subscript>::operator Subscript() const {
     auto subscript = Subscript{array, argument, suffix};
     subscript._lvalue = this->_lvalue;
     subscript._tokenLen = this->_tokenLen;
+    subscript._tokenId = this->_tokenId;
     return subscript;
 }

@@ -14,6 +14,7 @@ struct Lambda {
     LambdaBlock body;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     Lambda() = default;
     Lambda(const std::vector<Symbol>&, const LambdaBlock&);
 };

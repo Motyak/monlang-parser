@@ -53,6 +53,7 @@ MayFail_<BlockExpression>::MayFail_(BlockExpression blockExpr) {
     }
     this->statements = statements;
     this->_tokenLen = blockExpr._tokenLen;
+    this->_tokenId = blockExpr._tokenId;
     this->_dollars = blockExpr._dollars;
 }
 
@@ -63,6 +64,7 @@ MayFail_<BlockExpression>::operator BlockExpression() const {
     }
     auto blockExpr = BlockExpression{statements};
     blockExpr._tokenLen = this->_tokenLen;
+    blockExpr._tokenId = this->_tokenId;
     blockExpr._dollars = this->_dollars;
     return blockExpr;
 }

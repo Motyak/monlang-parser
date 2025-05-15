@@ -131,6 +131,7 @@ MayFail_<ReturnStatement>::MayFail_(const ReturnStatement& returnStmt) {
     this->_tokenIndentSpaces = returnStmt._tokenIndentSpaces;
     this->_tokenLen = returnStmt._tokenLen;
     this->_tokenTrailingNewlines = returnStmt._tokenTrailingNewlines;
+    this->_tokenId = returnStmt._tokenId;
 }
 
 MayFail_<ReturnStatement>::operator ReturnStatement() const {
@@ -144,6 +145,7 @@ MayFail_<ReturnStatement>::operator ReturnStatement() const {
     returnStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     returnStmt._tokenLen = this->_tokenLen;
     returnStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    returnStmt._tokenId = this->_tokenId;
 
     return returnStmt;
 }

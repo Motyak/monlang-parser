@@ -10,6 +10,10 @@ namespace LV2
 
 struct Program {
     std::vector<Statement> statements;
+
+    size_t _tokenId = 123456789;
+    Program() = default;
+    Program(const std::vector<Statement>&);
 };
 
 } // LV2::

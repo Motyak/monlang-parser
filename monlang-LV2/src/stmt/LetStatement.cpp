@@ -166,6 +166,7 @@ MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
     this->_tokenIndentSpaces = letStmt._tokenIndentSpaces;
     this->_tokenLen = letStmt._tokenLen;
     this->_tokenTrailingNewlines = letStmt._tokenTrailingNewlines;
+    this->_tokenId = letStmt._tokenId;
 }
 
 MayFail_<LetStatement>::operator LetStatement() const {
@@ -177,6 +178,7 @@ MayFail_<LetStatement>::operator LetStatement() const {
     letStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     letStmt._tokenLen = this->_tokenLen;
     letStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    letStmt._tokenId = this->_tokenId;
 
     return letStmt;
 }

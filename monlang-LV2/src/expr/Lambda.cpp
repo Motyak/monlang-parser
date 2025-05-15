@@ -103,6 +103,7 @@ MayFail_<Lambda>::MayFail_(const Lambda& lambda) {
     this->parameters = lambda.parameters;
     this->body = MayFail_<LambdaBlock>{bodyStatements};
     this->_tokenLen = lambda._tokenLen;
+    this->_tokenId = lambda._tokenId;
 }
 
 MayFail_<Lambda>::operator Lambda() const {
@@ -112,5 +113,6 @@ MayFail_<Lambda>::operator Lambda() const {
     }
     auto lambda = Lambda{this->parameters, LambdaBlock{bodyStatements}};
     lambda._tokenLen = this->_tokenLen;
+    lambda._tokenId = this->_tokenId;
     return lambda;
 }

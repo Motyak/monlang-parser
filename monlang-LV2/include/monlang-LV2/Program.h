@@ -9,8 +9,9 @@ template <>
 struct MayFail_<LV2::Program> {
     std::vector<MayFail<Statement_>> statements;
 
+    size_t _tokenId = 123456789;
     MayFail_() = default;
-    explicit MayFail_(std::vector<MayFail<Statement_>>);
+    explicit MayFail_(const std::vector<MayFail<Statement_>>&);
 
     explicit MayFail_(LV2::Program);
     explicit operator LV2::Program() const;

@@ -215,13 +215,13 @@ TEST_CASE ("explicit parentheses", "[test-9722][expr]") {
 
 TEST_CASE ("4 chained operations", "[test-9723][expr]") {
     auto input = tommy_str(R"EOF(
-        1 ^ 2 ^ 3 ^ 4
+        1 ** 2 ** 3 ** 4
     )EOF");
 
     auto iss = std::istringstream(input);
     auto term = (Term)consumeTerm(iss);
     auto expr = unwrap_expr(buildExpression(term).value());
-    REQUIRE (token_len(expr) == 13);
+    REQUIRE (token_len(expr) == 16);
 
     auto operation = *std::get<Operation*>(expr);
     auto operation_ = *std::get<Operation*>(operation.rightOperand);
@@ -231,10 +231,10 @@ TEST_CASE ("4 chained operations", "[test-9723][expr]") {
     REQUIRE (token_len(operation__.rightOperand) == 1); // 4
 
     REQUIRE (token_len(operation_.leftOperand) == 1); // 2
-    REQUIRE (token_len(operation_.rightOperand) == 5); // 3 ^ 4
+    REQUIRE (token_len(operation_.rightOperand) == 6); // 3 ** 4
 
     REQUIRE (token_len(operation.leftOperand) == 1); // 1 
-    REQUIRE (token_len(operation.rightOperand) == 9); // 2 ^ 3 ^ 4
+    REQUIRE (token_len(operation.rightOperand) == 11); // 2 ** 3 ** 4
 }
 
 ///////////////////////////////////////////////////////////

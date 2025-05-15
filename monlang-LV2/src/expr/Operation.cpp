@@ -42,6 +42,7 @@ MayFail_<Operation>::MayFail_(const Operation& operation) {
     this->operator_ = operation.operator_;
     this->rightOperand = wrap_expr(operation.rightOperand);
     this->_tokenLen = operation._tokenLen;
+    this->_tokenId = operation._tokenId;
 }
 
 MayFail_<Operation>::operator Operation() const {
@@ -49,5 +50,6 @@ MayFail_<Operation>::operator Operation() const {
     auto rightOperand = unwrap_expr(this->rightOperand.value());
     auto operation = Operation{leftOperand, this->operator_, rightOperand};
     operation._tokenLen = this->_tokenLen;
+    operation._tokenId = this->_tokenId;
     return operation;
 }

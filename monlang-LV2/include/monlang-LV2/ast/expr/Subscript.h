@@ -37,6 +37,7 @@ struct Subscript {
 
     bool _lvalue = false;
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     Subscript() = default;
     Subscript(const Expression&, const Argument&, Suffix);
 };

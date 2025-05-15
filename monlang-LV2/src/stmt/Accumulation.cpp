@@ -201,6 +201,7 @@ MayFail_<Accumulation>::MayFail_(const Accumulation& accumulation)
     this->_tokenIndentSpaces = accumulation._tokenIndentSpaces;
     this->_tokenLen = accumulation._tokenLen;
     this->_tokenTrailingNewlines = accumulation._tokenTrailingNewlines;
+    this->_tokenId = accumulation._tokenId;
 }
 
 MayFail_<Accumulation>::operator Accumulation() const {
@@ -213,6 +214,7 @@ MayFail_<Accumulation>::operator Accumulation() const {
     accumulation._tokenIndentSpaces = this->_tokenIndentSpaces;
     accumulation._tokenLen = this->_tokenLen;
     accumulation._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    accumulation._tokenId = this->_tokenId;
 
     return accumulation;
 }

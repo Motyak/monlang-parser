@@ -7,6 +7,7 @@ struct SpecialSymbol {
     std::string name;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     size_t _groupNesting = 0; // special case, because can't be malformed
     SpecialSymbol() = default;
     SpecialSymbol(const std::string&);

@@ -54,6 +54,7 @@ MayFail_<ExpressionStatement>::MayFail_(ExpressionStatement exprStmt) {
     this->_tokenIndentSpaces = exprStmt._tokenIndentSpaces;
     this->_tokenLen = exprStmt._tokenLen;
     this->_tokenTrailingNewlines = exprStmt._tokenTrailingNewlines;
+    this->_tokenId = exprStmt._tokenId;
 }
 
 MayFail_<ExpressionStatement>::operator ExpressionStatement() const {
@@ -64,6 +65,7 @@ MayFail_<ExpressionStatement>::operator ExpressionStatement() const {
     exprStmt._tokenIndentSpaces = this->_tokenIndentSpaces;
     exprStmt._tokenLen = this->_tokenLen;
     exprStmt._tokenTrailingNewlines = this->_tokenTrailingNewlines;
+    exprStmt._tokenId = this->_tokenId;
 
     return exprStmt;
 }

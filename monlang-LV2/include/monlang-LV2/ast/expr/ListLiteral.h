@@ -9,6 +9,7 @@ struct ListLiteral {
     std::vector<Expression> arguments;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     ListLiteral() = default;
     ListLiteral(const std::vector<Expression>&);
 };

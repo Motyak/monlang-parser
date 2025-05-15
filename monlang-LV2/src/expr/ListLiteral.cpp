@@ -38,6 +38,7 @@ MayFail_<ListLiteral>::MayFail_(ListLiteral listLiteral) {
     }
     this->arguments = arguments;
     this->_tokenLen = listLiteral._tokenLen;
+    this->_tokenId = listLiteral._tokenId;
 }
 
 MayFail_<ListLiteral>::operator ListLiteral() const {
@@ -47,5 +48,6 @@ MayFail_<ListLiteral>::operator ListLiteral() const {
     }
     auto listLiteral = ListLiteral{arguments};
     listLiteral._tokenLen = this->_tokenLen;
+    listLiteral._tokenId = this->_tokenId;
     return listLiteral;
 }

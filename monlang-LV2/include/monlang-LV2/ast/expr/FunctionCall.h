@@ -11,6 +11,7 @@ struct FunctionCall {
         bool passByRef = false;
 
         size_t _tokenLen = 0;
+        size_t _tokenId = 123456789;
         Argument() = default;
         Argument(const Expression&, bool = false);
     };
@@ -19,6 +20,7 @@ struct FunctionCall {
     std::vector<Argument> arguments;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     FunctionCall() = default;
     FunctionCall(const Expression&, const std::vector<Argument>&);
 };

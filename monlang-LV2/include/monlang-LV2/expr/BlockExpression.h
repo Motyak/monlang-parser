@@ -17,6 +17,7 @@ struct MayFail_<BlockExpression> {
     bool _stub = false;
     bool _oneline = false;
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     size_t _groupNesting = 0;
     bool _dollars = false;
     MayFail_() = default;

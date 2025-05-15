@@ -61,6 +61,7 @@ MayFail_<FieldAccess>::MayFail_(FieldAccess fieldAccess) {
     this->field = field;
     this->_lvalue = fieldAccess._lvalue;
     this->_tokenLen = fieldAccess._tokenLen;
+    this->_tokenId = fieldAccess._tokenId;
 }
 
 MayFail_<FieldAccess>::operator FieldAccess() const {
@@ -69,5 +70,6 @@ MayFail_<FieldAccess>::operator FieldAccess() const {
     auto fieldAccess = FieldAccess{object, field};
     fieldAccess._lvalue = this->_lvalue;
     fieldAccess._tokenLen = this->_tokenLen;
+    fieldAccess._tokenId = this->_tokenId;
     return fieldAccess;
 }

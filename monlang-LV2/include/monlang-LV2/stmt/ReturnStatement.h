@@ -16,6 +16,7 @@ struct MayFail_<ReturnStatement> {
     size_t _tokenIndentSpaces = 0;
     size_t _tokenLen = 0;
     size_t _tokenTrailingNewlines = 0;
+    size_t _tokenId = 123456789;
     MayFail_() = default;
     explicit MayFail_(const std::optional<MayFail<Expression_>>&);
 

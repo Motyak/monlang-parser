@@ -8,6 +8,7 @@ struct Symbol {
     std::string name;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     size_t _groupNesting = 0; // special case, because can't be malformed
     bool _lvalue = false;
     Symbol() = default;

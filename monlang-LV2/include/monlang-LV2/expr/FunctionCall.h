@@ -15,6 +15,7 @@ struct MayFail_<FunctionCall> {
         bool passByRef = false;
 
         size_t _tokenLen = 0;
+        size_t _tokenId = 123456789;
         Argument() = default;
         Argument(const MayFail<Expression_>&, bool);
     };
@@ -23,6 +24,7 @@ struct MayFail_<FunctionCall> {
     std::vector<MayFail<Argument>> arguments;
 
     size_t _tokenLen = 0;
+    size_t _tokenId = 123456789;
     size_t _groupNesting = 0;
     MayFail_() = default;
     explicit MayFail_(const MayFail<Expression_>&, const std::vector<MayFail<Argument>>&);
