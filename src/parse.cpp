@@ -27,35 +27,40 @@ ParsingResult parse(const Source& text) {
     auto iss = std::istringstream(text);
 
     auto progLV1 = consumeProgram(iss);
+    Tokens tokensLV1;
+    {
+        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/tokensLV1, newlinesPos);
+        fill_tokensLV1(/*OUT*/progLV1);
+    }
     if (progLV1.has_error()) {
         auto res = ParsingResult{LV1_ERR, progLV1};
+        res._tokensLV1 = tokensLV1;
         res._source = text;
-        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-        fill_tokensLV1(progLV1);
         return res;
     }
 
     auto correctLV1 = (LV1::Program)progLV1;
     auto backupCorrectLV1 = correctLV1;
-    auto progLV2 = consumeProgram(correctLV1);
+    auto progLV2 = consumeProgram(/*OUT*/correctLV1);
+    Tokens tokensLV2;
+    {
+        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/tokensLV2, newlinesPos);
+        fill_tokensLV2(progLV2);
+    }
     if (progLV2.has_error()) {
         auto res = ParsingResult{LV2_ERR, progLV2};
-        res._source = text;
         res._correctLV1 = backupCorrectLV1;
-        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2, newlinesPos);
-        fill_tokensLV1(progLV1);
-        fill_tokensLV2(progLV2);
+        res._tokensLV1 = tokensLV1;
+        res._tokensLV2 = tokensLV2;
+        res._source = text;
         return res;
     }
 
     auto res = ParsingResult{LV2_OK, (LV2::Program)progLV2};
-    res._source = text;
     res._correctLV1 = backupCorrectLV1;
-    auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/res._tokensLV1, newlinesPos);
-    auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/res._tokensLV2, newlinesPos);
-    fill_tokensLV1(progLV1);
-    fill_tokensLV2(progLV2);
+    res._tokensLV1 = tokensLV1;
+    res._tokensLV2 = tokensLV2;
+    res._source = text;
     return res;
 }
 

@@ -23,13 +23,14 @@
 
 #define token tokens[tokenId]
 
-void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
+void ReconstructLV1Tokens::operator()(MayFail<MayFail_<Program>>& prog) {
     /* reset state */
     tokens = {};
     curPos = 0;
     // lastCorrectToken = -1;
 
     auto tokenId = newToken();
+    prog.val._tokenId = tokenId;
     token.is_malformed = prog.has_error();
     token.name = "Program";
 
@@ -39,7 +40,7 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
 
     token.start = asTokenPosition(curPos);
     auto backupLastCorrectToken = lastCorrectToken;
-    for (auto sentence: prog.val.sentences) {
+    for (auto& sentence: prog.val.sentences) {
         auto sentenceTokenId = tokens.size();
         operator()(sentence);
         if (!tokens[sentenceTokenId].is_malformed) {
@@ -57,8 +58,9 @@ void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Program>>& prog) {
     lastCorrectToken = backupLastCorrectToken;
 }
 
-void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<ProgramSentence>>& sentence) {
+void ReconstructLV1Tokens::operator()(MayFail<MayFail_<ProgramSentence>>& sentence) {
     auto tokenId = newToken();
+    sentence.val._tokenId = tokenId;
     token.is_malformed = sentence.has_error();
     token.name = "ProgramSentence";
 
@@ -110,8 +112,9 @@ void ReconstructLV1Tokens::operator()(const MayFail<ProgramWord_>& pw) {
     std::visit(*this, pw.val);
 }
 
-void ReconstructLV1Tokens::operator()(const MayFail<MayFail_<Term>>& term) {
+void ReconstructLV1Tokens::operator()(MayFail<MayFail_<Term>>& term) {
     auto tokenId = newToken();
+    term.val._tokenId = tokenId;
     token.is_malformed = term.has_error();
     token.name = "Term";
 
@@ -161,11 +164,29 @@ void ReconstructLV1Tokens::operator()(const MayFail<Word_>& word) {
     std::visit(*this, word.val);
 }
 
+void ReconstructLV1Tokens::operator()(const PostfixLeftPart& postfixLeftPart) {
+    auto mf_word = MayFail(wrap_w(variant_cast(postfixLeftPart)));
+    operator()(mf_word);
+
+    /* then propagate the change back to the parameter */
+
+    // Word to PostfixLeftPart (similar to pw2w())
+    auto newVal = std::visit(overload{
+        [](Association*) -> PostfixLeftPart {SHOULD_NOT_HAPPEN();},
+        [](auto* ptr) -> PostfixLeftPart {return ptr;},
+    }, unwrap_w(mf_word.value()));
+
+    std::visit(
+        [newVal](auto* ptr){*ptr = *std::get<decltype(ptr)>(newVal);},
+        postfixLeftPart
+    );
+}
+
 ///////////////////////////////////////////////////////////////
 
 void ReconstructLV1Tokens::operator()(Atom* atom) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    atom->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "Atom";
 
@@ -184,8 +205,8 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
 }
 
 void ReconstructLV1Tokens::operator()(Quotation* quot) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    quot->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "Quotation";
 
@@ -204,8 +225,8 @@ void ReconstructLV1Tokens::operator()(Quotation* quot) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    sbt->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "SquareBracketsTerm";
 
@@ -238,8 +259,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    sbg->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "SquareBracketsGroup";
 
@@ -252,7 +273,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
     curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
-    LOOP for (auto term: sbg->terms) {
+    LOOP for (auto& term: sbg->terms) {
         if (!__first_it) {
             curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
         }
@@ -282,8 +303,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* msbg) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    msbg->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "MultilineSquareBracketsGroup";
 
@@ -296,7 +317,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* ms
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
     curPos += sequenceLen(MultilineSquareBracketsGroup::INITIATOR_SEQUENCE);
-    for (auto sentence: msbg->sentences) {
+    for (auto& sentence: msbg->sentences) {
         auto sentenceTokenId = tokens.size();
         operator()(sentence);
         if (!tokens[sentenceTokenId].is_malformed) {
@@ -322,8 +343,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* ms
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    pg->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "ParenthesesGroup";
 
@@ -336,7 +357,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
-    LOOP for (auto term: pg->terms) {
+    LOOP for (auto& term: pg->terms) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
@@ -366,8 +387,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    cbg->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "CurlyBracketsGroup";
 
@@ -387,7 +408,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     else {
         /* multiline cbg */
         curPos += 1; // newline
-        for (auto sentence: cbg->sentences) {
+        for (auto& sentence: cbg->sentences) {
             auto sentenceTokenId = tokens.size();
             operator()(sentence);
             if (!tokens[sentenceTokenId].is_malformed) {
@@ -414,8 +435,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    psbg->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "PostfixSquareBracketsGroup";
 
@@ -427,8 +448,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(MayFail(wrap_w(variant_cast(psbg->leftPart))));
-    operator()(mayfail_convert<Word_>(psbg->rightPart));
+    operator()(psbg->leftPart);
+    operator()(mayfail_cast_by_ref<Word_>(psbg->rightPart));
     curPos = backupCurPos;
     curPos += psbg->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
@@ -442,8 +463,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    ppg->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "PostfixParenthesesGroup";
 
@@ -455,8 +476,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(MayFail(wrap_w(variant_cast(ppg->leftPart))));
-    operator()(mayfail_convert<Word_>(ppg->rightPart));
+    operator()(ppg->leftPart);
+    operator()(mayfail_cast_by_ref<Word_>(ppg->rightPart));
     curPos = backupCurPos;
     curPos += ppg->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
@@ -470,8 +491,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    path->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "Path";
 
@@ -483,9 +504,9 @@ void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    operator()(MayFail(wrap_w(variant_cast(path->leftPart))));
+    operator()(path->leftPart);
     curPos += sequenceLen(Path::SEPARATOR_SEQUENCE);
-    operator()(mayfail_convert<Word_>(path->rightPart));
+    operator()(mayfail_cast_by_ref<Word_>(path->rightPart));
     curPos = backupCurPos;
     curPos += path->_tokenLen;
     token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
@@ -499,8 +520,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
 }
 
 void ReconstructLV1Tokens::operator()(MayFail_<Association>* assoc) {
-    auto entity = isProgramWord? (LV1::Ast_)curWord : mayfail_cast<Word_>(curWord);
     auto tokenId = newToken();
+    assoc->_tokenId = tokenId;
     token.is_malformed = curWord.has_error();
     token.name = "Association";
 

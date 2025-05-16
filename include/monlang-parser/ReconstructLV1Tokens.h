@@ -3,18 +3,23 @@
 
 #include <monlang-parser/Tokens.h>
 
-#include <monlang-LV1/visitors/visitor.h>
+#include <monlang-LV1/Program.h>
+#include <monlang-LV1/ProgramSentence.h>
+#include <monlang-LV1/Term.h>
+#include <monlang-LV1/Word.h>
+#include <monlang-LV1/ast/_PostfixLeftPart.h>
 
-class ReconstructLV1Tokens : public /*LV1*/AstVisitor_<void> {
+class ReconstructLV1Tokens {
   public:
     ReconstructLV1Tokens(Tokens&, const std::vector<size_t>& newlinesPos = {});
 
     // entrypoint
-    void operator()(const MayFail<MayFail_<Program>>&) override;
-    void operator()(const MayFail<MayFail_<ProgramSentence>>&) override;
-    void operator()(const MayFail<ProgramWord_>&) override;
-    void operator()(const MayFail<MayFail_<Term>>&) override;
-    void operator()(const MayFail<Word_>&) override;
+    void operator()(MayFail<MayFail_<Program>>&);
+    void operator()(MayFail<MayFail_<ProgramSentence>>&);
+    void operator()(const MayFail<ProgramWord_>&); // we can copy here (ptrs)
+    void operator()(MayFail<MayFail_<Term>>&);
+    void operator()(const MayFail<Word_>&); // we can copy here (ptrs)
+    void operator()(const PostfixLeftPart&); // we can copy here (ptrs)
 
     void operator()(Atom*);
     void operator()(Quotation*);

@@ -114,6 +114,11 @@ MayFail<R> mayfail_cast(const MayFail<T>& inputMayfail) {
     return MayFail(R(inputMayfail.val), inputMayfail.err);
 }
 
+template <typename R, typename T>
+MayFail<R> mayfail_cast_by_ref(MayFail<T>& inputMayfail) {
+    return MayFail(R(&inputMayfail.val), inputMayfail.err);
+}
+
 template <typename R, typename... Targs>
 MayFail<R> mayfail_cast(const std::variant<Targs...>& inputMayfailVariant) {
     return std::visit(
