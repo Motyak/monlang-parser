@@ -3,18 +3,20 @@
 
 #include <monlang-parser/Tokens.h>
 
-#include <monlang-LV2/visitors/visitor.h>
+#include <monlang-LV2/Program.h>
+#include <monlang-LV2/Statement.h>
+#include <monlang-LV2/Expression.h>
 #include <monlang-LV2/Lvalue.h>
 
-class ReconstructLV2Tokens : public LV2::AstVisitor_<void> {
+class ReconstructLV2Tokens {
   public:
     ReconstructLV2Tokens(Tokens&, const std::vector<size_t>& newlinesPos={});
 
     // entrypoint
-    void operator()(const MayFail<MayFail_<LV2::Program>>&) override;
-    void operator()(const MayFail<Statement_>&) override;
-    void operator()(const MayFail<Expression_>&) override;
-    void operator()(const MayFail<Lvalue_>&);
+    void operator()(MayFail<MayFail_<LV2::Program>>&);
+    void operator()(const MayFail<Statement_>&); // we can copy here (ptrs)
+    void operator()(const MayFail<Expression_>&); // we can copy here (ptrs)
+    void operator()(const MayFail<Lvalue_>&); // we can copy here (ptrs)
 
     /* statements */
     void operator()(_StubStatement_*);
