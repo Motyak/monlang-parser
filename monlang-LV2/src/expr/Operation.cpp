@@ -14,7 +14,9 @@ MayFail<MayFail_<Operation>> buildOperation(const Term& term) {
     ASSERT (term.words.size() == 3);
 
     ASSERT (std::holds_alternative<Atom*>(term.words[1]));
-    auto operator_ = std::get<Atom*>(term.words[1])->value;
+    auto atom = *std::get<Atom*>(term.words[1]);
+    auto operator_ = Symbol{atom.value};
+    operator_._tokenLen = atom._tokenLen;
 
     auto leftOperand = buildExpression((Term)term.words[0]);
     if (leftOperand.has_error()) {

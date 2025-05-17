@@ -36,6 +36,7 @@ class Tokens {
     std::vector<Token> traceback; // stack of malformed tokens
     
     Token& operator[](TokenId id){return _vec.at(id);}
+    const Token& get(TokenId id) const {return _vec.at(id);}
     size_t size() const{return _vec.size();}
 };
 
