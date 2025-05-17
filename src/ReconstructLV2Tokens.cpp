@@ -723,7 +723,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
     curPos += group_nesting(*operation);
     operator()(operation->leftOperand);
     curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
-    curPos += operation->operator_.name.size();
+    operator()(&operation->operator_);
     curPos += sequenceLen(Term::CONTINUATOR_SEQUENCE);
     operator()(operation->rightOperand);
     curPos = backupCurPos;
