@@ -67,8 +67,8 @@ int stdinput_main(int argc, char* argv[]) {
 
     switch (parsingRes.status) {
         case LV2_OK: return 0;
-        case LV1_ERR: return 11;
-        case LV2_ERR: return 12;
+        case LV1_ERR: return 101;
+        case LV2_ERR: return 102;
 
         default: SHOULD_NOT_HAPPEN();
     }
@@ -84,7 +84,7 @@ int fileinput_main(int argc, char* argv[]) {
     }
     catch (const CantOpenFileException&) {
         std::cerr << "Failed to open file `" << filename << "`" << std::endl;
-        return 13;
+        return 103;
     }
     auto text = Source{filename, input_str};
     auto parsingRes = parse(text);
@@ -93,8 +93,8 @@ int fileinput_main(int argc, char* argv[]) {
 
     switch (parsingRes.status) {
         case LV2_OK: return 0;
-        case LV1_ERR: return 11;
-        case LV2_ERR: return 12;
+        case LV1_ERR: return 101;
+        case LV2_ERR: return 102;
 
         default: SHOULD_NOT_HAPPEN();
     }
