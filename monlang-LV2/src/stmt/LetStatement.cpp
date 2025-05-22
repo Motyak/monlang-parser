@@ -90,7 +90,7 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    Symbol name = std::get<Symbol*>(expr.val)->name;
+    auto name = *std::get<Symbol*>(expr.val);
 
 
     unless (sentence.programWords.size() >= 3) {

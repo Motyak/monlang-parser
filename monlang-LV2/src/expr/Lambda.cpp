@@ -71,7 +71,11 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
         ASSERT (term.words.size() > 0);
         Word last_word = term.words.back();
         ASSERT (std::holds_alternative<Atom*>(last_word));
-        parameters.push_back(std::get<Atom*>(last_word)->value);
+        auto atom = *std::get<Atom*>(last_word);
+        auto symbol = Symbol{atom.value};
+        symbol._tokenLen = atom._tokenLen;
+        symbol._tokenId = atom._tokenId;
+        parameters.push_back(symbol);
     }
 
     auto rightPart = *std::get<CurlyBracketsGroup*>(assoc.rightPart);
