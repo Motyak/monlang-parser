@@ -247,7 +247,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     // lastCorrectToken = -1;
     curPos += LetStatement::KEYWORD.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += letStmt->label.name.size();
+    operator()(&letStmt->label);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(letStmt->value);
     curPos = backupCurPos;
@@ -287,9 +287,9 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     auto backupCurPos = curPos;
     auto backupLastCorrectToken = lastCorrectToken;
     // lastCorrectToken = -1;
-    curPos += LetStatement::KEYWORD.size();
+    curPos += VarStatement::KEYWORD.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += varStmt->variable.name.size();
+    operator()(&varStmt->variable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(varStmt->value);
     curPos = backupCurPos;
@@ -897,11 +897,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     // lastCorrectToken = -1;
     curPos += group_nesting(*lambda);
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
-    LOOP for (auto param: lambda->parameters) {
+    LOOP for (auto& param: lambda->parameters) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
-        curPos += param.name.size();
+        operator()(&param);
         ENDLOOP
     }
     curPos += sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
