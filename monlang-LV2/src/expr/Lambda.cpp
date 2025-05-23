@@ -87,6 +87,9 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
             return Malformed(MayFail_<Lambda>{parameters, body}, ERR(631));
         }
     }
+    body._dollars = rightPart._dollars;
+    body._oneline = (bool)rightPart.term;
+    body._tokenLen = rightPart._tokenLen;
 
     auto lambda = MayFail_<Lambda>{parameters, body};
     lambda._tokenLen = assoc._tokenLen;
