@@ -205,7 +205,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     // lastCorrectToken = -1;
     operator()(acc->variable);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    curPos += acc->SEPARATOR().size();
+    operator()(&acc->operator_);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
     operator()(acc->value);
     curPos = backupCurPos;

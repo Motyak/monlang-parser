@@ -79,10 +79,11 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
 
     ASSERT (std::holds_alternative<Atom*>(sentence.programWords[1]));
     auto atom = *std::get<Atom*>(sentence.programWords[1]);
-    auto optr = atom.value.substr(0, atom.value.size() - 1);
+    auto optr = Symbol{atom.value.substr(0, atom.value.size() - 1)};
+    optr._tokenLen = atom._tokenLen;
     auto optr_found = false;
     for (auto [operators, _]: PRECEDENCE_TABLE) {
-        if (vec_contains(operators, optr)) {
+        if (vec_contains(operators, optr.name)) {
             optr_found = true;
             break;
         }
