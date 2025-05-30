@@ -6,17 +6,19 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 using LambdaBlock = BlockExpression;
 
 struct Lambda {
     std::vector<Symbol> parameters;
+    std::optional<Symbol> variadicParameters;
     LambdaBlock body;
-
     size_t _tokenLen = 0;
     size_t _tokenId = 123456789;
     Lambda() = default;
-    Lambda(const std::vector<Symbol>&, const LambdaBlock&);
+    Lambda(const std::vector<Symbol>&, const std::optional<Symbol>&, const LambdaBlock&);
+    // Lambda(const std::vector<Symbol>&, const LambdaBlock&); // for convenience
 };
 
 #endif // AST_LAMBDA_H

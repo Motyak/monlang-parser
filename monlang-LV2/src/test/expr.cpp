@@ -184,6 +184,39 @@ TEST_CASE ("lambda with an OUT parameter", "[test-1641][expr]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("lambda with variadic parameters", "[test-1642][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: Association
+       |    -> Word: ParenthesesGroup
+       |      -> Term #1
+       |        -> Word: Atom: `x`
+       |      -> Term #2
+       |        -> Word: Atom: `args...`
+       |    -> Word: CurlyBracketsGroup
+       |      -> ProgramSentence
+       |        -> ProgramWord: Atom: `x`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: Lambda
+       |  -> parameter #1: `x`
+       |  -> variadic parameters: `args...`
+       |  -> body
+       |    -> Statement: ExpressionStatement
+       |      -> Expression: Symbol: `x`
+    )EOF");
+
+   auto input_ast = montree::buildLV1Ast(input);
+   auto input_term = std::get<Term>(input_ast);
+   auto output = buildExpression(input_term);
+   auto output_str = montree::astToString(output);
+
+   REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("function call from postfix parentheses group", "[test-1616][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term

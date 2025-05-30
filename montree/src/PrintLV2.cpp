@@ -608,6 +608,10 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
         }
     }
 
+    if (lambda->variadicParameters) {
+        outputLine("-> variadic parameters: `", lambda->variadicParameters->name.c_str(), "`");
+    }
+
     if (lambda->body.statements.empty()) {
         outputLine("-> body (empty)");
         currIndent--;

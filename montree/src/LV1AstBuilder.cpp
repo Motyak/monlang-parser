@@ -408,7 +408,7 @@ Word LV1AstBuilder::buildWord() {
 ParenthesesGroup LV1AstBuilder::buildParenthesesGroup() {
     ENTERING_BUILD_ROUTINE();
 
-    auto line = consumeLine(tis); // -> ... ParenthesesGroup
+    auto parentNestingLevel = consumeLine(tis).nestingLevel; // -> ... ParenthesesGroup
     auto peekedLine = peekLine(tis);
 
     if (peekedLine.type != INCR) {
@@ -423,7 +423,7 @@ ParenthesesGroup LV1AstBuilder::buildParenthesesGroup() {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildTerm()
         }
     }
-    until (peekedLine.type == DECR || peekedLine.type == END);
+    until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
 
     return ParenthesesGroup{terms};
 }
