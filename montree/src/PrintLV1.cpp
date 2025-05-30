@@ -64,7 +64,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<Program>>& program) {
         for (int n : range(prog.sentences.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!prog.sentences.empty()) {
         numbering.push(NO_NUMBERING);
     }
 
@@ -102,6 +102,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<ProgramSentence>>& programSente
             numbering.push(n);
         }
     } else {
+        // NOTE: a sentence cannot be empty
         numbering.push(NO_NUMBERING);
     }
 
@@ -168,6 +169,7 @@ void PrintLV1::operator()(const MayFail<MayFail_<Term>>& term) {
             numbering.push(n);
         }
     } else {
+        // NOTE: a term cannot be empty
         numbering.push(NO_NUMBERING);
     }
 
@@ -247,7 +249,7 @@ void PrintLV1::operator()(MayFail_<SquareBracketsGroup>* sbg) {
         for (int n : range(sbg->terms.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!sbg->terms.empty()) {
         numbering.push(NO_NUMBERING);
     }
 
@@ -280,6 +282,7 @@ void PrintLV1::operator()(MayFail_<MultilineSquareBracketsGroup>* msbg) {
             numbering.push(n);
         }
     } else {
+        // NOTE: a MSBG cannot be empty
         numbering.push(NO_NUMBERING);
     }
 
@@ -319,7 +322,7 @@ void PrintLV1::operator()(MayFail_<ParenthesesGroup>* pg) {
         for (int n : range(pg->terms.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!pg->terms.empty()) {
         numbering.push(NO_NUMBERING);
     }
 
@@ -372,7 +375,7 @@ void PrintLV1::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
         for (int n : range(cbg->sentences.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!cbg->sentences.empty()) {
         numbering.push(NO_NUMBERING);
     }
 

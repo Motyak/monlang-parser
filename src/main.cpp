@@ -124,6 +124,7 @@ void handleParsingResult(const ParsingResult& parsingRes) {
     {
         auto file = std::ofstream("out/LV1.ast.txt", std::ios::app);
         auto print_to_file = PrintLV1(file);
+        // auto print_to_file = PrintLV1(std::cout); //debug
         MayFail<MayFail_<LV1::Program>> ast =
                 parsingRes.status == LV1_ERR? asMalformedLV1(parsingRes)
                 : MayFail<MayFail_<Program>>(parsingRes._correctLV1.value());
@@ -135,6 +136,7 @@ void handleParsingResult(const ParsingResult& parsingRes) {
     {
         auto file = std::ofstream("out/LV2.ast.txt", std::ios::app);
         auto print_to_file = PrintLV2(file);
+        // auto print_to_file = PrintLV2(std::cout); //debug
         MayFail<MayFail_<LV2::Program>> ast =
                 parsingRes.status == LV2_ERR? asMalformedLV2(parsingRes)
                 : MayFail<MayFail_<LV2::Program>>(asCorrectLV2(parsingRes));

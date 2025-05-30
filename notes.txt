@@ -31,3 +31,10 @@ Elle dépendra de monlang-LV1/ast (pas de Ast_) et une définition de
 get_operators() qui retourne un std::vector<std::string> pour "OPERATOR"
 (y'aura une implémentation par défaut avec les opérateurs binaires classiques de C++:
 arithmetic , logical et comparison)
+
+---
+
+Estimation de la complexité d'un programme:
+Compter le nombre de tokens :
+cat bin/out/LV1.ast.txt | perl -pe 's/\s*-> `.*\n//g' | wc -l
+cat bin/out/LV2.ast.txt | perl -pe 's/\s*-> `.*\n//g' | wc -l

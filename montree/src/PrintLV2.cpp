@@ -89,7 +89,7 @@ void PrintLV2::operator()(const MayFail<MayFail_<LV2::Program>>& prog) {
         for (int n : range(prog_.statements.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!prog_.statements.empty()) {
         numbering.push(NO_NUMBERING);
     }
 
@@ -360,6 +360,7 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
             numbering.push(n);
         }
     } else {
+        // NOTE: foreach block cannot be empty
         numbering.push(NO_NUMBERING);
     }
 
@@ -411,6 +412,7 @@ void PrintLV2::operator()(MayFail_<WhileStatement>* whileStatement) {
             numbering.push(n);
         }
     } else {
+        // NOTE: while block cannot be empty
         numbering.push(NO_NUMBERING);
     }
 
@@ -451,6 +453,7 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
                 numbering.push(n);
             }
         } else {
+            // NOTE: do..while block cannot be empty
             numbering.push(NO_NUMBERING);
         }
 
@@ -626,7 +629,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
         for (int n : range(lambda->body.statements.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!lambda->body.statements.empty()) {
         numbering.push(NO_NUMBERING);
     }
     for (auto statement: lambda->body.statements) {
@@ -645,7 +648,7 @@ void PrintLV2::operator()(MayFail_<BlockExpression>* block) {
         for (int n : range(block->statements.size(), 0)) {
             numbering.push(n);
         }
-    } else {
+    } else if (!block->statements.empty()) {
         numbering.push(NO_NUMBERING);
     }
 
