@@ -35,6 +35,11 @@ arithmetic , logical et comparison)
 ---
 
 Estimation de la complexité d'un programme:
-Compter le nombre de tokens :
+Compter le nombre de "tokens" :
 cat bin/out/LV1.ast.txt | perl -pe 's/\s*-> `.*\n//g' | wc -l
 cat bin/out/LV2.ast.txt | perl -pe 's/\s*-> `.*\n//g' | wc -l
+
+Lister les symboles d'un programme:
+cat bin/out/LV2.ast.txt | perl -ne 'print "$1\n" if /-> Symbol: `(.*)`/' | sort -u
+Les compter:
+cat bin/out/LV2.ast.txt | perl -ne 'print "$1\n" if /-> Symbol: `(.*)`/' | sort -u | wc -l

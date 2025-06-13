@@ -144,6 +144,7 @@ void FixPassByRef::operator()(auto*) {
 }
 
 void FixPassByRef::operator()(Symbol* symbol) {
+    unless (symbol->_groupNesting == 0) return;
     unless (symbol->name.size() >= 2) return;
     unless (symbol->name.at(0) == '&') return;
     unless (symbol->name.at(1) != '&') return;

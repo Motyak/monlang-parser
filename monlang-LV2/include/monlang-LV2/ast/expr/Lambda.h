@@ -18,7 +18,6 @@ struct Lambda {
     size_t _tokenId = 123456789;
     Lambda() = default;
     Lambda(const std::vector<Symbol>&, const std::optional<Symbol>&, const LambdaBlock&);
-    // Lambda(const std::vector<Symbol>&, const LambdaBlock&); // for convenience
 };
 
 #endif // AST_LAMBDA_H
