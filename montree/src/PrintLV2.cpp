@@ -215,7 +215,7 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     operator()(accumulation->variable);
 
 
-    outputLine("-> operator: `", accumulation->operator_.name.c_str(), "`"); /*
+    outputLine("-> operator: Symbol: `", accumulation->operator_.name.c_str(), "`"); /*
         always wellformed, otherwise wouldn't be peeked in the first place
     */
 
@@ -448,6 +448,9 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
             return;
         }
 
+        outputLine(doStmt.block.has_error()? "~> block" : "-> block");
+        currIndent++;
+
         if (doStmt.block.val.statements.size() > 1) {
             for (int n : range(doStmt.block.val.statements.size(), 0)) {
                 numbering.push(n);
@@ -460,6 +463,8 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
         for (auto statement: doStmt.block.val.statements) {
             operator()(statement);
         }
+
+        currIndent--;
 
         if (doStmt.block.has_error()) {
             return;
@@ -532,7 +537,9 @@ void PrintLV2::operator()(MayFail_<Operation>* operation) {
     }
 
 
-    outputLine("-> operator: `", operation->operator_.name.c_str(), "`");
+    outputLine("-> operator: Symbol: `", operation->operator_.name.c_str(), "`"); /*
+        always wellformed, otherwise wouldn't be peeked in the first place
+    */
 
 
     if (is_stub(operation->rightOperand.val)
