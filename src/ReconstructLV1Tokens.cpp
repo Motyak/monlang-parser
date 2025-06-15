@@ -35,7 +35,7 @@ void ReconstructLV1Tokens::operator()(MayFail<MayFail_<Program>>& prog) {
     token.name = "Program";
 
     if (token.is_malformed) {
-        token.err_desc = prog.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = prog.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -65,7 +65,7 @@ void ReconstructLV1Tokens::operator()(MayFail<MayFail_<ProgramSentence>>& senten
     token.name = "ProgramSentence";
 
     if (token.is_malformed) {
-        token.err_desc = sentence.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = sentence.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += sentence.val._tokenLeadingNewlines;
@@ -119,7 +119,7 @@ void ReconstructLV1Tokens::operator()(MayFail<MayFail_<Term>>& term) {
     token.name = "Term";
 
     if (token.is_malformed) {
-        token.err_desc = term.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = term.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -191,7 +191,7 @@ void ReconstructLV1Tokens::operator()(Atom* atom) {
     token.name = "Atom";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -211,7 +211,7 @@ void ReconstructLV1Tokens::operator()(Quotation* quot) {
     token.name = "Quotation";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -231,7 +231,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsTerm>* sbt) {
     token.name = "SquareBracketsTerm";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -265,7 +265,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<SquareBracketsGroup>* sbg) {
     token.name = "SquareBracketsGroup";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -309,7 +309,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<MultilineSquareBracketsGroup>* ms
     token.name = "MultilineSquareBracketsGroup";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -349,7 +349,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<ParenthesesGroup>* pg) {
     token.name = "ParenthesesGroup";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -393,7 +393,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<CurlyBracketsGroup>* cbg) {
     token.name = "CurlyBracketsGroup";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -441,7 +441,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixSquareBracketsGroup>* psbg
     token.name = "PostfixSquareBracketsGroup";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -469,7 +469,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<PostfixParenthesesGroup>* ppg) {
     token.name = "PostfixParenthesesGroup";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -497,7 +497,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<Path>* path) {
     token.name = "Path";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -526,7 +526,7 @@ void ReconstructLV1Tokens::operator()(MayFail_<Association>* assoc) {
     token.name = "Association";
 
     if (token.is_malformed) {
-        token.err_desc = curWord.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curWord.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);

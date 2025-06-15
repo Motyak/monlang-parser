@@ -57,7 +57,7 @@ void ReconstructLV2Tokens::operator()(MayFail<MayFail_<LV2::Program>>& prog) {
     token.name = "Program";
 
     if (token.is_malformed) {
-        token.err_desc = prog.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = prog.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -97,7 +97,7 @@ void ReconstructLV2Tokens::operator()(const MayFail<Lvalue_>& lvalue) {
         token.name = "Lvalue";
 
         if (token.is_malformed) {
-            token.err_desc = lvalue.error().fmt; // TODO: map this to the actual error description
+            token.err_fmt = lvalue.error().fmt; // TODO: we will need to fill token.err_desc as well
         }
 
         /* no group nesting because impossible in an Lvalue */
@@ -127,7 +127,7 @@ void ReconstructLV2Tokens::operator()(_StubStatement_* stub) {
     token.name = "Statement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += stub->_tokenLeadingNewlines;
@@ -151,7 +151,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     token.name = "Assignment";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += assign->_tokenLeadingNewlines;
@@ -193,7 +193,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     token.name = "Accumulation";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += acc->_tokenLeadingNewlines;
@@ -235,7 +235,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     token.name = "LetStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += letStmt->_tokenLeadingNewlines;
@@ -277,7 +277,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     token.name = "VarStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += varStmt->_tokenLeadingNewlines;
@@ -319,7 +319,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>* returnStmt) {
     token.name = "ReturnStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += returnStmt->_tokenLeadingNewlines;
@@ -422,7 +422,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
     token.name = "ForeachStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += foreachStmt->_tokenLeadingNewlines;
@@ -471,7 +471,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
     token.name = "WhileStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += whileStmt->_tokenLeadingNewlines;
@@ -526,7 +526,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
     token.name = "DoWhileStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -544,7 +544,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         token.name = "C_DoStatement";
 
         if (token.is_malformed) {
-            token.err_desc = doWhileStmt->doStmt.error().fmt; // TODO: map this to the actual error description
+            token.err_fmt = doWhileStmt->doStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
         }
 
         curPos += doStmt._tokenLeadingNewlines;
@@ -594,7 +594,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         token.name = "C_WhileStatement";
 
         if (token.is_malformed) {
-            token.err_desc = doWhileStmt->whileStmt.error().fmt; // TODO: map this to the actual error description
+            token.err_fmt = doWhileStmt->whileStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
         }
 
         curPos += whileStmt._tokenLeadingNewlines;
@@ -660,7 +660,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
     token.name = "ExpressionStatement";
 
     if (token.is_malformed) {
-        token.err_desc = curStmt.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += exprStmt->_tokenLeadingNewlines;
@@ -688,7 +688,7 @@ void ReconstructLV2Tokens::operator()(_StubExpression_*) {
     token.name = "Expression";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     curPos += group_nesting(curExpr.val);
@@ -713,7 +713,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
     token.name = "Operation";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -745,7 +745,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
     token.name = "FunctionCall";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -766,7 +766,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
             token.name = "FunctionCallArgument";
 
             if (token.is_malformed) {
-                token.err_desc = arg.error().fmt; // TODO: map this to the actual error description
+                token.err_fmt = arg.error().fmt; // TODO: we will need to fill token.err_desc as well
             }
 
             token.start = asTokenPosition(curPos);
@@ -814,7 +814,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
     token.name = "FieldAccess";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -855,7 +855,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Subscript>* subscript) {
     token.name = "Subscript";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr_.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr_.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -888,7 +888,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     token.name = "Lambda";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -932,7 +932,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
     token.name = "BlockExpression";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -970,7 +970,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
     token.name = "MapLiteral";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);
@@ -1018,7 +1018,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
     token.name = "ListLiteral";
 
     if (token.is_malformed) {
-        token.err_desc = curExpr.error().fmt; // TODO: map this to the actual error description
+        token.err_fmt = curExpr.error().fmt; // TODO: we will need to fill token.err_desc as well
     }
 
     token.start = asTokenPosition(curPos);

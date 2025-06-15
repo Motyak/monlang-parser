@@ -3,6 +3,7 @@
 
 #include <montree/PrintLV1.h>
 #include <montree/PrintLV2.h>
+#include <nlohmann/json.hpp>
 
 #include <utils/assert-utils.h>
 #include <utils/iostream-utils.h>
@@ -100,6 +101,9 @@ int fileinput_main(int argc, char* argv[]) {
     }
 }
 
+nlohmann::ordered_json buildJson(const TokenPosition&);
+nlohmann::ordered_json buildJson(const Token&);
+void serializeToJson(const Tokens&, std::ostream&);
 void reportTraceback(std::ostream& out, const ParsingResult&);
 
 void handleParsingResult(const ParsingResult& parsingRes) {
@@ -117,9 +121,10 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         std::ofstream("out/LV1.ast.txt", std::ios::trunc);
         std::ofstream("out/LV2.ast.txt", std::ios::trunc);
         std::ofstream("out/traceback.txt", std::ios::trunc);
+        std::ofstream("out/LV1.tokens.json", std::ios::trunc);
+        std::ofstream("out/LV2.tokens.json", std::ios::trunc);
     }
 
-    // if (parsingRes.status > CHARSET_ERR)
     /* write out/LV1.ast.txt */
     {
         auto file = std::ofstream("out/LV1.ast.txt", std::ios::app);
@@ -129,6 +134,12 @@ void handleParsingResult(const ParsingResult& parsingRes) {
                 parsingRes.status == LV1_ERR? asMalformedLV1(parsingRes)
                 : MayFail<MayFail_<Program>>(parsingRes._correctLV1.value());
         print_to_file(ast);
+    }
+
+    /* write out/LV1.tokens.json */
+    {
+        auto file = std::ofstream("out/LV1.tokens.json", std::ios::app);
+        serializeToJson(parsingRes._tokensLV1, file);
     }
 
     if (parsingRes.status > LV1_ERR)
@@ -143,12 +154,54 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         print_to_file(ast);
     }
 
+    /* write out/LV2.tokens.json */
+    {
+        auto file = std::ofstream("out/LV2.tokens.json", std::ios::app);
+        serializeToJson(parsingRes._tokensLV2, file);
+    }
+
     if (parsingRes.status < LV2_OK)
     /* write out/traceback.txt */
     {
         auto file = std::ofstream("out/traceback.txt", std::ios::app);
         reportTraceback(file, parsingRes);
     }
+}
+
+nlohmann::ordered_json buildJson(const TokenPosition& tokenPos) {
+    nlohmann::ordered_json json;
+    json["i"] = tokenPos.i;
+    json["line"] = tokenPos.line;
+    json["column"] = tokenPos.column;
+    return json;
+}
+
+nlohmann::ordered_json buildJson(const Token& token) {
+    nlohmann::ordered_json json;
+    json["name"] = token.name;
+    json["start"] = buildJson(token.start);
+    json["end"] = buildJson(token.end);
+    json["is_malformed"] = token.is_malformed;
+    json["err_start"] = buildJson(token.err_start);
+    json["err_fmt"] = token.err_fmt;
+    return json;
+}
+
+void serializeToJson(const Tokens& tokens, std::ostream& out) {
+    nlohmann::ordered_json json;
+    auto list = std::vector<nlohmann::ordered_json>{};
+    for (auto token: tokens._vec) {
+        list.push_back(buildJson(token));
+    }
+    json["list"] = list;
+    
+    auto traceback = std::vector<nlohmann::ordered_json>{};
+    for (auto token: tokens.traceback) {
+        traceback.push_back(buildJson(token));
+    }
+    json["traceback"] = traceback;
+
+    out << json.dump(/*indent*/1, /*indent_char*/TAB) << std::endl;
 }
 
 void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
@@ -198,10 +251,10 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
             out << rjust(err_start.line, 5) << " | " << sourceLines.at(err_start.line - 1) << "\n";
             if (print_token_start_as_well) {
                 auto the_two_arrows = "^" + std::string(err_start.column - token.start.column - 1, SPACE) + "^";
-                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_desc << "\n";
+                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_fmt << "\n";
             }
             else {
-                out << "      | " << rjust("^", err_start.column) << token.err_desc << "\n";
+                out << "      | " << rjust("^", err_start.column) << token.err_fmt << "\n";
             }
             err_start = token.start;
             ENDLOOP
@@ -222,10 +275,10 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
             out << rjust(err_start.line, 5) << " | " << sourceLines.at(err_start.line - 1) << "\n";
             if (print_token_start_as_well) {
                 auto the_two_arrows = "^" + std::string(err_start.column - token.start.column - 1, SPACE) + "^";
-                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_desc << "\n";
+                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_fmt << "\n";
             }
             else {
-                out << "      | " << rjust("^", err_start.column) << token.err_desc << "\n";
+                out << "      | " << rjust("^", err_start.column) << token.err_fmt << "\n";
             }
             err_start = token.start;
             ENDLOOP

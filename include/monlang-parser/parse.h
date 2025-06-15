@@ -18,7 +18,6 @@ struct Source {
 
 struct ParsingResult {
     enum Status {
-        // ...
         LV1_ERR = -2,
         LV2_ERR = -1,
         LV2_OK = 0

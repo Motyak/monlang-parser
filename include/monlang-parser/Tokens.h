@@ -27,7 +27,8 @@ struct Token {
 
     bool is_malformed = false;
     TokenPosition err_start = {}; // only malformed token, not necessarily equal to start
-    std::string err_desc = "";
+    std::string err_fmt = "";
+    // std::string err_desc = ""; // TODO
 };
 
 class Tokens {

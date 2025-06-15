@@ -19,10 +19,6 @@ static std::vector<size_t> calculateNewlinesPos(const std::string& input) {
 }
 
 ParsingResult parse(const Source& text) {
-    //TODO: check for UTF8_ERR // byte sequence cannot be interpreted as text (UTF8)
-    //TODO: check for CHARSET_ERR // byte lies outside ASCII character sub-set comprising of LF(10), SPACE(32) and all visible characters (33-126)
-    //TODO???: check for LINEFEED_ERR // non-empty line is missing a trailing LF character
-    //  -> already catch by LV1 ProgramSentence
     auto newlinesPos = calculateNewlinesPos(text);
     auto iss = std::istringstream(text);
 

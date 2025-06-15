@@ -43,7 +43,7 @@ mrproper:
 $(OBJS) obj/main.o: obj/%.o: src/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS) $(DEPFLAGS)
 
-obj/main.o: CXXFLAGS += -Wno-unused-label -I montree/include
+obj/main.o: CXXFLAGS += -Wno-unused-label -I montree/include -I lib/json/include
 
 $(TEST_OBJS): obj/test/%.o: src/test/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS_TEST) $(DEPFLAGS_TEST)

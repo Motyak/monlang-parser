@@ -7,7 +7,10 @@
 
                 /* test libs */
                 "${workspaceFolder}/lib/catch2/include",
-                "${workspaceFolder}/montree/include"
+
+                /* main.elf libs */
+                "${workspaceFolder}/montree/include",
+                "${workspaceFolder}/lib/json/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
