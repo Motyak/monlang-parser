@@ -70,7 +70,7 @@ void ReconstructLV2Tokens::operator()(MayFail<MayFail_<LV2::Program>>& prog) {
         }
     }
     // special case, no _tokenLen
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -103,7 +103,7 @@ void ReconstructLV2Tokens::operator()(const MayFail<Lvalue_>& lvalue) {
         /* no group nesting because impossible in an Lvalue */
 
         token.start = asTokenPosition(curPos);
-        token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+        token.end = asTokenPosition(curPos);
 
         if (token.is_malformed) {
             token.err_start = token.start;
@@ -134,7 +134,7 @@ void ReconstructLV2Tokens::operator()(_StubStatement_* stub) {
     curPos += stub->_tokenIndentSpaces;
 
     token.start = asTokenPosition(curPos);
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -168,7 +168,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Assignment>* assign) {
     operator()(assign->value);
     curPos = backupCurPos;
     curPos += assign->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += assign->_tokenTrailingNewlines;
 
@@ -210,7 +210,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
     operator()(acc->value);
     curPos = backupCurPos;
     curPos += acc->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += acc->_tokenTrailingNewlines;
 
@@ -252,7 +252,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     operator()(letStmt->value);
     curPos = backupCurPos;
     curPos += letStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += letStmt->_tokenTrailingNewlines;
 
@@ -294,7 +294,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<VarStatement>* varStmt) {
     operator()(varStmt->value);
     curPos = backupCurPos;
     curPos += varStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += varStmt->_tokenTrailingNewlines;
 
@@ -336,7 +336,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ReturnStatement>* returnStmt) {
     }
     curPos = backupCurPos;
     curPos += returnStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += returnStmt->_tokenTrailingNewlines;
 
@@ -367,7 +367,7 @@ void ReconstructLV2Tokens::operator()(BreakStatement* breakStmt) {
     token.start = asTokenPosition(curPos);
     // lastCorrectToken = -1;
     curPos += breakStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += breakStmt->_tokenTrailingNewlines;
 }
@@ -387,7 +387,7 @@ void ReconstructLV2Tokens::operator()(ContinueStatement* continueStmt) {
     token.start = asTokenPosition(curPos);
     // lastCorrectToken = -1;
     curPos += continueStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += continueStmt->_tokenTrailingNewlines;
 }
@@ -407,7 +407,7 @@ void ReconstructLV2Tokens::operator()(DieStatement* dieStmt) {
     token.start = asTokenPosition(curPos);
     // lastCorrectToken = -1;
     curPos += dieStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += dieStmt->_tokenTrailingNewlines;
 }
@@ -439,7 +439,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
     operator()(mayfail_cast_by_ref<Expression_>(foreachStmt->block));
     curPos = backupCurPos;
     curPos += foreachStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += foreachStmt->_tokenTrailingNewlines;
 
@@ -448,7 +448,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ForeachStatement>* foreachStmt) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curStmt_.err->_info.contains("err_offset")) {
@@ -495,7 +495,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
     operator()(mayfail_cast_by_ref<Expression_>(whileStmt->block));
     curPos = backupCurPos;
     curPos += whileStmt->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += whileStmt->_tokenTrailingNewlines;
 
@@ -504,7 +504,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<WhileStatement>* whileStmt) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curStmt_.err->_info.contains("err_offset")) {
@@ -559,7 +559,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         operator()(mayfail_cast_by_ref<Expression_>(doStmt.block));
         curPos = backupCurPos;
         curPos += doStmt._tokenLen;
-        token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+        token.end = asTokenPosition(curPos);
 
         curPos += doStmt._tokenTrailingNewlines;
 
@@ -568,7 +568,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
                 token.err_start = token.start;
             }
             else {
-                token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+                token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
                 token.err_start = token.err_start < token.start? token.start : token.err_start;
             }
             if (doWhileStmt->doStmt.err->_info.contains("err_offset")) {
@@ -616,7 +616,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
         curPos += sequenceLen(SquareBracketsTerm::TERMINATOR_SEQUENCE);
         curPos = backupCurPos;
         curPos += whileStmt._tokenLen;
-        token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+        token.end = asTokenPosition(curPos);
 
         curPos += whileStmt._tokenTrailingNewlines;
 
@@ -633,14 +633,14 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
     }
     /* end of C_WhileStatement */
 
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curStmt_.err->_info.contains("err_offset")) {
@@ -668,7 +668,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
 
     token.start = asTokenPosition(curPos);
     operator()(exprStmt->expression);
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     curPos += exprStmt->_tokenTrailingNewlines;
 
@@ -694,7 +694,7 @@ void ReconstructLV2Tokens::operator()(_StubExpression_*) {
     curPos += group_nesting(curExpr.val);
 
     token.start = asTokenPosition(curPos);
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -728,7 +728,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Operation>* operation) {
     operator()(operation->rightOperand);
     curPos = backupCurPos;
     curPos += operation->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -777,14 +777,14 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
             operator()(arg.val.expr);
             curPos = backupCurPos;
             curPos += arg.val._tokenLen;
-            token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+            token.end = asTokenPosition(curPos);
 
             if (token.is_malformed) {
                 if (lastCorrectToken == size_t(-1)) {
                     token.err_start = token.start;
                 }
                 else {
-                    token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+                    token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
                     token.err_start = token.err_start < token.start? token.start : token.err_start;
                 }
                 tokens.traceback.push_back(token);
@@ -796,7 +796,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
     }
     curPos = backupCurPos;
     curPos += functionCall->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -827,14 +827,14 @@ void ReconstructLV2Tokens::operator()(MayFail_<FieldAccess>* fieldAccess) {
     operator()(&fieldAccess->field);
     curPos = backupCurPos;
     curPos += fieldAccess->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curExpr_.err->_info.contains("err_offset")) {
@@ -871,7 +871,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Subscript>* subscript) {
     }, subscript->argument);
     curPos = backupCurPos;
     curPos += subscript->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -915,7 +915,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     operator()(&lambda->body);
     curPos = backupCurPos;
     curPos += lambda->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -952,7 +952,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<BlockExpression>* blockExpr) {
     }
     curPos = backupCurPos;
     curPos += blockExpr->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -991,14 +991,14 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
     curPos += sequenceLen(SquareBracketsGroup::TERMINATOR_SEQUENCE);
     curPos = backupCurPos;
     curPos += mapLiteral->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         if (lastCorrectToken == size_t(-1)) {
             token.err_start = token.start;
         }
         else {
-            token.err_start = asTokenPosition(tokens[lastCorrectToken].end + 1);
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
             token.err_start = token.err_start < token.start? token.start : token.err_start;
         }
         if (curExpr_.err->_info.contains("err_offset")) {
@@ -1037,7 +1037,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
     curPos += sequenceLen(SquareBracketsGroup::TERMINATOR_SEQUENCE);
     curPos = backupCurPos;
     curPos += listLiteral->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
         token.err_start = token.start;
@@ -1058,7 +1058,7 @@ void ReconstructLV2Tokens::operator()(Numeral* numeral) {
 
     token.start = asTokenPosition(curPos);
     curPos += numeral->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 }
 
 void ReconstructLV2Tokens::operator()(StrLiteral* strLiteral) {
@@ -1072,7 +1072,7 @@ void ReconstructLV2Tokens::operator()(StrLiteral* strLiteral) {
 
     token.start = asTokenPosition(curPos);
     curPos += strLiteral->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 }
 
 void ReconstructLV2Tokens::operator()(SpecialSymbol* specialSymbol) {
@@ -1086,7 +1086,7 @@ void ReconstructLV2Tokens::operator()(SpecialSymbol* specialSymbol) {
 
     token.start = asTokenPosition(curPos);
     curPos += specialSymbol->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 }
 
 void ReconstructLV2Tokens::operator()(Symbol* symbol) {
@@ -1100,7 +1100,7 @@ void ReconstructLV2Tokens::operator()(Symbol* symbol) {
 
     token.start = asTokenPosition(curPos);
     curPos += symbol->_tokenLen;
-    token.end = asTokenPosition(token.start == curPos? curPos : curPos - 1);
+    token.end = asTokenPosition(curPos);
 }
 
 ///////////////////////////////////////////////////////////////
