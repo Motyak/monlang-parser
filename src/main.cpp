@@ -18,12 +18,21 @@ using ParsingResult::Status::LV1_ERR;
 using ParsingResult::Status::LV2_ERR;
 using ParsingResult::Status::LV2_OK;
 
+static bool OUTPUT_MODE = false;
+
 [[noreturn]] int repl_main(int argc, char* argv[]);
 int stdinput_main(int argc, char* argv[]);
 int fileinput_main(int argc, char* argv[]);
 
 int main(int argc, char* argv[])
 {
+
+    if (auto options = second(split_in_two(argv[0], " -"))) {
+        if (options->contains("o")) {
+            OUTPUT_MODE = true;
+        }
+    }
+
     /* delegate main based on execution mode */
 
     if (argc == 1) {
@@ -107,6 +116,13 @@ void serializeToJson(const Tokens&, std::ostream&);
 void reportTraceback(std::ostream& out, const ParsingResult&);
 
 void handleParsingResult(const ParsingResult& parsingRes) {
+    if (OUTPUT_MODE) {
+        if (parsingRes.status < LV2_OK) {
+            reportTraceback(std::cout, parsingRes);
+        }
+        return;
+    }
+
     if (parsingRes.status < 0) {
         std::cerr << "malformed input" << std::endl;
     }
