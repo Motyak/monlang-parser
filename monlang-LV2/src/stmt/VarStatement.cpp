@@ -75,7 +75,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
         return malformed;
     }
     unless (holds_word(sentence.programWords[1])) {
-        auto error = ERR(246);
+        auto error = ERR(242);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
         auto malformed = Malformed(MayFail_<VarStatement>{Symbol(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -84,7 +84,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
     auto word = get_word(sentence.programWords[1]);
     auto expr = buildExpression((Term)word);
     unless (std::holds_alternative<Symbol*>(expr.val)) {
-        auto error = ERR(242);
+        auto error = ERR(243);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
         auto malformed = Malformed(MayFail_<VarStatement>{Symbol(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -94,13 +94,13 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, ERR(243));
+        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, ERR(244));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto error = ERR(244);
+        auto error = ERR(245);
         SET_NON_WORD_ERR_OFFSET(error);
         auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -108,7 +108,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<VarStatement>{name, value}, ERR(245));
+        auto malformed = Malformed(MayFail_<VarStatement>{name, value}, ERR(246));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

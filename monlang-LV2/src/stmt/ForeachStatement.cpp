@@ -96,7 +96,7 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     }
     auto word = get_word(pw);
     unless (peekBlockExpression(word)) {
-        auto error = ERR(326);
+        auto error = ERR(325);
         SET_NTH_WORD_ERR_OFFSET(error, sentence.programWords.size());
         auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, STUB(MayFail_<BlockExpression>)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
@@ -104,7 +104,7 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
     }
     auto block = buildBlockExpression(word);
     if (block.val._dollars) {
-        auto error = ERR(328);
+        auto error = ERR(326);
         SET_NTH_WORD_ERR_OFFSET(error, sentence.programWords.size());
         // NOTE: we construct from a stub block expression (in case the block happens to be malformed as well)
         auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, STUB(MayFail_<BlockExpression>)}, error);
@@ -120,7 +120,7 @@ MayFail<MayFail_<ForeachStatement>> consumeForeachStatement(LV1::Program& prog) 
         return malformed;
     }
     if (block.has_error()) {
-        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, block}, ERR(325));
+        auto malformed = Malformed(MayFail_<ForeachStatement>{iterable, block}, ERR(328));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }

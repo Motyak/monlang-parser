@@ -373,7 +373,7 @@ TEST_CASE ("Malformed C_DoStatement, contains a Malformed BlockExpression as blo
     auto input_prog = std::get<Program>(input_ast);
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (/*C_DoStatement*/ "ERR-354" == std::get<MayFail_<DoWhileStatement>*>(output.val)->doStmt.error().fmt);
+    REQUIRE (/*C_DoStatement*/ "ERR-356" == std::get<MayFail_<DoWhileStatement>*>(output.val)->doStmt.error().fmt);
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -397,7 +397,7 @@ TEST_CASE ("Malformed C_DoStatement, contains a dollars BlockExpression as block
     auto expect = tommy_str(R"EOF(
        |~> Statement: DoWhileStatement
        |  ~> C_DoStatement
-       |    ~> ERR-356
+       |    ~> ERR-354
     )EOF");
 
     auto output = consumeStatement(input_prog);

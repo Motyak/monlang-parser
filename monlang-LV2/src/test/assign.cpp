@@ -313,7 +313,7 @@ TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2119][assign][err
     auto expect = tommy_str(R"EOF(
        |~> Statement: Assignment
        |  -> Lvalue: Symbol: `somevar`
-       |  ~> ERR-213
+       |  ~> ERR-214
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -342,7 +342,7 @@ TEST_CASE ("ERR contains a non-Word as part of the value", "[test-2120][assign][
     auto expect = tommy_str(R"EOF(
        |~> Statement: Assignment
        |  -> Lvalue: Symbol: `somevar`
-       |  ~> ERR-214
+       |  ~> ERR-215
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -379,7 +379,7 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2121][assign][
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (output.error().fmt == "ERR-215");
+    REQUIRE (output.error().fmt == "ERR-216");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

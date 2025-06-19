@@ -286,7 +286,7 @@ TEST_CASE ("ERR contains a non-Word as name", "[test-2331][let][err]") {
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
-       |  ~> ERR-236
+       |  ~> ERR-232
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -311,7 +311,7 @@ TEST_CASE ("ERR contains a non-Symbol as name", "[test-2318][let][err]") {
 
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
-       |  ~> ERR-232
+       |  ~> ERR-233
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -337,7 +337,7 @@ TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2319][let][err]")
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
        |  -> Symbol: `x`
-       |  ~> ERR-233
+       |  ~> ERR-234
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -366,7 +366,7 @@ TEST_CASE ("ERR contains a non-Word as part of the value", "[test-2320][let][err
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
        |  -> Symbol: `x`
-       |  ~> ERR-234
+       |  ~> ERR-235
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -403,7 +403,7 @@ TEST_CASE ("ERR contains a Malformed Expression as value", "[test-2321][let][err
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (output.error().fmt == "ERR-235");
+    REQUIRE (output.error().fmt == "ERR-236");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);

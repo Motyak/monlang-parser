@@ -379,7 +379,7 @@ TEST_CASE ("ERR contains a non-BlockExpression as block", "[test-3331][while][er
        |~> Statement: WhileStatement
        |  -> condition
        |    -> Expression: Symbol: `end`
-       |  ~> ERR-338
+       |  ~> ERR-336
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -423,7 +423,7 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3320][whi
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (output.error().fmt == "ERR-336");
+    REQUIRE (output.error().fmt == "ERR-339");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -477,7 +477,7 @@ TEST_CASE ("ERR contains a oneline BlockExpression as block", "[test-3333][while
        |~> Statement: WhileStatement
        |  -> condition
        |    -> Expression: Symbol: `end`
-       |  ~> ERR-339
+       |  ~> ERR-338
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);

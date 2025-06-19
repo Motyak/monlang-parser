@@ -111,7 +111,7 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
     }
     auto word = get_word(block_as_pw);
     unless (peekBlockExpression(word)) {
-        auto error = ERR(338);
+        auto error = ERR(336);
         SET_NTH_WORD_ERR_OFFSET(error, 3);
         auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
@@ -127,7 +127,7 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
         return malformed;
     }
     if (block.val._oneline) {
-        auto error = ERR(339);
+        auto error = ERR(338);
         SET_NTH_WORD_ERR_OFFSET(error, 3);
         // NOTE: we construct from a stub block expression (in case the block happens to be malformed as well)
         auto malformed = Malformed(MayFail_<WhileStatement>{condition, STUB(MayFail_<BlockExpression>), until_loop}, error);
@@ -135,7 +135,7 @@ MayFail<MayFail_<WhileStatement>> consumeWhileStatement(LV1::Program& prog) {
         return malformed;
     }
     if (block.has_error()) {
-        auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(336));
+        auto malformed = Malformed(MayFail_<WhileStatement>{condition, block, until_loop}, ERR(339));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }
@@ -196,7 +196,7 @@ static MayFail<MayFail_<C_DoStatement>> consumeC_DoStatement(LV1::Program& prog)
     }
     auto block = buildBlockExpression(word);
     if (block.val._dollars) {
-        auto error = ERR(356);
+        auto error = ERR(354);
         SET_NTH_WORD_ERR_OFFSET(error, 2);
         // NOTE: we construct from a stub block expression (in case the block happens to be malformed as well)
         auto malformed = Malformed(MayFail_<C_DoStatement>{STUB(MayFail_<BlockExpression>)}, error);
@@ -212,7 +212,7 @@ static MayFail<MayFail_<C_DoStatement>> consumeC_DoStatement(LV1::Program& prog)
         return malformed;
     }
     if (block.has_error()) {
-        auto malformed = Malformed(MayFail_<C_DoStatement>{block}, ERR(354));
+        auto malformed = Malformed(MayFail_<C_DoStatement>{block}, ERR(356));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
     }

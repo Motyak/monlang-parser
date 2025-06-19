@@ -1,0 +1,107 @@
+ERR-111 Malformed Program, contains a Malformed Statement
+
+ERR-121 Unknown Statement
+
+ERR-161 Malformed Expression, contains an even number of words
+* ERR-162 Malformed Expression, contains a non-Atom word as operator
+  -> not triggerable when calling consumeProgram(LV1::Program&),
+     only triggerable when calling buildExpression(Term)
+ERR-163 Malformed Expression, contains an unknown operator (unfound in precedence table)
+ERR-169 Unknown Expression
+
+~~~
+
+ERR-211 Malformed Assignment, contains a non-Word as variable
+ERR-212 Malformed Assignment, contains a non-Lvalue expression as variable
+ERR-213 Malformed Assignment, contains a Malformed Lvalue as variable
+ERR-214 Malformed Assignment, contains less than 3 words (no value)
+ERR-215 Malformed Assignment, contains a non-Word as part of the value
+ERR-216 Malformed Assignment, contains a Malformed Expression as value
+
+ERR-221 Malformed Accumulation, contains an unknown operator (unfound in precedence table)
+ERR-222 Malformed Accumulation, contains a non-Word as variable
+ERR-223 Malformed Accumulation, contains a non-Lvalue expression as variable
+ERR-224 Malformed Accumulation, contains a Malformed Lvalue as variable
+ERR-225 Malformed Accumulation, contains less than 3 words (no value)
+ERR-226 Malformed Accumulation, contains a non-Word as part of the value
+ERR-227 Malformed Accumulation, contains a Malformed Expression as value
+
+ERR-231 Malformed LetStatement, contains less than 2 words (no name)
+ERR-232 Malformed LetStatement, contains a non-Word as name
+ERR-233 Malformed LetStatement, contains a non-Symbol as name
+ERR-234 Malformed LetStatement, contains less than 3 words (no value)
+ERR-235 Malformed LetStatement, contains a non-Word as part of the value
+ERR-236 Malformed LetStatement, contains a Malformed Expression as value
+
+ERR-241 Malformed VarStatement, contains less than 2 words (no name)
+ERR-242 Malformed VarStatement, contains a non-Word as name
+ERR-243 Malformed VarStatement, contains a non-Symbol as name
+ERR-244 Malformed VarStatement, contains less than 3 words (no value)
+ERR-245 Malformed VarStatement, contains a non-Word as part of the value
+ERR-246 Malformed VarStatement, contains a Malformed Expression as value
+
+ERR-251 Malformed ReturnStatement, contains a non-Word as part of the value
+ERR-252 Malformed ReturnStatement, contains a Malformed Expression as value
+
+ERR-321 Malformed ForeachStatement, contains less than 3 words (no iterable AND/OR no block)
+ERR-322 Malformed ForeachStatement, contains a non-Word as part of iterable
+ERR-323 Malformed ForeachStatement, contains a Malformed Expression as iterable
+ERR-324 Malformed ForeachStatement, contains a non-Word as block
+ERR-325 Malformed ForeachStatement, contains a non-BlockExpression as block
+ERR-326 Malformed ForeachStatement, contains a dollars BlockExpression as block
+ERR-327 Malformed ForeachStatement, contains a oneline BlockExpression as block
+ERR-328 Malformed ForeachStatement, contains a Malformed BlockExpression as block
+
+ERR-331 Malformed WhileStatement, contains less than 2 words (no condition)
+ERR-332 Malformed WhileStatement, contains a non-SquareBracketsTerm as condition
+ERR-333 Malformed WhileStatement, contains a Malformed Expression as part of condition
+ERR-334 Malformed WhileStatement, contains less than 3 words (no block)
+ERR-335 Malformed WhileStatement, contains a non-Word as block
+ERR-336 Malformed WhileStatement, contains a non-BlockExpression as block
+ERR-337 Malformed WhileStatement, contains a dollars BlockExpression as block
+ERR-338 Malformed WhileStatement, contains a oneline BlockExpression as block
+ERR-339 Malformed WhileStatement, contains a Malformed BlockExpression as block
+
+ERR-341 Malformed DoWhileStatement, contains a Malformed C_DoStatement
+ERR-342 Malformed DoWhileStatement, missing C_WhileStatement
+ERR-343 Malformed DoWhileStatement, contains a Malformed C_WhileStatement
+
+ERR-351 Malformed C_DoStatement, contains less than 2 words (no block)
+ERR-352 Malformed C_DoStatement, contains a non-Word as block
+ERR-353 Malformed C_DoStatement, contains a non-BlockExpression as block
+ERR-354 Malformed C_DoStatement, contains a dollars BlockExpression as block
+ERR-355 Malformed C_DoStatement, contains a oneline BlockExpression as block
+ERR-356 Malformed C_DoStatement, contains a Malformed BlockExpression as block
+
+ERR-361 Malformed C_WhileStatement, contains less than 2 words (no condition)
+ERR-362 Malformed C_WhileStatement, contains a non-SquareBracketsTerm as condition
+ERR-363 Malformed C_WhileStatement, contains a Malformed Expression as part of condition
+
+ERR-591 Malformed ExpressionStatement, contains a Malformed Expression
+
+~~~
+
+ERR-611 Malformed Operation, contains a Malformed Expression as left operand
+ERR-612 Malformed Operation, contains a Malformed Expression as right operand
+
+ERR-621 Malformed FunctionCall, contains a Malformed Expression as function
+ERR-622 Malformed FunctionCall, contains a Malformed FunctionCallArgument
+
+ERR-731 Malformed FunctionCallArgument, contains a Malformed Expression
+ERR-732 Malformed FunctionCallArgument, contains a non-lvalue passed by reference
+
+ERR-631 Malformed Lambda, contains a Malformed Statement within body
+
+ERR-641 Malformed BlockExpression, contains a Malformed Statement
+
+ERR-681 Malformed ListLiteral, contains a malformed Expression
+
+ERR-691 Malformed MapLiteral, contains a List argument
+ERR-692 Malformed MapLiteral, contains a malformed Expression as argument key
+ERR-693 Malformed MapLiteral, contains a malformed Expression as argument value
+
+ERR-711 Malformed FieldAccess, contains a malformed Expression as object
+ERR-712 Malformed FieldAccess, contains a non-Symbol as field
+
+ERR-721 Malformed Subscript, contains a malformed Expression as array
+ERR-722 Malformed Subscript, contains a malformed Expression as key

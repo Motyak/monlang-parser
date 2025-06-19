@@ -89,7 +89,7 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
         }
     }
     unless (optr_found) {
-        auto error = ERR(226);
+        auto error = ERR(221);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
         auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), std::string(), StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -97,7 +97,7 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
     }
 
     unless (holds_word(sentence.programWords[0])) {
-        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), optr, StubExpression_()}, ERR(221));
+        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), optr, StubExpression_()}, ERR(222));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
@@ -105,27 +105,27 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
     auto word = get_word(sentence.programWords[0]);
     auto expr = buildExpression((Term)word);
     if (!is_lvalue(expr.val)) {
-        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), optr, StubExpression_()}, ERR(222));
+        auto malformed = Malformed(MayFail_<Accumulation>{STUB(Lvalue_), optr, StubExpression_()}, ERR(223));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
     auto variable = mayfail_cast<Lvalue_>(expr);
     if (variable.has_error()) {
-        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(227));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(224));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(223));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, ERR(225));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto error = ERR(224);
+        auto error = ERR(226);
         SET_NON_WORD_ERR_OFFSET(error);
         auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -134,7 +134,7 @@ MayFail<MayFail_<Accumulation>> consumeAccumulation(LV1::Program& prog) {
 
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, value}, ERR(225));
+        auto malformed = Malformed(MayFail_<Accumulation>{variable, optr, value}, ERR(227));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

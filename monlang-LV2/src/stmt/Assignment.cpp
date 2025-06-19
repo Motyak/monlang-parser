@@ -75,20 +75,20 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
 
     auto variable = mayfail_cast<Lvalue_>(expr);
     if (variable.has_error()) {
-        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(216));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(213));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(213));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, ERR(214));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto error = ERR(214);
+        auto error = ERR(215);
         SET_NON_WORD_ERR_OFFSET(error);
         auto malformed = Malformed(MayFail_<Assignment>{variable, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -96,7 +96,7 @@ MayFail<MayFail_<Assignment>> consumeAssignment(LV1::Program& prog) {
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<Assignment>{variable, value}, ERR(215));
+        auto malformed = Malformed(MayFail_<Assignment>{variable, value}, ERR(216));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

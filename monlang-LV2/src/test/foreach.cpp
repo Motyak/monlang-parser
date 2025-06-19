@@ -423,7 +423,7 @@ TEST_CASE ("ERR contains a Malformed BlockExpression as block", "[test-3219][for
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (output.error().fmt == "ERR-325");
+    REQUIRE (output.error().fmt == "ERR-328");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
@@ -446,7 +446,7 @@ TEST_CASE ("ERR contains a non-BlockExpression as block", "[test-3232][foreach][
        |~> Statement: ForeachStatement
        |  -> iterable
        |    -> Expression: Symbol: `list`
-       |  ~> ERR-326
+       |  ~> ERR-325
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -479,7 +479,7 @@ TEST_CASE ("ERR contains a dollars BlockExpression as block", "[test-3233][forea
        |~> Statement: ForeachStatement
        |  -> iterable
        |    -> Expression: Symbol: `list`
-       |  ~> ERR-328
+       |  ~> ERR-326
     )EOF");
 
     auto output = consumeStatement(input_prog);
