@@ -11,6 +11,7 @@
 #include <utils/fs-utils.h>
 #include <utils/str-utils.h>
 #include <utils/loop-utils.h>
+#include <utils/env-utils.h>
 
 #define unless(x) if(!(x))
 
@@ -19,6 +20,7 @@ using ParsingResult::Status::LV2_ERR;
 using ParsingResult::Status::LV2_OK;
 
 static bool OUTPUT_MODE = false;
+static std::string STDIN_SRCNAME = env_or_default("STDIN_SRCNAME", "<stdin>");
 
 [[noreturn]] int repl_main(int argc, char* argv[]);
 int stdinput_main(int argc, char* argv[]);
@@ -56,7 +58,7 @@ int repl_main(int argc, char* argv[]) {
     auto input_str = slurp_stdin(/*repeatable*/true);
 
     Eval:
-    auto text = Source{"<stdin>", input_str};
+    auto text = Source{STDIN_SRCNAME, input_str};
     auto parsingRes = parse(text);
 
     Print:
@@ -71,7 +73,7 @@ int stdinput_main(int argc, char* argv[]) {
     (void)argv;
 
     auto input_str = slurp_stdin(/*repeatable*/false);
-    auto text = Source{"<stdin>", input_str};
+    auto text = Source{STDIN_SRCNAME, input_str};
     auto parsingRes = parse(text);
     handleParsingResult(parsingRes);
 
