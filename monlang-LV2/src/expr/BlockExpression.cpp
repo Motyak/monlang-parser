@@ -2,9 +2,13 @@
 
 /* impl only */
 
+/* require knowing all words for token_len() */
+#include <monlang-LV2/token_len.h>
+
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 
 #include <utils/assert-utils.h>
+#include <utils/loop-utils.h>
 
 #define until(x) while(!(x))
 
@@ -18,8 +22,13 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
     auto cbg = *std::get<CurlyBracketsGroup*>(word);
 
     auto statements = std::vector<MayFail<Statement_>>();
-    until (cbg.sentences.empty()) {
+    LOOP until (cbg.sentences.empty()) {
         auto statement = consumeStatement((Subprogram&)cbg);
+        // handle oneline block expr, to adapt token_len accordingly
+        if (__first_it && cbg.term && std::holds_alternative<MayFail_<ExpressionStatement>*>(statement.val)) {
+            auto exprStmt = std::get<MayFail_<ExpressionStatement>*>(statement.val);
+            set_token_len(exprStmt->expression.val, token_len(exprStmt->expression.val) + 1);
+        }
         statements.push_back(statement);
         if (statement.has_error()) {
             auto malformed = Malformed(MayFail_<BlockExpression>{statements}, ERR(641));
@@ -29,6 +38,7 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
             }
             return malformed;
         }
+        ENDLOOP
     }
 
     auto blockExpr = MayFail_<BlockExpression>{statements};

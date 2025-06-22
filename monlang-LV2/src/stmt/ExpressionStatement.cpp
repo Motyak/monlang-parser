@@ -20,6 +20,7 @@ MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& 
     ASSERT (sentence.programWords.size() > 0);
 
     auto term = (Term)sentence;
+    term._tokenLen -= 1;
     auto expression = buildExpression(term);
     if (expression.has_error()) {
         auto malformed = Malformed(MayFail_<ExpressionStatement>{expression}, ERR(591));

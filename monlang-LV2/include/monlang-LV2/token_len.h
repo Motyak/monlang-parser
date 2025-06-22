@@ -47,10 +47,18 @@
 #include <utils/variant-utils.h>
 
 template <>
-size_t token_len(const Expression_& variant) {
+inline size_t token_len(const Expression_& variant) {
     return std::visit(overload{
         [](_StubExpression_*) -> size_t {SHOULD_NOT_HAPPEN();},
         [](auto* expr) -> size_t {return expr->_tokenLen;},
+    }, variant);
+}
+
+template <>
+inline void set_token_len(const Expression_& variant, size_t tokenLen) {
+    std::visit(overload{
+        [](_StubExpression_*){SHOULD_NOT_HAPPEN();},
+        [tokenLen](auto* expr){expr->_tokenLen = tokenLen;},
     }, variant);
 }
 

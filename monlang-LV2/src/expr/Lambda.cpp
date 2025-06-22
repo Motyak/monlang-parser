@@ -2,12 +2,16 @@
 
 #include <monlang-LV2/expr/Symbol.h>
 
+/* require knowing all words for token_len() */
+#include <monlang-LV2/token_len.h>
+
 #include <monlang-LV1/ast/Association.h>
 #include <monlang-LV1/ast/ParenthesesGroup.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 #include <monlang-LV1/ast/Atom.h>
 
 #include <utils/assert-utils.h>
+#include <utils/loop-utils.h>
 
 #define unless(x) if(!(x))
 #define until(x) while(!(x))
@@ -86,13 +90,19 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
 
     auto rightPart = *std::get<CurlyBracketsGroup*>(assoc.rightPart);
     MayFail_<LambdaBlock> body;
-    until (rightPart.sentences.empty()) {
-        auto statement = consumeStatement(rightPart);
+    LOOP until (rightPart.sentences.empty()) {
+        auto statement = consumeStatement((Subprogram&)rightPart);
+        // handle oneline lambda block, to adapt token_len accordingly
+        if (__first_it && rightPart.term && std::holds_alternative<MayFail_<ExpressionStatement>*>(statement.val)) {
+            auto exprStmt = std::get<MayFail_<ExpressionStatement>*>(statement.val);
+            set_token_len(exprStmt->expression.val, token_len(exprStmt->expression.val) + 1);
+        }
         body.statements.push_back(statement);
         if (statement.has_error()) {
             body._oneline = (bool)rightPart.term;
             return Malformed(MayFail_<Lambda>{parameters, variadicParameters, body}, ERR(631));
         }
+        ENDLOOP
     }
 
     body._dollars = rightPart._dollars;
