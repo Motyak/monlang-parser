@@ -11,7 +11,7 @@
 
 class ReconstructLV1Tokens {
   public:
-    ReconstructLV1Tokens(Tokens&, const std::vector<size_t>& newlinesPos = {});
+    ReconstructLV1Tokens(Tokens&, const std::vector<size_t>& newlinesPos = {}, const std::vector<std::pair<size_t, unsigned>>& = {});
 
     // entrypoint
     void operator()(MayFail<MayFail_<Program>>&);
@@ -36,6 +36,7 @@ class ReconstructLV1Tokens {
   private:
     Tokens& tokens;
     const std::vector<size_t> newlinesPos; // sorted asc
+    const std::vector<std::pair<size_t, unsigned>> unicharBytesPos; // key sorted asc
 
     size_t curPos = 0;
     bool isProgramWord;

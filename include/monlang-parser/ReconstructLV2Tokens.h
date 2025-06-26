@@ -10,7 +10,7 @@
 
 class ReconstructLV2Tokens {
   public:
-    ReconstructLV2Tokens(Tokens&, const std::vector<size_t>& newlinesPos={});
+    ReconstructLV2Tokens(Tokens&, const std::vector<size_t>& newlinesPos={}, const std::vector<std::pair<size_t, unsigned>>& = {});
 
     // entrypoint
     void operator()(MayFail<MayFail_<LV2::Program>>&);
@@ -51,6 +51,7 @@ class ReconstructLV2Tokens {
   private:
     Tokens& tokens;
     const std::vector<size_t> newlinesPos; // sorted asc
+    const std::vector<std::pair<size_t, unsigned>> unicharBytesPos; // key sorted asc
 
     size_t curPos = 0;
     MayFail<Statement_> curStmt;

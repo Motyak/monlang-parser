@@ -18,14 +18,41 @@ static std::vector<size_t> calculateNewlinesPos(const std::string& input) {
     return res;
 }
 
+/*
+    returns a sequence of unichar (2+ byte utf8 character)
+    position, along with their extra bytes count
+*/
+static std::vector<std::pair<size_t, unsigned>>
+calculateUnicharBytesPos(const std::string& input) {
+    std::vector<std::pair<size_t, unsigned>> res;
+    size_t pos = 0;
+    unsigned count = 0;
+    for (size_t i = 0; i < input.size(); ++i) {
+        if ((input[i] & 0b1100'0000) == 0b10 << 6) {
+            count += 1;
+        }
+        else if (count > 0) {
+            res.push_back({pos, count});
+            /* reset */
+            pos = i;
+            count = 0;
+        }
+        else {
+            pos = i;
+        }
+    }
+    return res;
+}
+
 ParsingResult parse(const Source& text) {
     auto newlinesPos = calculateNewlinesPos(text);
+    auto unicharBytesPos = calculateUnicharBytesPos(text);
     auto iss = std::istringstream(text);
 
     auto progLV1 = consumeProgram(iss);
     Tokens tokensLV1;
     {
-        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/tokensLV1, newlinesPos);
+        auto fill_tokensLV1 = ReconstructLV1Tokens(/*OUT*/tokensLV1, newlinesPos, unicharBytesPos);
         fill_tokensLV1(/*OUT*/progLV1);
     }
     if (progLV1.has_error()) {
@@ -40,7 +67,7 @@ ParsingResult parse(const Source& text) {
     auto progLV2 = consumeProgram(/*OUT*/correctLV1);
     Tokens tokensLV2;
     {
-        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/tokensLV2, newlinesPos);
+        auto fill_tokensLV2 = ReconstructLV2Tokens(/*OUT*/tokensLV2, newlinesPos, unicharBytesPos);
         fill_tokensLV2(progLV2);
     }
     if (progLV2.has_error()) {

@@ -21,6 +21,9 @@
 #include <utils/assert-utils.h>
 #include <utils/loop-utils.h>
 
+#include <algorithm>
+#include <numeric>
+
 #define token tokens[tokenId]
 
 void ReconstructLV1Tokens::operator()(MayFail<MayFail_<Program>>& prog) {
@@ -551,8 +554,8 @@ void ReconstructLV1Tokens::operator()(MayFail_<Association>* assoc) {
 
 ///////////////////////////////////////////////////////////////
 
-ReconstructLV1Tokens::ReconstructLV1Tokens(Tokens& tokens, const std::vector<size_t>& newlinesPos)
-        : tokens(tokens), newlinesPos(newlinesPos){}
+ReconstructLV1Tokens::ReconstructLV1Tokens(Tokens& tokens, const std::vector<size_t>& newlinesPos, const std::vector<std::pair<size_t, unsigned>>& unicharBytesPos)
+        : tokens(tokens), newlinesPos(newlinesPos), unicharBytesPos(unicharBytesPos){}
 
 TokenId ReconstructLV1Tokens::newToken() {
     tokens._vec.push_back(Token{});
@@ -560,12 +563,21 @@ TokenId ReconstructLV1Tokens::newToken() {
 }
 
 TokenPosition ReconstructLV1Tokens::asTokenPosition(size_t index) {
-    if (newlinesPos.empty()) {
-        return TokenPosition{index, 1, index + 1};
-    }
+    static const auto cmp_lt_key = [](const std::pair<size_t, unsigned>& a, size_t b){
+        return a.first < b;
+    };
+    static const auto op_add_val = [](size_t a, const std::pair<size_t, unsigned>& b){
+        return a + b.second;
+    };
+
     auto lower_bound = std::lower_bound(newlinesPos.begin(), newlinesPos.end(), index);
     size_t line = lower_bound - newlinesPos.begin() + 1;
-    size_t column = lower_bound == newlinesPos.begin()? index + 1 : index - *(lower_bound - 1);
+    size_t lineStartIndex = lower_bound == newlinesPos.begin()? 0 : *(lower_bound - 1);
+
+    auto begin = std::lower_bound(unicharBytesPos.begin(), unicharBytesPos.end(), lineStartIndex, cmp_lt_key);
+    auto end = std::lower_bound(begin, unicharBytesPos.end(), index, cmp_lt_key);
+    unsigned unicharBytes = std::accumulate(begin, end, 0, op_add_val);
+    size_t column = (lower_bound == newlinesPos.begin()? index + 1 : index - *(lower_bound - 1)) - unicharBytes;
 
     return TokenPosition{index, line, column};
 }

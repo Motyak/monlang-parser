@@ -12,9 +12,9 @@
 using TokenId = size_t;
 
 struct TokenPosition {
-    size_t i; // stringstream absolute index
-    size_t line;
-    size_t column;
+    size_t i; // nth byte (stringstream absolute index)
+    size_t line; // nth line (LF separated)
+    size_t column; // nth utf8 character
     TokenPosition() : i(0), line(0), column(0){}
     TokenPosition(size_t i, size_t line, size_t column) : i(i), line(line), column(column){}
     operator size_t() { return i; }
@@ -28,7 +28,6 @@ struct Token {
     bool is_malformed = false;
     TokenPosition err_start = {}; // only malformed token, not necessarily equal to start
     std::string err_fmt = "";
-    // std::string err_desc = ""; // TODO
 };
 
 class Tokens {
