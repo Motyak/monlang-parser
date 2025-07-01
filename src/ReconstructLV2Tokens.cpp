@@ -918,7 +918,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     }
     curPos += sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
     curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
-    operator()(&lambda->body);
+    operator()(mayfail_cast_by_ref<Expression_>(lambda->body));
     curPos = backupCurPos;
     curPos += lambda->_tokenLen;
     token.end = asTokenPosition(curPos);

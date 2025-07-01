@@ -88,26 +88,10 @@ MayFail<MayFail_<Lambda>> buildLambda(const Word& word) {
         parameters.push_back(symbol);
     }
 
-    auto rightPart = *std::get<CurlyBracketsGroup*>(assoc.rightPart);
-    MayFail_<LambdaBlock> body;
-    LOOP until (rightPart.sentences.empty()) {
-        auto statement = consumeStatement((Subprogram&)rightPart);
-        // handle oneline lambda block, to adapt token_len accordingly
-        if (__first_it && rightPart.term && std::holds_alternative<MayFail_<ExpressionStatement>*>(statement.val)) {
-            auto exprStmt = std::get<MayFail_<ExpressionStatement>*>(statement.val);
-            set_token_len(exprStmt->expression.val, token_len(exprStmt->expression.val) + 1);
-        }
-        body.statements.push_back(statement);
-        if (statement.has_error()) {
-            body._oneline = (bool)rightPart.term;
-            return Malformed(MayFail_<Lambda>{parameters, variadicParameters, body}, ERR(631));
-        }
-        ENDLOOP
+    auto body = buildBlockExpression(assoc.rightPart);
+    if (body.has_error()) {
+        return Malformed(MayFail_<Lambda>{parameters, variadicParameters, body}, ERR(631));
     }
-
-    body._dollars = rightPart._dollars;
-    body._oneline = (bool)rightPart.term;
-    body._tokenLen = rightPart._tokenLen;
 
     auto lambda = MayFail_<Lambda>{parameters, variadicParameters, body};
     lambda._tokenLen = assoc._tokenLen;
@@ -123,30 +107,22 @@ Lambda::Lambda(
 MayFail_<Lambda>::MayFail_(
     const std::vector<Symbol>& parameters,
     const std::optional<Symbol>& variadicParameters,
-    const MayFail_<LambdaBlock>& body
+    const MayFail<MayFail_<LambdaBlock>>& body
 ) : parameters(parameters), variadicParameters(variadicParameters), body(body){}
 
 MayFail_<Lambda>::MayFail_(const Lambda& lambda) {
-    std::vector<MayFail<Statement_>> bodyStatements;
-    for (auto e: lambda.body.statements) {
-        bodyStatements.push_back(wrap_stmt(e));
-    }
     this->parameters = lambda.parameters;
     this->variadicParameters = lambda.variadicParameters;
-    this->body = MayFail_<LambdaBlock>{bodyStatements};
+    this->body = MayFail_<LambdaBlock>{lambda.body};
     this->_tokenLen = lambda._tokenLen;
     this->_tokenId = lambda._tokenId;
 }
 
 MayFail_<Lambda>::operator Lambda() const {
-    std::vector<Statement> bodyStatements;
-    for (auto e: this->body.statements) {
-        bodyStatements.push_back(unwrap_stmt(e.value()));
-    }
     auto lambda = Lambda{
         this->parameters,
         this->variadicParameters,
-        LambdaBlock{bodyStatements}
+        unwrap(this->body.value())
     };
     lambda._tokenLen = this->_tokenLen;
     lambda._tokenId = this->_tokenId;

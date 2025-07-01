@@ -90,7 +90,7 @@ ERR-622 Malformed FunctionCall, contains a Malformed FunctionCallArgument
 ERR-731 Malformed FunctionCallArgument, contains a Malformed Expression
 ERR-732 Malformed FunctionCallArgument, contains a non-lvalue passed by reference
 
-ERR-631 Malformed Lambda, contains a Malformed Statement within body
+ERR-631 Malformed Lambda, contains a Malformed BlockExpression as body
 
 ERR-641 Malformed BlockExpression, contains a Malformed Statement
 

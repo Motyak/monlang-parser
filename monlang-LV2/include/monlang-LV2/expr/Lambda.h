@@ -12,13 +12,13 @@ template <>
 struct MayFail_<Lambda> {
     std::vector<Symbol> parameters;
     std::optional<Symbol> variadicParameters;
-    MayFail_<LambdaBlock> body;
+    MayFail<MayFail_<LambdaBlock>> body;
 
     size_t _tokenLen = 0;
     size_t _tokenId = 123456789;
     size_t _groupNesting = 0;
     MayFail_() = default;
-    explicit MayFail_(const std::vector<Symbol>&, const std::optional<Symbol>&, const MayFail_<LambdaBlock>&);
+    explicit MayFail_(const std::vector<Symbol>&, const std::optional<Symbol>&, const MayFail<MayFail_<LambdaBlock>>&);
 
     explicit MayFail_(const Lambda&);
     explicit operator Lambda() const;

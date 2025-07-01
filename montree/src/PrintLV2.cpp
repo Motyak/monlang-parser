@@ -612,31 +612,23 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
         outputLine("-> variadic parameters: `", lambda->variadicParameters->name.c_str(), "`");
     }
 
-    if (lambda->body.statements.empty()) {
+    if (!lambda->body.has_error() && lambda->body.val.statements.empty()) {
         outputLine("-> body (empty)");
         currIndent--;
         return;
     }
 
-    auto any_malformed_stmt = false;
-    for (auto stmt: lambda->body.statements) {
-        if (stmt.has_error()) {
-            any_malformed_stmt = true;
-            break;
-        }
-    }
-
-    output(any_malformed_stmt? "~> " : "-> ");
+    output(lambda->body.has_error()? "~> " : "-> ");
     outputLine("body");
     currIndent++;
-    if (lambda->body.statements.size() > 1) {
-        for (int n : range(lambda->body.statements.size(), 0)) {
+    if (lambda->body.val.statements.size() > 1) {
+        for (int n : range(lambda->body.val.statements.size(), 0)) {
             numbering.push(n);
         }
-    } else if (!lambda->body.statements.empty()) {
+    } else if (!lambda->body.val.statements.empty()) {
         numbering.push(NO_NUMBERING);
     }
-    for (auto statement: lambda->body.statements) {
+    for (auto statement: lambda->body.val.statements) {
         operator()(statement);
     }
     currIndent--;
