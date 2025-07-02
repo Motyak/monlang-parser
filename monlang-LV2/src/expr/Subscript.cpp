@@ -46,10 +46,14 @@ MayFail<MayFail_<Subscript>> buildSubscript(const Word& word) {
                 unless (split_in_two(str, "..<").at(0).size() > 0) break;
                 unless (split_in_two(str, "..<").at(1).size() > 0) break;
                 auto atom_from = Atom{split_in_two(str, "..<").at(0)};
+                atom_from._tokenLen = atom_from.value.size();
                 auto atom_to = Atom{split_in_two(str, "..<").at(1)};
+                atom_to._tokenLen = atom_to.value.size();
                 auto from = to_index_expr(atom_from);
                 auto to = to_index_expr(atom_to);
                 auto range = MayFail_<Subscript>::Range{from, to, /*exclusive*/true};
+                range._tokenLen = std::string("#").size() + atom_from._tokenLen
+                        + std::string("..<").size() + atom_to._tokenLen;
                 auto subscript = MayFail_<Subscript>{array, range, suffix};
                 subscript._tokenLen = psbg._tokenLen;
                 return subscript;
@@ -58,18 +62,24 @@ MayFail<MayFail_<Subscript>> buildSubscript(const Word& word) {
                 unless (split_in_two(str, "..").at(0).size() > 0) break;
                 unless (split_in_two(str, "..").at(1).size() > 0) break;
                 auto atom_from = Atom{split_in_two(str, "..").at(0)};
+                atom_from._tokenLen = atom_from.value.size();
                 auto atom_to = Atom{split_in_two(str, "..").at(1)};
+                atom_to._tokenLen = atom_to.value.size();
                 auto from = to_index_expr(atom_from);
                 auto to = to_index_expr(atom_to);
                 auto range = MayFail_<Subscript>::Range{from, to};
+                range._tokenLen = std::string("#").size() + atom_from._tokenLen
+                        + std::string("..").size() + atom_to._tokenLen;
                 auto subscript = MayFail_<Subscript>{array, range, suffix};
                 subscript._tokenLen = psbg._tokenLen;
                 return subscript;
             }
         }
         auto atom_index = Atom{str};
+        atom_index._tokenLen = str.size();
         auto nth = to_index_expr(atom_index);
         auto index = MayFail_<Subscript>::Index{nth};
+        index._tokenLen = std::string("#").size() + atom_index._tokenLen;
         auto subscript = MayFail_<Subscript>{array, index, suffix};
         subscript._tokenLen = psbg._tokenLen;
         return subscript;
@@ -97,6 +107,12 @@ static Subscript::IndexExpression to_index_expr(const Atom& atom) {
 }
 
 ///////////////////////////////////////////////////////////
+
+Subscript::Index::Index(const IndexExpression& nth)
+        : nth(nth){}
+
+Subscript::Range::Range(const IndexExpression& from, const IndexExpression& to, bool exclusive)
+        : from(from), to(to), exclusive(exclusive){}
 
 Subscript::Subscript(const Expression& array, const Argument& argument, Suffix suffix)
         : array(array), argument(argument), suffix(suffix){}

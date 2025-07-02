@@ -872,8 +872,45 @@ void ReconstructLV2Tokens::operator()(MayFail_<Subscript>* subscript) {
     operator()(subscript->array);
     curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
     std::visit(overload{
-        [this](MayFail_<Subscript>::Key key) {operator()(key.expr);},
-        [](auto){;}
+        [this](MayFail_<Subscript>::Index& index) {
+            auto tokenId = newToken();
+            index._tokenId = tokenId;
+            token.is_malformed = false; // index can't be malformed
+            token.name = "SubscriptIndex";
+            token.start = asTokenPosition(curPos);
+            auto backupCurPos = curPos;
+
+            curPos += 1; // #
+            std::visit([this](auto* i){operator()(i);}, index.nth);
+
+            curPos = backupCurPos;
+            curPos += index._tokenLen;
+            token.end = asTokenPosition(curPos);
+        },
+        [this](MayFail_<Subscript>::Range& range) {
+            auto tokenId = newToken();
+            range._tokenId = tokenId;
+            token.is_malformed = false; // range can't be malformed
+            token.name = "SubscriptRange";
+            token.start = asTokenPosition(curPos);
+            auto backupCurPos = curPos;
+
+            curPos += 1; // #
+            std::visit([this](auto* i){operator()(i);}, range.from);
+            curPos += 2; // ..
+            if (range.exclusive) curPos += 1; // <
+            std::visit([this](auto* i){operator()(i);}, range.to);
+
+            curPos = backupCurPos;
+            curPos += range._tokenLen;
+            token.end = asTokenPosition(curPos);
+        },
+        [this](MayFail_<Subscript>::Key key) {
+            operator()(key.expr);
+        },
+        [](MayFail_<Subscript>::_StubArgument_) {
+            ;
+        }
     }, subscript->argument);
     curPos = backupCurPos;
     curPos += subscript->_tokenLen;

@@ -14,11 +14,21 @@ struct Subscript {
     >;
     struct Index {
         IndexExpression nth;
+
+        size_t _tokenLen = 0;
+        size_t _tokenId = 123456789;
+        Index() = default;
+        Index(const IndexExpression&);
     };
     struct Range {
         IndexExpression from;
         IndexExpression to;
         bool exclusive = false;
+
+        size_t _tokenLen = 0;
+        size_t _tokenId = 123456789;
+        Range() = default;
+        Range(const IndexExpression&, const IndexExpression&, bool exclusive = false);
     };
     struct Key {
         Expression expr;
