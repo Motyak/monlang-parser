@@ -11,6 +11,8 @@
 #include <utils/vec-utils.h>
 #include <utils/assert-utils.h>
 
+#include <cctype>
+
 #define unless(x) if(!(x))
 
 #define SET_TOKEN_FIELDS(accumulation, sentence) \
@@ -67,8 +69,11 @@ bool peekAccumulation(const ProgramSentence& sentence) {
         return false;
     }
 
-    auto atom_val_without_suffix = atom_val.substr(1, atom_val.size() - 1);
-    unless (!vec_contains({"<", ">", "="}, atom_val_without_suffix)) {
+    auto char_before_suffix = atom_val.at(atom_val.size() - 2);
+    unless (!std::string("<>=").contains(char_before_suffix)) {
+        return false;
+    }
+    unless (!std::isalpha(char_before_suffix)) {
         return false;
     }
 
