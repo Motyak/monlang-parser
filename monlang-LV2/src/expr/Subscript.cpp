@@ -40,6 +40,7 @@ MayFail<MayFail_<Subscript>> buildSubscript(const Word& word) {
         ASSERT (str.size() > 0);
         unless (str[0] == '#') break;
         str = split_in_two(str, "#").at(1);
+        unless (str != "") break;
         /* breakable block */ for (int i = 1; i <= 1; ++i)
         {
             if (split_in_two(str, "..<").size() == 2) {

@@ -5,8 +5,8 @@
 
 struct Numeral {
     std::string fmt; // original text
-    /* individual part of the numeral */
     std::string type; // int,hex,bin,oct,frac,pow,fix_only,per_only,fix_and_per
+    /* individual part of the numeral */
     std::string int1; // used everywhere
     std::string int2; // used in 'pow and 'div
     std::string fixed; // used in 'fix_only and 'fix_and_per

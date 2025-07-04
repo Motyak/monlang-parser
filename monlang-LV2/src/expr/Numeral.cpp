@@ -94,8 +94,12 @@ bool peekNumeral(const Word& word) {
         return int_digits(atom_value) && !atom_value;
     }
     if (decimal_sep(atom_value)) {
-        return true; // guaranteed because the only way to get a dot in an Atom..
-                     // ..is through fixDecimalNumeral(), which already performs the checks
+        // return true; // guaranteed because the only way to get a dot in an Atom..
+        //              // ..is through fixDecimalNumeral(), which already performs the checks
+
+        // UPDATE 04/07/2025: since we have allowed '..' in Atom,
+        // we also need to make sure the next character isn't the decimal_sep
+        return !decimal_sep(atom_value);
     }
 
     return false;
