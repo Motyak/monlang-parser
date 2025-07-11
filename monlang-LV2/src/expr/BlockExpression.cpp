@@ -27,7 +27,9 @@ MayFail<MayFail_<BlockExpression>> buildBlockExpression(const Word& word) {
         // handle oneline block expr, to adapt token_len accordingly
         if (__first_it && cbg.term && std::holds_alternative<MayFail_<ExpressionStatement>*>(statement.val)) {
             auto exprStmt = std::get<MayFail_<ExpressionStatement>*>(statement.val);
-            set_token_len(exprStmt->expression.val, token_len(exprStmt->expression.val) + 1);
+            if (exprStmt->expression) {
+                set_token_len(exprStmt->expression->val, token_len(exprStmt->expression->val) + 1);
+            }
         }
         statements.push_back(statement);
         if (statement.has_error()) {

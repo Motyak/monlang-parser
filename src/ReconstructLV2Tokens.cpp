@@ -670,9 +670,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {
     curPos += exprStmt->_tokenIndentSpaces;
 
     token.start = asTokenPosition(curPos);
-    auto backupCurPos = curPos;
-    operator()(exprStmt->expression);
-    curPos = backupCurPos;
+    if (exprStmt->expression) {
+        auto backupCurPos = curPos;
+        operator()(*exprStmt->expression);
+        curPos = backupCurPos;
+    }
     curPos += exprStmt->_tokenLen;
     token.end = asTokenPosition(curPos);
 

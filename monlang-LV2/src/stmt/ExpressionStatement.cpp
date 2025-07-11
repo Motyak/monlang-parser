@@ -1,5 +1,8 @@
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
+/* impl only */
+#include <monlang-LV1/ast/Atom.h>
+
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
 
@@ -18,6 +21,17 @@ static ProgramSentence consumeSentence(LV1::Program&);
 MayFail<MayFail_<ExpressionStatement>> consumeExpressionStatement(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
     ASSERT (sentence.programWords.size() > 0);
+
+    /* handle empty ExpressionStatement */
+    if (std::holds_alternative<Atom*>(sentence.programWords.at(0))) {
+        auto atom_ptr = std::get<Atom*>(sentence.programWords.at(0));
+        ASSERT (atom_ptr != nullptr);
+        if (atom_ptr->value == "--") {
+            auto expressionStatement = MayFail_<ExpressionStatement>{std::nullopt};
+            SET_TOKEN_FIELDS(expressionStatement, /*from*/ sentence);
+            return expressionStatement;
+        }
+    }
 
     auto term = (Term)sentence;
     term._tokenLen -= 1;
@@ -43,13 +57,19 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
     return res;
 }
 
-ExpressionStatement::ExpressionStatement(const Expression& expression)
+ExpressionStatement::ExpressionStatement(const std::optional<Expression>& expression)
         : expression(expression){}
 
-MayFail_<ExpressionStatement>::MayFail_(MayFail<Expression_> expression) : expression(expression){}
+MayFail_<ExpressionStatement>::MayFail_(const std::optional<MayFail<Expression_>>& expression)
+        : expression(expression){}
 
 MayFail_<ExpressionStatement>::MayFail_(ExpressionStatement exprStmt) {
-    this->expression = wrap_expr(exprStmt.expression);
+    if (exprStmt.expression) {
+        this->expression = wrap_expr(*exprStmt.expression);
+    }
+    else {
+        this->expression = std::nullopt;
+    }
 
     this->_tokenLeadingNewlines = exprStmt._tokenLeadingNewlines;
     this->_tokenIndentSpaces = exprStmt._tokenIndentSpaces;
@@ -59,7 +79,10 @@ MayFail_<ExpressionStatement>::MayFail_(ExpressionStatement exprStmt) {
 }
 
 MayFail_<ExpressionStatement>::operator ExpressionStatement() const {
-    auto expression = unwrap_expr(this->expression.value());
+    std::optional<Expression> expression;
+    if (this->expression) {
+        expression = unwrap_expr(this->expression->value());
+    }
     auto exprStmt = ExpressionStatement{expression};
 
     exprStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;

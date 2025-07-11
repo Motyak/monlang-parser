@@ -16,6 +16,8 @@
 
 #include "num.cpp" // numeral expressions
 
+#include "comments.cpp"
+
 // #include "int.cpp" // nested expr and nested stmt
 
 // #include "excerpts.cpp" // complete programs

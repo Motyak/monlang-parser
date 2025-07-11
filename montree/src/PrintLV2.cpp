@@ -505,10 +505,15 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
 }
 
 void PrintLV2::operator()(MayFail_<ExpressionStatement>* expressionStatement) {
-    outputLine("ExpressionStatement");
+    output("ExpressionStatement");
+    if (!expressionStatement->expression) {
+        outputLine(" (empty)");
+        return;
+    }
+    outputLine();
     currIndent++;
     numbering.push(NO_NUMBERING);
-    operator()(expressionStatement->expression);
+    operator()(*expressionStatement->expression);
     currIndent--;
 }
 

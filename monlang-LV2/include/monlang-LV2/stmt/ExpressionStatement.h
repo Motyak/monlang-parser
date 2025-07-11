@@ -10,7 +10,7 @@
 
 template <>
 struct MayFail_<ExpressionStatement> {
-    MayFail<Expression_> expression;
+    std::optional<MayFail<Expression_>> expression;
 
     size_t _tokenLeadingNewlines = 0;
     size_t _tokenIndentSpaces = 0;
@@ -18,7 +18,7 @@ struct MayFail_<ExpressionStatement> {
     size_t _tokenTrailingNewlines = 0;
     size_t _tokenId = 123456789;
     MayFail_() = default;
-    explicit MayFail_(MayFail<Expression_>);
+    explicit MayFail_(const std::optional<MayFail<Expression_>>&);
 
     explicit MayFail_(ExpressionStatement);
     explicit operator ExpressionStatement() const;
