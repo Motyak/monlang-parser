@@ -604,7 +604,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     outputLine("Lambda");
     currIndent++;
 
-    if (lambda->parameters.empty()) {
+    if (lambda->parameters.empty() && !lambda->variadicParameters) {
         outputLine("-> (no parameters)");
     } else {
         int i = 1;
