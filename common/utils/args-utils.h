@@ -5,6 +5,15 @@
 #include <vector>
 #include <string>
 
+inline bool args_contain(int argc, char* argv[], const std::string& arg) {
+    for (int i = 1; i < argc; ++i) {
+        if (argv[i] == arg) {
+            return true;
+        }
+    }
+    return false;
+}
+
 inline std::pair<
     /* from start to sep (excluded) */
     std::vector<std::string>,
@@ -18,6 +27,7 @@ split_args_in_two(int argc, char* argv[], const std::string& sep) {
     int i = 1;
     for (; i < argc; ++i) {
         if (argv[i] == sep) {
+            ++i;
             break;
         }
         left.push_back(argv[i]);
