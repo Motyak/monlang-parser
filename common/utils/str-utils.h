@@ -18,7 +18,14 @@ inline std::string replace_all(const std::string& str, const std::string& from, 
     return _str;
 }
 
-#define escape_newlines(str) (replace_all(str, std::string(1, /*LF*/char(10)), "\\n"))
+#define escape_antislashes(str) \
+    replace_all(str, std::string(1, '\\'), "\\\\")
+
+#define escape_newlines(str) \
+    replace_all(str, std::string(1, '\n'), "\\n")
+
+#define escape_double_quotes(str) \
+    replace_all(str, std::string(1, '"'), "\\\"")
 
 inline std::vector<std::string> split(const std::string& str, const std::string& delim) {
     std::vector<std::string> res;
