@@ -6,6 +6,7 @@
 enum Associativity {
     LEFT_ASSOCIATIVE,
     RIGHT_ASSOCIATIVE,
+    NOT_REALLY = LEFT_ASSOCIATIVE,
 };
 
 using Operators = std::vector<std::string>;
