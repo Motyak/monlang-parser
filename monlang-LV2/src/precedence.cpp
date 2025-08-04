@@ -361,6 +361,23 @@ PRECEDENCE_TABLE = {
     {{"|>"}, LEFT_ASSOCIATIVE},
 };
 
+const Operators
+COMPOUND_ASSIGNMENT = {
+    "**",
+    "*", "/", "%",
+    "+", "-",
+    "<<", ">>",
+    "&",
+    "^",
+    "|",
+    // "..",
+    // "<", "<=", ">", ">=", "in", "!in",
+    // "==", "<>",
+    "&&",
+    "||",
+    // "|>",
+};
+
 namespace {
     enum Direction {
         ITERATE_LEFT_TO_RIGHT,

@@ -12,6 +12,9 @@ enum Associativity {
 using Operators = std::vector<std::string>;
 extern const std::vector<std::pair<Operators,Associativity>>
 PRECEDENCE_TABLE;
+extern const Operators
+COMPOUND_ASSIGNMENT;
+
 
 void fixPrecedence(Term&);
 

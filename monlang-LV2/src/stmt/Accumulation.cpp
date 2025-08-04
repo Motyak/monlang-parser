@@ -10,8 +10,7 @@
 
 #include <utils/vec-utils.h>
 #include <utils/assert-utils.h>
-
-#include <cctype>
+#include <utils/vec-utils.h>
 
 #define unless(x) if(!(x))
 
@@ -61,19 +60,12 @@ bool peekAccumulation(const ProgramSentence& sentence) {
 
     auto atom_val = std::get<Atom*>(pw)->value;
 
-    unless (atom_val.size() >= 2 && atom_val.ends_with(Accumulation::SEPARATOR_SUFFIX)) {
-        return false;
-    }
-
     unless (atom_val.ends_with(Accumulation::SEPARATOR_SUFFIX)) {
         return false;
     }
 
-    auto char_before_suffix = atom_val.at(atom_val.size() - 2);
-    unless (!std::string("<>=").contains(char_before_suffix)) {
-        return false;
-    }
-    unless (!std::isalpha(char_before_suffix)) {
+    auto op = atom_val.substr(0, atom_val.size() - Accumulation::SEPARATOR_SUFFIX.size());
+    unless (vec_contains(COMPOUND_ASSIGNMENT, op)) {
         return false;
     }
 
