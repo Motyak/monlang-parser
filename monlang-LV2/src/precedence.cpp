@@ -347,7 +347,7 @@ const std::vector<std::pair<Operators,Associativity>>
 PRECEDENCE_TABLE = {
     /* ordered from highest precedence to lowest */
     {{"**"}, RIGHT_ASSOCIATIVE},
-    {{"*", "/", "%"}, LEFT_ASSOCIATIVE},
+    {{"*", "/", "//", "%"}, LEFT_ASSOCIATIVE},
     {{"+", "-"}, LEFT_ASSOCIATIVE},
     {{"<<", ">>"}, LEFT_ASSOCIATIVE},
     {{"&"}, LEFT_ASSOCIATIVE},
@@ -364,7 +364,7 @@ PRECEDENCE_TABLE = {
 const Operators
 COMPOUND_ASSIGNMENT = {
     "**",
-    "*", "/", "%",
+    "*", "/", "//", "%",
     "+", "-",
     "<<", ">>",
     "&",
