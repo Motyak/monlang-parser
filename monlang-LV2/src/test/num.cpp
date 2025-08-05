@@ -209,7 +209,7 @@ TEST_CASE ("decimal numeral with periodic part as function in function call", "[
        |      -> ParenthesesGroup
        |        -> Term
        |          -> Word: Atom: `89`
-       |  -> ParenthesesGroup (empty)
+       |    -> ParenthesesGroup (empty)
     )EOF");
 
     auto expect = tommy_str(R"EOF(
@@ -236,7 +236,7 @@ TEST_CASE ("decimal numeral withOUT periodic part as function in function call",
        |    -> Word: Path
        |      -> Word: Atom: `0`
        |      -> Atom: `3`
-       |  -> ParenthesesGroup (empty)
+       |    -> ParenthesesGroup (empty)
     )EOF");
 
     auto expect = tommy_str(R"EOF(
