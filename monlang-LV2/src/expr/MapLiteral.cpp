@@ -57,7 +57,9 @@ bool peekMapLiteral(const Word& word) {
 MayFail<MayFail_<MapLiteral>> buildMapLiteral(const Word& word) {
     // handle empty map literal
     if (std::holds_alternative<Atom*>(word) && std::get<Atom*>(word)->value == "[:]") {
-        return MayFail_<MapLiteral>{};
+        auto emptyMapLiteral = MayFail_<MapLiteral>{};
+        emptyMapLiteral._tokenLen = 3; // [:]
+        return emptyMapLiteral;
     }
 
     ASSERT (std::holds_alternative<SquareBracketsGroup*>(word));
