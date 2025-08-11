@@ -79,3 +79,22 @@ Lvalue_::operator Expression_() const {
 }
 
 Lvalue_::Lvalue_(_dummy_stub) : _stub(true){}
+
+static Symbol leftmost(const Symbol& symbol) {
+    return symbol;
+}
+
+static Symbol leftmost(const Subscript& subscript) {
+    return leftmost(subscript.array);
+}
+
+static Symbol leftmost(const FieldAccess& fieldAccess) {
+    return leftmost(fieldAccess.object);
+}
+
+Symbol leftmost(const Lvalue& lvalue) {
+    return std::visit(
+        [](auto* lvalue){return leftmost(*lvalue);},
+        lvalue.variant
+    );
+}

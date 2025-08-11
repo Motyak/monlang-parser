@@ -31,4 +31,6 @@ struct Lvalue {
     explicit Lvalue(_dummy_stub); // sets _stub to true
 };
 
+Symbol leftmost(const Lvalue&);
+
 #endif // AST_LVALUE_H
