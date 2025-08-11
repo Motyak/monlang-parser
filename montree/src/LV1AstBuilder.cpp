@@ -227,12 +227,14 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     const auto CANDIDATES = std::vector<std::string>{
         "Atom",
+        "PostfixSquareBracketsGroup",
         "PostfixParenthesesGroup",
         "Association",
         "CurlyBracketsGroup",
         "ParenthesesGroup",
         "SquareBracketsTerm",
         "SquareBracketsGroup",
+        "Path",
     };
 
     auto line = peekLine(tis); // -> ProgramWord...
@@ -259,6 +261,10 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
         return move_to_heap(buildPostfixParenthesesGroup());
     }
 
+    else if (first_candidate_found == "PostfixSquareBracketsGroup") {
+        return move_to_heap(buildPostfixSquareBracketsGroup());
+    }
+
     else if (first_candidate_found == "Association") {
         return move_to_heap(buildAssociation());
     }
@@ -277,6 +283,10 @@ ProgramWord LV1AstBuilder::buildProgramWord() {
 
     else if (first_candidate_found == "SquareBracketsGroup") {
         return move_to_heap(buildSquareBracketsGroup());
+    }
+
+    else if (first_candidate_found == "Path") {
+        return move_to_heap(buildPath());
     }
 
     else {

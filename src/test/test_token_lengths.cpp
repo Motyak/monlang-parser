@@ -407,7 +407,7 @@ TEST_CASE ("statement leading/trailing newlines and indent spaces", "[test-9730]
     auto prog = (LV1::Program)consumeProgram(iss);
     auto stmt = unwrap_stmt(consumeStatement(prog).value());
     auto exprStmt = *std::get<ExpressionStatement*>(stmt);
-    auto blockExpr = *std::get<BlockExpression*>(exprStmt.expression);
+    auto blockExpr = *std::get<BlockExpression*>(exprStmt.expression.value());
     auto assignment = *std::get<Assignment*>(blockExpr.statements.at(0));
     REQUIRE (token_leading_newlines(assignment) == 6);
     REQUIRE (token_indent_spaces(assignment) == 4);

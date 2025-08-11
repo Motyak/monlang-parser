@@ -61,59 +61,66 @@ bool peekLetStatement(const ProgramSentence& sentence) {
 
 static ProgramSentence consumeSentence(LV1::Program&);
 
-// where 'value' are the [2], [3], .. words from the sentence
-// ..returns empty opt if any non-word
-static std::optional<Term> extractValue(const ProgramSentence&);
-
 MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
     auto sentence = consumeSentence(prog);
 
 
     unless (sentence.programWords.size() >= 2) {
-        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), StubExpression_()}, ERR(231));
+        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), STUB(Lvalue_)}, ERR(231));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     unless (holds_word(sentence.programWords[1])) {
         auto error = ERR(232);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto word = get_word(sentence.programWords[1]);
-    auto expr = buildExpression((Term)word);
-    unless (std::holds_alternative<Symbol*>(expr.val)) {
+    auto aliasWord = get_word(sentence.programWords[1]);
+    auto aliasExpr = buildExpression((Term)aliasWord);
+    unless (std::holds_alternative<Symbol*>(aliasExpr.val)) {
         auto error = ERR(233);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
-        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), StubExpression_()}, error);
+        auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto name = *std::get<Symbol*>(expr.val);
+    auto alias = *std::get<Symbol*>(aliasExpr.val);
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<LetStatement>{name, StubExpression_()}, ERR(234));
+        auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, ERR(234));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto value_as_term = extractValue(sentence);
-    unless (value_as_term) {
+    unless (holds_word(sentence.programWords[2])) {
         auto error = ERR(235);
-        SET_NON_WORD_ERR_OFFSET(error);
-        auto malformed = Malformed(MayFail_<LetStatement>{name, StubExpression_()}, error);
+        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/3);
+        auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto value = buildExpression(*value_as_term);
-    if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<LetStatement>{name, value}, ERR(236));
+    auto variableWord = get_word(sentence.programWords[2]);
+    auto variableExpr = buildExpression((Term)variableWord);
+    if (!is_lvalue(variableExpr.val)) {
+        auto error = ERR(236);
+        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/3);
+        auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, error);
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
+    auto variable = mayfail_cast<Lvalue_>(variableExpr);
+    if (variable.has_error()) {
+        auto error = ERR(237);
+        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/3);
+        auto malformed = Malformed(MayFail_<LetStatement>{alias, variable}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
 
-    auto letStmt = MayFail_<LetStatement>{name, value};
+
+    auto letStmt = MayFail_<LetStatement>{alias, variable};
     SET_TOKEN_FIELDS(letStmt, /*from*/ sentence);
     return letStmt;
 }
@@ -128,39 +135,16 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
     return res;
 }
 
-static std::optional<Term> extractValue(const ProgramSentence& sentence) {
-    ASSERT (sentence.programWords.size() >= 3);
-    auto rhs_as_sentence = std::vector<ProgramWord>(
-        sentence.programWords.begin() + 2,
-        sentence.programWords.end()
-    );
+LetStatement::LetStatement(const Symbol& alias, const Lvalue& variable)
+        : alias(alias), variable(variable){}
 
-    size_t wordsTokenLen = 0;
-    std::vector<Word> words;
-    for (auto e: rhs_as_sentence) {
-        unless (holds_word(e)) {
-            return {};
-        }
-        auto word = get_word(e);
-        words.push_back(get_word(e));
-        wordsTokenLen += token_len(word);
-    }
+MayFail_<LetStatement>::MayFail_(const Symbol& alias, const MayFail<Lvalue_>& variable)
+        : alias(alias), variable(variable){}
 
-    auto term = Term{words};
-    term._tokenLen = wordsTokenLen
-            + (words.size() - 1) * sequenceLen(Term::CONTINUATOR_SEQUENCE);
-    return term;
-}
-
-LetStatement::LetStatement(const Symbol& label, const Expression& value)
-        : label(label), value(value){}
-
-MayFail_<LetStatement>::MayFail_(const Symbol& label, const MayFail<Expression_>& value)
-        : label(label), value(value){}
-
-MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
-    this->label = letStmt.label;
-    this->value = wrap_expr(letStmt.value);
+MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt)
+        : variable(wrap_lvalue(letStmt.variable))
+{
+    this->alias = letStmt.alias;
 
     this->_tokenLeadingNewlines = letStmt._tokenLeadingNewlines;
     this->_tokenIndentSpaces = letStmt._tokenIndentSpaces;
@@ -170,9 +154,9 @@ MayFail_<LetStatement>::MayFail_(const LetStatement& letStmt) {
 }
 
 MayFail_<LetStatement>::operator LetStatement() const {
-    auto label = this->label;
-    auto value = unwrap_expr(this->value.value());
-    auto letStmt = LetStatement{label, value};
+    auto alias = this->alias;
+    auto variable = unwrap_lvalue(this->variable.value());
+    auto letStmt = LetStatement{alias, variable};
 
     letStmt._tokenLeadingNewlines = this->_tokenLeadingNewlines;
     letStmt._tokenIndentSpaces = this->_tokenIndentSpaces;

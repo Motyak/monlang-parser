@@ -4,14 +4,14 @@
 #include <monlang-LV2/ast/stmt/LetStatement.h>
 
 #include <monlang-LV2/common.h>
-#include <monlang-LV2/Expression.h>
+#include <monlang-LV2/Lvalue.h>
 
 #include <monlang-LV1/ast/Program.h>
 
 template <>
 struct MayFail_<LetStatement> {
-    Symbol label;
-    MayFail<Expression_> value;
+    Symbol alias;
+    MayFail<Lvalue_> variable;
 
     size_t _tokenLeadingNewlines = 0;
     size_t _tokenIndentSpaces = 0;
@@ -19,7 +19,7 @@ struct MayFail_<LetStatement> {
     size_t _tokenTrailingNewlines = 0;
     size_t _tokenId = 123456789;
     MayFail_() = default;
-    explicit MayFail_(const Symbol&, const MayFail<Expression_>&);
+    explicit MayFail_(const Symbol&, const MayFail<Lvalue_>&);
 
     explicit MayFail_(const LetStatement&);
     explicit operator LetStatement() const;

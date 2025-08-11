@@ -187,6 +187,9 @@ void PrintLV2::operator()(MayFail_<Assignment>* assignment) {
         return;
     }
     operator()(assignment->variable);
+    if (assignment->variable.has_error()) {
+        return;
+    }
 
 
     if (is_stub(assignment->value.val)
@@ -213,6 +216,9 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
         return;
     }
     operator()(accumulation->variable);
+    if (accumulation->variable.has_error()) {
+        return;
+    }
 
 
     outputLine("-> operator: `", accumulation->operator_.name.c_str(), "`"); /*
@@ -239,23 +245,23 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
 
 
     // we assume that empty name means stub
-    if (letStatement->label.name == "") {
+    if (letStatement->alias.name == "") {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     output("-> ");
-    operator()(&letStatement->label);
+    operator()(&letStatement->alias);
 
 
-    if (is_stub(letStatement->value.val)
-            && !letStatement->value.has_error()) {
+    if (letStatement->variable.val._stub
+            && !letStatement->variable.has_error()) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
     }
     numbering.push(NO_NUMBERING);
-    operator()(letStatement->value);
+    operator()(letStatement->variable);
 
 
     currIndent--;

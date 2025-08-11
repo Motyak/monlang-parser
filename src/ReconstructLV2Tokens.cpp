@@ -250,9 +250,9 @@ void ReconstructLV2Tokens::operator()(MayFail_<LetStatement>* letStmt) {
     // lastCorrectToken = -1;
     curPos += LetStatement::KEYWORD.size();
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    operator()(&letStmt->label);
+    operator()(&letStmt->alias);
     curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-    operator()(letStmt->value);
+    operator()(letStmt->variable);
     curPos = backupCurPos;
     curPos += letStmt->_tokenLen;
     token.end = asTokenPosition(curPos);

@@ -26,12 +26,13 @@ ERR-225 Malformed Accumulation, contains less than 3 words (no value)
 ERR-226 Malformed Accumulation, contains a non-Word as part of the value
 ERR-227 Malformed Accumulation, contains a Malformed Expression as value
 
-ERR-231 Malformed LetStatement, contains less than 2 words (no name)
-ERR-232 Malformed LetStatement, contains a non-Word as name
-ERR-233 Malformed LetStatement, contains a non-Symbol as name
-ERR-234 Malformed LetStatement, contains less than 3 words (no value)
-ERR-235 Malformed LetStatement, contains a non-Word as part of the value
-ERR-236 Malformed LetStatement, contains a Malformed Expression as value
+ERR-231 Malformed LetStatement, contains less than 2 words (no alias)
+ERR-232 Malformed LetStatement, contains a non-Word as alias
+ERR-233 Malformed LetStatement, contains a non-Symbol as alias
+ERR-234 Malformed LetStatement, contains less than 3 words (no variable)
+ERR-235 Malformed LetStatement, contains a non-Word as part of the variable
+ERR-236 Malformed LetStatement, contains a non-Lvalue expression as variable
+ERR-237 Malformed LetStatement, contains a Malformed Lvalue as variable
 
 ERR-241 Malformed VarStatement, contains less than 2 words (no name)
 ERR-242 Malformed VarStatement, contains a non-Word as name
