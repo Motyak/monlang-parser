@@ -87,14 +87,14 @@ TEST_CASE ("let statement", "[test-1214][stmt]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence
        |  -> ProgramWord #1: Atom: `let`
-       |  -> ProgramWord #2: Atom: `age`
-       |  -> ProgramWord #3: Atom: `27`
+       |  -> ProgramWord #2: Atom: `x`
+       |  -> ProgramWord #3: Atom: `y`
     )EOF");
 
     auto expect = tommy_str(R"EOF(
        |-> Statement: LetStatement
-       |  -> Symbol: `age`
-       |  -> Expression: Numeral: `27`
+       |  -> Symbol: `x`
+       |  -> Lvalue: Symbol: `y`
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
