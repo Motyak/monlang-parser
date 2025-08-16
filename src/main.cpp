@@ -13,6 +13,8 @@
 #include <utils/loop-utils.h>
 #include <utils/env-utils.h>
 
+#include <future>
+
 #define unless(x) if(!(x))
 
 using ParsingResult::Status::LV1_ERR;
@@ -143,6 +145,21 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         std::ofstream("out/LV2.tokens.json", std::ios::trunc);
     }
 
+    auto tasks = std::vector<std::future<void>>{};
+
+    /* write out/LV1.tokens.json */ tasks.emplace_back(std::async(std::launch::async, [&parsingRes]()
+    {
+        auto file = std::ofstream("out/LV1.tokens.json", std::ios::app);
+        serializeToJson(parsingRes._tokensLV1, file);
+    }));
+
+    if (parsingRes.status > LV1_ERR)
+    /* write out/LV2.tokens.json */ tasks.emplace_back(std::async(std::launch::async, [&parsingRes]()
+    {
+        auto file = std::ofstream("out/LV2.tokens.json", std::ios::app);
+        serializeToJson(parsingRes._tokensLV2, file);
+    }));
+
     /* write out/LV1.ast.txt */
     {
         auto file = std::ofstream("out/LV1.ast.txt", std::ios::app);
@@ -152,12 +169,6 @@ void handleParsingResult(const ParsingResult& parsingRes) {
                 parsingRes.status == LV1_ERR? asMalformedLV1(parsingRes)
                 : MayFail<MayFail_<Program>>(parsingRes._correctLV1.value());
         print_to_file(ast);
-    }
-
-    /* write out/LV1.tokens.json */
-    {
-        auto file = std::ofstream("out/LV1.tokens.json", std::ios::app);
-        serializeToJson(parsingRes._tokensLV1, file);
     }
 
     if (parsingRes.status > LV1_ERR)
@@ -172,17 +183,15 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         print_to_file(ast);
     }
 
-    /* write out/LV2.tokens.json */
-    {
-        auto file = std::ofstream("out/LV2.tokens.json", std::ios::app);
-        serializeToJson(parsingRes._tokensLV2, file);
-    }
-
     if (parsingRes.status < LV2_OK)
     /* write out/traceback.txt */
     {
         auto file = std::ofstream("out/traceback.txt", std::ios::app);
         reportTraceback(file, parsingRes);
+    }
+
+    for (auto& task: tasks) {
+        task.get();
     }
 }
 
@@ -208,10 +217,11 @@ nlohmann::ordered_json buildJson(const Token& token) {
 void serializeToJson(const Tokens& tokens, std::ostream& out) {
     nlohmann::ordered_json json;
     auto list = std::vector<nlohmann::ordered_json>{};
+    list.reserve(tokens._vec.size());
     for (auto token: tokens._vec) {
         list.push_back(buildJson(token));
     }
-    json["list"] = list;
+    json["list"] = std::move(list);
     
     auto traceback = std::vector<nlohmann::ordered_json>{};
     for (auto token: tokens.traceback) {
