@@ -16,6 +16,7 @@
 #include <monlang-LV2/stmt/DieStatement.h>
 #include <monlang-LV2/stmt/ForeachStatement.h>
 #include <monlang-LV2/stmt/WhileStatement.h>
+#include <monlang-LV2/stmt/NullStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <monlang-LV2/expr/Operation.h>
@@ -654,6 +655,26 @@ void ReconstructLV2Tokens::operator()(MayFail_<DoWhileStatement>* doWhileStmt) {
     }
 
     lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV2Tokens::operator()(NullStatement* nullStmt) {
+    /* NOTE: NullStatement cannot be malformed */
+    ASSERT (!curStmt.has_error());
+
+    auto tokenId = newToken();
+    nullStmt->_tokenId = tokenId;
+    token.is_malformed = false;
+    token.name = "NullStatement";
+
+    curPos += nullStmt->_tokenLeadingNewlines;
+    curPos += nullStmt->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    // lastCorrectToken = -1;
+    curPos += nullStmt->_tokenLen;
+    token.end = asTokenPosition(curPos);
+
+    curPos += nullStmt->_tokenTrailingNewlines;
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ExpressionStatement>* exprStmt) {

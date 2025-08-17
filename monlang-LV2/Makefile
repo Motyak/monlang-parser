@@ -31,6 +31,7 @@ ContinueStatement \
 DieStatement \
 ForeachStatement \
 WhileStatement \
+NullStatement \
 ExpressionStatement \
 
 EXPR_ENTITIES := \

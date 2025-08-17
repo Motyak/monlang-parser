@@ -31,6 +31,7 @@ class ReconstructLV2Tokens {
     void operator()(MayFail_<ForeachStatement>*);
     void operator()(MayFail_<WhileStatement>*);
     void operator()(MayFail_<DoWhileStatement>*);
+    void operator()(NullStatement*);
     void operator()(MayFail_<ExpressionStatement>*);
 
     /* expressions */

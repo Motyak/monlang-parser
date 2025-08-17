@@ -46,6 +46,8 @@ using Statement_ = std::variant<
 
     // MayFail_<DeferStatement>*, // defer <block-expression>
 
+    NullStatement*, // ;
+
     ///////////////////////////////////////////////////////
 
     // fall-through statement

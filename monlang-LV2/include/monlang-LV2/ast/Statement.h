@@ -17,6 +17,7 @@ struct ForeachStatement;
 struct WhileStatement;
 struct DoWhileStatement;
 // struct DeferStatement;
+struct NullStatement;
 struct ExpressionStatement;
 
 using Statement = std::variant<
@@ -47,6 +48,8 @@ using Statement = std::variant<
     DoWhileStatement*, // do..while, do..until
 
     // DeferStatement*, // defer <block-expression>
+
+    NullStatement*, // ;
 
     ///////////////////////////////////////////////////////
 

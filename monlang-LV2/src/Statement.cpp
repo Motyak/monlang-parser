@@ -12,6 +12,7 @@
 #include <monlang-LV2/stmt/DieStatement.h>
 #include <monlang-LV2/stmt/ForeachStatement.h>
 #include <monlang-LV2/stmt/WhileStatement.h>
+#include <monlang-LV2/stmt/NullStatement.h>
 #include <monlang-LV2/stmt/ExpressionStatement.h>
 
 #include <utils/assert-utils.h>
@@ -120,6 +121,10 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     // ...
 
+    if (peekNullStatement(peekedSentence)) {
+        return (Statement_)consumeNullStatement(prog);
+    }
+
     for (auto pw: peekedSentence.programWords) {
         unless (holds_word(pw)) {
             auto sentence = consumeSentence(prog);
@@ -149,6 +154,7 @@ Statement unwrap_stmt(Statement_ statement) {
         [](BreakStatement* stmt) -> Statement {return stmt;},
         [](ContinueStatement* stmt) -> Statement {return stmt;},
         [](DieStatement* stmt) -> Statement {return stmt;},
+        [](NullStatement* stmt) -> Statement {return stmt;},
         [](_StubStatement_*) -> Statement {SHOULD_NOT_HAPPEN();},
         [](auto* mf_) -> Statement {return move_to_heap(unwrap(*mf_));},
     }, statement);
@@ -159,6 +165,7 @@ Statement_ wrap_stmt(Statement statement) {
         [](BreakStatement* stmt) -> Statement_ {return stmt;},
         [](ContinueStatement* stmt) -> Statement_ {return stmt;},
         [](DieStatement* stmt) -> Statement_ {return stmt;},
+        [](NullStatement* stmt) -> Statement_ {return stmt;},
         [](auto* stmt) -> Statement_ {return move_to_heap(wrap(*stmt));},
     }, statement);
 }

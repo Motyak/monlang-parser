@@ -510,6 +510,10 @@ void PrintLV2::operator()(MayFail_<DoWhileStatement>* doWhileStatement) {
     currIndent--;
 }
 
+void PrintLV2::operator()(NullStatement*) {
+    outputLine("NullStatement");
+}
+
 void PrintLV2::operator()(MayFail_<ExpressionStatement>* expressionStatement) {
     output("ExpressionStatement");
     if (!expressionStatement->expression) {

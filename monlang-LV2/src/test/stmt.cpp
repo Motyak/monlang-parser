@@ -353,6 +353,27 @@ TEST_CASE ("do while statement", "[test-1223][stmt]") {
     REQUIRE (output_str == expect);
 }
 
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("null statement", "[test-1251][stmt]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord: Atom: `;`
+    )EOF");
+
+    auto expect = "-> Statement: NullStatement";
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
 //==============================================================
 // ERR
 //==============================================================
