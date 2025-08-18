@@ -1046,14 +1046,30 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
     // lastCorrectToken = -1;
     curPos += group_nesting(*mapLiteral);
     curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
-    LOOP for (auto [key, val]: mapLiteral->arguments) {
-        if (!__first_it) {
-            curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
+    if (mapLiteral->_msbg.has_value()) {
+        curPos += 1; // newline
+        auto msbg = std::any_cast<MultilineSquareBracketsGroup>(mapLiteral->_msbg.value());
+        for (size_t i = 0; i < mapLiteral->arguments.size(); ++i) {
+            curPos += msbg.sentences.at(i)._tokenLeadingNewlines;
+            curPos += msbg.sentences.at(i)._tokenIndentSpaces;
+            operator()(mapLiteral->arguments.at(i).first);
+            curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+            curPos += 2; // =>
+            curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+            operator()(mapLiteral->arguments.at(i).second);
+            curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
         }
-        operator()(key);
-        curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
-        operator()(val);
-        ENDLOOP
+    }
+    else {
+        LOOP for (auto [key, val]: mapLiteral->arguments) {
+            if (!__first_it) {
+                curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
+            }
+            operator()(key);
+            curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
+            operator()(val);
+            ENDLOOP
+        }
     }
     curPos += sequenceLen(SquareBracketsGroup::TERMINATOR_SEQUENCE);
     curPos = backupCurPos;

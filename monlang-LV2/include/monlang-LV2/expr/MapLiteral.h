@@ -12,6 +12,7 @@ struct MayFail_<MapLiteral> {
     using Argument = std::pair<MayFail<Expression_>, MayFail<Expression_>>;
     std::vector<Argument> arguments;
 
+    std::optional<std::any> _msbg = std::nullopt; // MultilineSquareBracketsGroup
     size_t _tokenLen = 0;
     size_t _tokenId = 123456789;
     size_t _groupNesting = 0;

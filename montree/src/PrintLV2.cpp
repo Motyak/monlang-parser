@@ -785,8 +785,13 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
     }
 
     // ugly but works
-    if (currExpression_.has_error() && currExpression_.error().code == 691) {
-        ASSERT (nth_argument >= 1);
+    if (currExpression_.has_error() && (
+            currExpression_.error().code == 691
+            || currExpression_.error().code == 694
+            || currExpression_.error().code == 695
+            || currExpression_.error().code == 697
+            )) {
+        if (nth_argument == 0) nth_argument = 1;
         outputLine("~> argument #", INT2CSTR(++nth_argument));
         currIndent++;
         outputLine("~> ", currExpression_.error().fmt.c_str());

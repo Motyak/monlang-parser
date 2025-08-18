@@ -76,9 +76,7 @@ static MayFail<MayFail_<ListLiteral>> buildMultilineListLiteral(const MultilineS
         auto expr = buildExpression(term);
         arguments.push_back(expr);
         if (expr.has_error()) {
-            auto error = ERR(683);
-            SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
-            auto malformed = Malformed(MayFail_<ListLiteral>{arguments}, error);
+            auto malformed = Malformed(MayFail_<ListLiteral>{arguments}, ERR(683));
             malformed.val._msbg = msbg;
             return malformed;
         }
