@@ -164,7 +164,8 @@ MayFail<Expression_> buildExpression(const Term& term) {
     // }
 
     // SBG expression fall-through
-    if (std::holds_alternative<SquareBracketsGroup*>(word)) {
+    if (std::holds_alternative<SquareBracketsGroup*>(word)
+        || std::holds_alternative<MultilineSquareBracketsGroup*>(word)) {
         auto listLiteral = buildListLiteral(word);
         listLiteral.val._groupNesting = groupNesting;
         return mayfail_convert<Expression_>(listLiteral);

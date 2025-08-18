@@ -39,6 +39,7 @@
 #include <monlang-LV1/ast/Association.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 #include <monlang-LV1/ast/SquareBracketsTerm.h>
+#include <monlang-LV1/ast/MultilineSquareBracketsGroup.h>
 
 #include <utils/assert-utils.h>
 #include <utils/loop-utils.h>
@@ -1078,6 +1079,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
 }
 
 void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
+    auto curExpr_ = curExpr; // local copy
     auto tokenId = newToken();
     listLiteral->_tokenId = tokenId;
     token.is_malformed = curExpr.has_error();
@@ -1093,12 +1095,24 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
     // lastCorrectToken = -1;
     curPos += group_nesting(*listLiteral);
     curPos += sequenceLen(SquareBracketsGroup::INITIATOR_SEQUENCE);
-    LOOP for (auto arg: listLiteral->arguments) {
-        if (!__first_it) {
-            curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
+    if (listLiteral->_msbg.has_value()) {
+        curPos += 1; // newline
+        auto msbg = std::any_cast<MultilineSquareBracketsGroup>(listLiteral->_msbg.value());
+        for (size_t i = 0; i < listLiteral->arguments.size(); ++i) {
+            curPos += msbg.sentences.at(i)._tokenLeadingNewlines;
+            curPos += msbg.sentences.at(i)._tokenIndentSpaces;
+            operator()(listLiteral->arguments.at(i));
+            curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
         }
-        operator()(arg);
-        ENDLOOP
+    }
+    else {
+        LOOP for (auto arg: listLiteral->arguments) {
+            if (!__first_it) {
+                curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
+            }
+            operator()(arg);
+            ENDLOOP
+        }
     }
     curPos += sequenceLen(SquareBracketsGroup::TERMINATOR_SEQUENCE);
     curPos = backupCurPos;
@@ -1106,7 +1120,17 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
     token.end = asTokenPosition(curPos);
 
     if (token.is_malformed) {
-        token.err_start = token.start;
+        if (lastCorrectToken == size_t(-1)) {
+            token.err_start = token.start;
+        }
+        else {
+            token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
+            token.err_start = token.err_start < token.start? token.start : token.err_start;
+        }
+        if (curExpr_.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curExpr_.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
         tokens.traceback.push_back(token);
     }
 

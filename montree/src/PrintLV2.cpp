@@ -357,8 +357,8 @@ void PrintLV2::operator()(MayFail_<ForeachStatement>* foreachStatement) {
     for (auto statement: foreachStatement->block.val.statements) {
         if (statement.has_error()) {
             any_malformed_stmt = true;
+            break;
         }
-        break;
     }
 
     if (foreachStatement->block.val.statements.size() > 1) {
@@ -797,6 +797,8 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
 }
 
 void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
+    auto currExpression_ = currExpression; // local copy
+
     output("ListLiteral");
     if (listLiteral->arguments.size() == 0 && !currExpression.has_error()) {
         outputLine(" (empty)");
@@ -805,6 +807,14 @@ void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
     outputLine();
 
     currIndent++;
+
+    auto any_malformed_arg = false;
+    for (auto arg: listLiteral->arguments) {
+        if (arg.has_error()) {
+            any_malformed_arg = true;
+            break;
+        }
+    }
 
     if (listLiteral->arguments.size() > 1) {
         for (int n : range(listLiteral->arguments.size(), 0)) {
@@ -816,6 +826,10 @@ void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
 
     for (auto arg: listLiteral->arguments) {
         operator()(arg);
+    }
+
+    if (currExpression_.has_error() && !any_malformed_arg) {
+        outputLine("~> ", SERIALIZE_ERR(currExpression_));
     }
 
     currIndent--;

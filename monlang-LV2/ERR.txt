@@ -96,6 +96,8 @@ ERR-631 Malformed Lambda, contains a Malformed BlockExpression as body
 ERR-641 Malformed BlockExpression, contains a Malformed Statement
 
 ERR-681 Malformed ListLiteral, contains a malformed Expression
+ERR-682 Malformed ListLiteral (multiline), contains a non-Term as argument
+ERR-683 Malformed ListLiteral (multiline), contains a malformed Expression
 
 ERR-691 Malformed MapLiteral, contains a List argument
 ERR-692 Malformed MapLiteral, contains a malformed Expression as argument key

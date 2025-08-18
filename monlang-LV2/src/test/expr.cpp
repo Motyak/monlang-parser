@@ -313,6 +313,29 @@ TEST_CASE ("list literal", "[test-1653][expr]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("multiline list literal", "[test-1632][expr]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: MultilineSquareBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord: Atom: `a`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord: Atom: `b`
+    )EOF");
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: ListLiteral
+       |  -> Expression #1: Symbol: `a`
+       |  -> Expression #2: Symbol: `b`
+    )EOF");
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("empty map literal", "[test-1654][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
@@ -829,6 +852,62 @@ TEST_CASE ("Malformed ListLiteral, contains a Malformed Expression", "[test-1671
     auto input_term = std::get<Term>(input_ast);
     auto output = buildExpression(input_term);
     REQUIRE (/*ListLiteral*/ "ERR-681" == output.error().fmt);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed ListLiteral (multiline), contains a non-Term as argument", "[test-1633][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: MultilineSquareBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord: Atom: `a`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord: SquareBracketsTerm
+       |        -> Term
+       |          -> Word: Atom: `b`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: ListLiteral
+       |  -> Expression: Symbol: `a`
+       |  ~> ERR-682
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
+
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("Malformed ListLiteral (multiline), contains a malformed Expression", "[test-1634][expr][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: MultilineSquareBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord: Atom: `x`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord: ParenthesesGroup (empty)
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Expression: ListLiteral
+       |  -> Expression #1: Symbol: `x`
+       |  ~> Expression #2
+       |    ~> ERR-169
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    REQUIRE (/*ListLiteral*/ "ERR-683" == output.error().fmt);
     auto output_str = montree::astToString(output);
 
     REQUIRE (output_str == expect);
