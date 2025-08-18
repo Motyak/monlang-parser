@@ -351,6 +351,7 @@ Word LV1AstBuilder::buildWord() {
         "Quotation",
         "ParenthesesGroup",
         "SquareBracketsGroup",
+        "MultilineSquareBracketsGroup",
         "CurlyBracketsGroup",
         "Association",
         "PostfixParenthesesGroup",
@@ -388,6 +389,10 @@ Word LV1AstBuilder::buildWord() {
 
     else if (first_candidate_found == "SquareBracketsGroup") {
         return move_to_heap(buildSquareBracketsGroup());
+    }
+
+    else if (first_candidate_found == "MultilineSquareBracketsGroup") {
+        return move_to_heap(buildMultilineSquareBracketsGroup());
     }
 
     else if (first_candidate_found == "CurlyBracketsGroup") {
@@ -459,6 +464,29 @@ SquareBracketsGroup LV1AstBuilder::buildSquareBracketsGroup() {
     until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
 
     return SquareBracketsGroup{terms};
+}
+
+MultilineSquareBracketsGroup LV1AstBuilder::buildMultilineSquareBracketsGroup() {
+    ENTERING_BUILD_ROUTINE();
+
+    auto parentNestingLevel = consumeLine(tis).nestingLevel; // -> ... MultilineSquareBracketsGroup
+    auto peekedLine = peekLine(tis);
+
+    if (peekedLine.type != INCR) {
+        SHOULD_NOT_HAPPEN(); // empty MSBG
+    }
+
+    std::vector<ProgramSentence> sentences;
+    do {
+        sentences.push_back(buildProgramSentence());
+        peekedLine = peekLine(tis);
+        if (peekedLine.type == INCR) {
+            SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildProgramSentence()
+        }
+    }
+    until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
+
+    return MultilineSquareBracketsGroup{sentences};
 }
 
 CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {

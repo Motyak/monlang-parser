@@ -9,6 +9,7 @@
 #include <monlang-LV1/ast/Path.h>
 #include <monlang-LV1/ast/PostfixParenthesesGroup.h>
 #include <monlang-LV1/ast/PostfixSquareBracketsGroup.h>
+#include <monlang-LV1/ast/MultilineSquareBracketsGroup.h>
 #include <monlang-LV1/ast/CurlyBracketsGroup.h>
 #include <monlang-LV1/ast/Atom.h>
 #include <monlang-LV1/ast/Quotation.h>
@@ -34,6 +35,7 @@ class LV1AstBuilder {
     PostfixSquareBracketsGroup buildPostfixSquareBracketsGroup();
     ParenthesesGroup buildParenthesesGroup();
     SquareBracketsGroup buildSquareBracketsGroup();
+    MultilineSquareBracketsGroup buildMultilineSquareBracketsGroup();
     CurlyBracketsGroup buildCurlyBracketsGroup();
     Atom buildAtom();
     Quotation buildQuotation();
