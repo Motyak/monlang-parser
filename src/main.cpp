@@ -153,7 +153,6 @@ void handleParsingResult(const ParsingResult& parsingRes) {
         serializeToJson(parsingRes._tokensLV1, file);
     }));
 
-    if (parsingRes.status > LV1_ERR)
     /* write out/LV2.tokens.json */ tasks.emplace_back(std::async(std::launch::async, [&parsingRes]()
     {
         auto file = std::ofstream("out/LV2.tokens.json", std::ios::app);
