@@ -353,7 +353,7 @@ PRECEDENCE_TABLE = {
     {{"&"}, LEFT_ASSOCIATIVE},
     {{"^"}, LEFT_ASSOCIATIVE},
     {{"|"}, LEFT_ASSOCIATIVE},
-    {{".."}, NOT_REALLY},
+    {{".."}, LEFT_ASSOCIATIVE},
     {{"<", "<=", ">", ">=", "in", "!in"}, LEFT_ASSOCIATIVE},
     {{"==", "<>"}, LEFT_ASSOCIATIVE},
     {{"&&"}, LEFT_ASSOCIATIVE},
