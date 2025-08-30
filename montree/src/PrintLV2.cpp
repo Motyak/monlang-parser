@@ -260,7 +260,6 @@ void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
         currIndent--;
         return;
     }
-    numbering.push(NO_NUMBERING);
     operator()(letStatement->variable);
 
 
