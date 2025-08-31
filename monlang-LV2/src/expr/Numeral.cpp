@@ -244,8 +244,8 @@ void FixDecimalNumeral::operator()(Path* path) {
         we allow empty fixed dec part (digit group separators only) as in 0.'(3)..
         ..but only when there is a periodic dec part
     */
-   unless (!path_right_part) return;
-   unless (fixed_dec_part) return;
+    unless (!path_right_part) return;
+    unless (fixed_dec_part) return;
 
     unless (std::holds_alternative<Atom*>(path->leftPart)) return;
     mystring path_left_part = std::get<Atom*>(path->leftPart)->value;
