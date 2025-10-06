@@ -32,5 +32,6 @@ struct Lvalue {
 };
 
 Symbol leftmost(const Lvalue&);
+bool containsAnySubscript(const Lvalue&);
 
 #endif // AST_LVALUE_H

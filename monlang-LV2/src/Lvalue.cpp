@@ -98,3 +98,22 @@ Symbol leftmost(const Lvalue& lvalue) {
         lvalue.variant
     );
 }
+
+static bool containsAnySubscript(const Symbol&) {
+    return false;
+}
+
+static bool containsAnySubscript(const Subscript&) {
+    return true;
+}
+
+static bool containsAnySubscript(const FieldAccess& fieldAccess) {
+    return containsAnySubscript(fieldAccess.object);
+}
+
+bool containsAnySubscript(const Lvalue& lvalue) {
+    return std::visit(
+        [](auto* lvalue){return containsAnySubscript(*lvalue);},
+        lvalue.variant
+    );
+}
