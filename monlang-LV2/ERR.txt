@@ -3,9 +3,7 @@ ERR-111 Malformed Program, contains a Malformed Statement
 ERR-121 Unknown Statement
 
 ERR-161 Malformed Expression, contains an even number of words
-* ERR-162 Malformed Expression, contains a non-Atom word as operator
-  -> not triggerable when calling consumeProgram(LV1::Program&),
-     only triggerable when calling buildExpression(Term)
+ERR-162 Malformed Expression, contains a non-Atom word as operator
 ERR-163 Malformed Expression, contains an unknown operator (unfound in precedence table)
 ERR-169 Unknown Expression
 
