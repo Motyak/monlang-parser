@@ -39,4 +39,13 @@ std::vector<R> vec_cast(const std::vector<T>& input) {
     return res;
 }
 
+#if __has_include(<utils/assert-utils.h>)
+#include <utils/assert-utils.h>
+template <typename T>
+void safe_pop_back(T& container) {
+    ASSERT (!container.empty());
+    container.pop_back();
+}
+#endif
+
 #endif // VEC_UTILS_H
