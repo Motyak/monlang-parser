@@ -11,4 +11,11 @@ inline thread_local unsigned long long __nth_it;
 #define LOOP __first_it = true; __nth_it = 1;
 #define ENDLOOP __first_it = false; __nth_it += 1;
 
+// not tested yet
+#define CONTINUE \
+    { \
+        __first_it = false; __nth_it += 1; \
+        continue; \
+    }
+
 #endif // LOOP_UTILS_H
