@@ -184,7 +184,7 @@ TEST_CASE ("lambda with an OUT parameter", "[test-1641][expr]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("lambda with variadic parameters", "[test-1642][expr]") {
+TEST_CASE ("lambda with variadic parameter", "[test-1642][expr]") {
     auto input = tommy_str(R"EOF(
        |-> Term
        |  -> Word: Association
@@ -201,7 +201,7 @@ TEST_CASE ("lambda with variadic parameters", "[test-1642][expr]") {
     auto expect = tommy_str(R"EOF(
        |-> Expression: Lambda
        |  -> parameter #1: `x`
-       |  -> variadic parameters: `args...`
+       |  -> variadic parameter: `args...`
        |  -> body
        |    -> Statement: ExpressionStatement
        |      -> Expression: Symbol: `x`

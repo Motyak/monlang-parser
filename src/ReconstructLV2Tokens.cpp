@@ -971,11 +971,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
         operator()(&param);
         ENDLOOP
     }
-    if (lambda->variadicParameters) {
+    if (lambda->variadicParameter) {
         if (!lambda->parameters.empty()) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
         }
-        operator()(&*lambda->variadicParameters);
+        operator()(&*lambda->variadicParameter);
     }
     curPos += sequenceLen(ParenthesesGroup::TERMINATOR_SEQUENCE);
     curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);

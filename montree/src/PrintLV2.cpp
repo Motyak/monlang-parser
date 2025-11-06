@@ -613,7 +613,7 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
     outputLine("Lambda");
     currIndent++;
 
-    if (lambda->parameters.empty() && !lambda->variadicParameters) {
+    if (lambda->parameters.empty() && !lambda->variadicParameter) {
         outputLine("-> (no parameters)");
     } else {
         int i = 1;
@@ -622,8 +622,8 @@ void PrintLV2::operator()(MayFail_<Lambda>* lambda) {
         }
     }
 
-    if (lambda->variadicParameters) {
-        outputLine("-> variadic parameters: `", lambda->variadicParameters->name.c_str(), "`");
+    if (lambda->variadicParameter) {
+        outputLine("-> variadic parameter: `", lambda->variadicParameter->name.c_str(), "`");
     }
 
     if (!lambda->body.has_error() && lambda->body.val.statements.empty()) {

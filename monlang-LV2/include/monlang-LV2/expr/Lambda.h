@@ -11,7 +11,7 @@
 template <>
 struct MayFail_<Lambda> {
     std::vector<Symbol> parameters;
-    std::optional<Symbol> variadicParameters;
+    std::optional<Symbol> variadicParameter;
     MayFail<MayFail_<LambdaBlock>> body;
 
     size_t _tokenLen = 0;

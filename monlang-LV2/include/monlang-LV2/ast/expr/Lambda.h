@@ -12,7 +12,7 @@ using LambdaBlock = BlockExpression;
 
 struct Lambda {
     std::vector<Symbol> parameters;
-    std::optional<Symbol> variadicParameters;
+    std::optional<Symbol> variadicParameter;
     LambdaBlock body;
     size_t _tokenLen = 0;
     size_t _tokenId = 123456789;
