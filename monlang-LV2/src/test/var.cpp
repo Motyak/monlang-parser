@@ -327,6 +327,34 @@ TEST_CASE ("ERR contains a non-Symbol as name", "[test-2418][var][err]") {
 
 ///////////////////////////////////////////////////////////
 
+TEST_CASE ("ERR contains a non-Atom Symbol as name", "[test-2422][var][err]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `var`
+       |  -> ProgramWord #2: ParenthesesGroup
+       |    -> Term
+       |      -> Word: Atom: `:=`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |~> Statement: VarStatement
+       |  -> Symbol: `:=`
+       |  ~> ERR-247
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}
+
+///////////////////////////////////////////////////////////
+
 TEST_CASE ("ERR contains less than 3 words (no value)", "[test-2419][var][err]") {
     auto input = tommy_str(R"EOF(
        |-> ProgramSentence

@@ -77,16 +77,25 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto aliasWord = get_word(sentence.programWords[1]);
-    auto aliasExpr = buildExpression((Term)aliasWord);
-    unless (std::holds_alternative<Symbol*>(aliasExpr.val)) {
+    auto word = get_word(sentence.programWords[1]);
+    auto is_an_atom = std::holds_alternative<Atom*>(word);
+    auto expr = buildExpression((Term)word);
+    unless (std::holds_alternative<Symbol*>(expr.val)) {
         auto error = ERR(233);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
         auto malformed = Malformed(MayFail_<LetStatement>{Symbol(), STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
-    auto alias = *std::get<Symbol*>(aliasExpr.val);
+    auto alias = *std::get<Symbol*>(expr.val);
+
+    unless (is_an_atom) {
+        auto error = ERR(238);
+        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
+        auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, error);
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
 
 
     unless (sentence.programWords.size() >= 3) {

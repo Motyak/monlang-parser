@@ -82,6 +82,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
         return malformed;
     }
     auto word = get_word(sentence.programWords[1]);
+    auto is_an_atom = std::holds_alternative<Atom*>(word);
     auto expr = buildExpression((Term)word);
     unless (std::holds_alternative<Symbol*>(expr.val)) {
         auto error = ERR(243);
@@ -91,6 +92,14 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
         return malformed;
     }
     auto name = *std::get<Symbol*>(expr.val);
+
+    unless (is_an_atom) {
+        auto error = ERR(247);
+        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
+        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, error);
+        SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
+        return malformed;
+    }
 
 
     unless (sentence.programWords.size() >= 3) {
