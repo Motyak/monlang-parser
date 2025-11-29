@@ -90,7 +90,7 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
     auto alias = *std::get<Symbol*>(expr.val);
 
     unless (is_an_atom) {
-        auto error = ERR(238);
+        auto error = ERR(234);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
         auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -99,12 +99,12 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, ERR(234));
+        auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, ERR(235));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     unless (holds_word(sentence.programWords[2])) {
-        auto error = ERR(235);
+        auto error = ERR(236);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/3);
         auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -113,7 +113,7 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
     auto variableWord = get_word(sentence.programWords[2]);
     auto variableExpr = buildExpression((Term)variableWord);
     if (!is_lvalue(variableExpr.val)) {
-        auto error = ERR(236);
+        auto error = ERR(237);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/3);
         auto malformed = Malformed(MayFail_<LetStatement>{alias, STUB(Lvalue_)}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -121,7 +121,7 @@ MayFail<MayFail_<LetStatement>> consumeLetStatement(LV1::Program& prog) {
     }
     auto variable = mayfail_cast<Lvalue_>(variableExpr);
     if (variable.has_error()) {
-        auto error = ERR(237);
+        auto error = ERR(238);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/3);
         auto malformed = Malformed(MayFail_<LetStatement>{alias, variable}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);

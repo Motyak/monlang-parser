@@ -94,7 +94,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
     auto name = *std::get<Symbol*>(expr.val);
 
     unless (is_an_atom) {
-        auto error = ERR(247);
+        auto error = ERR(244);
         SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
         auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -103,13 +103,13 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
 
 
     unless (sentence.programWords.size() >= 3) {
-        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, ERR(244));
+        auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, ERR(245));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }
     auto value_as_term = extractValue(sentence);
     unless (value_as_term) {
-        auto error = ERR(245);
+        auto error = ERR(246);
         SET_NON_WORD_ERR_OFFSET(error);
         auto malformed = Malformed(MayFail_<VarStatement>{name, StubExpression_()}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
@@ -117,7 +117,7 @@ MayFail<MayFail_<VarStatement>> consumeVarStatement(LV1::Program& prog) {
     }
     auto value = buildExpression(*value_as_term);
     if (value.has_error()) {
-        auto malformed = Malformed(MayFail_<VarStatement>{name, value}, ERR(246));
+        auto malformed = Malformed(MayFail_<VarStatement>{name, value}, ERR(247));
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
     }

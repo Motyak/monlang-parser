@@ -184,7 +184,7 @@ TEST_CASE ("ERR contains less than 3 words (no variable)", "[test-2319][let][err
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
        |  -> Symbol: `somealias`
-       |  ~> ERR-234
+       |  ~> ERR-235
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -213,7 +213,7 @@ TEST_CASE ("ERR contains a non-Word as part of the variable", "[test-2321][let][
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
        |  -> Symbol: `somealias`
-       |  ~> ERR-235
+       |  ~> ERR-236
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -242,7 +242,7 @@ TEST_CASE ("ERR contains a non-Lvalue expression as variable", "[test-2322][let]
     auto expect = tommy_str(R"EOF(
        |~> Statement: LetStatement
        |  -> Symbol: `somealias`
-       |  ~> ERR-236
+       |  ~> ERR-237
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
@@ -285,7 +285,7 @@ TEST_CASE ("ERR contains a Malformed Lvalue as variable", "[test-2323][let][err]
     auto input_prog = LV1::Program{{input_sentence}};
 
     auto output = consumeStatement(input_prog);
-    REQUIRE (output.error().fmt == "ERR-237");
+    REQUIRE (output.error().fmt == "ERR-238");
     REQUIRE (input_prog.sentences.empty());
 
     auto output_str = montree::astToString(output);
