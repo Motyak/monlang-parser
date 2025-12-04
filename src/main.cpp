@@ -12,6 +12,7 @@
 #include <utils/str-utils.h>
 #include <utils/loop-utils.h>
 #include <utils/env-utils.h>
+#include <utils/unicode_eaw.h>
 
 #include <future>
 
@@ -231,6 +232,13 @@ void serializeToJson(const Tokens& tokens, std::ostream& out) {
     out << json.dump(/*indent*/1, /*indent_char*/TAB) << std::endl;
 }
 
+// default: ascii char (1 byte, neutral)
+struct UnicharTableEntry {
+    uint8_t size = 1; // between 1 and 4 bytes
+    bool is_fullwidth = false;
+};
+std::vector<UnicharTableEntry> createUnicharTable(const std::string&);
+
 void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
     //TODO: other errors
 
@@ -274,15 +282,35 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
 
             /* here will use err_start set in previous iteration, NEVER token.err_start */
             auto print_token_start_as_well = token.start.line == err_start.line && token.start.column != err_start.column;
+            bool fullwidth_start_arrow = false;
             out << parsingRes._source.name << ":" << err_start.line << ":" << err_start.column << ": LV1 error: Malformed " << token.name << "\n";
             out << rjust(err_start.line, 5) << " | " << sourceLines.at(err_start.line - 1) << "\n";
+            out << "      | ";
+            auto token_start_lineIndex = token.start.i - std::accumulate(sourceLines.begin(), sourceLines.begin() + (token.start.line - 1), size_t(0), [](size_t a, const std::string& b){return a + b.size() + 1;});
+            auto err_start_lineIndex = err_start.i - std::accumulate(sourceLines.begin(), sourceLines.begin() + (err_start.line - 1), size_t(0), [](size_t a, const std::string& b){return a + b.size() + 1;});
+            auto unichar = createUnicharTable(sourceLines.at(err_start.line - 1));
+            size_t i = 0;
             if (print_token_start_as_well) {
-                auto the_two_arrows = "^" + std::string(err_start.column - token.start.column - 1, SPACE) + "^";
-                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_fmt << "\n";
+                while (i < token_start_lineIndex) {
+                    out << (unichar.at(i).is_fullwidth? /* ideographic space (U+3000) */"　" : " ");
+                    i += unichar.at(i).size;
+                }
+                if (i == token_start_lineIndex) {
+                    out << (unichar.at(i).is_fullwidth && (fullwidth_start_arrow = true) ? /* fullwidth cirmculflex accent (U+FF3E) */"＾" : "^");
+                    i += unichar.at(i).size;
+                }
+                // else SHOULD_NOT_HAPPEN(); // debug
             }
-            else {
-                out << "      | " << rjust("^", err_start.column) << token.err_fmt << "\n";
+            while (i < err_start_lineIndex) {
+                out << (unichar.at(i).is_fullwidth? /* ideographic space (U+3000) */"　" : " ");
+                i += unichar.at(i).size;
             }
+            if (i == err_start_lineIndex) {
+                out << (fullwidth_start_arrow ? /* fullwidth cirmculflex accent (U+FF3E) */"＾" : "^");
+            }
+            // else SHOULD_NOT_HAPPEN(); // debug
+            out << token.err_fmt << "\n";
+
             err_start = token.start;
             ENDLOOP
         }
@@ -298,15 +326,34 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
 
             /* here will use err_start set in previous iteration, NEVER token.err_start */
             auto print_token_start_as_well = token.start.line == err_start.line && token.start.column != err_start.column;
+            bool fullwidth_start_arrow = false;
             out << parsingRes._source.name << ":" << err_start.line << ":" << err_start.column << ": LV2 error: Malformed " << token.name << "\n";
             out << rjust(err_start.line, 5) << " | " << sourceLines.at(err_start.line - 1) << "\n";
+            out << "      | ";
+            auto token_start_lineIndex = token.start.i - std::accumulate(sourceLines.begin(), sourceLines.begin() + (token.start.line - 1), size_t(0), [](size_t a, const std::string& b){return a + b.size() + 1;});
+            auto err_start_lineIndex = err_start.i - std::accumulate(sourceLines.begin(), sourceLines.begin() + (err_start.line - 1), size_t(0), [](size_t a, const std::string& b){return a + b.size() + 1;});
+            auto unichar = createUnicharTable(sourceLines.at(err_start.line - 1));
+            size_t i = 0;
             if (print_token_start_as_well) {
-                auto the_two_arrows = "^" + std::string(err_start.column - token.start.column - 1, SPACE) + "^";
-                out << "      | " << rjust(the_two_arrows, err_start.column) << token.err_fmt << "\n";
+                while (i < token_start_lineIndex) {
+                    out << (unichar.at(i).is_fullwidth? /* ideographic space (U+3000) */"　" : " ");
+                    i += unichar.at(i).size;
+                }
+                if (i == token_start_lineIndex) {
+                    out << (unichar.at(i).is_fullwidth && (fullwidth_start_arrow = true) ? /* fullwidth cirmculflex accent (U+FF3E) */"＾" : "^");
+                    i += unichar.at(i).size;
+                }
+                // else SHOULD_NOT_HAPPEN(); // debug
             }
-            else {
-                out << "      | " << rjust("^", err_start.column) << token.err_fmt << "\n";
+            while (i < err_start_lineIndex) {
+                out << (unichar.at(i).is_fullwidth? /* ideographic space (U+3000) */"　" : " ");
+                i += unichar.at(i).size;
             }
+            if (i == err_start_lineIndex) {
+                out << (fullwidth_start_arrow ? /* fullwidth cirmculflex accent (U+FF3E) */"＾" : "^");
+            }
+            // else SHOULD_NOT_HAPPEN(); // debug
+            out << token.err_fmt << "\n";
             err_start = token.start;
             ENDLOOP
         }
@@ -315,4 +362,45 @@ void reportTraceback(std::ostream& out, const ParsingResult& parsingRes) {
     else {
         SHOULD_NOT_HAPPEN();
     }
+}
+
+// table associating byte str index to its corresponding unichar entry
+// (multi-byte character => duplicate entries)
+std::vector<UnicharTableEntry> createUnicharTable(const std::string& str) {
+    auto res = std::vector<UnicharTableEntry>();
+    size_t i = 0; // byte str index
+    uint8_t unicharBytes[4];
+    uint32_t codepoint;
+    while (i < str.size()) {
+        unicharBytes[0] = str.at(i);
+        unicharBytes[1] = unicharBytes[2] = unicharBytes[3] = 0;
+        uint8_t size = unicharBytes[0] >> 5 == 0b110 ? 2
+                : unicharBytes[0] >> 4 == 0b1110 ? 3
+                : unicharBytes[0] >> 3 == 0b1111'0 ? 4
+                : 1;
+        unless (i + size - 1 < str.size()) goto FALLBACK;
+        for (int nth_extra_byte = 1; nth_extra_byte <= size - 1; ++nth_extra_byte) {
+            unicharBytes[nth_extra_byte] = str.at(i + nth_extra_byte);
+            unless (unicharBytes[nth_extra_byte] >> 6 == 0b10) goto FALLBACK;
+        }
+
+        /* calculate if fullwidth based on unicharBytes, then propagate result as table entries */
+        codepoint = size == 1? unicharBytes[0] & 0b0111'1111
+                : size == 2? ((unicharBytes[0] & 0b0001'1111) << 6) + (unicharBytes[1] & 0b0011'1111)
+                : size == 3? ((unicharBytes[0] & 0b0000'1111) << 12) + ((unicharBytes[1] & 0b0011'1111) << 6) + (unicharBytes[2] & 0b0011'1111)
+                : /*size == 4*/ ((unicharBytes[0] & 0b0000'0111) << 18) + ((unicharBytes[1] & 0b0011'1111) << 12) + ((unicharBytes[2] & 0b0011'1111) << 6) + (unicharBytes[3] & 0b0011'1111);
+        for (int j = 1; j <= size; ++j) {
+            res.push_back({.size=size, .is_fullwidth=is_fullwidth(codepoint)});
+            i += 1;
+        }
+
+        continue; // normal exit
+
+        // push curr byte as non-utf8 byte and continue with next byte
+        FALLBACK:
+        res.push_back({.size=1, .is_fullwidth=false});
+        i += 1;
+    }
+
+    return res;
 }
