@@ -25,6 +25,16 @@
 
 #define unless(x) if (!(x))
 
+// sum token len for all words preceding the nth word..
+// ..and add it to error offset
+#define SET_NTH_WORD_ERR_OFFSET(error, nth) \
+    auto err_offset = size_t(0); \
+    for (size_t i = 0; i < nth - 1; ++i) { \
+        err_offset += token_len(term.words[i]); \
+        err_offset += sequenceLen(Term::CONTINUATOR_SEQUENCE); \
+    } \
+    error._info["err_offset"] = err_offset
+
 MayFail<Expression_> buildExpression(const Term& term) {
     ASSERT (term.words.size() > 0);
     auto term_ = term; // local non-const working variable
@@ -45,9 +55,11 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
         for (auto [operators, _]: PRECEDENCE_TABLE) {
             unless (std::holds_alternative<Atom*>(term_.words[i])) {
+                auto error = ERR(162);
+                SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
                 auto expr = StubExpression_();
                 set_group_nesting(expr, groupNesting);
-                return Malformed<Expression_>(expr, ERR(162));
+                return Malformed<Expression_>(expr, error);
             }
             auto optr = std::get<Atom*>(term_.words[i])->value;
 
