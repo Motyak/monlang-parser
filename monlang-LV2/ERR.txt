@@ -103,7 +103,7 @@ ERR-691 Malformed MapLiteral, contains a List argument
 ERR-692 Malformed MapLiteral, contains a malformed Expression as argument key
 ERR-693 Malformed MapLiteral, contains a malformed Expression as argument value
 ERR-694 Malformed MapLiteral (multiline), contains a List argument
-ERR-695 Malformed MapLiteral (multiline), contains a non-Term as argument key
+ERR-695 Malformed MapLiteral (multiline), contains a non-Word as argument key
 ERR-696 Malformed MapLiteral (multiline), contains a malformed Expression as argument key
 ERR-697 Malformed MapLiteral (multiline), contains a non-Term as argument value
 ERR-698 Malformed MapLiteral (multiline), contains a malformed Expression as argument value

@@ -168,13 +168,31 @@ static MayFail<MayFail_<MapLiteral>> buildMultilineMapLiteral(const MultilineSqu
     LOOP for (auto sentence: msbg.sentences) {
         if (__first_it) {
             ASSERT (sentence.programWords.size() >= 3);
+            ASSERT (std::holds_alternative<Atom*>(sentence.programWords.at(1)));
+            ASSERT (std::get<Atom*>(sentence.programWords.at(1))->value == "=>");
         }
-        else unless (sentence.programWords.size() >= 3) {
-            auto error = ERR(694);
-            SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
-            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
-            malformed.val._msbg = msbg;
-            return malformed;
+        else {
+            unless (sentence.programWords.size() >= 3) {
+                auto error = ERR(694);
+                SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
+                auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+                malformed.val._msbg = msbg;
+                return malformed;
+            }
+            unless (std::holds_alternative<Atom*>(sentence.programWords.at(1))) {
+                auto error = ERR(694_0);
+                SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
+                auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+                malformed.val._msbg = msbg;
+                return malformed;
+            }
+            unless (std::get<Atom*>(sentence.programWords.at(1))->value == "=>") {
+                auto error = ERR(694_00);
+                SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
+                auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+                malformed.val._msbg = msbg;
+                return malformed;
+            }
         }
 
         unless (holds_word(sentence.programWords.at(0))) {
