@@ -123,7 +123,7 @@ void reportTraceback(std::ostream& out, const ParsingResult&);
 void handleParsingResult(const ParsingResult& parsingRes) {
     if (OUTPUT_MODE) {
         if (parsingRes.status < LV2_OK) {
-            reportTraceback(std::cout, parsingRes);
+            reportTraceback(std::cerr, parsingRes);
         }
         return;
     }
