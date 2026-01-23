@@ -42,6 +42,23 @@ MayFail<Expression_> buildExpression(const Term& term) {
 
     BEGIN:
 
+    // remove potential side comment from term
+    {
+        size_t i = 1; // we skip first word, otherwise would cause empty Expression
+                      // (only empty ExpressionStmt are allowed)
+        for (; i < term_.words.size(); ++i) {
+            auto currTerm = term_.words.at(i);
+            if (std::holds_alternative<Atom*>(currTerm)) {
+                auto* atom = std::get<Atom*>(currTerm);
+                if (atom->value == "--") {
+                    break;
+                }
+            }
+        }
+        term_.words = std::vector<Word>(term_.words.begin(), term_.words.begin() + i);
+        // we intentionally keep _tokenLen as is
+    }
+
     unless (term_.words.size() % 2 == 1) {
         auto expr = StubExpression_();
         set_group_nesting(expr, groupNesting);
