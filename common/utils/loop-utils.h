@@ -18,4 +18,11 @@ inline thread_local unsigned long long __nth_it;
         continue; \
     }
 
+// not tested yet
+#define BREAK \
+    { \
+        __first_it = false; __nth_it += 1; \
+        break; \
+    }
+
 #endif // LOOP_UTILS_H
