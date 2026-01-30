@@ -169,3 +169,11 @@ Statement_ wrap_stmt(Statement statement) {
         [](auto* stmt) -> Statement_ {return move_to_heap(wrap(*stmt));},
     }, statement);
 }
+
+bool is_empty_expr_stmt (const Statement& stmt) {
+    if (std::holds_alternative<ExpressionStatement*>(stmt)) {
+        auto exprStmt = std::get<ExpressionStatement*>(stmt);
+        return !exprStmt->expression;
+    }
+    return false;
+}

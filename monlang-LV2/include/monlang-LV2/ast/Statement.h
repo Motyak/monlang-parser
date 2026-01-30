@@ -57,4 +57,6 @@ using Statement = std::variant<
     ExpressionStatement*
 >;
 
+bool is_empty_expr_stmt (const Statement&);
+
 #endif // AST_STATEMENT_H
