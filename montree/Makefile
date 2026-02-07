@@ -1,6 +1,6 @@
 include utils.mk # shell_onrun
 
-CXXFLAGS := --std=c++23 -Wall -Wextra -Og -ggdb3 -I include
+CXXFLAGS := --std=c++23 -Wall -Wextra -O0 -ggdb3 -I include
 DEPFLAGS = -MMD -MP -MF .deps/$*.d
 RM := rm -rf
 ARFLAGS := rcsvD
