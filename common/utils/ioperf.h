@@ -12,9 +12,6 @@
 #endif
 
 static class _ioperf {
-  private:
-    static char* block_some_heap;
-
   public:
     _ioperf() {
         std::ios_base::sync_with_stdio(false);
@@ -22,7 +19,6 @@ static class _ioperf {
     }
 
     static void custom_terminate() {
-        delete[] block_some_heap; // free some heap for 'demangled'
         std::cout << std::flush;
 
         std::exception_ptr exptr = std::current_exception();
@@ -51,7 +47,5 @@ static class _ioperf {
         std::abort(); // Standard behavior after terminate handler
     }
 } _ioperf;
-
-char* _ioperf::block_some_heap = new char[128];
 
 #endif // IOPERF_H
