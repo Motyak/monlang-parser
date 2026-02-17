@@ -33,7 +33,7 @@ static class _ioperf {
                 char* demangled = abi::__cxa_demangle(type_name, nullptr, nullptr, &status);
                 if (status == 0) type_name = demangled;
                 #endif
-                std::cerr << "\nterminate called after throwing an instance of '" << type_name << "'\n";
+                std::cerr << "terminate called after throwing an instance of '" << type_name << "'\n";
                 std::cerr << "  what():  " << e.what() << std::endl;
 
                 #ifdef __GNUG__
@@ -41,7 +41,7 @@ static class _ioperf {
                 #endif
             }
             catch (...) {
-                std::cerr << "\nterminate called after throwing an unknown instance" << std::endl;
+                std::cerr << "terminate called after throwing an unknown instance" << std::endl;
             }
         }
         std::abort(); // Standard behavior after terminate handler
