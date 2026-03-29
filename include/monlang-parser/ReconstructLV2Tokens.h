@@ -22,6 +22,7 @@ class ReconstructLV2Tokens {
     void operator()(_StubStatement_*);
     void operator()(MayFail_<Assignment>*);
     void operator()(MayFail_<Accumulation>*);
+    void operator()(TypeDefinition*);
     void operator()(MayFail_<LetStatement>*);
     void operator()(MayFail_<VarStatement>*);
     void operator()(MayFail_<ReturnStatement>*);

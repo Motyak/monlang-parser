@@ -6,6 +6,7 @@
 
 /* in impl only */
 
+#include <monlang-LV2/stmt/TypeDefinition.h>
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
@@ -223,6 +224,48 @@ void ReconstructLV2Tokens::operator()(MayFail_<Accumulation>* acc) {
         token.err_start = token.start;
         if (curStmt_.err->_info.contains("err_offset")) {
             auto err_offset = std::any_cast<size_t>(curStmt_.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV2Tokens::operator()(TypeDefinition* typedef_) {
+    auto tokenId = newToken();
+    typedef_->_tokenId = tokenId;
+    token.is_malformed = curStmt.has_error();
+    token.name = "TypeDefinition";
+
+    if (token.is_malformed) {
+        token.err_fmt = curStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
+    }
+
+    curPos += typedef_->_tokenLeadingNewlines;
+    curPos += typedef_->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += TypeDefinition::KEYWORD.size();
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(&typedef_->type);
+    for (auto& subtype: typedef_->subtypes) {
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        operator()(&subtype);
+    }
+    curPos = backupCurPos;
+    curPos += typedef_->_tokenLen;
+    token.end = asTokenPosition(curPos);
+
+    curPos += typedef_->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
             token.err_start = asTokenPosition(token.err_start + err_offset);
         }
         tokens.traceback.push_back(token);

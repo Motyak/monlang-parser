@@ -3,6 +3,10 @@
 
 #include <variant>
 
+struct TypeDefinition;
+// struct StructDefinition;
+// struct EnumDefinition;
+
 struct Assignment;
 struct Accumulation;
 struct LetStatement;
@@ -21,9 +25,15 @@ struct NullStatement;
 struct ExpressionStatement;
 
 using Statement = std::variant<
+
     /* assignments */
     Assignment*, // a := b
     Accumulation*, // +=, -=, *=, ^=, /=, %=, &=, |=
+
+    /* definitions */
+    TypeDefinition*, // type <new_type> <sub_types>
+    // StructDefinition*, // struct <name> {...}
+    // EnumDefinition*, // enum <name> {...}
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 

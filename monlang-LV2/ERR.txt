@@ -78,6 +78,13 @@ ERR-361 Malformed C_WhileStatement, contains less than 2 words (no condition)
 ERR-362 Malformed C_WhileStatement, contains a non-SquareBracketsTerm as condition
 ERR-363 Malformed C_WhileStatement, contains a Malformed Expression as part of condition
 
+ERR-411 Malformed TypeDefinition, contains less than 2 words (no name)
+ERR-412 Malformed TypeDefinition, contains a non-Symbol as name
+ERR-413 Malformed TypeDefinition, contains a non-Atom Symbol as name
+ERR-414 Malformed TypeDefinition, contains less than 3 words (no subtype)
+ERR-415 Malformed TypeDefinition, contains a non-Symbol as part of subtypes
+ERR-416 Malformed TypeDefinition, contains a non-Atom Symbol as part of subtypes
+
 ERR-591 Malformed ExpressionStatement, contains a Malformed Expression
 
 ~~~

@@ -23,6 +23,11 @@ using Statement_ = std::variant<
     MayFail_<Assignment>*, // a := b
     MayFail_<Accumulation>*, // +=, -=, *=, ^=, /=, %=, &=, |=
 
+    /* definitions */
+    TypeDefinition*, // type <new_type> <sub_types>
+    // StructDefinition*, // struct <name> {...}
+    // EnumDefinition*, // enum <name> {...}
+
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 
     /* declarations (introduce new symbol in environment) */

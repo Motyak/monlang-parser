@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
     if (auto options = second(split_in_two(argv[0], " -"))) {
         if (options->contains("o")) {
-            OUTPUT_MODE = true;
+            OUTPUT_MODE = true; // -o
         }
     }
 

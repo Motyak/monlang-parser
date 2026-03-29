@@ -6,6 +6,8 @@
 #include "assign.cpp" // assignment with all types of expression..
                       // .., (tests accumulation as well)
 
+#include "typedef.cpp"
+
 #include "var.cpp" // var statement with all types of expression
 #include "let.cpp" // let statement with all types of lvalue
 

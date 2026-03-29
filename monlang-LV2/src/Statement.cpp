@@ -3,6 +3,7 @@
 /* impl only */
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
+#include <monlang-LV2/stmt/TypeDefinition.h>
 #include <monlang-LV2/stmt/LetStatement.h>
 #include <monlang-LV2/stmt/VarStatement.h>
 #include <monlang-LV2/stmt/Guard.h>
@@ -41,6 +42,14 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     if (peekAccumulation(peekedSentence)) {
         return mayfail_convert<Statement_>(consumeAccumulation(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`type`> Atom*"_) {
+    //     return mayfail_convert<Statement_>(consumeTypeDefinition(prog));
+    // }
+
+    if (peekTypeDefinition(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeTypeDefinition(prog));
     }
 
     // if (peekedSentence =~ "Atom<`let`> ProgramWord*"_) {
@@ -151,6 +160,7 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
 
 Statement unwrap_stmt(Statement_ statement) {
     return std::visit(overload{
+        [](TypeDefinition* typedef_) -> Statement {return typedef_;},
         [](BreakStatement* stmt) -> Statement {return stmt;},
         [](ContinueStatement* stmt) -> Statement {return stmt;},
         [](DieStatement* stmt) -> Statement {return stmt;},
@@ -162,6 +172,7 @@ Statement unwrap_stmt(Statement_ statement) {
 
 Statement_ wrap_stmt(Statement statement) {
     return std::visit(overload{
+        [](TypeDefinition* typedef_) -> Statement_ {return typedef_;},
         [](BreakStatement* stmt) -> Statement_ {return stmt;},
         [](ContinueStatement* stmt) -> Statement_ {return stmt;},
         [](DieStatement* stmt) -> Statement_ {return stmt;},

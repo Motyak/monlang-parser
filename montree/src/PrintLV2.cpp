@@ -2,6 +2,7 @@
 
 /* in impl only */
 
+#include <monlang-LV2/stmt/TypeDefinition.h>
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
@@ -235,6 +236,45 @@ void PrintLV2::operator()(MayFail_<Accumulation>* accumulation) {
     numbering.push(NO_NUMBERING);
     operator()(accumulation->value);
 
+
+    currIndent--;
+}
+
+void PrintLV2::operator()(TypeDefinition* typedef_) {
+    outputLine("TypeDefinition");
+    currIndent++;
+
+    // we assume that empty name means stub
+    if (typedef_->type.name == "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+
+    outputLine("-> type: `", typedef_->type.name.c_str(), "`");
+
+    if (currStatement.has_error() && currStatement.err->code == 414) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+
+    int i = 1;
+    for (auto subtype: typedef_->subtypes) {
+        if (subtype.name == "") {
+            continue;
+        }
+        if (typedef_->subtypes.size() == 1 && !currStatement.has_error()) {
+            outputLine("-> subtype: `", subtype.name.c_str(), "`");
+        }
+        else {
+            outputLine("-> subtype #", INT2CSTR(i++), ": `", subtype.name.c_str(), "`");
+        }
+    }
+
+    if (currStatement.has_error()) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+    }
 
     currIndent--;
 }
