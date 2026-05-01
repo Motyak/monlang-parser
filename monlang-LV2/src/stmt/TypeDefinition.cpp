@@ -33,18 +33,6 @@
     } \
     error._info["err_offset"] = err_offset
 
-
-// sum token len for all words preceding the first non-Word..
-// ..and add it to error offset
-#define SET_NON_WORD_ERR_OFFSET(error) \
-    auto err_offset = size_t(0); \
-    for (size_t i = 0; i < sentence.programWords.size(); ++i) { \
-        unless (holds_word(sentence.programWords[i])) break; \
-        err_offset += token_len(sentence.programWords[i]); \
-        err_offset += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE); \
-    } \
-    error._info["err_offset"] = err_offset
-
 const std::string TypeDefinition::KEYWORD = "type";
 
 bool peekTypeDefinition(const ProgramSentence& sentence) {

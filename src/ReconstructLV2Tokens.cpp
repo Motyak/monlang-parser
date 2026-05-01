@@ -7,6 +7,7 @@
 /* in impl only */
 
 #include <monlang-LV2/stmt/TypeDefinition.h>
+#include <monlang-LV2/stmt/StructDefinition.h>
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
@@ -261,6 +262,85 @@ void ReconstructLV2Tokens::operator()(TypeDefinition* typedef_) {
     token.end = asTokenPosition(curPos);
 
     curPos += typedef_->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV2Tokens::operator()(MayFail_<StructDefinition>* structdef) {
+    auto tokenId = newToken();
+    structdef->_tokenId = tokenId;
+    token.is_malformed = curStmt.has_error();
+    token.name = "StructDefinition";
+
+    if (token.is_malformed) {
+        token.err_fmt = curStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
+    }
+
+    curPos += structdef->_tokenLeadingNewlines;
+    curPos += structdef->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += StructDefinition::KEYWORD.size();
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(&structdef->struct_);
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += sequenceLen(CurlyBracketsGroup::INITIATOR_SEQUENCE);
+    curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+    for (size_t i = 0; i < structdef->fields.size(); ++i) {
+        auto& field = structdef->fields[i];
+        auto tokenId = newToken();
+        field.val._tokenId = tokenId;
+        token.is_malformed = field.has_error();
+        token.name = "FieldDefinition";
+
+        if (token.is_malformed) {
+            token.err_fmt = field.error().fmt; // TODO: we will need to fill token.err_desc as well
+        }
+
+        curPos += field.val._tokenLeadingNewlines;
+        curPos += sequenceLen(ProgramSentence::TAB_SEQUENCE);
+
+        token.start = asTokenPosition(curPos);
+        auto backupCurPos = curPos;
+        auto backupLastCorrectToken = lastCorrectToken;
+        operator()(&field.val.type);
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        operator()(&field.val.name);
+        curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+        curPos = backupCurPos;
+        curPos += field.val._tokenLen;
+        token.end = asTokenPosition(curPos);
+
+        if (token.is_malformed) {
+            token.err_start = token.start;
+            if (field.err->_info.contains("err_offset")) {
+                auto err_offset = std::any_cast<size_t>(field.err->_info.at("err_offset"));
+                token.err_start = asTokenPosition(token.err_start + err_offset);
+            }
+            tokens.traceback.push_back(token);
+        }
+
+        curPos += field.val._tokenTrailingNewlines;
+        lastCorrectToken = backupLastCorrectToken;
+    }
+    curPos += sequenceLen(CurlyBracketsGroup::TERMINATOR_SEQUENCE);
+    curPos = backupCurPos;
+    curPos += structdef->_tokenLen;
+    token.end = asTokenPosition(curPos);
+
+    curPos += structdef->_tokenTrailingNewlines;
 
     if (token.is_malformed) {
         token.err_start = token.start;

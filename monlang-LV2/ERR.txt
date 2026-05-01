@@ -85,6 +85,20 @@ ERR-414 Malformed TypeDefinition, contains less than 3 words (no subtype)
 ERR-415 Malformed TypeDefinition, contains a non-Symbol as part of subtypes
 ERR-416 Malformed TypeDefinition, contains a non-Atom Symbol as part of subtypes
 
+ERR-421 Malformed StructDefinition, contains less than 2 words (no name)
+ERR-422 Malformed StructDefinition, contains a non-Symbol as name
+ERR-423 Malformed StructDefinition, contains a non-Atom Symbol as name
+ERR-424 Malformed StructDefinition, contains less than 3 words (no block)
+ERR-425 Malformed StructDefinition, contains a non-block
+ERR-426 Malformed StructDefinition, contains a oneline block
+ERR-427 Malformed StructDefinition, contains a Malformed FieldDefinition
+
+ERR-431 Malformed FieldDefinition, contains a non-Symbol as type
+ERR-432 Malformed FieldDefinition, contains a non-Atom Symbol as type
+ERR-433 Malformed FieldDefinition, contains less than 2 words (no name)
+ERR-434 Malformed FieldDefinition, contains a non-Symbol as name
+ERR-435 Malformed FieldDefinition, contains a non-Atom Symbol as name
+
 ERR-591 Malformed ExpressionStatement, contains a Malformed Expression
 
 ~~~

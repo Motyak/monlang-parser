@@ -4,6 +4,7 @@
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/TypeDefinition.h>
+#include <monlang-LV2/stmt/StructDefinition.h>
 #include <monlang-LV2/stmt/LetStatement.h>
 #include <monlang-LV2/stmt/VarStatement.h>
 #include <monlang-LV2/stmt/Guard.h>
@@ -42,6 +43,14 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
 
     if (peekAccumulation(peekedSentence)) {
         return mayfail_convert<Statement_>(consumeAccumulation(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`type`> Atom*"_) {
+    //     return mayfail_convert<Statement_>(consumeTypeDefinition(prog));
+    // }
+
+    if (peekStructDefinition(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeStructDefinition(prog));
     }
 
     // if (peekedSentence =~ "Atom<`type`> Atom*"_) {

@@ -3,6 +3,7 @@
 /* in impl only */
 
 #include <monlang-LV2/stmt/TypeDefinition.h>
+#include <monlang-LV2/stmt/StructDefinition.h>
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
@@ -278,6 +279,59 @@ void PrintLV2::operator()(TypeDefinition* typedef_) {
 
     currIndent--;
 }
+
+void PrintLV2::operator()(MayFail_<StructDefinition>* structdef) {
+    outputLine("StructDefinition");
+    currIndent++;
+
+    // we assume that empty name means stub
+    if (structdef->struct_.name == "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    outputLine("-> name: `", structdef->struct_.name.c_str(), "`");
+
+    if (currStatement.has_error() && currStatement.err->code <= 426) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+
+    int i = 1;
+    for (auto field: structdef->fields) {
+        auto field_ = field.val;
+        if (field_.type.name == "") { // we assume that empty name means stub
+            outputLine("~> field #", INT2CSTR(i++));
+            currIndent++;
+            outputLine("~> ", SERIALIZE_ERR(field));
+            currIndent--;
+            currIndent--;
+            return;
+        }
+        else if (field_.name.name == "") { // we assume that empty name means stub
+            outputLine("~> field #", INT2CSTR(i++));
+            currIndent++;
+            outputLine("-> type: `", field_.type.name.c_str(), "`");
+            outputLine("~> ", SERIALIZE_ERR(field));
+            currIndent--;
+            currIndent--;
+            return;
+        }
+        outputLine("-> field #", INT2CSTR(i++));
+        currIndent++;
+        outputLine("-> type: `", field_.type.name.c_str(), "`");
+        outputLine("-> name: `", field_.name.name.c_str(), "`");
+        currIndent--;
+    }
+
+    if (currStatement.has_error()) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+    }
+
+    currIndent--;
+}
+
 
 void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     outputLine("LetStatement");

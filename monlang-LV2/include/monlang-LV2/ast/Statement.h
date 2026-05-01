@@ -4,7 +4,7 @@
 #include <variant>
 
 struct TypeDefinition;
-// struct StructDefinition;
+struct StructDefinition;
 // struct EnumDefinition;
 
 struct Assignment;
@@ -32,7 +32,7 @@ using Statement = std::variant<
 
     /* definitions */
     TypeDefinition*, // type <new_type> <sub_types>
-    // StructDefinition*, // struct <name> {...}
+    StructDefinition*, // struct <name> {...}
     // EnumDefinition*, // enum <name> {...}
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////

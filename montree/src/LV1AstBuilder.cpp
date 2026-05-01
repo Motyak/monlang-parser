@@ -492,9 +492,9 @@ MultilineSquareBracketsGroup LV1AstBuilder::buildMultilineSquareBracketsGroup() 
 CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {
     ENTERING_BUILD_ROUTINE();
 
-    consumeLine(tis); // -> ... CurlyBracketsGroup
-
+    auto parentNestingLevel = consumeLine(tis).nestingLevel; // -> ... CurlyBracketsGroup
     auto peekedLine = peekLine(tis);
+
     if (peekedLine.type != INCR) {
         return CurlyBracketsGroup{};
     }
@@ -507,7 +507,7 @@ CurlyBracketsGroup LV1AstBuilder::buildCurlyBracketsGroup() {
             SHOULD_NOT_HAPPEN(); // shouldnt happen after a call to buildProgramSentence()
         }
     }
-    until (peekedLine.type == DECR || peekedLine.type == END);
+    until (peekedLine.nestingLevel <= parentNestingLevel || peekedLine.type == END);
 
     return CurlyBracketsGroup{sentences};
 }

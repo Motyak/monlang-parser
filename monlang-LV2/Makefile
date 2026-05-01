@@ -24,6 +24,7 @@ STMT_ENTITIES := \
 Assignment \
 Accumulation \
 TypeDefinition \
+StructDefinition \
 LetStatement \
 VarStatement \
 ReturnStatement \
