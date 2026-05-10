@@ -23,18 +23,14 @@
     malformed.val._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
     malformed.val._tokenIndentSpaces = sentence._tokenIndentSpaces
 
-#define SET_FIELD_TOKEN_FIELDS(field, sentence) \
-    field._tokenLeadingNewlines = sentence._tokenLeadingNewlines; \
-    field._tokenLen = sentence._tokenLen; \
-    field._tokenTrailingNewlines = sentence._tokenTrailingNewlines
-
 #define SET_MALFORMED_FIELD_TOKEN_FIELDS(malformed_field, sentence_) \
     malformed_field.val._tokenLeadingNewlines = sentence_._tokenLeadingNewlines; \
+    malformed_field.val._tokenIndentSpaces = sentence_._tokenIndentSpaces; \
     malformed_field.val._tokenTrailingNewlines = sentence_._tokenTrailingNewlines
 
 // sum token len for all words preceding the nth word..
 // ..and add it to error offset
-#define SET_NTH_WORD_ERR_OFFSET(error, nth) \
+#define SET_NTH_WORD_ERR_OFFSET(error, sentence, nth) \
     auto err_offset = size_t(0); \
     for (size_t i = 0; i < nth - 1; ++i) { \
         err_offset += token_len(sentence.programWords[i]); \
@@ -81,7 +77,7 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
     auto expr = buildExpression((Term)word);
     unless (std::holds_alternative<Symbol*>(expr.val)) {
         auto error = ERR(422);
-        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
+        SET_NTH_WORD_ERR_OFFSET(error, sentence, /*nth*/2);
         auto malformed = Malformed(MayFail_<StructDefinition>{Symbol(), {}}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
@@ -90,7 +86,7 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
 
     unless (is_an_atom) {
         auto error = ERR(423);
-        SET_NTH_WORD_ERR_OFFSET(error, /*nth*/2);
+        SET_NTH_WORD_ERR_OFFSET(error, sentence, /*nth*/2);
         auto malformed = Malformed(MayFail_<StructDefinition>{Symbol(), {}}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/ sentence);
         return malformed;
@@ -109,7 +105,7 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
 
     unless (std::holds_alternative<CurlyBracketsGroup*>(blockAsWord)) {
         auto error = ERR(425);
-        SET_NTH_WORD_ERR_OFFSET(error, 3);
+        SET_NTH_WORD_ERR_OFFSET(error, sentence, 3);
         auto malformed = Malformed(MayFail_<StructDefinition>{struct_, {}}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
@@ -118,7 +114,7 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
 
     if (block.term) {
         auto error = ERR(426);
-        SET_NTH_WORD_ERR_OFFSET(error, 3);
+        SET_NTH_WORD_ERR_OFFSET(error, sentence, 3);
         auto malformed = Malformed(MayFail_<StructDefinition>{struct_, {}}, error);
         SET_MALFORMED_TOKEN_FIELDS(malformed, /*from*/sentence);
         return malformed;
@@ -165,14 +161,14 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
 
         /* name */
         {
-            ASSERT (sentence_.programWords.size() >= 1);
+            ASSERT (sentence_.programWords.size() >= 2);
             ASSERT (holds_word(sentence_.programWords[1]));
             auto word = get_word(sentence_.programWords[1]);
             auto is_an_atom = std::holds_alternative<Atom*>(word);
             auto expr = buildExpression((Term)word);
             unless (std::holds_alternative<Symbol*>(expr.val)) {
                 auto error = ERR(434);
-                SET_FIELD_NAME_ERR_OFFSET(error);
+                SET_NTH_WORD_ERR_OFFSET(error, sentence_, 2);
                 auto malformed_field = Malformed(StructDefinition::Field{type, name}, error);
                 SET_MALFORMED_FIELD_TOKEN_FIELDS(malformed_field, sentence_);
                 fields.push_back(malformed_field);
@@ -182,7 +178,7 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
             }
             unless (is_an_atom) {
                 auto error = ERR(435);
-                SET_FIELD_NAME_ERR_OFFSET(error);
+                SET_NTH_WORD_ERR_OFFSET(error, sentence_, 2);
                 auto malformed_field = Malformed(StructDefinition::Field{type, name}, error);
                 SET_MALFORMED_FIELD_TOKEN_FIELDS(malformed_field, sentence_);
                 fields.push_back(malformed_field);
@@ -194,7 +190,7 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
         }
 
         auto field = StructDefinition::Field{type, name};
-        SET_FIELD_TOKEN_FIELDS(field, sentence_);
+        SET_TOKEN_FIELDS(field, sentence_);
         fields.push_back(field);
     }
 

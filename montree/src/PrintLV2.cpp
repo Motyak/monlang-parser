@@ -4,6 +4,7 @@
 
 #include <monlang-LV2/stmt/TypeDefinition.h>
 #include <monlang-LV2/stmt/StructDefinition.h>
+#include <monlang-LV2/stmt/EnumDefinition.h>
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
@@ -292,7 +293,7 @@ void PrintLV2::operator()(MayFail_<StructDefinition>* structdef) {
     }
     outputLine("-> name: `", structdef->struct_.name.c_str(), "`");
 
-    if (currStatement.has_error() && currStatement.err->code <= 426) {
+    if (currStatement.has_error() && currStatement.err->code < 427) {
         outputLine("~> ", SERIALIZE_ERR(currStatement));
         currIndent--;
         return;
@@ -332,6 +333,54 @@ void PrintLV2::operator()(MayFail_<StructDefinition>* structdef) {
     currIndent--;
 }
 
+void PrintLV2::operator()(MayFail_<EnumDefinition>* enumdef) {
+    outputLine("EnumDefinition");
+    currIndent++;
+
+    // we assume that empty name means stub
+    if (enumdef->enum_.name == "") {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+    outputLine("-> name: `", enumdef->enum_.name.c_str(), "`");
+
+    if (currStatement.has_error() && currStatement.err->code < 447) {
+        outputLine("~> ", SERIALIZE_ERR(currStatement));
+        currIndent--;
+        return;
+    }
+
+    int i = 1;
+    for (auto enumValue: enumdef->enumValues) {
+        auto enumValue_ = enumValue.val;
+
+        outputLine(enumValue.has_error()?
+                "~> enum value #" : "-> enum value #", INT2CSTR(i++));
+        currIndent++;
+
+        if (enumValue_.enumerator.name == "") { // we assume that empty name means stub
+            outputLine("~> ", SERIALIZE_ERR(enumValue));
+            return;
+        }
+        outputLine("-> enumerator: `", enumValue_.enumerator.name.c_str(), "`");
+
+        if (enumValue.has_error() && enumValue.error().code < 456) {
+            outputLine("~> ", SERIALIZE_ERR(enumValue));
+            return;
+        }
+        outputLine(enumValue.has_error()? "~> enumerate" : "-> enumerate");
+
+        currIndent++;
+        numbering.push(NO_NUMBERING);
+        operator()(enumValue_.enumerate);
+        currIndent--;
+
+        currIndent--; // enum value #
+    }
+
+    currIndent--;
+}
 
 void PrintLV2::operator()(MayFail_<LetStatement>* letStatement) {
     outputLine("LetStatement");

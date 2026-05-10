@@ -26,7 +26,7 @@ using Statement_ = std::variant<
     /* definitions */
     TypeDefinition*, // type <new_type> <sub_types>
     MayFail_<StructDefinition>*, // struct <name> {...}
-    // EnumDefinition*, // enum <name> {...}
+    MayFail_<EnumDefinition>*, // enum <name> {...}
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 

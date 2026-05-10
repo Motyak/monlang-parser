@@ -20,6 +20,7 @@ class PrintLV2 : public LV2::AstVisitor_<void> {
     void operator()(MayFail_<Accumulation>*);
     void operator()(TypeDefinition*);
     void operator()(MayFail_<StructDefinition>*);
+    void operator()(MayFail_<EnumDefinition>*);
     void operator()(MayFail_<LetStatement>*);
     void operator()(MayFail_<VarStatement>*);
     void operator()(MayFail_<ReturnStatement>*);

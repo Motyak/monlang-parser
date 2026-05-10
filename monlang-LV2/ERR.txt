@@ -99,6 +99,21 @@ ERR-433 Malformed FieldDefinition, contains less than 2 words (no name)
 ERR-434 Malformed FieldDefinition, contains a non-Symbol as name
 ERR-435 Malformed FieldDefinition, contains a non-Atom Symbol as name
 
+ERR-441 Malformed EnumDefinition, contains less than 2 words (no name)
+ERR-442 Malformed EnumDefinition, contains a non-Symbol as name
+ERR-443 Malformed EnumDefinition, contains a non-Atom Symbol as name
+ERR-444 Malformed EnumDefinition, contains less than 3 words (no block)
+ERR-445 Malformed EnumDefinition, contains a non-block
+ERR-446 Malformed EnumDefinition, contains a oneline block
+ERR-447 Malformed EnumDefinition, contains a Malformed EnumValueDefinition
+
+ERR-451 Malformed EnumValueDefinition, contains a non-Symbol as enumerator
+ERR-452 Malformed EnumValueDefinition, contains a non-Atom Symbol as enumerator
+ERR-453 Malformed EnumValueDefinition, contains less than 2 words (no equal sign)
+ERR-454 Malformed EnumValueDefinition, missing equal sign
+ERR-455 Malformed EnumValueDefinition, contains less than 3 words (no enumerate)
+ERR-456 Malformed EnumValueDefinition, contains a Malformed Expression as enumerate
+
 ERR-591 Malformed ExpressionStatement, contains a Malformed Expression
 
 ~~~

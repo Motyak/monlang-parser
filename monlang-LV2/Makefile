@@ -25,6 +25,7 @@ Assignment \
 Accumulation \
 TypeDefinition \
 StructDefinition \
+EnumDefinition \
 LetStatement \
 VarStatement \
 ReturnStatement \

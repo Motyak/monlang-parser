@@ -8,6 +8,7 @@
 
 #include <monlang-LV2/stmt/TypeDefinition.h>
 #include <monlang-LV2/stmt/StructDefinition.h>
+#include <monlang-LV2/stmt/EnumDefinition.h>
 #include <monlang-LV2/stmt/Assignment.h>
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/LetStatement.h>
@@ -310,7 +311,7 @@ void ReconstructLV2Tokens::operator()(MayFail_<StructDefinition>* structdef) {
         }
 
         curPos += field.val._tokenLeadingNewlines;
-        curPos += sequenceLen(ProgramSentence::TAB_SEQUENCE);
+        curPos += field.val._tokenIndentSpaces;
 
         token.start = asTokenPosition(curPos);
         auto backupCurPos = curPos;
@@ -341,6 +342,87 @@ void ReconstructLV2Tokens::operator()(MayFail_<StructDefinition>* structdef) {
     token.end = asTokenPosition(curPos);
 
     curPos += structdef->_tokenTrailingNewlines;
+
+    if (token.is_malformed) {
+        token.err_start = token.start;
+        if (curStmt.err->_info.contains("err_offset")) {
+            auto err_offset = std::any_cast<size_t>(curStmt.err->_info.at("err_offset"));
+            token.err_start = asTokenPosition(token.err_start + err_offset);
+        }
+        tokens.traceback.push_back(token);
+    }
+
+    lastCorrectToken = backupLastCorrectToken;
+}
+
+void ReconstructLV2Tokens::operator()(MayFail_<EnumDefinition>* enumdef) {
+    auto tokenId = newToken();
+    enumdef->_tokenId = tokenId;
+    token.is_malformed = curStmt.has_error();
+    token.name = "EnumDefinition";
+
+    if (token.is_malformed) {
+        token.err_fmt = curStmt.error().fmt; // TODO: we will need to fill token.err_desc as well
+    }
+
+    curPos += enumdef->_tokenLeadingNewlines;
+    curPos += enumdef->_tokenIndentSpaces;
+
+    token.start = asTokenPosition(curPos);
+    auto backupCurPos = curPos;
+    auto backupLastCorrectToken = lastCorrectToken;
+    // lastCorrectToken = -1;
+    curPos += EnumDefinition::KEYWORD.size();
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    operator()(&enumdef->enum_);
+    curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+    curPos += sequenceLen(CurlyBracketsGroup::INITIATOR_SEQUENCE);
+    curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+    for (size_t i = 0; i < enumdef->enumValues.size(); ++i) {
+        auto& enumValue = enumdef->enumValues[i];
+        auto tokenId = newToken();
+        enumValue.val._tokenId = tokenId;
+        token.is_malformed = enumValue.has_error();
+        token.name = "EnumValueDefinition";
+
+        if (token.is_malformed) {
+            token.err_fmt = enumValue.error().fmt; // TODO: we will need to fill token.err_desc as well
+        }
+
+        curPos += enumValue.val._tokenLeadingNewlines;
+        curPos += enumValue.val._tokenIndentSpaces;
+
+        token.start = asTokenPosition(curPos);
+        auto backupCurPos = curPos;
+        auto backupLastCorrectToken = lastCorrectToken;
+        operator()(&enumValue.val.enumerator);
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        curPos += 1; // =
+        curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+        operator()(enumValue.val.enumerate);
+        curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+        curPos = backupCurPos;
+        curPos += enumValue.val._tokenLen;
+        token.end = asTokenPosition(curPos);
+
+        if (token.is_malformed) {
+            token.err_start = token.start;
+            if (enumValue.err->_info.contains("err_offset")) {
+                auto err_offset = std::any_cast<size_t>(enumValue.err->_info.at("err_offset"));
+                token.err_start = asTokenPosition(token.err_start + err_offset);
+            }
+            tokens.traceback.push_back(token);
+        }
+
+        curPos += enumValue.val._tokenTrailingNewlines;
+        lastCorrectToken = backupLastCorrectToken;
+    }
+    curPos += sequenceLen(CurlyBracketsGroup::TERMINATOR_SEQUENCE);
+    curPos = backupCurPos;
+    curPos += enumdef->_tokenLen;
+    token.end = asTokenPosition(curPos);
+
+    curPos += enumdef->_tokenTrailingNewlines;
 
     if (token.is_malformed) {
         token.err_start = token.start;

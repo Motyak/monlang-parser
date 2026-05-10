@@ -5,6 +5,7 @@
 #include <monlang-LV2/stmt/Accumulation.h>
 #include <monlang-LV2/stmt/TypeDefinition.h>
 #include <monlang-LV2/stmt/StructDefinition.h>
+#include <monlang-LV2/stmt/EnumDefinition.h>
 #include <monlang-LV2/stmt/LetStatement.h>
 #include <monlang-LV2/stmt/VarStatement.h>
 #include <monlang-LV2/stmt/Guard.h>
@@ -45,8 +46,16 @@ MayFail<Statement_> consumeStatement(LV1::Program& prog) {
         return mayfail_convert<Statement_>(consumeAccumulation(prog));
     }
 
-    // if (peekedSentence =~ "Atom<`type`> Atom*"_) {
-    //     return mayfail_convert<Statement_>(consumeTypeDefinition(prog));
+    // if (peekedSentence =~ "Atom<`enum`> Atom*"_) {
+    //     return mayfail_convert<Statement_>(consumeEnumDefinition(prog));
+    // }
+
+    if (peekEnumDefinition(peekedSentence)) {
+        return mayfail_convert<Statement_>(consumeEnumDefinition(prog));
+    }
+
+    // if (peekedSentence =~ "Atom<`struct`> Atom*"_) {
+    //     return mayfail_convert<Statement_>(consumeStructDefinition(prog));
     // }
 
     if (peekStructDefinition(peekedSentence)) {

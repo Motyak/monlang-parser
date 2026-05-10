@@ -5,7 +5,7 @@
 
 struct TypeDefinition;
 struct StructDefinition;
-// struct EnumDefinition;
+struct EnumDefinition;
 
 struct Assignment;
 struct Accumulation;
@@ -33,7 +33,7 @@ using Statement = std::variant<
     /* definitions */
     TypeDefinition*, // type <new_type> <sub_types>
     StructDefinition*, // struct <name> {...}
-    // EnumDefinition*, // enum <name> {...}
+    EnumDefinition*, // enum <name> {...}
 
     /// LANGUAGE DEFINED STATEMENTS ///////////////////////
 
