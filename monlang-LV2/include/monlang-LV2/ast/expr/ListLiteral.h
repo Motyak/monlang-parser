@@ -8,13 +8,16 @@
 #include <any>
 
 struct ListLiteral {
-    std::vector<Expression> arguments;
+    struct Argument {
+        std::optional<Expression> expr;
+    };
+    std::vector<Argument> arguments;
 
     std::optional<std::any> _msbg = std::nullopt; // MultilineSquareBracketsGroup
     size_t _tokenLen = 0;
     size_t _tokenId = 123456789;
     ListLiteral() = default;
-    ListLiteral(const std::vector<Expression>&);
+    ListLiteral(const std::vector<Argument>&);
 };
 
 #endif // AST_LIST_LITERAL_H

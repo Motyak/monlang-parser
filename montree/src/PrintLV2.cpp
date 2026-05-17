@@ -957,7 +957,8 @@ void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
 
     auto any_malformed_arg = false;
     for (auto arg: listLiteral->arguments) {
-        if (arg.has_error()) {
+        if (!arg.expr) continue;
+        if (arg.expr->has_error()) {
             any_malformed_arg = true;
             break;
         }
@@ -972,7 +973,22 @@ void PrintLV2::operator()(MayFail_<ListLiteral>* listLiteral) {
     }
 
     for (auto arg: listLiteral->arguments) {
-        operator()(arg);
+        // handle empty arg
+        if (!arg.expr) {
+            if (numbering.empty()) {
+                outputLine("-> Expression (empty argument)");
+            } else {
+                if (int n = numbering.top(); n == NO_NUMBERING) {
+                    outputLine("-> Expression (empty argument)");
+                } else {
+                    outputLine("-> Expression #", INT2CSTR(n), " (empty argument)");
+                }
+                numbering.pop();
+            }
+            continue;
+        }
+
+        operator()(*arg.expr);
     }
 
     if (currExpression_.has_error() && !any_malformed_arg) {

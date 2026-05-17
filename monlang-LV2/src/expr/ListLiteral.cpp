@@ -4,6 +4,7 @@
 
 #include <monlang-LV1/ast/SquareBracketsGroup.h>
 #include <monlang-LV1/ast/MultilineSquareBracketsGroup.h>
+#include <monlang-LV1/ast/Atom.h>
 
 #include <utils/assert-utils.h>
 #include <utils/variant-utils.h>
@@ -42,11 +43,11 @@ MayFail<MayFail_<ListLiteral>> buildListLiteral(const Word& word) {
 }
 
 static MayFail<MayFail_<ListLiteral>> buildOnelineListLiteral(const SquareBracketsGroup& sbg) {
-    auto arguments = std::vector<MayFail<Expression_>>();
+    auto arguments = std::vector<MayFail_<ListLiteral>::Argument>();
 
     for (auto term: sbg.terms) {
         auto expr = buildExpression(term);
-        arguments.push_back(expr);
+        arguments.push_back(MayFail_<ListLiteral>::Argument{expr});
         if (expr.has_error()) {
             return Malformed(MayFail_<ListLiteral>{arguments}, ERR(681));
         }
@@ -58,10 +59,23 @@ static MayFail<MayFail_<ListLiteral>> buildOnelineListLiteral(const SquareBracke
 }
 
 static MayFail<MayFail_<ListLiteral>> buildMultilineListLiteral(const MultilineSquareBracketsGroup& msbg) {
-    auto arguments = std::vector<MayFail<Expression_>>();
+    auto arguments = std::vector<MayFail_<ListLiteral>::Argument>();
 
     size_t __nth_it = 1;
     for (auto sentence: msbg.sentences) {
+        ASSERT (sentence.programWords.size() >= 1);
+        /* handle empty argument */
+        if (std::holds_alternative<Atom*>(sentence.programWords.at(0))) {
+            auto atom_ptr = std::get<Atom*>(sentence.programWords.at(0));
+            ASSERT (atom_ptr != nullptr);
+            if (atom_ptr->value == "--") {
+                auto empty_arg = MayFail_<ListLiteral>::Argument{std::nullopt};
+                empty_arg._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
+                arguments.push_back(empty_arg);
+                continue;
+            }
+        }
+
         for (auto pw: sentence.programWords) {
             unless (holds_word(pw)) {
                 auto error = ERR(682);
@@ -74,7 +88,7 @@ static MayFail<MayFail_<ListLiteral>> buildMultilineListLiteral(const MultilineS
         auto term = (Term)sentence;
         term._tokenLen -= 1;
         auto expr = buildExpression(term);
-        arguments.push_back(expr);
+        arguments.push_back(MayFail_<ListLiteral>::Argument{expr});
         if (expr.has_error()) {
             auto malformed = Malformed(MayFail_<ListLiteral>{arguments}, ERR(683));
             malformed.val._msbg = msbg;
@@ -89,16 +103,23 @@ static MayFail<MayFail_<ListLiteral>> buildMultilineListLiteral(const MultilineS
     return listLiteral;
 }
 
-ListLiteral::ListLiteral(const std::vector<Expression>& arguments)
+ListLiteral::ListLiteral(const std::vector<Argument>& arguments)
         : arguments(arguments){}
 
-MayFail_<ListLiteral>::MayFail_(const std::vector<MayFail<Expression_>>& arguments)
+MayFail_<ListLiteral>::Argument::Argument(const std::optional<MayFail<Expression_>>& expr)
+        : expr(expr){}
+
+MayFail_<ListLiteral>::MayFail_(const std::vector<Argument>& arguments)
         : arguments(arguments){}
 
 MayFail_<ListLiteral>::MayFail_(ListLiteral listLiteral) {
-    auto arguments = std::vector<MayFail<Expression_>>();
+    auto arguments = std::vector<Argument>();
     for (auto arg: listLiteral.arguments) {
-        arguments.push_back(wrap_expr(arg));
+        unless (arg.expr) {
+            arguments.push_back(Argument{std::nullopt});
+            continue;
+        }
+        arguments.push_back(Argument{wrap_expr(*arg.expr)});
     }
     this->arguments = arguments;
     this->_msbg = listLiteral._msbg;
@@ -107,9 +128,13 @@ MayFail_<ListLiteral>::MayFail_(ListLiteral listLiteral) {
 }
 
 MayFail_<ListLiteral>::operator ListLiteral() const {
-    auto arguments = std::vector<Expression>();
+    auto arguments = std::vector<ListLiteral::Argument>();
     for (auto arg: this->arguments) {
-        arguments.push_back(unwrap_expr(arg.value()));
+        unless (arg.expr) {
+            arguments.push_back(ListLiteral::Argument{std::nullopt});
+            continue;
+        }
+        arguments.push_back(ListLiteral::Argument{unwrap_expr(arg.expr->value())});
     }
     auto listLiteral = ListLiteral{arguments};
     listLiteral._msbg = this->_msbg;

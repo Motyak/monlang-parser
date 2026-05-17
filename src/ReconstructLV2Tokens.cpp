@@ -1322,7 +1322,18 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
         for (size_t i = 0; i < listLiteral->arguments.size(); ++i) {
             curPos += msbg.sentences.at(i)._tokenLeadingNewlines;
             curPos += msbg.sentences.at(i)._tokenIndentSpaces;
-            operator()(listLiteral->arguments.at(i));
+            // handle empty arg
+            if (!listLiteral->arguments.at(i).expr) {
+                auto tokenId = newToken();
+                token.name = "Expression";
+                token.start = asTokenPosition(curPos);
+                curPos += listLiteral->arguments.at(i)._tokenLen;
+                token.end = asTokenPosition(curPos);
+                curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+                continue;
+            }
+
+            operator()(*listLiteral->arguments.at(i).expr);
             curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
         }
     }
@@ -1331,7 +1342,8 @@ void ReconstructLV2Tokens::operator()(MayFail_<ListLiteral>* listLiteral) {
             if (!__first_it) {
                 curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
             }
-            operator()(arg);
+            ASSERT (arg.expr);
+            operator()(*arg.expr);
             ENDLOOP
         }
     }

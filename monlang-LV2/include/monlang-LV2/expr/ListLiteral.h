@@ -5,18 +5,25 @@
 #include <monlang-LV2/Expression.h>
 
 #include <utils/MayFail.h>
-#include <utils/stub-ctor.h>
 
 template <>
 struct MayFail_<ListLiteral> {
-    std::vector<MayFail<Expression_>> arguments;
+    struct Argument {
+        std::optional<MayFail<Expression_>> expr;
+
+        size_t _tokenLen = 0;
+        size_t _tokenId = 123456789;
+        Argument() = default;
+        Argument(const std::optional<MayFail<Expression_>>&);
+    };
+    std::vector<Argument> arguments;
 
     std::optional<std::any> _msbg = std::nullopt; // MultilineSquareBracketsGroup
     size_t _tokenLen = 0;
     size_t _tokenId = 123456789;
     size_t _groupNesting = 0;
     MayFail_() = default;
-    explicit MayFail_(const std::vector<MayFail<Expression_>>&);
+    explicit MayFail_(const std::vector<Argument>&);
 
     explicit MayFail_(ListLiteral);
     explicit operator ListLiteral() const;

@@ -28,20 +28,21 @@ TEST_CASE ("comment as ExpressionStatement", "[test-9111][comments]") {
 
 ///////////////////////////////////////////////////////////
 
-TEST_CASE ("comment within ListLiteral", "[test-9112][comments]") {
+TEST_CASE ("comment within multiline ListLiteral", "[test-9112][comments]") {
     auto input = tommy_str(R"EOF(
        |-> Term
-       |  -> Word: SquareBracketsGroup
-       |    -> Term #1
-       |      -> Word: Atom: `a`
-       |    -> Term #2
-       |      -> Word #1: Atom: `--`
-       |      -> Word #2: Atom: `b`
+       |  -> Word: MultilineSquareBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord: Atom: `a`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord #1: Atom: `--`
+       |      -> ProgramWord #2: Atom: `b`
     )EOF");
 
     auto expect = tommy_str(R"EOF(
        |-> Expression: ListLiteral
-       |  -> Expression: Symbol: `a`
+       |  -> Expression #1: Symbol: `a`
+       |  -> Expression #2 (empty argument)
     )EOF");
 
     auto input_ast = montree::buildLV1Ast(input);
