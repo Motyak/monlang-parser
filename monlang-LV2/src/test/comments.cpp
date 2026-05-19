@@ -55,37 +55,38 @@ TEST_CASE ("comment within multiline ListLiteral", "[test-9112][comments]") {
 
 ///////////////////////////////////////////////////////////
 
-// TEST_CASE ("comment within MapLiteral", "[test-9113][comments]") {
-//     auto input = tommy_str(R"EOF(
-//        |-> Term
-//        |  -> Word: SquareBracketsGroup
-//        |    -> Term #1
-//        |      -> Word: Association
-//        |        -> Word: Atom: `a`
-//        |        -> Word: Atom: `1`
-//        |    -> Term #2
-//        |      -> Word #1: Atom: `--`
-//        |      -> Word #2: Association
-//        |        -> Word: Atom: `b`
-//        |        -> Word: Atom: `2
-//     )EOF");
+TEST_CASE ("comment within MapLiteral", "[test-9113][comments]") {
+    auto input = tommy_str(R"EOF(
+       |-> Term
+       |  -> Word: MultilineSquareBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord #1: Atom: `a`
+       |      -> ProgramWord #2: Atom: `=>`
+       |      -> ProgramWord #3: Atom: `1`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord #1: Atom: `--`
+       |      -> ProgramWord #2: Atom: `b`
+       |      -> ProgramWord #3: Atom: `=>`
+       |      -> ProgramWord #4: Atom: `2`
+    )EOF");
 
-//     auto expect = tommy_str(R"EOF(
-//        |-> Expression: MapLiteral
-//        |  -> argument #1
-//        |    -> key
-//        |      -> Expression: Symbol: `a`
-//        |    -> value
-//        |      -> Expression: Numeral: `1`
-//     )EOF");
+    auto expect = tommy_str(R"EOF(
+       |-> Expression: MapLiteral
+       |  -> argument #1
+       |    -> key
+       |      -> Expression: Symbol: `a`
+       |    -> value
+       |      -> Expression: Numeral: `1`
+       |  -> argument #2 (empty)
+    )EOF");
 
-//     auto input_ast = montree::buildLV1Ast(input);
-//     auto input_term = std::get<Term>(input_ast);
-//     auto output = buildExpression(input_term);
-//     auto output_str = montree::astToString(output);
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_term = std::get<Term>(input_ast);
+    auto output = buildExpression(input_term);
+    auto output_str = montree::astToString(output);
 
-//     REQUIRE (output_str == expect);
-// }
+    REQUIRE (output_str == expect);
+}
 
 ///////////////////////////////////////////////////////////
 

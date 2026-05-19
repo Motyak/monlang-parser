@@ -131,21 +131,22 @@ ERR-631 Malformed Lambda, contains a Malformed BlockExpression as body
 
 ERR-641 Malformed BlockExpression, contains a Malformed Statement
 
-ERR-681 Malformed ListLiteral, contains a malformed Expression
+ERR-681 Malformed ListLiteral, contains a Malformed Expression
 ERR-682 Malformed ListLiteral (multiline), contains a non-Term as argument
-ERR-683 Malformed ListLiteral (multiline), contains a malformed Expression
+ERR-683 Malformed ListLiteral (multiline), contains a Malformed Expression
 
 ERR-691 Malformed MapLiteral, contains a List argument
-ERR-692 Malformed MapLiteral, contains a malformed Expression as argument key
-ERR-693 Malformed MapLiteral, contains a malformed Expression as argument value
-ERR-694 Malformed MapLiteral (multiline), contains a List argument
-ERR-695 Malformed MapLiteral (multiline), contains a non-Word as argument key
-ERR-696 Malformed MapLiteral (multiline), contains a malformed Expression as argument key
-ERR-697 Malformed MapLiteral (multiline), contains a non-Term as argument value
-ERR-698 Malformed MapLiteral (multiline), contains a malformed Expression as argument value
+ERR-692 Malformed MapLiteral, contains a Malformed MapLiteralArgument
+ERR-693 Malformed MapLiteral (multiline), contains a List argument
+ERR-694 Malformed MapLiteral (multiline), contains a Malformed MapLiteralArgument
 
-ERR-711 Malformed FieldAccess, contains a malformed Expression as object
+ERR-741 Malformed MapLiteralArgument, contains a malformed Expression as key
+ERR-742 Malformed MapLiteralArgument, contains a malformed Expression as value
+ERR-743 Malformed MapLiteralArgument (multiline), contains a malformed Expression as key
+ERR-744 Malformed MapLiteralArgument (multiline), contains a malformed Expression as value
+
+ERR-711 Malformed FieldAccess, contains a Malformed Expression as object
 ERR-712 Malformed FieldAccess, contains a non-Symbol as field
 
-ERR-721 Malformed Subscript, contains a malformed Expression as array
-ERR-722 Malformed Subscript, contains a malformed Expression as key
+ERR-721 Malformed Subscript, contains a Malformed Expression as array
+ERR-722 Malformed Subscript, contains a Malformed Expression as key

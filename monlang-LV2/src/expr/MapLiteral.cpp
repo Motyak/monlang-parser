@@ -75,19 +75,26 @@ bool peekMapLiteral(const Word& word) {
 
     else if (std::holds_alternative<MultilineSquareBracketsGroup*>(word)) {
         auto msbg = *std::get<MultilineSquareBracketsGroup*>(word);
-        unless (!msbg.sentences.empty()) return false;
+        unless (!msbg.sentences.empty()) return false; // TODO: impossible anyway ?
 
-        auto sentence = msbg.sentences.at(0);
-        unless (sentence.programWords.size() >= 3) return false;
+        for (auto sentence: msbg.sentences) {
+            // ignore empty args
+            if (std::holds_alternative<Atom*>(sentence.programWords.at(0))) {
+                auto atom_ptr = std::get<Atom*>(sentence.programWords.at(0));
+                ASSERT (atom_ptr != nullptr);
+                if (atom_ptr->value == "--") {
+                    continue;
+                }
+            }
 
-        unless (std::holds_alternative<Atom*>(sentence.programWords.at(1))) return false;
-        auto atom = std::get<Atom*>(sentence.programWords.at(1));
-        return atom->value == "=>";
+            unless (sentence.programWords.size() >= 3) return false;
+            unless (std::holds_alternative<Atom*>(sentence.programWords.at(1))) return false;
+            auto atom = std::get<Atom*>(sentence.programWords.at(1));
+            return atom->value == "=>";
+        }
     }
 
-    else {
-        return false;
-    }
+    return false;
 }
 
 static MayFail<MayFail_<MapLiteral>> buildOnelineMapLiteral(const SquareBracketsGroup&);
@@ -114,7 +121,7 @@ MayFail<MayFail_<MapLiteral>> buildMapLiteral(const Word& word) {
 }
 
 static MayFail<MayFail_<MapLiteral>> buildOnelineMapLiteral(const SquareBracketsGroup& sbg) {
-    auto arguments = std::vector<MayFail_<MapLiteral>::Argument>();
+    auto arguments = std::vector<MayFail<MayFail_<MapLiteral>::Argument>>();
 
     LOOP for (auto term: sbg.terms) {
         if (__first_it) {
@@ -140,17 +147,23 @@ static MayFail<MayFail_<MapLiteral>> buildOnelineMapLiteral(const SquareBrackets
 
         auto key = buildExpression((Term)variant_cast(assoc.leftPart));
         if (key.has_error()) {
-            arguments.push_back({key, StubExpression_()});
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(key, StubExpression_())}, ERR(741));
+            malformed_arg.val._tokenLen = assoc._tokenLen;
+            arguments.push_back(malformed_arg);
             return Malformed(MayFail_<MapLiteral>{arguments}, ERR(692));
         }
 
         auto val = buildExpression((Term)assoc.rightPart);
         if (val.has_error()) {
-            arguments.push_back({key, val});
-            return Malformed(MayFail_<MapLiteral>{arguments}, ERR(693));
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(key, val)}, ERR(742));
+            malformed_arg.val._tokenLen = assoc._tokenLen;
+            arguments.push_back(malformed_arg);
+            return Malformed(MayFail_<MapLiteral>{arguments}, ERR(692));
         }
 
-        arguments.push_back({key, val});
+        auto arg = MayFail_<MapLiteral>::Argument{std::make_pair(key, val)};
+        arg._tokenLen = assoc._tokenLen;
+        arguments.push_back(arg);
 
         ENDLOOP
     }
@@ -163,74 +176,72 @@ static MayFail<MayFail_<MapLiteral>> buildOnelineMapLiteral(const SquareBrackets
 static std::optional<Term> extractValue(const ProgramSentence&);
 
 static MayFail<MayFail_<MapLiteral>> buildMultilineMapLiteral(const MultilineSquareBracketsGroup& msbg) {
-    auto arguments = std::vector<MayFail_<MapLiteral>::Argument>();
+    auto arguments = std::vector<MayFail<MayFail_<MapLiteral>::Argument>>();
 
     LOOP for (auto sentence: msbg.sentences) {
-        if (__first_it) {
-            ASSERT (sentence.programWords.size() >= 3);
-            ASSERT (std::holds_alternative<Atom*>(sentence.programWords.at(1)));
-            ASSERT (std::get<Atom*>(sentence.programWords.at(1))->value == "=>");
-        }
-        else {
-            unless (sentence.programWords.size() >= 3) {
-                auto error = ERR(694);
-                SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
-                auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
-                malformed.val._msbg = msbg;
-                return malformed;
-            }
-            unless (std::holds_alternative<Atom*>(sentence.programWords.at(1))) {
-                auto error = ERR(694_0);
-                SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
-                auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
-                malformed.val._msbg = msbg;
-                return malformed;
-            }
-            unless (std::get<Atom*>(sentence.programWords.at(1))->value == "=>") {
-                auto error = ERR(694_00);
-                SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
-                auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
-                malformed.val._msbg = msbg;
-                return malformed;
+        /* handle empty argument */
+        if (std::holds_alternative<Atom*>(sentence.programWords.at(0))) {
+            auto atom_ptr = std::get<Atom*>(sentence.programWords.at(0));
+            ASSERT (atom_ptr != nullptr);
+            if (atom_ptr->value == "--") {
+                auto empty_arg = MayFail(MayFail_<MapLiteral>::Argument{std::nullopt});
+                empty_arg.val._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
+                arguments.push_back(empty_arg);
+                continue;
             }
         }
 
-        unless (holds_word(sentence.programWords.at(0))) {
-            auto error = ERR(695);
+        unless (sentence.programWords.size() >= 3) {
+            auto error = ERR(693);
             SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
             auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
             malformed.val._msbg = msbg;
             return malformed;
         }
+        unless (std::holds_alternative<Atom*>(sentence.programWords.at(1))) {
+            auto error = ERR(693_0);
+            SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
+            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+            malformed.val._msbg = msbg;
+            return malformed;
+        }
+        unless (std::get<Atom*>(sentence.programWords.at(1))->value == "=>") {
+            auto error = ERR(693_00);
+            SET_NTH_SENTENCE_ERR_OFFSET(error, __nth_it);
+            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+            malformed.val._msbg = msbg;
+            return malformed;
+        }
+
+        ASSERT (holds_word(sentence.programWords.at(0)));
         auto keyWord = get_word(sentence.programWords.at(0));
         auto keyExpr = buildExpression((Term)keyWord);
         if (keyExpr.has_error()) {
-            arguments.push_back({keyExpr, StubExpression_()});
-            auto error = ERR(696);
-            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(keyExpr, StubExpression_())}, ERR(743));
+            malformed_arg.val._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
+            arguments.push_back(malformed_arg);
+            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, ERR(694));
             malformed.val._msbg = msbg;
             return malformed;
         }
 
         auto valTerm = extractValue(sentence);
-        unless (valTerm) {
-            auto error = ERR(697);
-            SET_NTH_SENTENCE_VAL_ERR_OFFSET(error, __nth_it);
-            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
-            malformed.val._msbg = msbg;
-            return malformed;
-        }
+        ASSERT (valTerm);
         auto valExpr = buildExpression(*valTerm);
         if (valExpr.has_error()) {
-            arguments.push_back({keyExpr, valExpr});
-            auto error = ERR(698);
+            auto error = ERR(744);
             SET_NTH_SENTENCE_VAL_ERR_OFFSET(error, __nth_it);
-            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, error);
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(keyExpr, valExpr)}, error);
+            malformed_arg.val._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
+            arguments.push_back(malformed_arg);
+            auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, ERR(694));
             malformed.val._msbg = msbg;
             return malformed;
         }
 
-        arguments.push_back({keyExpr, valExpr});
+        auto arg = MayFail_<MapLiteral>::Argument{std::make_pair(keyExpr, valExpr)};
+        arg._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
+        arguments.push_back(arg);
         ENDLOOP
     }
 
@@ -267,13 +278,24 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
 MapLiteral::MapLiteral(const std::vector<Argument>& arguments)
         : arguments(arguments){}
 
-MayFail_<MapLiteral>::MayFail_(const std::vector<Argument>& arguments)
+MayFail_<MapLiteral>::Argument::Argument(const std::optional<std::pair<MayFail<Expression_>, MayFail<Expression_>>>& pair)
+        : pair(pair){}
+
+MayFail_<MapLiteral>::MayFail_(const std::vector<MayFail<Argument>>& arguments)
         : arguments(arguments){}
 
 MayFail_<MapLiteral>::MayFail_(MapLiteral mapLiteral) {
-    auto arguments = std::vector<Argument>();
-    for (auto [key, val]: mapLiteral.arguments) {
-        arguments.push_back({wrap_expr(key), wrap_expr(val)});
+    auto arguments = std::vector<MayFail<Argument>>();
+    for (auto arg: mapLiteral.arguments) {
+        if (arg.pair) {
+            arguments.push_back(Argument{std::make_pair(
+                wrap_expr(arg.pair->first),
+                wrap_expr(arg.pair->second)
+            )});
+        }
+        else {
+            arguments.push_back(Argument{std::nullopt});
+        }
     }
     this->arguments = arguments;
     this->_msbg = mapLiteral._msbg;
@@ -283,8 +305,16 @@ MayFail_<MapLiteral>::MayFail_(MapLiteral mapLiteral) {
 
 MayFail_<MapLiteral>::operator MapLiteral() const {
     auto arguments = std::vector<MapLiteral::Argument>();
-    for (auto [key, val]: this->arguments) {
-        arguments.push_back({unwrap_expr(key.value()), unwrap_expr(val.value())});
+    for (auto arg: this->arguments) {
+        if (arg.value().pair) {
+            arguments.push_back(MapLiteral::Argument{std::make_pair(
+                unwrap_expr(arg.value().pair->first.value()),
+                unwrap_expr(arg.value().pair->second.value())
+            )});
+        }
+        else {
+            arguments.push_back(MapLiteral::Argument{std::nullopt});
+        }
     }
     auto mapLiteral = MapLiteral{arguments};
     mapLiteral._msbg = this->_msbg;

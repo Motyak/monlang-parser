@@ -8,7 +8,10 @@
 #include <any>
 
 struct MapLiteral {
-    using Argument = std::pair<Expression, Expression>;
+    struct Argument {
+        std::optional<std::pair<Expression, Expression>>
+        pair;
+    };
     std::vector<Argument> arguments;
 
     std::optional<std::any> _msbg = std::nullopt; // MultilineSquareBracketsGroup

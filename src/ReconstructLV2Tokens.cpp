@@ -1255,24 +1255,99 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
         curPos += 1; // newline
         auto msbg = std::any_cast<MultilineSquareBracketsGroup>(mapLiteral->_msbg.value());
         for (size_t i = 0; i < mapLiteral->arguments.size(); ++i) {
+            const auto& arg = mapLiteral->arguments.at(i);
             curPos += msbg.sentences.at(i)._tokenLeadingNewlines;
             curPos += msbg.sentences.at(i)._tokenIndentSpaces;
-            operator()(mapLiteral->arguments.at(i).first);
-            curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-            curPos += 2; // =>
-            curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-            operator()(mapLiteral->arguments.at(i).second);
-            curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+
+            /* MapLiteralArgument */
+            {
+                auto tokenId = newToken();
+                token.is_malformed = arg.has_error();
+                token.name = "MapLiteralArgument";
+
+                // handle empty arg
+                if (!arg.val.pair) {
+                    token.start = asTokenPosition(curPos);
+                    curPos += arg.val._tokenLen;
+                    token.end = asTokenPosition(curPos);
+                    curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+                    continue;
+                }
+
+                if (token.is_malformed) {
+                    token.err_fmt = arg.error().fmt; // TODO: we will need to fill token.err_desc as well
+                }
+
+                token.start = asTokenPosition(curPos);
+                auto backupCurPos = curPos;
+                auto backupLastCorrectToken = lastCorrectToken;
+                // lastCorrectToken = -1;
+                operator()(arg.val.pair->first);
+                curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+                curPos += 2; // =>
+                curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
+                operator()(arg.val.pair->second);
+                curPos = backupCurPos;
+                curPos += arg.val._tokenLen;
+                token.end = asTokenPosition(curPos);
+                curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+
+                if (token.is_malformed) {
+                    if (lastCorrectToken == size_t(-1)) {
+                        token.err_start = token.start;
+                    }
+                    else {
+                        token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
+                        token.err_start = token.err_start < token.start? token.start : token.err_start;
+                    }
+                    tokens.traceback.push_back(token);
+                }
+
+                lastCorrectToken = backupLastCorrectToken;
+            }
         }
     }
     else {
-        LOOP for (auto [key, val]: mapLiteral->arguments) {
+        LOOP for (auto arg: mapLiteral->arguments) {
             if (!__first_it) {
                 curPos += sequenceLen(SquareBracketsGroup::CONTINUATOR_SEQUENCE);
             }
-            operator()(key);
-            curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
-            operator()(val);
+
+            /* MapLiteralArgument */
+            {
+                auto tokenId = newToken();
+                token.is_malformed = arg.has_error();
+                token.name = "MapLiteralArgument";
+
+                ASSERT (arg.val.pair);
+                if (token.is_malformed) {
+                    token.err_fmt = arg.error().fmt; // TODO: we will need to fill token.err_desc as well
+                }
+
+                token.start = asTokenPosition(curPos);
+                auto backupCurPos = curPos;
+                auto backupLastCorrectToken = lastCorrectToken;
+                // lastCorrectToken = -1;
+                operator()(arg.val.pair->first);
+                curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
+                operator()(arg.val.pair->second);
+                curPos = backupCurPos;
+                curPos += arg.val._tokenLen;
+                token.end = asTokenPosition(curPos);
+
+                if (token.is_malformed) {
+                    if (lastCorrectToken == size_t(-1)) {
+                        token.err_start = token.start;
+                    }
+                    else {
+                        token.err_start = asTokenPosition(tokens[lastCorrectToken].end);
+                        token.err_start = token.err_start < token.start? token.start : token.err_start;
+                    }
+                    tokens.traceback.push_back(token);
+                }
+
+                lastCorrectToken = backupLastCorrectToken;
+            }
             ENDLOOP
         }
     }

@@ -896,13 +896,20 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
 
     currIndent++;
 
-    size_t nth_argument = 0;
-    LOOP for (auto [key, val]: mapLiteral->arguments) {
-        nth_argument = __nth_it;
+    size_t i = 0;
+    for (auto arg: mapLiteral->arguments) {
+
+        // handle empty arg
+        if (!arg.val.pair) {
+            outputLine("-> argument #", INT2CSTR(++i), " (empty)");
+            continue;
+        }
+        auto [key, value] = *arg.val.pair;
+
         output(
-            (key.has_error() || val.has_error())? "~> " : "-> "
+            (key.has_error() || value.has_error())? "~> " : "-> "
         );
-        outputLine("argument #", INT2CSTR(nth_argument));
+        outputLine("argument #", INT2CSTR(++i));
         currIndent++;
 
         output(key.has_error()? "~> " : "-> ");
@@ -913,28 +920,23 @@ void PrintLV2::operator()(MayFail_<MapLiteral>* mapLiteral) {
         currIndent--;
 
         if (!key.has_error()) {
-            output(val.has_error()? "~> " : "-> ");
+            output(value.has_error()? "~> " : "-> ");
             outputLine("value");
             currIndent++;
             numbering.push(NO_NUMBERING);
-            operator()(val);
+            operator()(value);
             currIndent--;
         }
 
         currIndent--;
-
-        ENDLOOP
     }
 
     // ugly but works
     if (currExpression_.has_error() && (
             currExpression_.error().code == 691
-            || currExpression_.error().code == 694
-            || currExpression_.error().code == 695
-            || currExpression_.error().code == 697
+            || currExpression_.error().code == 693
             )) {
-        if (nth_argument == 0) nth_argument = 1;
-        outputLine("~> argument #", INT2CSTR(++nth_argument));
+        outputLine("~> argument #", INT2CSTR(++i));
         currIndent++;
         outputLine("~> ", currExpression_.error().fmt.c_str());
         currIndent--;
