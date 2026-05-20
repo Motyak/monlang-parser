@@ -9,8 +9,14 @@
 
 struct MapLiteral {
     struct Argument {
-        std::optional<std::pair<Expression, Expression>>
-        pair;
+        struct Pair {
+            Expression key;
+            Expression value;
+        };
+        std::optional<Pair> pair;
+
+        Argument() = default; // empty arg
+        Argument(const Expression&, const Expression&);
     };
     std::vector<Argument> arguments;
 

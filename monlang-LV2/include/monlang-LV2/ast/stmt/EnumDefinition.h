@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 struct EnumDefinition {
     static const std::string KEYWORD;

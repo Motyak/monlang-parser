@@ -1282,11 +1282,11 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
                 auto backupCurPos = curPos;
                 auto backupLastCorrectToken = lastCorrectToken;
                 // lastCorrectToken = -1;
-                operator()(arg.val.pair->first);
+                operator()(arg.val.pair->key);
                 curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
                 curPos += 2; // =>
                 curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-                operator()(arg.val.pair->second);
+                operator()(arg.val.pair->value);
                 curPos = backupCurPos;
                 curPos += arg.val._tokenLen;
                 token.end = asTokenPosition(curPos);
@@ -1328,9 +1328,9 @@ void ReconstructLV2Tokens::operator()(MayFail_<MapLiteral>* mapLiteral) {
                 auto backupCurPos = curPos;
                 auto backupLastCorrectToken = lastCorrectToken;
                 // lastCorrectToken = -1;
-                operator()(arg.val.pair->first);
+                operator()(arg.val.pair->key);
                 curPos += sequenceLen(Association::SEPARATOR_SEQUENCE);
-                operator()(arg.val.pair->second);
+                operator()(arg.val.pair->value);
                 curPos = backupCurPos;
                 curPos += arg.val._tokenLen;
                 token.end = asTokenPosition(curPos);

@@ -147,7 +147,7 @@ static MayFail<MayFail_<MapLiteral>> buildOnelineMapLiteral(const SquareBrackets
 
         auto key = buildExpression((Term)variant_cast(assoc.leftPart));
         if (key.has_error()) {
-            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(key, StubExpression_())}, ERR(741));
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{key, StubExpression_()}, ERR(741));
             malformed_arg.val._tokenLen = assoc._tokenLen;
             arguments.push_back(malformed_arg);
             return Malformed(MayFail_<MapLiteral>{arguments}, ERR(692));
@@ -155,13 +155,13 @@ static MayFail<MayFail_<MapLiteral>> buildOnelineMapLiteral(const SquareBrackets
 
         auto val = buildExpression((Term)assoc.rightPart);
         if (val.has_error()) {
-            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(key, val)}, ERR(742));
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{key, val}, ERR(742));
             malformed_arg.val._tokenLen = assoc._tokenLen;
             arguments.push_back(malformed_arg);
             return Malformed(MayFail_<MapLiteral>{arguments}, ERR(692));
         }
 
-        auto arg = MayFail_<MapLiteral>::Argument{std::make_pair(key, val)};
+        auto arg = MayFail_<MapLiteral>::Argument{key, val};
         arg._tokenLen = assoc._tokenLen;
         arguments.push_back(arg);
 
@@ -184,7 +184,7 @@ static MayFail<MayFail_<MapLiteral>> buildMultilineMapLiteral(const MultilineSqu
             auto atom_ptr = std::get<Atom*>(sentence.programWords.at(0));
             ASSERT (atom_ptr != nullptr);
             if (atom_ptr->value == "--") {
-                auto empty_arg = MayFail(MayFail_<MapLiteral>::Argument{std::nullopt});
+                auto empty_arg = MayFail(MayFail_<MapLiteral>::Argument{});
                 empty_arg.val._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
                 arguments.push_back(empty_arg);
                 continue;
@@ -217,7 +217,7 @@ static MayFail<MayFail_<MapLiteral>> buildMultilineMapLiteral(const MultilineSqu
         auto keyWord = get_word(sentence.programWords.at(0));
         auto keyExpr = buildExpression((Term)keyWord);
         if (keyExpr.has_error()) {
-            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(keyExpr, StubExpression_())}, ERR(743));
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{keyExpr, StubExpression_()}, ERR(743));
             malformed_arg.val._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
             arguments.push_back(malformed_arg);
             auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, ERR(694));
@@ -231,7 +231,7 @@ static MayFail<MayFail_<MapLiteral>> buildMultilineMapLiteral(const MultilineSqu
         if (valExpr.has_error()) {
             auto error = ERR(744);
             SET_NTH_SENTENCE_VAL_ERR_OFFSET(error, __nth_it);
-            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{std::make_pair(keyExpr, valExpr)}, error);
+            auto malformed_arg = Malformed(MayFail_<MapLiteral>::Argument{keyExpr, valExpr}, error);
             malformed_arg.val._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
             arguments.push_back(malformed_arg);
             auto malformed = Malformed(MayFail_<MapLiteral>{arguments}, ERR(694));
@@ -239,7 +239,7 @@ static MayFail<MayFail_<MapLiteral>> buildMultilineMapLiteral(const MultilineSqu
             return malformed;
         }
 
-        auto arg = MayFail_<MapLiteral>::Argument{std::make_pair(keyExpr, valExpr)};
+        auto arg = MayFail_<MapLiteral>::Argument{keyExpr, valExpr};
         arg._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
         arguments.push_back(arg);
         ENDLOOP
@@ -275,11 +275,14 @@ static std::optional<Term> extractValue(const ProgramSentence& sentence) {
     return term;
 }
 
+MapLiteral::Argument::Argument(const Expression& key, const Expression& value)
+        : pair(Pair{key, value}){}
+
 MapLiteral::MapLiteral(const std::vector<Argument>& arguments)
         : arguments(arguments){}
 
-MayFail_<MapLiteral>::Argument::Argument(const std::optional<std::pair<MayFail<Expression_>, MayFail<Expression_>>>& pair)
-        : pair(pair){}
+MayFail_<MapLiteral>::Argument::Argument(const MayFail<Expression_>& key, const MayFail<Expression_>& value)
+        : pair(Pair{key, value}){}
 
 MayFail_<MapLiteral>::MayFail_(const std::vector<MayFail<Argument>>& arguments)
         : arguments(arguments){}
@@ -288,13 +291,13 @@ MayFail_<MapLiteral>::MayFail_(MapLiteral mapLiteral) {
     auto arguments = std::vector<MayFail<Argument>>();
     for (auto arg: mapLiteral.arguments) {
         if (arg.pair) {
-            arguments.push_back(Argument{std::make_pair(
-                wrap_expr(arg.pair->first),
-                wrap_expr(arg.pair->second)
-            )});
+            arguments.push_back(Argument{
+                wrap_expr(arg.pair->key),
+                wrap_expr(arg.pair->value)
+            });
         }
         else {
-            arguments.push_back(Argument{std::nullopt});
+            arguments.push_back(Argument{});
         }
     }
     this->arguments = arguments;
@@ -307,13 +310,13 @@ MayFail_<MapLiteral>::operator MapLiteral() const {
     auto arguments = std::vector<MapLiteral::Argument>();
     for (auto arg: this->arguments) {
         if (arg.value().pair) {
-            arguments.push_back(MapLiteral::Argument{std::make_pair(
-                unwrap_expr(arg.value().pair->first.value()),
-                unwrap_expr(arg.value().pair->second.value())
-            )});
+            arguments.push_back(MapLiteral::Argument{
+                unwrap_expr(arg.value().pair->key.value()),
+                unwrap_expr(arg.value().pair->value.value())
+            });
         }
         else {
-            arguments.push_back(MapLiteral::Argument{std::nullopt});
+            arguments.push_back(MapLiteral::Argument{});
         }
     }
     auto mapLiteral = MapLiteral{arguments};

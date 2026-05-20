@@ -9,13 +9,16 @@
 template <>
 struct MayFail_<MapLiteral> {
     struct Argument {
-        std::optional<std::pair<MayFail<Expression_>, MayFail<Expression_>>>
-        pair;
+        struct Pair {
+            MayFail<Expression_> key;
+            MayFail<Expression_> value;
+        };
+        std::optional<Pair> pair;
 
         size_t _tokenLen = 0;
         size_t _tokenId = 123456789;
         Argument() = default;
-        Argument(const std::optional<std::pair<MayFail<Expression_>, MayFail<Expression_>>>&);
+        Argument(const MayFail<Expression_>&, const MayFail<Expression_>&);
     };
     std::vector<MayFail<Argument>> arguments;
 
