@@ -10,6 +10,9 @@
 struct ListLiteral {
     struct Argument {
         std::optional<Expression> expr;
+
+        Argument() = default;
+        Argument(const Expression&);
     };
     std::vector<Argument> arguments;
 

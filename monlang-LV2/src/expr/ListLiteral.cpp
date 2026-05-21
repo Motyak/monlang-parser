@@ -69,7 +69,7 @@ static MayFail<MayFail_<ListLiteral>> buildMultilineListLiteral(const MultilineS
             auto atom_ptr = std::get<Atom*>(sentence.programWords.at(0));
             ASSERT (atom_ptr != nullptr);
             if (atom_ptr->value == "--") {
-                auto empty_arg = MayFail_<ListLiteral>::Argument{std::nullopt};
+                auto empty_arg = MayFail_<ListLiteral>::Argument{};
                 empty_arg._tokenLen = sentence._tokenLen - 1; // remove sentence trailing newline
                 arguments.push_back(empty_arg);
                 continue;
@@ -103,10 +103,13 @@ static MayFail<MayFail_<ListLiteral>> buildMultilineListLiteral(const MultilineS
     return listLiteral;
 }
 
+ListLiteral::Argument::Argument(const Expression& expr)
+        : expr(expr){}
+
 ListLiteral::ListLiteral(const std::vector<Argument>& arguments)
         : arguments(arguments){}
 
-MayFail_<ListLiteral>::Argument::Argument(const std::optional<MayFail<Expression_>>& expr)
+MayFail_<ListLiteral>::Argument::Argument(const MayFail<Expression_>& expr)
         : expr(expr){}
 
 MayFail_<ListLiteral>::MayFail_(const std::vector<Argument>& arguments)
@@ -116,7 +119,7 @@ MayFail_<ListLiteral>::MayFail_(ListLiteral listLiteral) {
     auto arguments = std::vector<Argument>();
     for (auto arg: listLiteral.arguments) {
         unless (arg.expr) {
-            arguments.push_back(Argument{std::nullopt});
+            arguments.push_back(Argument{});
             continue;
         }
         arguments.push_back(Argument{wrap_expr(*arg.expr)});
@@ -131,7 +134,7 @@ MayFail_<ListLiteral>::operator ListLiteral() const {
     auto arguments = std::vector<ListLiteral::Argument>();
     for (auto arg: this->arguments) {
         unless (arg.expr) {
-            arguments.push_back(ListLiteral::Argument{std::nullopt});
+            arguments.push_back(ListLiteral::Argument{});
             continue;
         }
         arguments.push_back(ListLiteral::Argument{unwrap_expr(arg.expr->value())});

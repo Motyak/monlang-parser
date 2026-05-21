@@ -14,7 +14,7 @@ struct MayFail_<ListLiteral> {
         size_t _tokenLen = 0;
         size_t _tokenId = 123456789;
         Argument() = default;
-        Argument(const std::optional<MayFail<Expression_>>&);
+        Argument(const MayFail<Expression_>&);
     };
     std::vector<Argument> arguments;
 
