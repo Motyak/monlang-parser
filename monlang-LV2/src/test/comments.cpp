@@ -170,3 +170,40 @@ TEST_CASE ("comment within EnumDefinition", "[test-9116][comments]") {
     auto output_str = montree::astToString(output);
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("comment within StructDefinition", "[test-9117][comments]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `struct`
+       |  -> ProgramWord #2: Atom: `Person`
+       |  -> ProgramWord #3: CurlyBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord #1: Atom: `--`
+       |      -> ProgramWord #2: Atom: `Str`
+       |      -> ProgramWord #3: Atom: `name`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord #1: Atom: `UInt`
+       |      -> ProgramWord #2: Atom: `age`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: StructDefinition
+       |  -> name: `Person`
+       |  -> field #1 (empty)
+       |  -> field #2
+       |    -> type: `UInt`
+       |    -> name: `age`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}

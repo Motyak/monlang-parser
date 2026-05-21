@@ -122,7 +122,7 @@ MayFail<MayFail_<EnumDefinition>> consumeEnumDefinition(LV1::Program& prog) {
         Symbol enumerator;
         MayFail<Expression_> enumerate;
 
-        /* handle empty argument */
+        // handle empty enum value def
         if (std::holds_alternative<Atom*>(sentence_.programWords.at(0))) {
             auto atom_ptr = std::get<Atom*>(sentence_.programWords.at(0));
             ASSERT (atom_ptr != nullptr);

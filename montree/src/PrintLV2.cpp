@@ -302,7 +302,15 @@ void PrintLV2::operator()(MayFail_<StructDefinition>* structdef) {
     int i = 1;
     for (auto field: structdef->fields) {
         auto field_ = field.val;
-        if (field_.type.name == "") { // we assume that empty name means stub
+
+        // handle empty field def
+        if (!field_.pair) {
+            outputLine("-> field #", INT2CSTR(i++), " (empty)");
+            continue;
+        }
+        auto [type, name] = *field_.pair;
+
+        if (type.name == "") { // we assume that empty name means stub
             outputLine("~> field #", INT2CSTR(i++));
             currIndent++;
             outputLine("~> ", SERIALIZE_ERR(field));
@@ -310,10 +318,10 @@ void PrintLV2::operator()(MayFail_<StructDefinition>* structdef) {
             currIndent--;
             return;
         }
-        else if (field_.name.name == "") { // we assume that empty name means stub
+        else if (name.name == "") { // we assume that empty name means stub
             outputLine("~> field #", INT2CSTR(i++));
             currIndent++;
-            outputLine("-> type: `", field_.type.name.c_str(), "`");
+            outputLine("-> type: `", type.name.c_str(), "`");
             outputLine("~> ", SERIALIZE_ERR(field));
             currIndent--;
             currIndent--;
@@ -321,8 +329,8 @@ void PrintLV2::operator()(MayFail_<StructDefinition>* structdef) {
         }
         outputLine("-> field #", INT2CSTR(i++));
         currIndent++;
-        outputLine("-> type: `", field_.type.name.c_str(), "`");
-        outputLine("-> name: `", field_.name.name.c_str(), "`");
+        outputLine("-> type: `", type.name.c_str(), "`");
+        outputLine("-> name: `", name.name.c_str(), "`");
         currIndent--;
     }
 
@@ -355,7 +363,7 @@ void PrintLV2::operator()(MayFail_<EnumDefinition>* enumdef) {
     for (auto enumValue: enumdef->enumValues) {
         auto enumValue_ = enumValue.val;
 
-        // handle empty arg
+        // handle empty enum value def
         if (!enumValue_.pair) {
             outputLine("-> enum value #", INT2CSTR(i++), " (empty)");
             continue;

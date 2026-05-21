@@ -313,12 +313,21 @@ void ReconstructLV2Tokens::operator()(MayFail_<StructDefinition>* structdef) {
         curPos += field.val._tokenLeadingNewlines;
         curPos += field.val._tokenIndentSpaces;
 
+        // handle empty struct def
+        if (!field.val.pair) {
+            token.start = asTokenPosition(curPos);
+            curPos += field.val._tokenLen;
+            token.end = asTokenPosition(curPos);
+            curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+            continue;
+        }
+
         token.start = asTokenPosition(curPos);
         auto backupCurPos = curPos;
         auto backupLastCorrectToken = lastCorrectToken;
-        operator()(&field.val.type);
+        operator()(&field.val.pair->type);
         curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-        operator()(&field.val.name);
+        operator()(&field.val.pair->name);
         curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
         curPos = backupCurPos;
         curPos += field.val._tokenLen;

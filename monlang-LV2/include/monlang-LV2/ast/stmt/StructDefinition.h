@@ -5,14 +5,18 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 struct StructDefinition {
     static const std::string KEYWORD;
 
     Symbol struct_;
     struct Field {
-        Symbol type;
-        Symbol name;
+        struct Pair {
+            Symbol type;
+            Symbol name;
+        };
+        std::optional<Pair> pair;
 
         size_t _tokenLeadingNewlines = 0;
         size_t _tokenIndentSpaces = 0;

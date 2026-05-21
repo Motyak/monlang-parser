@@ -124,6 +124,20 @@ MayFail<MayFail_<StructDefinition>> consumeStructDefinition(LV1::Program& prog) 
     for (auto sentence_: block.sentences) {
         Symbol type, name;
 
+        // handle empty field def
+        if (std::holds_alternative<Atom*>(sentence_.programWords.at(0))) {
+            auto atom_ptr = std::get<Atom*>(sentence_.programWords.at(0));
+            ASSERT (atom_ptr != nullptr);
+            if (atom_ptr->value == "--") {
+                auto empty_arg = MayFail(StructDefinition::Field{});
+                empty_arg.val._tokenLeadingNewlines = sentence_._tokenLeadingNewlines;
+                empty_arg.val._tokenIndentSpaces = sentence_._tokenIndentSpaces;
+                empty_arg.val._tokenLen = sentence_._tokenLen - 1; // remove sentence trailing newline
+                fields.push_back(empty_arg);
+                continue;
+            }
+        }
+
         /* type */
         {
             ASSERT (sentence_.programWords.size() >= 1);
@@ -209,11 +223,11 @@ static ProgramSentence consumeSentence(LV1::Program& prog) {
     return res;
 }
 
+StructDefinition::Field::Field(const Symbol& type, const Symbol& name)
+        : pair(Pair{type, name}){}
+
 StructDefinition::StructDefinition(const Symbol& struct_, const std::vector<Field>& fields)
         : struct_(struct_), fields(fields){}
-
-StructDefinition::Field::Field(const Symbol& type, const Symbol& name)
-        : type(type), name(name){}
 
 MayFail_<StructDefinition>::MayFail_(const Symbol& struct_, const std::vector<MayFail<StructDefinition::Field>>& fields)
         : struct_(struct_), fields(fields){}
