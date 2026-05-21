@@ -130,3 +130,43 @@ TEST_CASE ("can't generate empty expression", "[test-9115][comments]") {
 
     REQUIRE (output_str == expect);
 }
+
+///////////////////////////////////////////////////////////
+
+TEST_CASE ("comment within EnumDefinition", "[test-9116][comments]") {
+    auto input = tommy_str(R"EOF(
+       |-> ProgramSentence
+       |  -> ProgramWord #1: Atom: `enum`
+       |  -> ProgramWord #2: Atom: `Color`
+       |  -> ProgramWord #3: CurlyBracketsGroup
+       |    -> ProgramSentence #1
+       |      -> ProgramWord #1: Atom: `--`
+       |      -> ProgramWord #2: Atom: `RED`
+       |      -> ProgramWord #3: Atom: `=`
+       |      -> ProgramWord #4: Atom: `0`
+       |    -> ProgramSentence #2
+       |      -> ProgramWord #1: Atom: `GREEN`
+       |      -> ProgramWord #2: Atom: `=`
+       |      -> ProgramWord #3: Atom: `1`
+    )EOF");
+
+    auto expect = tommy_str(R"EOF(
+       |-> Statement: EnumDefinition
+       |  -> name: `Color`
+       |  -> enum value #1 (empty)
+       |  -> enum value #2
+       |    -> name: `GREEN`
+       |    -> enumerate
+       |      -> Expression: Numeral: `1`
+    )EOF");
+
+    auto input_ast = montree::buildLV1Ast(input);
+    auto input_sentence = std::get<ProgramSentence>(input_ast);
+    auto input_prog = LV1::Program{{input_sentence}};
+
+    auto output = consumeStatement(input_prog);
+    REQUIRE (input_prog.sentences.empty());
+
+    auto output_str = montree::astToString(output);
+    REQUIRE (output_str == expect);
+}

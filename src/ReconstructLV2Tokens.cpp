@@ -392,14 +392,23 @@ void ReconstructLV2Tokens::operator()(MayFail_<EnumDefinition>* enumdef) {
         curPos += enumValue.val._tokenLeadingNewlines;
         curPos += enumValue.val._tokenIndentSpaces;
 
+        // handle empty enum value def
+        if (!enumValue.val.pair) {
+            token.start = asTokenPosition(curPos);
+            curPos += enumValue.val._tokenLen;
+            token.end = asTokenPosition(curPos);
+            curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
+            continue;
+        }
+
         token.start = asTokenPosition(curPos);
         auto backupCurPos = curPos;
         auto backupLastCorrectToken = lastCorrectToken;
-        operator()(&enumValue.val.enumerator);
+        operator()(&enumValue.val.pair->enumerator);
         curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
         curPos += 1; // =
         curPos += sequenceLen(ProgramSentence::CONTINUATOR_SEQUENCE);
-        operator()(enumValue.val.enumerate);
+        operator()(enumValue.val.pair->enumerate);
         curPos += sequenceLen(ProgramSentence::TERMINATOR_SEQUENCE);
         curPos = backupCurPos;
         curPos += enumValue.val._tokenLen;

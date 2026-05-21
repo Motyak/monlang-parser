@@ -355,15 +355,22 @@ void PrintLV2::operator()(MayFail_<EnumDefinition>* enumdef) {
     for (auto enumValue: enumdef->enumValues) {
         auto enumValue_ = enumValue.val;
 
+        // handle empty arg
+        if (!enumValue_.pair) {
+            outputLine("-> enum value #", INT2CSTR(i++), " (empty)");
+            continue;
+        }
+        auto [enumerator, enumerate] = *enumValue_.pair;
+
         outputLine(enumValue.has_error()?
                 "~> enum value #" : "-> enum value #", INT2CSTR(i++));
         currIndent++;
 
-        if (enumValue_.enumerator.name == "") { // we assume that empty name means stub
+        if (enumerator.name == "") { // we assume that empty name means stub
             outputLine("~> ", SERIALIZE_ERR(enumValue));
             return;
         }
-        outputLine("-> enumerator: `", enumValue_.enumerator.name.c_str(), "`");
+        outputLine("-> name: `", enumerator.name.c_str(), "`");
 
         if (enumValue.has_error() && enumValue.error().code < 456) {
             outputLine("~> ", SERIALIZE_ERR(enumValue));
@@ -373,7 +380,7 @@ void PrintLV2::operator()(MayFail_<EnumDefinition>* enumdef) {
 
         currIndent++;
         numbering.push(NO_NUMBERING);
-        operator()(enumValue_.enumerate);
+        operator()(enumerate);
         currIndent--;
 
         currIndent--; // enum value #

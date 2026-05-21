@@ -122,6 +122,20 @@ MayFail<MayFail_<EnumDefinition>> consumeEnumDefinition(LV1::Program& prog) {
         Symbol enumerator;
         MayFail<Expression_> enumerate;
 
+        /* handle empty argument */
+        if (std::holds_alternative<Atom*>(sentence_.programWords.at(0))) {
+            auto atom_ptr = std::get<Atom*>(sentence_.programWords.at(0));
+            ASSERT (atom_ptr != nullptr);
+            if (atom_ptr->value == "--") {
+                auto empty_arg = MayFail(MayFail_<EnumDefinition>::EnumValue{});
+                empty_arg.val._tokenLeadingNewlines = sentence_._tokenLeadingNewlines;
+                empty_arg.val._tokenIndentSpaces = sentence_._tokenIndentSpaces;
+                empty_arg.val._tokenLen = sentence_._tokenLen - 1; // remove sentence trailing newline
+                enumValues.push_back(empty_arg);
+                continue;
+            }
+        }
+
         /* enumerator */
         {
             ASSERT (sentence_.programWords.size() >= 1);
@@ -237,13 +251,13 @@ static Term extractValue(const ProgramSentence& sentence) {
 }
 
 EnumDefinition::EnumValue::EnumValue(const Symbol& enumerator, const Expression& enumerate)
-        : enumerator(enumerator), enumerate(enumerate){}
+        : pair(Pair{enumerator, enumerate}){}
 
 EnumDefinition::EnumDefinition(const Symbol& enum_, const std::vector<EnumValue>& enumValues)
         : enum_(enum_), enumValues(enumValues){}
 
 MayFail_<EnumDefinition>::EnumValue::EnumValue(const Symbol& enumerator, const MayFail<Expression_>& enumerate)
-        : enumerator(enumerator), enumerate(enumerate){}
+        : pair(Pair{enumerator, enumerate}){}
 
 MayFail_<EnumDefinition>::MayFail_(const Symbol& enum_, const std::vector<MayFail<MayFail_<EnumDefinition>::EnumValue>>& enumValues)
         : enum_(enum_), enumValues(enumValues){}
@@ -252,7 +266,12 @@ MayFail_<EnumDefinition>::MayFail_(const EnumDefinition& enumdef) {
     this->enum_ = enumdef.enum_;
     auto enumValues = std::vector<MayFail<MayFail_<EnumDefinition>::EnumValue>>();
     for (auto enumVal: enumdef.enumValues) {
-        enumValues.push_back(MayFail<EnumValue>({enumVal.enumerator, wrap_expr(enumVal.enumerate)}));
+        if (enumVal.pair) {
+            enumValues.push_back(EnumValue{enumVal.pair->enumerator, wrap_expr(enumVal.pair->enumerate)});
+        }
+        else {
+            enumValues.push_back(EnumValue{});
+        }
     }
     this->enumValues = enumValues;
 
@@ -268,7 +287,12 @@ MayFail_<EnumDefinition>::operator EnumDefinition() const {
     auto enumValues = std::vector<EnumDefinition::EnumValue>();
     for (auto enumVal: this->enumValues) {
         auto enumVal_ = enumVal.value();
-        enumValues.push_back({enumVal_.enumerator, unwrap_expr(enumVal_.enumerate.value())});
+        if (enumVal_.pair) {
+            enumValues.push_back({enumVal_.pair->enumerator, unwrap_expr(enumVal_.pair->enumerate.value())});
+        }
+        else {
+            enumValues.push_back({});
+        }
     }
     auto enumdef = EnumDefinition{enum_, enumValues};
 

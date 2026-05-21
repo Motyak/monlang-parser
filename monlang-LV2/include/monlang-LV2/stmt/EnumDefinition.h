@@ -12,8 +12,11 @@ template <>
 struct MayFail_<EnumDefinition> {
     Symbol enum_;
     struct EnumValue {
-        Symbol enumerator; // enum value "name"
-        MayFail<Expression_> enumerate; // enum value "value"
+        struct Pair {
+            Symbol enumerator; // enum value "name"
+            MayFail<Expression_> enumerate; // enum value "value"
+        };
+        std::optional<Pair> pair;
 
         size_t _tokenLeadingNewlines = 0;
         size_t _tokenIndentSpaces = 0;
