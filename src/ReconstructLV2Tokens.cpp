@@ -1008,6 +1008,15 @@ void ReconstructLV2Tokens::operator()(MayFail_<FunctionCall>* functionCall) {
     curPos += group_nesting(*functionCall);
     operator()(functionCall->function);
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
+
+    /*special case: no argument => generate a token for that */
+    if (functionCall->arguments.size() == 0) {
+        auto tokenId = newToken();
+        token.name = "FunctionCallNoArgument";
+        token.start = asTokenPosition(curPos);
+        token.end = asTokenPosition(curPos);
+    }
+
     LOOP for (auto arg: functionCall->arguments) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
@@ -1187,6 +1196,15 @@ void ReconstructLV2Tokens::operator()(MayFail_<Lambda>* lambda) {
     // lastCorrectToken = -1;
     curPos += group_nesting(*lambda);
     curPos += sequenceLen(ParenthesesGroup::INITIATOR_SEQUENCE);
+
+    /*special case: no parameter => generate a token for that */
+    if (lambda->parameters.size() == 0) {
+        auto tokenId = newToken();
+        token.name = "LambdaNoParameter";
+        token.start = asTokenPosition(curPos);
+        token.end = asTokenPosition(curPos);
+    }
+
     LOOP for (auto& param: lambda->parameters) {
         if (!__first_it) {
             curPos += sequenceLen(ParenthesesGroup::CONTINUATOR_SEQUENCE);
