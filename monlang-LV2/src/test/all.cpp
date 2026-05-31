@@ -7,6 +7,8 @@
                       // .., (tests accumulation as well)
 
 #include "typedef.cpp"
+#include "structdef.cpp"
+#include "enumdef.cpp"
 
 #include "var.cpp" // var statement with all types of expression
 #include "let.cpp" // let statement with all types of lvalue
