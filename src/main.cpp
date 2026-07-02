@@ -115,8 +115,6 @@ int fileinput_main(int argc, char* argv[]) {
     }
 }
 
-nlohmann::ordered_json buildJson(const TokenPosition&);
-nlohmann::ordered_json buildJson(const Token&);
 void serializeToJson(const Tokens&, std::ostream&);
 void reportTraceback(std::ostream& out, const ParsingResult&);
 
@@ -195,41 +193,73 @@ void handleParsingResult(const ParsingResult& parsingRes) {
     }
 }
 
-nlohmann::ordered_json buildJson(const TokenPosition& tokenPos) {
-    nlohmann::ordered_json json;
-    json["i"] = tokenPos.i;
-    json["line"] = tokenPos.line;
-    json["column"] = tokenPos.column;
-    return json;
+static thread_local int curr_indent = 0;
+
+void writeIndent(std::ostream& out) {
+    for (int i = 0; i < curr_indent; ++i) {
+        out << TAB;
+    }
 }
 
-nlohmann::ordered_json buildJson(const Token& token) {
-    nlohmann::ordered_json json;
-    json["name"] = token.name;
-    json["start"] = buildJson(token.start);
-    json["end"] = buildJson(token.end);
-    json["is_malformed"] = token.is_malformed;
-    json["err_start"] = buildJson(token.err_start);
-    json["err_fmt"] = token.err_fmt;
-    return json;
+void serializeToJson(const TokenPosition& pos, std::ostream& out) {
+    out << "{\n";
+    curr_indent++;
+    
+    writeIndent(out); out << "\"i\": " << pos.i << ",\n";
+    writeIndent(out); out << "\"line\": " << pos.line << ",\n";
+    writeIndent(out); out << "\"column\": " << pos.column << "\n";
+    
+    curr_indent--;
+    writeIndent(out); out << "}";
+}
+
+void serializeToJson(const Token& token, std::ostream& out) {
+    out << "{\n";
+    curr_indent++;
+    
+    writeIndent(out); out << "\"name\": " << nlohmann::json(token.name) << ",\n";
+    writeIndent(out); out << "\"start\": "; serializeToJson(token.start, out); out << ",\n";
+    writeIndent(out); out << "\"end\": "; serializeToJson(token.end, out); out << ",\n";
+    writeIndent(out); out << "\"is_malformed\": " << (token.is_malformed ? "true" : "false") << ",\n";
+    writeIndent(out); out << "\"err_start\": "; serializeToJson(token.err_start, out); out << ",\n";
+    writeIndent(out); out << "\"err_fmt\": " << nlohmann::json(token.err_fmt) << "\n";
+    
+    curr_indent--;
+    writeIndent(out); out << "}";
 }
 
 void serializeToJson(const Tokens& tokens, std::ostream& out) {
-    nlohmann::ordered_json json;
-    auto list = std::vector<nlohmann::ordered_json>{};
-    list.reserve(tokens._vec.size());
-    for (auto token: tokens._vec) {
-        list.push_back(buildJson(token));
-    }
-    json["list"] = std::move(list);
-    
-    auto traceback = std::vector<nlohmann::ordered_json>{};
-    for (auto token: tokens.traceback) {
-        traceback.push_back(buildJson(token));
-    }
-    json["traceback"] = traceback;
+    curr_indent = 0;
+    out << "{\n";
+    curr_indent++;
 
-    out << json.dump(/*indent*/1, /*indent_char*/TAB) << std::endl;
+    writeIndent(out); out << "\"list\": [\n";
+    curr_indent++;
+    size_t vec_size = tokens._vec.size();
+    for (size_t i = 0; i < vec_size; ++i) {
+        writeIndent(out);
+        serializeToJson(tokens._vec[i], out);
+        if (i < vec_size - 1) out << ",";
+        out << "\n";
+    }
+    curr_indent--;
+    writeIndent(out); out << "],\n";
+    
+    writeIndent(out); out << "\"traceback\": [\n";
+    curr_indent++;
+    size_t traceback_size = tokens.traceback.size();
+    for (size_t i = 0; i < traceback_size; ++i) {
+        writeIndent(out);
+        serializeToJson(tokens.traceback[i], out);
+        if (i < traceback_size - 1) out << ",";
+        out << "\n";
+    }
+    
+    curr_indent--;
+    writeIndent(out); out << "]\n";
+    
+    curr_indent--;
+    out << "}" << std::endl;
 }
 
 // default: ascii char (1 byte, neutral)
