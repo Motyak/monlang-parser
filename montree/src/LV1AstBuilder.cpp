@@ -44,7 +44,7 @@ Line consumeLine(TreeInputStream& tis) {
     std::string line = "";
     int line_tab_size = 0;
     
-    char c;
+    int c;
     
     LOOP_TAB:
     c = tis.input.get();
@@ -59,7 +59,7 @@ Line consumeLine(TreeInputStream& tis) {
     
     LOOP_LINE:
     if (c != NEWLINE && c != EOF) {
-        line += std::string(1, c);
+        line += static_cast<char>(c);
         c = tis.input.get();
         goto LOOP_LINE;
     }
