@@ -60,5 +60,6 @@ complete -F _make make remake
 
 # rebuild both parser and interpreter ELF
 function rebuild_elfs {
+    source ../monlang-interpreter/env.sh # just for the CXX definition
     make bin/main.elf && make -C ../monlang-interpreter bin/main.elf
 }

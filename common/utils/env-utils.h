@@ -2,6 +2,7 @@
 #define ENV_UTILS_H
 
 #include <string>
+#include <optional>
 
 inline std::string env_or_default(const std::string& var_name, const std::string& default_val) {
     auto var = std::getenv(var_name.c_str());
