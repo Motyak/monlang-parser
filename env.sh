@@ -57,9 +57,3 @@ find . -xtype l -exec echo 'WARN: Broken symlink: {}' \;
 ## add (back) make autocompletion for our new definition of make
 source tools/bash_completion_make # exports _make function
 complete -F _make make remake
-
-# rebuild both parser and interpreter ELF
-function rebuild_elfs {
-    source ../monlang-interpreter/env.sh # just for the CXX definition
-    make bin/main.elf && make -C ../monlang-interpreter bin/main.elf
-}

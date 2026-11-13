@@ -8,6 +8,7 @@
 
 #include <utils/assert-utils.h>
 #include <utils/str-utils.h>
+#include <utils/mem-utils.h>
 
 #include <functional>
 
@@ -260,9 +261,9 @@ void FixDecimalNumeral::operator()(Path* path) {
     if (this->periodic_dec_part) {
         dec_numeral += "(" + this->periodic_dec_part.value() + ")";
     }
-    auto atom = new Atom{dec_numeral};
-    atom->_tokenLen = dec_numeral.size();
-    this->word = atom;
+    auto atom = Atom{dec_numeral};
+    atom._tokenLen = dec_numeral.size();
+    this->word = move_to_heap(atom);
 }
 
 void FixDecimalNumeral::operator()(auto*) {

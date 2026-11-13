@@ -153,11 +153,10 @@ void FixPassByRef::operator()(Symbol* symbol) {
     symbol->_tokenLen -= 1; // &
     this->arg.val.passByRef = true;
 
-    auto* atom_ptr = new Atom{symbol->name};
-    if (!peekSymbol(atom_ptr)) {
+    auto atom = Atom{symbol->name};
+    if (!peekSymbol(&atom)) {
         this->nonSymbolLeftmostPassedByRef = true;
     }
-    delete atom_ptr;
 }
 } // end of anonymous namespace
 
